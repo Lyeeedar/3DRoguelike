@@ -1,0 +1,73 @@
+﻿
+Readme and Design Document
+
+Welcome to the design document for the 3D Roguelike game *insert name here*
+
+	Completely PCG!!!
+
+
+Upcoming Features
+
+1. Enemy base code
+2. Item base code
+3. Place enemy on map
+4. Place item on map
+5. Level features, water, lava etc
+
+
+
+
+
+
+Creation Pipelines
+
+3D Graphics Frontend
+1. Generate dungeon
+2. Create a block for each tile
+
+Dungeon design:
+1. Create level and fill with walls
+2. Decide on level type – (Caves, Maze, complex etc)
+3. Generate level interior depending on type
+4. Decide what biomes the level with contain – (cave, lava, water etc) – Also base this off level above
+Different sections of level can have different 'biomes'
+5. Fill level with interesting features based on biomes – (pits, water, lava, foilage etc)
+6. Sort each biome rooms into descending size.
+7. Assign room types to the biggest rooms, and then to a few others in the biome
+8. Depending on room type select base monster type. Then add its minions – Genetic algorithm?
+9. Depending on room types and monsters added lay out base quest line (if any)
+10. Add Npc's with quests to a few rooms.
+
+Monster Design
+1. Base monster type – (Orc, Goblin, Troll etc)
+2. Mutate monsters randomly – (Extra arm, tougher skin, faster speed)
+3. Make them fight
+4. Winners breed
+5. Repeat until satisfied
+6. Build description from the effects
+
+Quest Design
+
+Spell Design
+
+Item Design
+
+Level Types
+
+Cave
+Shapes – Random curves, open corridors
+Complex
+Shapes – Square rooms, connected corridors
+Maze
+Shapes – Large central room, mazes surrounding it
+
+Biome Types
+
+Cavern
+Colour – Grey
+River
+Colour – Blue
+Lava
+Colour – Orange
+
+

@@ -16,7 +16,7 @@ public class VisibleObject {
 		this.mesh = mesh;
 		this.colour = colour;
 		
-		texture = new Texture(Gdx.files.internal(textureName));
+		texture = new Texture(Gdx.files.internal("Data/Textures/"+textureName+".png"));
 		texture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
 		texture.setFilter( TextureFilter.Nearest, TextureFilter.Nearest );
 	}
@@ -31,7 +31,7 @@ public class VisibleObject {
 	public static VisibleObject createCuboid(float x, float y, float z, float[] colour, String textureName)
 	{
 		Mesh mesh = Shapes.genCuboid(x, y, z);
-		Texture texture = new Texture(Gdx.files.internal(textureName));
+		Texture texture = new Texture(Gdx.files.internal("Data/Textures/"+textureName+".png"));
 		texture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
 		texture.setFilter( TextureFilter.Nearest, TextureFilter.Nearest );
 		

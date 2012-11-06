@@ -62,7 +62,7 @@ public class Level {
 					meshes.put(t.height, Shapes.genCuboid(5, t.height, 5));
 				}
 				
-				VisibleObject vo = new VisibleObject(meshes.get(t.height), getColour(t.character), "Data/tex"+t.character+".png");
+				VisibleObject vo = new VisibleObject(meshes.get(t.height), getColour(t.character), "tex"+t.character);
 				levelGraphics.add(new GameObject(vo, x*10, t.height-5, z*10));
 			}
 		}

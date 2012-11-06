@@ -6,7 +6,7 @@ import com.badlogic.gdx.Game;
 import com.lyeeedar.Roguelike3D.Graphics.GameScreen;
 import com.lyeeedar.Roguelike3D.Graphics.LibGDXSplashScreen;
 import com.lyeeedar.Roguelike3D.Graphics.MainMenuScreen;
-import com.lyeeedar.Roguelike3D.Graphics.TestScreen;
+import com.lyeeedar.Roguelike3D.Graphics.ShaderTestScreen;
 
 public class Roguelike3DGame extends Game {
 
@@ -21,7 +21,7 @@ public class Roguelike3DGame extends Game {
 	{
 		screens.put("LibGDXSplash", new LibGDXSplashScreen(this));
 		screens.put("MainMenu", new MainMenuScreen(this));
-		screens.put("Test", new TestScreen(this));
+		screens.put("Test", new ShaderTestScreen(this));
 		setScreen(screens.get("Test"));
 	}
 

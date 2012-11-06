@@ -20,8 +20,8 @@ public class Player extends GameActor {
 		super(model, colour, texture, x, y, z);
 	}
 
-	float xrotate = -640f/720f;
-	float yrotate = -480f/720f;
+	float xrotate = -800f/720f;
+	float yrotate = -600f/720f;
 
 	@Override
 	public void update(float delta) {
@@ -35,7 +35,6 @@ public class Player extends GameActor {
 		applyMovement();
 
 		float pitch = (float)Gdx.input.getDeltaY()*yrotate;
-
 		Vector3 dir = rotation.cpy();
 		if( (dir.nor().y>-0.9) && (pitch<0) || (dir.nor().y<+0.9) && (pitch>0) )
 		{

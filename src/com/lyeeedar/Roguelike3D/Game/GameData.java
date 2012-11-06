@@ -28,7 +28,7 @@ public class GameData {
 		currentLevel.createLevelCave();
 		currentLevel.createLevelGraphics();
 		
-		player = new Player("model@", new float[]{0, 1, 0, 1}, "Data/tex#.png", 0, 0, 0);
+		player = new Player("model@", new float[]{0, 1, 0, 1}, "tex#", 0, 0, 0);
 		frame = new TestFrame();
 		
 		for (int x = 0; x < 50; x++)

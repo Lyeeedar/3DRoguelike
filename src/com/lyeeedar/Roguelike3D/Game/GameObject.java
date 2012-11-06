@@ -12,6 +12,7 @@ public class GameObject {
 	// x y z
 	protected Vector3 position = new Vector3();
 	protected Vector3 rotation = new Vector3(0, 0, -1);
+	protected Vector3 euler_rotation = new Vector3(0, 0, 0);
 	protected Vector3 velocity = new Vector3();
 	protected Vector3 up = new Vector3(0, 1, 0);
 
@@ -35,7 +36,7 @@ public class GameObject {
 	
 	public GameObject(String model, float[] colour, String texture, float x, float y, float z)
 	{
-		Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("Data/"+model+".obj").read());
+		Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("Data/Models/"+model+".obj").read());
 		this.vo = new VisibleObject(mesh, colour, texture);
 		position.x = x;
 		position.y = y;
@@ -87,6 +88,14 @@ public class GameObject {
 	public void normalizeUp () {
 		right.set(rotation).crs(up).nor();
 		up.set(right).crs(rotation).nor();
+	}
+	
+	public void euler_rotate(float angle, float x, float y, float z)
+	{
+		Vector3 scaled = new Vector3(x, y, z);
+		scaled.mul(angle);
+		
+		euler_rotation.add(scaled);
 	}
 
 	public void rotate(float angle, float x, float y, float z)
@@ -171,6 +180,14 @@ public class GameObject {
 
 	public void setRotation(Vector3 rotation) {
 		this.rotation = rotation;
+	}
+
+	public Vector3 getEuler_rotation() {
+		return euler_rotation;
+	}
+
+	public void setEuler_rotation(Vector3 euler_rotation) {
+		this.euler_rotation = euler_rotation;
 	}
 
 }

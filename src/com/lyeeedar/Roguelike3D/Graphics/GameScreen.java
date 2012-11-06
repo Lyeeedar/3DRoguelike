@@ -17,6 +17,9 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 
 public abstract class GameScreen implements Screen{
+	
+	int screen_width;
+	int screen_height;
 
 	Roguelike3DGame game;
 
@@ -36,8 +39,8 @@ public abstract class GameScreen implements Screen{
 
 //		Gdx.gl.glEnable(GL10.GL_TEXTURE_2D);
 		
-//		Gdx.gl.glEnable(GL10.GL_CULL_FACE);
-//		Gdx.gl.glCullFace(GL10.GL_BACK);
+		Gdx.gl.glEnable(GL20.GL_CULL_FACE);
+		Gdx.gl.glCullFace(GL20.GL_BACK);
 		
 		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.gl.glDepthMask(true);
@@ -58,18 +61,20 @@ public abstract class GameScreen implements Screen{
 
 		update(delta);
 		
-//		Gdx.gl.glDisable(GL10.GL_CULL_FACE);
+		Gdx.gl.glDisable(GL20.GL_CULL_FACE);
 		
 		spritebatch.begin();
 		font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 		font.draw(spritebatch, ""+Gdx.graphics.getFramesPerSecond(), 20, 580);
+		font.draw(spritebatch, "Pos: "+GameData.player.getPosition(), 20, 550);
+		font.draw(spritebatch, "Ang: "+GameData.player.getRotation(), 20, 520);
 		spritebatch.end();
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-
+		screen_width = width;
+		screen_height = height;
 	}
 
 	@Override

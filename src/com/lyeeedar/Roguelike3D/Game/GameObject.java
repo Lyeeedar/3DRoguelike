@@ -1,5 +1,8 @@
 package com.lyeeedar.Roguelike3D.Game;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
@@ -30,34 +33,43 @@ public class GameObject {
 		position.z = z;
 	}
 	
+	public GameObject(String model, float[] colour, String texture, float x, float y, float z)
+	{
+		Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("Data/"+model+".obj").read());
+		this.vo = new VisibleObject(mesh, colour, texture);
+		position.x = x;
+		position.y = y;
+		position.z = z;
+	}
+	
 
 	public void applyMovement()
 	{
 		Level lvl = GameData.currentLevel;
 		
-		// Apply up/down movement (y axis)
-		Vector3 cpos = this.getCPosition();
-		if (lvl.checkCollision(cpos.x, cpos.y+getVelocity().y, cpos.z))
-		{
-			getVelocity().y = 0;
-		}
-	
-		this.translate(0, getVelocity().y, 0);
-		cpos.y += getVelocity().y;
-		
-		// Apply x and z axis movement
-		if (lvl.checkCollision(cpos.x+getVelocity().x, cpos.y, cpos.z+getVelocity().z))
-		{
-			if (lvl.checkCollision(cpos.x+getVelocity().x, cpos.y, cpos.z))
-			{
-				getVelocity().x = 0;
-			}
-			
-			if (lvl.checkCollision(cpos.x, cpos.y, cpos.z+getVelocity().z))
-			{
-				getVelocity().z = 0;
-			}
-		}
+//		// Apply up/down movement (y axis)
+//		Vector3 cpos = this.getCPosition();
+//		if (lvl.checkCollision(cpos.x, cpos.y+getVelocity().y, cpos.z))
+//		{
+//			getVelocity().y = 0;
+//		}
+//	
+//		this.translate(0, getVelocity().y, 0);
+//		cpos.y += getVelocity().y;
+//		
+//		// Apply x and z axis movement
+//		if (lvl.checkCollision(cpos.x+getVelocity().x, cpos.y, cpos.z+getVelocity().z))
+//		{
+//			if (lvl.checkCollision(cpos.x+getVelocity().x, cpos.y, cpos.z))
+//			{
+//				getVelocity().x = 0;
+//			}
+//			
+//			if (lvl.checkCollision(cpos.x, cpos.y, cpos.z+getVelocity().z))
+//			{
+//				getVelocity().z = 0;
+//			}
+//		}
 	
 		this.translate(getVelocity().x, 0, getVelocity().z);
 		

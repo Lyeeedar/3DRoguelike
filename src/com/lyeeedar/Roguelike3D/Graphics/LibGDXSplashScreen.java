@@ -18,7 +18,10 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
+import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix3;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
@@ -28,6 +31,9 @@ public class LibGDXSplashScreen extends GameScreen {
 	
 	ArrayList<VisibleObject> vobjects = new ArrayList<VisibleObject>();
 	ArrayList<GameObject> gobjects = new ArrayList<GameObject>();
+	ShaderProgram shader;
+	Matrix4 mat = new Matrix4();
+	GameObject go;
 	
 	public LibGDXSplashScreen(Roguelike3DGame game)
 	{
@@ -36,28 +42,70 @@ public class LibGDXSplashScreen extends GameScreen {
 
 	@Override
 	public void draw(float delta) {
-		Gdx.gl.glEnable(GL10.GL_LIGHTING);
-		Gdx.gl.glEnable(GL10.GL_LIGHT0);
+//		Gdx.gl.glEnable(GL10.GL_LIGHTING);
+//		Gdx.gl.glEnable(GL10.GL_LIGHT0);
 		
-		Gdx.graphics.getGL10().glShadeModel(GL10.GL_SMOOTH);
+		//Gdx.graphics.getGL10().glShadeModel(GL10.GL_SMOOTH);
 		
-		Gdx.graphics.getGL10().glLightModelfv(GL10.GL_LIGHT_MODEL_AMBIENT, new float[]{0.05f, 0.05f, 0.05f, 1}, 0);
+		//Gdx.graphics.getGL10().glLightModelfv(GL10.GL_LIGHT_MODEL_AMBIENT, new float[]{0.05f, 0.05f, 0.05f, 1}, 0);
 		
 		// Create light components
-		float ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-		float diffuseLight[] = { 0.8f, 0.8f, 0.8f, 1.0f };
-		float specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-		float position[] = { -1.5f, 1.0f, 4.0f, 1.0f };
+//		float ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+//		float diffuseLight[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+//		float specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+//		float position[] = { -1.5f, 1.0f, 4.0f, 1.0f };
 
 		// Assign created components to GL_LIGHT0
-		Gdx.graphics.getGL10().glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, ambientLight, 0);
-		Gdx.graphics.getGL10().glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, diffuseLight, 0);
-		Gdx.graphics.getGL10().glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, specularLight, 0);
-		Gdx.graphics.getGL10().glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, position, 0);
+//		Gdx.graphics.getGL10().glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, ambientLight, 0);
+//		Gdx.graphics.getGL10().glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, diffuseLight, 0);
+//		Gdx.graphics.getGL10().glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, specularLight, 0);
+//		Gdx.graphics.getGL10().glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, position, 0);
+//		
+//		Gdx.graphics.getGL10().glLightf(GL10.GL_LIGHT0, GL10.GL_LINEAR_ATTENUATION, 0.05f);
+//		
+//		Gdx.graphics.getGL10().glEnable(GL10.GL_BLEND);
+
+//		Matrix4 view = new Matrix4();
+//		view.setToLookAt(GameData.player.getPosition(), GameData.player.getRotation(), GameData.player.getUp());
+//		Matrix4 projection = new Matrix4();
+//		projection.setToProjection(0.1f, 10f, 60f, 800/600);
+//		
+//		Matrix4 model = new Matrix4();
+//		model.setToTranslation(go.getPosition());
+//		
+//		//Matrix4 mvp = projection.mul(view);
+//		Matrix4 mvp = view.mul(projection);
+//		mvp = mvp.mul(model);
+				
+		shader.begin();
+		//shader.setUniformMatrix("u_worldView", mvp);
+		//shader.setUniformf("u_worldView", go.getPosition());
+//		go.vo.texture.bind();
+		go.vo.mesh.render(shader, GL10.GL_TRIANGLES);
+		shader.end();
 		
-		Gdx.graphics.getGL10().glLightf(GL10.GL_LIGHT0, GL10.GL_LINEAR_ATTENUATION, 0.05f);
-		
-		Gdx.graphics.getGL10().glEnable(GL10.GL_BLEND);
+		for (GameObject go : GameData.currentLevel.getLevelGraphics())
+		{
+			
+//			mat.setToTranslation(go.getPosition());
+//			//mat.setToRotation(axis, angle)
+//			Matrix4 resMat = projection.mul(view);
+//			resMat.mul(mat);
+//			
+//			go.vo.texture.bind();
+//			shader.begin();
+//			shader.setUniformMatrix("u_worldView", resMat);
+//			shader.setUniformi("u_texture", 0);
+//			go.vo.mesh.render(shader, GL10.GL_TRIANGLES);
+//			shader.end();
+//			gl.glPushMatrix();
+//			gl.glTranslatef(go.getPosition().x, go.getPosition().y, go.getPosition().z);
+//			gl.glRotatef(1, go.getRotation().x, go.getRotation().y, go.getRotation().z);
+//			go.vo.texture.bind();
+//			gl.glColor4f(go.vo.colour[0], go.vo.colour[01], go.vo.colour[2], go.vo.colour[3]);
+//			go.vo.mesh.render(GL10.GL_TRIANGLES);
+//			gl.glPopMatrix();
+		}
 //		
 //		for (VisibleObject o : vobjects)
 //		{
@@ -75,8 +123,8 @@ public class LibGDXSplashScreen extends GameScreen {
 		GameData.frame.paint(GameData.frame.getGraphics());
 	}
 
-	float xrotate = -640f/720f;
-	float yrotate = -480f/720f;
+	float xrotate = -800f/720f;
+	float yrotate = -600f/720f;
 
 	public void update(float delta)
 	{
@@ -127,10 +175,6 @@ public class LibGDXSplashScreen extends GameScreen {
 		
 		GameData.player.update(delta);
 
-		camera.direction.set(GameData.player.getRotation());
-		camera.position.set(GameData.player.getPosition());
-		camera.up.set(GameData.player.getUp());
-
 		//if (Gdx.input.isTouched()) game.setScreen(game.screens.get("MainMenu"));
 		
 		//if (Gdx.input.isKeyPressed(Keys.W)) Gdx.graphics.getGL10().glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION,
@@ -142,7 +186,6 @@ public class LibGDXSplashScreen extends GameScreen {
 	@Override
 	public void resize(int width, int height) {
 		float aspectRatio = (float) width / (float) height;
-		camera = new PerspectiveCamera(60, 2f * aspectRatio, 2f);
 
 	}
 
@@ -152,6 +195,25 @@ public class LibGDXSplashScreen extends GameScreen {
 		Gdx.input.setCursorCatched(true);
 
 		GameData.createNewLevel();
+		
+		VisibleObject vo = new VisibleObject(Shapes.genCuboid(15, 15, 15), new float[]{1, 1, 1, 1}, "Data/tex..png");
+		go = new GameObject(vo, 0, 0, -10);
+		
+		String vertexShader = 
+				"attribute vec4 a_position;\n" + 
+                "attribute vec4 a_normal;\n" +
+                "attribute vec2 a_texCoord0;\n" + 
+                "void main()                  \n" + 
+                "{                            \n" + 
+                "   gl_Position =  a_position - 10;  \n"      + 
+                "}                            \n" ;
+		String fragmentShader = 
+                  "void main()                                  \n" + 
+                  "{                                            \n" + 
+                  "  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" +
+                  "} \n";
+		
+		shader = new ShaderProgram(vertexShader, fragmentShader);
 		
 //		int in = 0;
 //		for (float i = 0.5f; in < 10; i += 0.5f, in++)
@@ -190,6 +252,24 @@ public class LibGDXSplashScreen extends GameScreen {
 //		
 //		
 		 
+	}
+
+	@Override
+	public void hide() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void pause() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void resume() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 
 public class Shapes {
 	public static Mesh genCuboid (float x, float y, float z) {
-		Mesh mesh = new Mesh(true, 24, 36,
+		Mesh mesh = new Mesh(true, 24, 36, 
 				new VertexAttribute(Usage.Position, 3, "a_position"),
 				new VertexAttribute(Usage.Normal, 3, "a_normal"),
 				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texcoords"));

@@ -2,6 +2,8 @@ package com.lyeeedar.Roguelike3D.Game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 
@@ -13,6 +15,11 @@ public class Player extends GameActor {
 		// TODO Auto-generated constructor stub
 	}
 	
+	public Player(String model, float[] colour, String texture, float x, float y, float z)
+	{
+		super(model, colour, texture, x, y, z);
+	}
+
 	float xrotate = -640f/720f;
 	float yrotate = -480f/720f;
 

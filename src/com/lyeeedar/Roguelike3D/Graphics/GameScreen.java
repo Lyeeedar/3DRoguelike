@@ -1,5 +1,6 @@
 package com.lyeeedar.Roguelike3D.Graphics;
 
+import java.awt.Font;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
@@ -7,6 +8,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
@@ -17,8 +20,9 @@ public abstract class GameScreen implements Screen{
 
 	Roguelike3DGame game;
 
-	Camera camera;
-	DecalBatch batch = new DecalBatch();
+	DecalBatch decalbatch = new DecalBatch();
+	SpriteBatch spritebatch = new SpriteBatch();
+	BitmapFont font = new BitmapFont();
 
 	public GameScreen(Roguelike3DGame game)
 	{
@@ -28,28 +32,17 @@ public abstract class GameScreen implements Screen{
 	@Override
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		Gdx.gl.glEnable(GL10.GL_TEXTURE_2D);
-		Gdx.gl.glEnable(GL10.GL_DEPTH_TEST);
+//		Gdx.gl.glEnable(GL10.GL_TEXTURE_2D);
+		
+//		Gdx.gl.glEnable(GL10.GL_CULL_FACE);
+//		Gdx.gl.glCullFace(GL10.GL_BACK);
+		
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.gl.glDepthMask(true);
-		Gdx.gl.glEnable(GL10.GL_COLOR_MATERIAL);
-		Gdx.graphics.getGL10().glMaterialf(GL10.GL_FRONT_AND_BACK, GL10.GL_AMBIENT_AND_DIFFUSE, 1f);
-
-		camera.update();
-		camera.apply(Gdx.gl10);
-
-		GL10 gl = Gdx.graphics.getGL10();
-		for (GameObject go : GameData.currentLevel.getLevelGraphics())
-		{
-			gl.glPushMatrix();
-			gl.glTranslatef(go.getPosition().x, go.getPosition().y, go.getPosition().z);
-			gl.glRotatef(1, go.getRotation().x, go.getRotation().y, go.getRotation().z);
-			go.vo.texture.bind();
-			gl.glColor4f(go.vo.colour[0], go.vo.colour[01], go.vo.colour[2], go.vo.colour[3]);
-			go.vo.mesh.render(GL10.GL_TRIANGLES);
-			gl.glPopMatrix();
-		}
+//		Gdx.gl.glEnable(GL10.GL_COLOR_MATERIAL);
+		//Gdx.graphics.getGL10().glMaterialf(GL10.GL_FRONT_AND_BACK, GL10.GL_AMBIENT_AND_DIFFUSE, 1f);
 
 //		if (decals != null && decals.size() != 0)
 //		{
@@ -64,33 +57,17 @@ public abstract class GameScreen implements Screen{
 		draw(delta);
 
 		update(delta);
+		
+//		Gdx.gl.glDisable(GL10.GL_CULL_FACE);
+		
+		spritebatch.begin();
+		font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+		font.draw(spritebatch, ""+Gdx.graphics.getFramesPerSecond(), 20, 580);
+		spritebatch.end();
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void show() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void hide() {
-		batch.dispose();
-	}
-
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void resume() {
 		// TODO Auto-generated method stub
 
 	}

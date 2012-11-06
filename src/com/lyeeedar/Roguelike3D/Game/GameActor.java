@@ -1,6 +1,9 @@
 package com.lyeeedar.Roguelike3D.Game;
 import java.util.HashMap;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 
 
@@ -8,6 +11,11 @@ public abstract class GameActor extends GameObject{
 
 	public GameActor(VisibleObject vo, float x, float y, float z) {
 		super(vo, x, y, z);
+	}
+	
+	public GameActor(String model, float[] colour, String texture, float x, float y, float z)
+	{
+		super(model, colour, texture, x, y, z);
 	}
 
 	float health;

@@ -26,7 +26,7 @@ public class ShaderTestScreen extends GameScreen {
 	ArrayList<GameObject> objects = new ArrayList<GameObject>();
 	ArrayList<ShaderProgram> shaders = new ArrayList<ShaderProgram>();
 	
-	int shaderIndex = 1;
+	int shaderIndex = 0;
 
 	public ShaderTestScreen(Roguelike3DGame game) {
 		super(game);
@@ -41,7 +41,7 @@ public class ShaderTestScreen extends GameScreen {
 		
 		ShaderProgram shader = shaders.get(shaderIndex);
 		
-		for (GameObject go : objects)
+		for (GameObject go : GameData.currentLevel.getLevelGraphics())
 		{
 			/** Calculate Matrix's for use in shaders **/
 			
@@ -109,6 +109,8 @@ public class ShaderTestScreen extends GameScreen {
 		spritebatch.end();
 		
 		Gdx.gl.glEnable(GL20.GL_CULL_FACE);
+		
+		GameData.frame.paint(GameData.frame.getGraphics());
 
 	}
 
@@ -142,7 +144,7 @@ public class ShaderTestScreen extends GameScreen {
 		
 		mesh = Shapes.genCuboid(1, 1, 1);
 		
-		VisibleObject vo1 = new VisibleObject(mesh, new float[]{1.0f, 0.2f, 0.7f}, "Icon");
+		VisibleObject vo1 = new VisibleObject(mesh, new float[]{1.0f, 0.2f, 0.7f}, "icon");
 		
 		objects.add(new GameObject(vo1, 0, -2, -5));
 		
@@ -150,11 +152,23 @@ public class ShaderTestScreen extends GameScreen {
 		
 		VisibleObject vo2 = new VisibleObject(mesh1, new float[]{0.0f, 0.3f, 0.8f}, "tex#");
 		
-		objects.add(new GameObject(vo2, 0, -5, 0));
+		objects.add(new GameObject(vo2, 0, 10, 0));
+		
+		for (int x = 0; x < 10; x++)
+		{
+			for (int y = 0; y < 10; y++)
+			{
+				Mesh mesh2 = Shapes.genCuboid(5, 1, 5);
+				
+				VisibleObject vo3 = new VisibleObject(mesh1, new float[]{0.3f, 0.8f, 0.3f}, "tex.");
+				
+				objects.add(new GameObject(vo3, x*10, -5, y*10));
+			}
+		}
 		
 		ShaderProgram shader = new ShaderProgram(
-	            Gdx.files.internal("Data/Shaders/basic_movement.vert").readString(),
-	            Gdx.files.internal("Data/Shaders/basic_movement.frag").readString());
+	            Gdx.files.internal("data/shaders/basic_movement.vert").readString(),
+	            Gdx.files.internal("data/shaders/basic_movement.frag").readString());
 	    if(!shader.isCompiled()) {
 	        Gdx.app.log("Problem loading shader:", shader.getLog());
 	    }
@@ -164,8 +178,8 @@ public class ShaderTestScreen extends GameScreen {
 	    }
 	    
 	    shader = new ShaderProgram(
-	            Gdx.files.internal("Data/Shaders/basic_vert_lighting.vert").readString(),
-	            Gdx.files.internal("Data/Shaders/basic_vert_lighting.frag").readString());
+	            Gdx.files.internal("data/shaders/basic_vert_lighting.vert").readString(),
+	            Gdx.files.internal("data/shaders/basic_vert_lighting.frag").readString());
 	    if(!shader.isCompiled()) {
 	        Gdx.app.log("Problem loading shader:", shader.getLog());
 	    }
@@ -175,8 +189,8 @@ public class ShaderTestScreen extends GameScreen {
 	    }
 	    
 	    shader = new ShaderProgram(
-	            Gdx.files.internal("Data/Shaders/basic_frag_lighting.vert").readString(),
-	            Gdx.files.internal("Data/Shaders/basic_frag_lighting.frag").readString());
+	            Gdx.files.internal("data/shaders/basic_frag_lighting.vert").readString(),
+	            Gdx.files.internal("data/shaders/basic_frag_lighting.frag").readString());
 	    if(!shader.isCompiled()) {
 	        Gdx.app.log("Problem loading shader:", shader.getLog());
 	    }
@@ -185,7 +199,7 @@ public class ShaderTestScreen extends GameScreen {
 	    	shaders.add(shader);
 	    }
 		
-	    GameData.player = new Player("model@", new float[]{0, 1, 0, 1}, "tex#", 0, 0, 0);
+	    GameData.createNewLevel();
 		
 	}
 

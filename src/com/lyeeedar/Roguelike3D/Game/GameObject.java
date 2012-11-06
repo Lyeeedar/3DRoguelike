@@ -36,7 +36,7 @@ public class GameObject {
 	
 	public GameObject(String model, float[] colour, String texture, float x, float y, float z)
 	{
-		Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("Data/Models/"+model+".obj").read());
+		Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read());
 		this.vo = new VisibleObject(mesh, colour, texture);
 		position.x = x;
 		position.y = y;

@@ -25,7 +25,7 @@ public class GameData {
 	public static void createNewLevel()
 	{
 		currentLevel = new Level(50, 50);
-		currentLevel.createLevelCave();
+		currentLevel.createLevelComplex();
 		currentLevel.createLevelGraphics();
 		
 		player = new Player("model@", new float[]{0, 1, 0, 1}, "tex#", 0, 0, 0);
@@ -37,7 +37,7 @@ public class GameData {
 			{
 				if (!currentLevel.checkCollision(x, 0, y))
 				{
-					//player.setPosition(new Vector3(x*10, 0, y*10));
+					player.setPosition(new Vector3(x*10, 0, y*10));
 					return;
 				}
 			}

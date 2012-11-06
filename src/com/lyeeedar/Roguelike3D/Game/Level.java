@@ -13,7 +13,7 @@ public class Level {
 	private Tile[][] levelArray;
 	private ArrayList<GameObject> levelGraphics;
 	
-	float[] defColour = {1, 1, 1, 1};
+	float[] defColour = {1, 1, 1};
 	HashMap<Character, String> descriptions = new HashMap<Character, String>();
 	HashMap<Character, float[]> colours = new HashMap<Character, float[]>();
 	ArrayList<Character> opaques = new ArrayList<Character>();
@@ -27,6 +27,9 @@ public class Level {
 		
 		opaques.add('#');
 		opaques.add(' ');
+		
+		colours.put('#', new float[]{0.3f, 0.2f, 0.1f});
+		colours.put('.', new float[]{0.3f, 0.6f, 0.1f});
 		
 		setLevelArray(new Tile[width][height]);
 		
@@ -64,6 +67,17 @@ public class Level {
 				
 				VisibleObject vo = new VisibleObject(meshes.get(t.height), getColour(t.character), "tex"+t.character);
 				levelGraphics.add(new GameObject(vo, x*10, t.height-5, z*10));
+				
+				if (t.height < t.roof)
+				{
+					if (!meshes.containsKey(1))
+					{
+						meshes.put(1f, Shapes.genCuboid(5, 1, 5));
+					}
+					
+					VisibleObject voRf = new VisibleObject(meshes.get(1f), getColour('#'), "tex#");
+					levelGraphics.add(new GameObject(voRf, x*10, t.roof, z*10));
+				}
 			}
 		}
 	}

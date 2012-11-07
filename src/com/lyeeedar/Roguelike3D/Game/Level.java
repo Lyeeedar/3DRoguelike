@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Random;
 
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Roguelike3D.Graphics.Light;
 import com.lyeeedar.Roguelike3D.Graphics.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 
@@ -11,11 +13,13 @@ import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 public class Level {
 	
 	private Tile[][] levelArray;
-	private ArrayList<GameObject> levelGraphics;
+	private ArrayList<GameObject> levelGraphics = new ArrayList<GameObject>();
+	private ArrayList<Light> levelLights = new ArrayList<Light>();
 	
-	float[] defColour = {1, 1, 1};
+	Vector3 ambient = new Vector3(0.2f, 0.2f, 0.2f);
+	Vector3 defColour = new Vector3(0.8f, 0.9f, 0.6f);
 	HashMap<Character, String> descriptions = new HashMap<Character, String>();
-	HashMap<Character, float[]> colours = new HashMap<Character, float[]>();
+	HashMap<Character, Vector3> colours = new HashMap<Character, Vector3>();
 	ArrayList<Character> opaques = new ArrayList<Character>();
 	ArrayList<Character> solids = new ArrayList<Character>();
 	
@@ -28,8 +32,8 @@ public class Level {
 		opaques.add('#');
 		opaques.add(' ');
 		
-		colours.put('#', new float[]{0.3f, 0.2f, 0.1f});
-		colours.put('.', new float[]{0.3f, 0.6f, 0.1f});
+		colours.put('#', new Vector3(0.3f, 0.2f, 0.1f));
+		colours.put('.', new Vector3(0.3f, 0.6f, 0.1f));
 		
 		setLevelArray(new Tile[width][height]);
 		
@@ -82,7 +86,7 @@ public class Level {
 		}
 	}
 	
-	private float[] getColour(char c)
+	private Vector3 getColour(char c)
 	{
 		if (colours.containsKey(c))
 		{
@@ -99,22 +103,19 @@ public class Level {
 		if (x < 0 || x > getLevelArray()[0].length-1) return true;
 		if (z < 0 || z > getLevelArray().length-1) return true;
 		
-		Tile t = getLevelArray()[(int)x][(int)z];
+		Tile t = getLevelArray()[(int)(x+0.5f)][(int)(z+0.5f)];
 		
 		if (y < t.floor || y > t.roof) return true;
-		
-		boolean solid = false;
-		 
+
 		for (Character c : solids)
 		{
 			if (t.character == c)
 			{
-				solid = true;
-				break;
+				return true;
 			}
 		}
 		
-		return solid;
+		return false;
 	}
 	
 	public boolean checkOpaque(int x, int z)
@@ -147,13 +148,14 @@ public class Level {
 		int roughness = 30+ran.nextInt(70);
 		int windyness = 50+ran.nextInt(50);
 		
-		int x = width/2;
-		int y = 1;
+		int x = ran.nextInt(5);
+		int y = ran.nextInt(10);
 		
-		int cwidth = 3 + ran.nextInt(15);
+		int cwidth = 3 + ran.nextInt(7);
 		
 		for (int i = x; i < x+cwidth; i++)
 		{
+			if (x > width-1) break;
 			getLevelArray()[i][y].character = '.';
 			getLevelArray()[i][y].height = 0;
 		}
@@ -173,7 +175,7 @@ public class Level {
 				}
 				cwidth += val;
 				if (cwidth < 3) cwidth = 3;
-				if (cwidth > 15) cwidth = 15;
+				if (cwidth > 5) cwidth = 5;
 			}
 			
 			if (ran.nextInt(100) < windyness)
@@ -204,8 +206,6 @@ public class Level {
 				getLevelArray()[i][y].height = 0;
 			}
 		}
-		
-		clearWalls();
 	}
 	
 	public void createLevelComplex()
@@ -221,11 +221,9 @@ public class Level {
 		
 		tree.fillRooms(getLevelArray());
 		tree.joinRooms(getLevelArray());
-		
-		clearWalls();
 	}
 	
-	private void clearWalls()
+	public void clearWalls()
 	{
 		for (int x = 0; x < getLevelArray().length; x++)
 		{
@@ -277,6 +275,39 @@ public class Level {
 
 	public void setLevelGraphics(ArrayList<GameObject> levelGraphics) {
 		this.levelGraphics = levelGraphics;
+	}
+
+	public ArrayList<Light> getLevelLights() {
+		return levelLights;
+	}
+
+	public void setLevelLights(ArrayList<Light> levelLights) {
+		this.levelLights = levelLights;
+	}
+
+	public HashMap<Character, String> getDescriptions() {
+		return descriptions;
+	}
+
+	public void setDescriptions(HashMap<Character, String> descriptions) {
+		this.descriptions = descriptions;
+	}
+
+	public Vector3 getAmbient() {
+		return ambient;
+	}
+
+	public void setAmbient(Vector3 ambient) {
+		this.ambient = ambient;
+	}
+	
+	
+	public void dispose()
+	{
+		for (GameObject go : this.levelGraphics)
+		{
+			go.dispose();
+		}
 	}
 
 }
@@ -435,4 +466,5 @@ class BSPTree
 			}
 		}
 	}
+
 }

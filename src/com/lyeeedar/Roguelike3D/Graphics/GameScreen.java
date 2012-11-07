@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
@@ -26,6 +27,11 @@ public abstract class GameScreen implements Screen{
 	DecalBatch decalbatch = new DecalBatch();
 	SpriteBatch spritebatch = new SpriteBatch();
 	BitmapFont font = new BitmapFont();
+	
+	ArrayList<GameObject> objects = new ArrayList<GameObject>();
+	ArrayList<ShaderProgram> shaders = new ArrayList<ShaderProgram>();
+	
+	int shaderIndex = 0;
 
 	public GameScreen(Roguelike3DGame game)
 	{
@@ -37,17 +43,13 @@ public abstract class GameScreen implements Screen{
 		//Gdx.gl.glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
 		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-
-//		Gdx.gl.glEnable(GL10.GL_TEXTURE_2D);
 		
 		Gdx.gl.glEnable(GL20.GL_CULL_FACE);
 		Gdx.gl.glCullFace(GL20.GL_BACK);
 		
 		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.gl.glDepthMask(true);
-//		Gdx.gl.glEnable(GL10.GL_COLOR_MATERIAL);
-		//Gdx.graphics.getGL10().glMaterialf(GL10.GL_FRONT_AND_BACK, GL10.GL_AMBIENT_AND_DIFFUSE, 1f);
-
+		
 //		if (decals != null && decals.size() != 0)
 //		{
 //			for (DecalSprite sprite : decals)
@@ -80,7 +82,18 @@ public abstract class GameScreen implements Screen{
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
+		for (GameObject go : objects)
+		{
+			go.dispose();
+		}
+		for (ShaderProgram sp : shaders)
+		{
+			sp.dispose();
+		}
+		
+		decalbatch.dispose();
+		spritebatch.dispose();
+		font.dispose();
 
 	}
 

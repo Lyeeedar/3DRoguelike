@@ -15,7 +15,7 @@ public class Player extends GameActor {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Player(String model, float[] colour, String texture, float x, float y, float z)
+	public Player(String model, Vector3 colour, String texture, float x, float y, float z)
 	{
 		super(model, colour, texture, x, y, z);
 	}

@@ -3,10 +3,8 @@ package com.lyeeedar.Roguelike3D;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Game;
-import com.lyeeedar.Roguelike3D.Graphics.GameScreen;
-import com.lyeeedar.Roguelike3D.Graphics.LibGDXSplashScreen;
-import com.lyeeedar.Roguelike3D.Graphics.MainMenuScreen;
-import com.lyeeedar.Roguelike3D.Graphics.ShaderTestScreen;
+import com.lyeeedar.Roguelike3D.Graphics.*;
+
 
 public class Roguelike3DGame extends Game {
 
@@ -17,12 +15,17 @@ public class Roguelike3DGame extends Game {
 		loadScreens();
 	}
 	
-	public void loadScreens()
+	private void loadScreens()
 	{
 		screens.put("LibGDXSplash", new LibGDXSplashScreen(this));
 		screens.put("MainMenu", new MainMenuScreen(this));
-		screens.put("Test", new ShaderTestScreen(this));
-		setScreen(screens.get("Test"));
+		screens.put("ShaderTest", new ShaderTestScreen(this));
+		screens.put("InGame", new InGameScreen(this));
+		setScreen(screens.get("LibGDXSplash"));
 	}
 
+	public void switchScreen(String screen)
+	{
+		setScreen(screens.get(screen));
+	}
 }

@@ -18,6 +18,8 @@ public class GameObject {
 
 	protected Vector3 tmpVec = new Vector3();
 	protected Matrix4 tmpMat = new Matrix4();
+	
+	public boolean collision = true;
 
 	public VisibleObject vo;
 
@@ -34,7 +36,7 @@ public class GameObject {
 		position.z = z;
 	}
 	
-	public GameObject(String model, float[] colour, String texture, float x, float y, float z)
+	public GameObject(String model, Vector3 colour, String texture, float x, float y, float z)
 	{
 		Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read());
 		this.vo = new VisibleObject(mesh, colour, texture);
@@ -48,30 +50,26 @@ public class GameObject {
 	{
 		Level lvl = GameData.currentLevel;
 		
-//		// Apply up/down movement (y axis)
-//		Vector3 cpos = this.getCPosition();
-//		if (lvl.checkCollision(cpos.x, cpos.y+getVelocity().y, cpos.z))
-//		{
-//			getVelocity().y = 0;
-//		}
-//	
-//		this.translate(0, getVelocity().y, 0);
-//		cpos.y += getVelocity().y;
-//		
-//		// Apply x and z axis movement
-//		if (lvl.checkCollision(cpos.x+getVelocity().x, cpos.y, cpos.z+getVelocity().z))
-//		{
-//			if (lvl.checkCollision(cpos.x+getVelocity().x, cpos.y, cpos.z))
-//			{
-//				getVelocity().x = 0;
-//			}
-//			
-//			if (lvl.checkCollision(cpos.x, cpos.y, cpos.z+getVelocity().z))
-//			{
-//				getVelocity().z = 0;
-//			}
-//		}
-	
+		if (collision) {
+			// Apply up/down movement (y axis)
+			Vector3 cpos = this.getCPosition();
+			if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z)) {
+				getVelocity().y = 0;
+			}
+			this.translate(0, getVelocity().y, 0);
+			cpos.y += getVelocity().y;
+			// Apply x and z axis movement
+			if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z
+					+ getVelocity().z)) {
+				if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z)) {
+					getVelocity().x = 0;
+				}
+
+				if (lvl.checkCollision(cpos.x, cpos.y, cpos.z + getVelocity().z)) {
+					getVelocity().z = 0;
+				}
+			}
+		}
 		this.translate(getVelocity().x, 0, getVelocity().z);
 		
 		getVelocity().x = 0;
@@ -188,6 +186,11 @@ public class GameObject {
 
 	public void setEuler_rotation(Vector3 euler_rotation) {
 		this.euler_rotation = euler_rotation;
+	}
+	
+	public void dispose()
+	{
+		vo.dispose();
 	}
 
 }

@@ -21,22 +21,19 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Player;
 
-public class ShaderTestScreen extends GameScreen {
+public class InGameScreen extends GameScreen {
+	
+	ArrayList<Light> currentLights = new ArrayList<Light>();
 
-	public ShaderTestScreen(Roguelike3DGame game) {
+
+	public InGameScreen(Roguelike3DGame game) {
 		super(game);
 	}
 
-	float move = 0;
-	float angle = 0;
 	@Override
 	void draw(float delta) {
-		
-		move += delta;
-		
-		ShaderProgram shader = shaders.get(shaderIndex);
-		
-		for (GameObject go : objects)
+
+		for (GameObject go : GameData.currentLevel.getLevelGraphics())
 		{
 			/** Calculate Matrix's for use in shaders **/
 			
@@ -58,125 +55,95 @@ public class ShaderTestScreen extends GameScreen {
 
 			// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
 			Matrix4 mvp = projection.mul(view).mul(model).mul(axis);
+			
+			
+			/** Work out how many lights effect this Object **/
+			currentLights.clear();
+			
+			for (Light l : GameData.currentLevel.getLevelLights())
+			{
+				if (l.inDrawDistance(go.getPosition().cpy(), 20)) currentLights.add(l);
+			}
+			
+			shaderIndex = currentLights.size();
 
-			shader.begin();
-			go.vo.texture.bind();
+			ShaderProgram shader = shaders.get(shaderIndex);
 			
 			// basic_movement
 			if (shaderIndex == 0)
 			{
+				shader.begin();
 				shader.setUniformMatrix("u_mvp", mvp);
 				shader.setUniformf("u_colour", new Vector3(go.vo.colour));
+				shader.setUniformf("u_ambient", GameData.currentLevel.getAmbient());
 			}
-			// basic_vert_lighting
+			// 1src_vert_lighting
 			else if (shaderIndex == 1)
 			{
+				shader.begin();
 				shader.setUniformMatrix("u_mvp", mvp);
 				shader.setUniformf("u_position", go.getPosition());
-				shader.setUniformf("u_pposition", GameData.player.getPosition());
 				shader.setUniformf("u_colour", new Vector3(go.vo.colour));
+				shader.setUniformf("u_ambient", GameData.currentLevel.getAmbient());
+				
+				shader.setUniformf("u_light1_position", currentLights.get(0).position);
+				shader.setUniformf("u_light1_colour", currentLights.get(0).colour);
+				shader.setUniformf("u_light1_attenuation", currentLights.get(0).attenuation);
 			}
-			// basic_frag_lighting
+			// 2src_vert_lighting
 			else if (shaderIndex == 2)
 			{
+				shader.begin();
 				shader.setUniformMatrix("u_mvp", mvp);
 				shader.setUniformf("u_position", go.getPosition());
-				shader.setUniformf("u_pposition", GameData.player.getPosition());
 				shader.setUniformf("u_colour", new Vector3(go.vo.colour));
+				shader.setUniformf("u_ambient", GameData.currentLevel.getAmbient());
+				
+				shader.setUniformf("u_light1_position", currentLights.get(0).position);
+				shader.setUniformf("u_light1_colour", currentLights.get(0).colour);
+				shader.setUniformf("u_light1_attenuation", currentLights.get(0).attenuation);
+				
+				shader.setUniformf("u_light2_position", currentLights.get(1).position);
+				shader.setUniformf("u_light2_colour", currentLights.get(1).colour);
+				shader.setUniformf("u_light2_attenuation", currentLights.get(1).attenuation);
 			}
-			// basic_diffuse_lighting
+			// 3src_vert_lighting
 			else if (shaderIndex == 3)
 			{
+				shader.begin();
 				shader.setUniformMatrix("u_mvp", mvp);
 				shader.setUniformf("u_position", go.getPosition());
 				shader.setUniformf("u_colour", new Vector3(go.vo.colour));
+				shader.setUniformf("u_ambient", GameData.currentLevel.getAmbient());
 				
-				shader.setUniformf("u_light1_position", GameData.player.getPosition());
-				shader.setUniformf("u_light1_colour", new Vector3(0.5f, 0.5f, 1f));
-				shader.setUniformf("u_light1_attenuation", 100);
+				shader.setUniformf("u_light1_position", currentLights.get(0).position);
+				shader.setUniformf("u_light1_colour", currentLights.get(0).colour);
+				shader.setUniformf("u_light1_attenuation", currentLights.get(0).attenuation);
 				
-				shader.setUniformf("u_light2_position", new Vector3(40, 2, 40));
-				shader.setUniformf("u_light2_colour", new Vector3(1f, 0.5f, 0.5f));
-				shader.setUniformf("u_light2_attenuation", 100);
+				shader.setUniformf("u_light2_position", currentLights.get(1).position);
+				shader.setUniformf("u_light2_colour", currentLights.get(1).colour);
+				shader.setUniformf("u_light2_attenuation", currentLights.get(1).attenuation);
+				
+				shader.setUniformf("u_light3_position", currentLights.get(2).position);
+				shader.setUniformf("u_light3_colour", currentLights.get(2).colour);
+				shader.setUniformf("u_light3_attenuation", currentLights.get(2).attenuation);
 			}
 
+			go.vo.texture.bind();
 			go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
 			shader.end();
 		}
-		
-		String shaderName = "";
-		
-		if (shaderIndex == 0) shaderName = "Basic Movement and Colour";
-		else if (shaderIndex == 1) shaderName = "Basic Movement and Colour and Vertex Lighting";
-		else if (shaderIndex == 2) shaderName = "Basic Movement and Colour and Fragment (pixel) Lighting";
-		else if (shaderIndex == 3) shaderName = "Basic Movement and Colour and 2 src Vertex Lighting";
-		
-		Gdx.gl.glDisable(GL20.GL_CULL_FACE);
-		
-		spritebatch.begin();
-		font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-		font.draw(spritebatch, "Shader: "+shaderName, 20, 490);
-		font.draw(spritebatch, "Player Controlled: "+playerControl, 20, 460);
-		spritebatch.end();
-		
-		Gdx.gl.glEnable(GL20.GL_CULL_FACE);
-		
-		GameData.frame.paint(GameData.frame.getGraphics());
-
 	}
-
-	boolean playerControl = true;
+	
 	@Override
-	void update(float delta) {
+	void update(float delta) {		
+		GameData.player.update(delta);
 		
-		float xrotate = 800f/720f;
-		objects.get(0).euler_rotate((float)Gdx.input.getDeltaX()*xrotate, 1, 0, 0);
-		objects.get(0).euler_rotate(0.5f, 0, 1, 1);
-		
-		if (Gdx.input.isKeyPressed(Keys.NUM_0)) shaderIndex = 0;
-		if (Gdx.input.isKeyPressed(Keys.NUM_1)) shaderIndex = 1;
-		if (Gdx.input.isKeyPressed(Keys.NUM_2)) shaderIndex = 2;
-		if (Gdx.input.isKeyPressed(Keys.NUM_3)) shaderIndex = 3;
-		
-		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) playerControl = false;
-		if (Gdx.input.isKeyPressed(Keys.SPACE)) playerControl = true;
-		
-		if (playerControl) GameData.player.update(delta);
-
+		if (Gdx.input.justTouched()) game.switchScreen("LibGDXSplash");
 	}
 
 	@Override
 	public void show() {
-		Mesh mesh = new Mesh(true, 3, 0, VertexAttribute.Position());
-		mesh.setVertices(new float[]{
-				0.0f,  0.8f, 0.0f,
-				-0.8f, -0.8f, 0.0f,
-				0.8f, -0.8f, 0.0f
-		});
-		
-		mesh = Shapes.genCuboid(1, 1, 1);
-		
-		VisibleObject vo1 = new VisibleObject(mesh, new Vector3(1.0f, 0.2f, 0.7f), "icon");
-		
-		objects.add(new GameObject(vo1, 0, -2, -5));
-		
-		Mesh mesh1 = Shapes.genCuboid(50, 1, 50);
-		
-		VisibleObject vo2 = new VisibleObject(mesh1, new Vector3(0.0f, 0.3f, 0.8f), "tex#");
-		
-		objects.add(new GameObject(vo2, 0, 10, 0));
-		
-		for (int x = 0; x < 10; x++)
-		{
-			for (int y = 0; y < 10; y++)
-			{
-				Mesh mesh2 = Shapes.genCuboid(5, 1, 5);
-				
-				VisibleObject vo3 = new VisibleObject(mesh1, new Vector3(0.3f, 0.8f, 0.3f), "tex.");
-				
-				objects.add(new GameObject(vo3, x*10, -5, y*10));
-			}
-		}
 		
 		ShaderProgram shader = new ShaderProgram(
 	            Gdx.files.internal("data/shaders/basic_movement.vert").readString(),
@@ -190,8 +157,8 @@ public class ShaderTestScreen extends GameScreen {
 	    }
 	    
 	    shader = new ShaderProgram(
-	            Gdx.files.internal("data/shaders/basic_vert_lighting.vert").readString(),
-	            Gdx.files.internal("data/shaders/basic_vert_lighting.frag").readString());
+	    		Gdx.files.internal("data/shaders/1src_vert_lighting.vert").readString(),
+	            Gdx.files.internal("data/shaders/1src_vert_lighting.frag").readString());
 	    if(!shader.isCompiled()) {
 	        Gdx.app.log("Problem loading shader:", shader.getLog());
 	    }
@@ -201,18 +168,7 @@ public class ShaderTestScreen extends GameScreen {
 	    }
 	    
 	    shader = new ShaderProgram(
-	            Gdx.files.internal("data/shaders/basic_frag_lighting.vert").readString(),
-	            Gdx.files.internal("data/shaders/basic_frag_lighting.frag").readString());
-	    if(!shader.isCompiled()) {
-	        Gdx.app.log("Problem loading shader:", shader.getLog());
-	    }
-	    else
-	    {
-	    	shaders.add(shader);
-	    }
-	    
-	    shader = new ShaderProgram(
-	            Gdx.files.internal("data/shaders/2src_vert_lighting.vert").readString(),
+	    		Gdx.files.internal("data/shaders/2src_vert_lighting.vert").readString(),
 	            Gdx.files.internal("data/shaders/2src_vert_lighting.frag").readString());
 	    if(!shader.isCompiled()) {
 	        Gdx.app.log("Problem loading shader:", shader.getLog());
@@ -221,17 +177,24 @@ public class ShaderTestScreen extends GameScreen {
 	    {
 	    	shaders.add(shader);
 	    }
-		
-	    GameData.createNewLevel();
-	    //GameData.player = new Player("model@", new float[]{1.0f, 1.0f, 1.0f}, "tex.", 0, 0, 0);
-	    GameData.player.collision = false;
-		
+	    
+	    shader = new ShaderProgram(
+	            Gdx.files.internal("data/shaders/3src_vert_lighting.vert").readString(),
+	            Gdx.files.internal("data/shaders/3src_vert_lighting.frag").readString());
+	    if(!shader.isCompiled()) {
+	        Gdx.app.log("Problem loading shader:", shader.getLog());
+	    }
+	    else
+	    {
+	    	shaders.add(shader);
+	    }
+	    
+	    Gdx.input.setCursorCatched(true);
 	}
 
 	@Override
 	public void hide() {
-		// TODO Auto-generated method stub
-		
+		Gdx.input.setCursorCatched(false);
 	}
 
 	@Override

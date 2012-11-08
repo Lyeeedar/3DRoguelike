@@ -36,6 +36,8 @@ public abstract class GameScreen implements Screen{
 	public GameScreen(Roguelike3DGame game)
 	{
 		this.game = game;
+		
+		create();
 	}
 
 	@Override
@@ -91,12 +93,22 @@ public abstract class GameScreen implements Screen{
 			sp.dispose();
 		}
 		
+		objects.clear();
+		shaders.clear();
+		
 		decalbatch.dispose();
 		spritebatch.dispose();
 		font.dispose();
 
 	}
-
+	
+	@Override
+	public void show()
+	{
+		
+	}
+	
+	abstract void create();
 	abstract void draw(float delta);
 	abstract void update(float delta);
 

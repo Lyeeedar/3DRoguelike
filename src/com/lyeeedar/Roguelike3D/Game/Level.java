@@ -16,7 +16,7 @@ public class Level {
 	private ArrayList<GameObject> levelGraphics = new ArrayList<GameObject>();
 	private ArrayList<Light> levelLights = new ArrayList<Light>();
 	
-	Vector3 ambient = new Vector3(0.2f, 0.2f, 0.2f);
+	Vector3 ambient = new Vector3(0.5f, 0.5f, 0.5f);
 	Vector3 defColour = new Vector3(0.8f, 0.9f, 0.6f);
 	HashMap<Character, String> descriptions = new HashMap<Character, String>();
 	HashMap<Character, Vector3> colours = new HashMap<Character, Vector3>();

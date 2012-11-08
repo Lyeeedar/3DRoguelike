@@ -46,11 +46,11 @@ public class ShaderTestScreen extends GameScreen {
 
 			// Rotation matrix - The rotation of the object
 			Matrix4 axis = new Matrix4();
-			axis.setFromEulerAngles(go.getEuler_rotation().x, go.getEuler_rotation().y, go.getEuler_rotation().z);
+			axis.setFromEulerAngles(go.getRotation().x, go.getRotation().y, go.getRotation().z);
 
 			// View matrix - The position and direction of the 'camera'. In this case, the player.
 			Matrix4 view = new Matrix4();
-			view.setToLookAt(GameData.player.getPosition(), GameData.player.getPosition().cpy().add(GameData.player.getRotation()), GameData.player.getUp());
+			view.setToLookAt(GameData.player.getPosition(), GameData.player.getPosition().cpy().add(GameData.player.getRotation()), new Vector3(0, 1, 0));
 
 			// Projection matrix - The camera details, i.e. the fov, the view distance and the screen size
 			Matrix4 projection = new Matrix4();
@@ -88,16 +88,31 @@ public class ShaderTestScreen extends GameScreen {
 			else if (shaderIndex == 3)
 			{
 				shader.setUniformMatrix("u_mvp", mvp);
-				shader.setUniformf("u_position", go.getPosition());
 				shader.setUniformf("u_colour", new Vector3(go.vo.colour));
 				
-				shader.setUniformf("u_light1_position", GameData.player.getPosition());
-				shader.setUniformf("u_light1_colour", new Vector3(0.5f, 0.5f, 1f));
-				shader.setUniformf("u_light1_attenuation", 100);
+				Matrix4 normal = new Matrix4();
+				Matrix3 normal3 = new Matrix3();
 				
-				shader.setUniformf("u_light2_position", new Vector3(40, 2, 40));
-				shader.setUniformf("u_light2_colour", new Vector3(1f, 0.5f, 0.5f));
-				shader.setUniformf("u_light2_attenuation", 100);
+				normal.setFromEulerAngles(go.getRotation().x, go.getRotation().y, go.getRotation().z);
+				
+				// Model matrix - The position of the object in 3D space comparative to the origin
+				Matrix4 m = new Matrix4();
+				model.setToTranslation(go.getPosition());
+
+				// Rotation matrix - The rotation of the object
+				Matrix4 a = new Matrix4();
+				axis.setFromEulerAngles(go.getRotation().x, go.getRotation().y, go.getRotation().z);
+				
+				Matrix4 ma = m.mul(a);
+				
+				normal3.set(normal.toNormalMatrix());
+				
+				shader.setUniformMatrix("u_normal", normal3);
+			
+				shader.setUniformMatrix("u_model", ma);
+				
+				shader.setUniformf("u_light_position", GameData.player.getPosition());
+				shader.setUniformf("u_light_colour", new Vector3(0.5f, 0.5f, 1f));
 			}
 
 			go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
@@ -109,7 +124,7 @@ public class ShaderTestScreen extends GameScreen {
 		if (shaderIndex == 0) shaderName = "Basic Movement and Colour";
 		else if (shaderIndex == 1) shaderName = "Basic Movement and Colour and Vertex Lighting";
 		else if (shaderIndex == 2) shaderName = "Basic Movement and Colour and Fragment (pixel) Lighting";
-		else if (shaderIndex == 3) shaderName = "Basic Movement and Colour and 2 src Vertex Lighting";
+		else if (shaderIndex == 3) shaderName = "Basic Movement and Colour and Diffuse Vertex Lighting";
 		
 		Gdx.gl.glDisable(GL20.GL_CULL_FACE);
 		
@@ -120,8 +135,6 @@ public class ShaderTestScreen extends GameScreen {
 		spritebatch.end();
 		
 		Gdx.gl.glEnable(GL20.GL_CULL_FACE);
-		
-		GameData.frame.paint(GameData.frame.getGraphics());
 
 	}
 
@@ -130,8 +143,8 @@ public class ShaderTestScreen extends GameScreen {
 	void update(float delta) {
 		
 		float xrotate = 800f/720f;
-		objects.get(0).euler_rotate((float)Gdx.input.getDeltaX()*xrotate, 1, 0, 0);
-		objects.get(0).euler_rotate(0.5f, 0, 1, 1);
+		objects.get(0).rotate((float)Gdx.input.getDeltaX()*xrotate, 1, 0, 0);
+		objects.get(0).rotate(0.5f, 0, 1, 1);
 		
 		if (Gdx.input.isKeyPressed(Keys.NUM_0)) shaderIndex = 0;
 		if (Gdx.input.isKeyPressed(Keys.NUM_1)) shaderIndex = 1;
@@ -146,7 +159,7 @@ public class ShaderTestScreen extends GameScreen {
 	}
 
 	@Override
-	public void show() {
+	public void create() {
 		Mesh mesh = new Mesh(true, 3, 0, VertexAttribute.Position());
 		mesh.setVertices(new float[]{
 				0.0f,  0.8f, 0.0f,
@@ -212,8 +225,8 @@ public class ShaderTestScreen extends GameScreen {
 	    }
 	    
 	    shader = new ShaderProgram(
-	            Gdx.files.internal("data/shaders/2src_vert_lighting.vert").readString(),
-	            Gdx.files.internal("data/shaders/2src_vert_lighting.frag").readString());
+	            Gdx.files.internal("data/shaders/basic_diffuse_lighting.vert").readString(),
+	            Gdx.files.internal("data/shaders/basic_diffuse_lighting.frag").readString());
 	    if(!shader.isCompiled()) {
 	        Gdx.app.log("Problem loading shader:", shader.getLog());
 	    }

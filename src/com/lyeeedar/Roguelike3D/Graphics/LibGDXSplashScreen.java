@@ -39,40 +39,39 @@ public class LibGDXSplashScreen extends GameScreen {
 	@Override
 	void draw(float delta) {
 		
-		GameObject go = objects.get(0);
-
-		ShaderProgram shader = shaders.get(shaderIndex);
-		
 		/** Calculate Matrix's for use in shaders **/
 		
-		// Model matrix - The position of the object in 3D space comparative to the origin
-		Matrix4 model = new Matrix4();
-		model.setToTranslation(go.getPosition());
-
-		// Rotation matrix - The rotation of the object
-		Matrix4 axis = new Matrix4();
-		axis.setFromEulerAngles(go.getEuler_rotation().x, go.getEuler_rotation().y, go.getEuler_rotation().z);
-
-		// View matrix - The position and direction of the 'camera'. In this case, the player.
-		Matrix4 view = new Matrix4();
-		view.setToLookAt(new Vector3(0, 0, 0), new Vector3(0, 0, 0).cpy().add(new Vector3(0, 0, -1)), new Vector3(0, 1, 0));
-
-		// Projection matrix - The camera details, i.e. the fov, the view distance and the screen size
-		Matrix4 projection = new Matrix4();
-		projection.setToProjection(0.1f, 500.0f, 60.0f, (float)screen_width/(float)screen_height);	
-
-		// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
-		Matrix4 mvp = projection.mul(view).mul(model).mul(axis);
-
-		shader.begin();
-		go.vo.texture.bind();
-		
-		shader.setUniformMatrix("u_mvp", mvp);
-		shader.setUniformf("u_colour", new Vector3(go.vo.colour));
-		shader.setUniformf("u_ambient", new Vector3(1, 1, 1));
-		
-		go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
-		shader.end();
+		for (int i = 0; i < objects.size(); i++) {
+			
+			GameObject go = objects.get(i);
+			ShaderProgram shader = shaders.get(0);
+			
+			// Model matrix - The position of the object in 3D space comparative to the origin
+			Matrix4 model = new Matrix4();
+			model.setToTranslation(go.getPosition());
+			
+			// Rotation matrix - The rotation of the object
+			Matrix4 axis = new Matrix4();
+			axis.setToRotation(go.getRotation().x, go.getRotation().y, go.getRotation().z, 180);
+			
+			// View matrix - The position and direction of the 'camera'. In this case, the player.
+			Matrix4 view = new Matrix4();
+			view.setToLookAt(new Vector3(0, 0, 0), new Vector3(0, 0, 0).add(new Vector3(0, 0, -1)), new Vector3(0, 1, 0));
+			// Projection matrix - The camera details, i.e. the fov, the view distance and the screen size
+			Matrix4 projection = new Matrix4();
+			projection.setToProjection(0.1f, 500.0f, 60.0f,
+					(float) screen_width / (float) screen_height);
+			// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
+			Matrix4 mvp = projection.mul(view).mul(model).mul(axis);
+			
+			shader.begin();
+			go.vo.texture.bind();
+			shader.setUniformMatrix("u_mvp", mvp);
+			shader.setUniformf("u_colour", new Vector3(go.vo.colour));
+			shader.setUniformf("u_ambient", new Vector3(1, 1, 1));
+			go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
+			shader.end();
+		}
 
 	}
 
@@ -80,14 +79,14 @@ public class LibGDXSplashScreen extends GameScreen {
 	public void update(float delta)
 	{
 		float xrotate = 800f/720f;
-		objects.get(0).euler_rotate(delta*xrotate, 1, 0, 0);
-		objects.get(0).euler_rotate(0.5f, 0, 1, 1);
+		objects.get(0).rotate(delta*xrotate*5, 0, 1, 0);
+		objects.get(0).rotate(delta*xrotate*7, -1, 0, 1);
 		
 		if (Gdx.input.justTouched()) game.switchScreen("InGame");
 	}
 
 	@Override
-	public void show() {
+	public void create() {
 		Mesh mesh = Shapes.genCuboid(1, 1, 1);
 		
 		VisibleObject vo1 = new VisibleObject(mesh, new Vector3(1.0f, 1.0f, 1.0f), "icon");
@@ -105,14 +104,12 @@ public class LibGDXSplashScreen extends GameScreen {
 	    	shaders.add(shader);
 	    }
 	    
-	    objects.add(new Player("model@", new Vector3(1, 1, 1), "blank", 30, 0, 30));
-	    
 	    GameData.createNewLevel();
 	}
 
 	@Override
 	public void hide() {
-	
+		
 	}
 
 	@Override

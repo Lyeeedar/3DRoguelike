@@ -20,31 +20,31 @@ public class Player extends GameActor {
 		super(model, colour, texture, x, y, z);
 	}
 
-	float xrotate = -800f/720f;
-	float yrotate = -600f/720f;
-
 	@Override
 	public void update(float delta) {
+		
+		float move = delta * 10;
 
-		if (Gdx.input.isKeyPressed(Keys.LEFT)) left_right(0.3f);
-		if (Gdx.input.isKeyPressed(Keys.RIGHT)) left_right(-0.3f);
+		if (Gdx.input.isKeyPressed(Keys.LEFT)) left_right(move);
+		if (Gdx.input.isKeyPressed(Keys.RIGHT)) left_right(-move);
 
-		if (Gdx.input.isKeyPressed(Keys.UP)) forward_backward(0.3f);
-		if (Gdx.input.isKeyPressed(Keys.DOWN)) forward_backward(-0.3f);
+		if (Gdx.input.isKeyPressed(Keys.UP)) forward_backward(move);
+		if (Gdx.input.isKeyPressed(Keys.DOWN)) forward_backward(-move);
 		
 		applyMovement();
 
-		float pitch = (float)Gdx.input.getDeltaY()*yrotate;
-		Vector3 dir = rotation.cpy();
-		if( (dir.nor().y>-0.9) && (pitch<0) || (dir.nor().y<+0.9) && (pitch>0) )
+		float pitch = (float)Gdx.input.getDeltaY()*yrotate*move;
+		Vector3 dir = rotation;
+		if( (dir.y>-0.7) && (pitch<0) || (dir.y<+0.7) && (pitch>0) )
 		{
 			Vector3 localAxisX = rotation.cpy();
-			localAxisX.crs(up.tmp()).nor();
+			localAxisX.crs(up).nor();
 			rotate(pitch, localAxisX.x, localAxisX.y, localAxisX.z);
-			up.nor();
 		}
 
-		rotate((float)Gdx.input.getDeltaX()*xrotate, 0, 1, 0);
+		rotate((float)Gdx.input.getDeltaX()*xrotate*move, 0, 1, 0);
+		
+		updateView();
 
 	}
 	

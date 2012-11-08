@@ -18,11 +18,11 @@ public class VisibleObject {
 		this.mesh = mesh;
 		this.colour = colour;
 		
-		//texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"), true);
-		texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"));
+		texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"), true);
+		//texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"));
 		texture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
-		//texture.setFilter( TextureFilter.MipMap, TextureFilter.MipMap );
-		texture.setFilter( TextureFilter.Nearest, TextureFilter.Nearest );
+		texture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
+		//texture.setFilter( TextureFilter.Nearest, TextureFilter.Nearest );
 
 	}
 	

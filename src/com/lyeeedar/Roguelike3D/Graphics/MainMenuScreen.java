@@ -45,7 +45,7 @@ public class MainMenuScreen extends GameScreen {
 	}
 
 	@Override
-	public void show() {
+	public void create() {
 
 		font = new BitmapFont();
 

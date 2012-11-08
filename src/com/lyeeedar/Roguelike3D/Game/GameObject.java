@@ -1,5 +1,7 @@
 package com.lyeeedar.Roguelike3D.Game;
 
+import java.util.Random;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
@@ -8,13 +10,17 @@ import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 
 public class GameObject {
+	
+	final Random ran = new Random();
+	
+	final static float xrotate = -800f/720f;
+	final static float yrotate = -600f/720f;
 
 	// x y z
 	protected Vector3 position = new Vector3();
-	protected Vector3 rotation = new Vector3(0, 0, -1);
-	protected Vector3 euler_rotation = new Vector3(0, 0, 0);
+	protected Vector3 rotation = new Vector3(-1, 0, 0);
+	protected Matrix4 view = new Matrix4();
 	protected Vector3 velocity = new Vector3();
-	protected Vector3 up = new Vector3(0, 1, 0);
 
 	protected Vector3 tmpVec = new Vector3();
 	protected Matrix4 tmpMat = new Matrix4();
@@ -76,35 +82,13 @@ public class GameObject {
 		getVelocity().z = 0;
 		
 	}
-
-	public void lookAt (float x, float y, float z) {
-		rotation.set(x, y, z).sub(position).nor();
-	}
-
-	final Vector3 right = new Vector3();
-
-	public void normalizeUp () {
-		right.set(rotation).crs(up).nor();
-		up.set(right).crs(rotation).nor();
-	}
 	
-	public void euler_rotate(float angle, float x, float y, float z)
-	{
-		Vector3 scaled = new Vector3(x, y, z);
-		scaled.mul(angle);
-		
-		euler_rotation.add(scaled);
-	}
-
+	Matrix4 rotationMatrix = new Matrix4();
 	public void rotate(float angle, float x, float y, float z)
 	{
-		rotate(tmpVec.set(x, y, z), angle);
-	}
-
-	public void rotate(Vector3 axis, float angle) {
-		tmpMat.setToRotation(axis, angle);
-		rotation.mul(tmpMat).nor();
-		up.mul(tmpMat).nor();
+		rotationMatrix.setToRotation(x, y, z, angle);
+		
+		rotation.rot(rotationMatrix);
 	}
 
 	public void translate(float x, float y, float z)
@@ -128,6 +112,12 @@ public class GameObject {
 		velocity.x += (float)Math.sin(rotation.x) * mag;
 		velocity.z += (float)Math.sin(rotation.z) * mag;
 	}
+	
+	static final Vector3 up = new Vector3(0, 1, 0);
+	public void updateView()
+	{
+		view.setToLookAt(position, position.cpy().add(rotation), up);
+	}
 
 	public Vector3 getCPosition()
 	{
@@ -139,12 +129,6 @@ public class GameObject {
 	public Vector3 getPosition() {
 		return position;
 	}
-
-	public Vector3 getRotation()
-	{
-		return rotation;
-	}
-
 
 	public void setPosition(Vector3 position) {
 		this.position = position;
@@ -160,14 +144,6 @@ public class GameObject {
 		this.velocity = velocity;
 	}
 
-	public Vector3 getUp() {
-		return up;
-	}
-
-	public void setUp(Vector3 up) {
-		this.up = up;
-	}
-
 	public VisibleObject getVo() {
 		return vo;
 	}
@@ -176,21 +152,25 @@ public class GameObject {
 		this.vo = vo;
 	}
 
-	public void setRotation(Vector3 rotation) {
-		this.rotation = rotation;
+	public Vector3 getRotation() {
+		return rotation;
 	}
 
-	public Vector3 getEuler_rotation() {
-		return euler_rotation;
-	}
-
-	public void setEuler_rotation(Vector3 euler_rotation) {
-		this.euler_rotation = euler_rotation;
+	public void setRotation(Vector3 euler_rotation) {
+		this.rotation = euler_rotation;
 	}
 	
 	public void dispose()
 	{
 		vo.dispose();
+	}
+
+	public Matrix4 getView() {
+		return view;
+	}
+
+	public void setView(Matrix4 view) {
+		this.view = view;
 	}
 
 }

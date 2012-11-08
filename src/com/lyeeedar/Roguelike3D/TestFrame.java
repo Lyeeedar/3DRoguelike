@@ -52,8 +52,8 @@ class DrawingCanvas extends JPanel
 		int px = (int)GameData.player.getPosition().x;
 		int pz = (int)GameData.player.getPosition().z;
 		
-		int lx = (int)(GameData.player.getRotation().x*50);
-		int lz = (int)(GameData.player.getRotation().z*50);
+		int lx = (int)(GameData.player.getRotation().x);
+		int lz = (int)(GameData.player.getRotation().z);
 		
 		for (int x = 0; x < GameData.currentLevel.getLevelArray().length; x++)
 		{

@@ -9,7 +9,7 @@ public class Shapes {
 		Mesh mesh = new Mesh(true, 24, 36, 
 				new VertexAttribute(Usage.Position, 3, "a_position"),
 				new VertexAttribute(Usage.Normal, 3, "a_normal"),
-				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texcoords"));
+				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoord0"));
 
 		float[] cubeVerts = {
 				-x, -y, -z, // bottom

@@ -5,6 +5,7 @@ import java.util.Random;
 
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Graphics.Light;
 import com.lyeeedar.Roguelike3D.Graphics.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
@@ -13,10 +14,10 @@ import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 public class Level {
 	
 	private Tile[][] levelArray;
-	private ArrayList<GameObject> levelGraphics = new ArrayList<GameObject>();
 	private ArrayList<Light> levelLights = new ArrayList<Light>();
+	private ArrayList<GameObject> levelGraphics = new ArrayList<GameObject>();
 	
-	Vector3 ambient = new Vector3(0.5f, 0.5f, 0.5f);
+	Vector3 ambient = new Vector3(0.1f, 0.1f, 0.1f);
 	Vector3 defColour = new Vector3(0.8f, 0.9f, 0.6f);
 	HashMap<Character, String> descriptions = new HashMap<Character, String>();
 	HashMap<Character, Vector3> colours = new HashMap<Character, Vector3>();
@@ -56,7 +57,6 @@ public class Level {
 			
 		}
 		
-		levelGraphics = new ArrayList<GameObject>();
 		for (int x = 0; x < levelArray.length; x++)
 		{
 			for (int z = 0; z < levelArray[0].length; z++)
@@ -70,7 +70,7 @@ public class Level {
 				}
 				
 				VisibleObject vo = new VisibleObject(meshes.get(t.height), getColour(t.character), "tex"+t.character);
-				levelGraphics.add(new GameObject(vo, x*10, t.height-5, z*10));
+				t.floorGo = new GameObject(vo, x*10, t.height-5, z*10);
 				
 				if (t.height < t.roof)
 				{
@@ -80,10 +80,23 @@ public class Level {
 					}
 					
 					VisibleObject voRf = new VisibleObject(meshes.get(1f), getColour('#'), "tex#");
-					levelGraphics.add(new GameObject(voRf, x*10, t.roof, z*10));
+					t.roofGo = new GameObject(voRf, x*10, t.roof, z*10);
 				}
 			}
 		}
+		
+		for (Tile[] ts : levelArray)
+		{
+			for (Tile t : ts)
+			{
+				GameObject g = t.floorGo;
+				if (g != null) levelGraphics.add(g);
+				g = t.roofGo;
+				if (g != null) levelGraphics.add(g);
+			}
+		}
+		
+		
 	}
 	
 	private Vector3 getColour(char c)
@@ -98,24 +111,159 @@ public class Level {
 		}
 	}
 	
-	public boolean checkCollision(float x, float y, float z)
-	{
-		if (x < 0 || x > getLevelArray()[0].length-1) return true;
-		if (z < 0 || z > getLevelArray().length-1) return true;
+	public boolean checkCollision(float x, float y, float z, BoundingBox box, String UID)
+	{	
+		int ix = (int)(x+0.5f);
+		int iz = (int)(z+0.5f);
 		
-		Tile t = getLevelArray()[(int)(x+0.5f)][(int)(z+0.5f)];
-		
-		if (y < t.floor || y > t.roof) return true;
+		if (ix < 0 || ix > getLevelArray()[0].length-1) return true;
+		if (iz < 0 || iz > getLevelArray().length-1) return true;
 
+		Tile t = null;
+		
+		t = getLevelArray()[ix][iz];
+		if (y < t.floor || y > t.roof) return true;
+		if (checkTileCollision(t, box, UID)) return true;
+		
+//		if (iz-1 > -1)
+//		{
+//			t = getLevelArray()[ix][iz-1];
+//			if (checkTileCollision(t, box, UID)) return true;
+//		}
+//
+//		if (iz+1 < getLevelArray().length)
+//		{
+//			t = getLevelArray()[ix][iz+1];
+//			if (checkTileCollision(t, box, UID)) return true;
+//		}
+//
+//		if (ix-1 > -1 && iz-1 > -1)
+//		{
+//			t = getLevelArray()[ix-1][iz-1];
+//			if (checkTileCollision(t, box, UID)) return true;
+//		}
+//
+//		if (ix-1 > -1)
+//		{
+//			t = getLevelArray()[ix-1][iz];
+//			if (checkTileCollision(t, box, UID)) return true;
+//		}
+//
+//		if (ix-1 > -1 && iz+1 < getLevelArray().length)
+//		{
+//			t = getLevelArray()[ix-1][iz+1];
+//			if (checkTileCollision(t, box, UID)) return true;
+//		}
+//
+//		if (ix+1 < getLevelArray()[0].length && iz-1 > -1)
+//		{
+//			t = getLevelArray()[ix+1][iz-1];
+//			if (checkTileCollision(t, box, UID)) return true;
+//		}
+//
+//		if (ix+1 < getLevelArray()[0].length)
+//		{
+//			t = getLevelArray()[ix+1][iz];
+//			if (checkTileCollision(t, box, UID)) return true;
+//		}
+//
+//		if (ix+1 < getLevelArray()[0].length && iz+1 < getLevelArray().length)
+//		{
+//			t = getLevelArray()[ix+1][iz+1];
+//			if (checkTileCollision(t, box, UID)) return true;
+//		}
+		
+		
+		return false;
+	}
+	
+	public boolean checkTileCollision(Tile t, BoundingBox box, String UID)
+	{
+		if (t.character == ' ') return true;
+		
+		boolean check = false;
+		
 		for (Character c : solids)
 		{
 			if (t.character == c)
 			{
 				return true;
+				//check = true;
+				//break;
+			}
+		}
+		
+		if (check)
+		{
+			BoundingBox tbox = t.floorGo.getBoundingBox();
+			
+			System.out.println("Player:");
+			System.out.println("Min="+box.min+"   Max="+box.max);
+			System.out.println("Block:");
+			System.out.println("Min="+tbox.min+"   Max="+tbox.max);
+			
+			boolean collide = interectBoxes(box, tbox);
+			System.out.println("Collision="+collide);
+			
+			if (collide) return true;
+			
+			for (GameActor ga : t.actors)
+			{
+				if (ga.UID.equals(UID)) continue;
+				
+				BoundingBox abox = ga.getBoundingBox();
+				
+				if (interectBoxes(box, abox)) return true;
 			}
 		}
 		
 		return false;
+	}
+	
+	public boolean interectBoxes(BoundingBox b1, BoundingBox b2)
+	{
+		if (
+			b1.min.x < b2.max.x &&
+			b1.min.y < b2.max.y &&
+			b1.min.z < b2.max.z &&
+			b1.max.x > b2.min.x &&
+			b1.max.y > b2.min.y &&
+			b1.max.z > b2.min.z
+			) return true;
+		else return false;
+	}
+	
+	public void moveActor(float oldX, float oldZ, float newX, float newZ, String UID)
+	{
+		int ox = (int)(oldX+0.5f);
+		int oz = (int)(oldZ+0.5f);
+		
+		int nx = (int)(newX+0.5f);
+		int nz = (int)(newZ+0.5f);
+		
+		if (ox == nx && oz == nz) return;
+		
+		GameActor actor = null;
+		
+		int i = 0;
+		for (GameActor ga : levelArray[ox][oz].actors)
+		{
+			if (ga.UID.equals(UID)) 
+			{ 
+				actor = levelArray[ox][oz].actors.get(i);
+				levelArray[ox][oz].actors.remove(i);
+				break;
+			}
+			i++;
+		}
+		
+		if (actor == null)
+		{
+			System.err.println("Error removing actor from tile:"+ox+" "+oz);
+			return;
+		}
+		
+		levelArray[nx][nz].actors.add(actor);
 	}
 	
 	public boolean checkOpaque(int x, int z)
@@ -269,14 +417,6 @@ public class Level {
 		this.levelArray = levelArray;
 	}
 
-	public ArrayList<GameObject> getLevelGraphics() {
-		return levelGraphics;
-	}
-
-	public void setLevelGraphics(ArrayList<GameObject> levelGraphics) {
-		this.levelGraphics = levelGraphics;
-	}
-
 	public ArrayList<Light> getLevelLights() {
 		return levelLights;
 	}
@@ -304,10 +444,29 @@ public class Level {
 	
 	public void dispose()
 	{
-		for (GameObject go : this.levelGraphics)
+		for (Tile[] ts : levelArray)
 		{
-			go.dispose();
+			for (Tile t : ts)
+			{
+				GameObject g = t.floorGo;
+				if (g != null) g.dispose();
+				g = t.roofGo;
+				if (g != null) g.dispose();
+				
+				for (GameActor ga : t.actors)
+				{
+					ga.dispose();
+				}
+			}
 		}
+	}
+
+	public ArrayList<GameObject> getLevelGraphics() {
+		return levelGraphics;
+	}
+
+	public void setLevelGraphics(ArrayList<GameObject> levelGraphics) {
+		this.levelGraphics = levelGraphics;
 	}
 
 }

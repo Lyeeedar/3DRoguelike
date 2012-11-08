@@ -7,9 +7,12 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 
 public class GameObject {
+	
+	String UID;
 	
 	final Random ran = new Random();
 	
@@ -25,7 +28,7 @@ public class GameObject {
 	protected Vector3 tmpVec = new Vector3();
 	protected Matrix4 tmpMat = new Matrix4();
 	
-	public boolean collision = true;
+	protected Vector3 dimensions;
 
 	public VisibleObject vo;
 
@@ -36,50 +39,78 @@ public class GameObject {
 
 	public GameObject(VisibleObject vo, float x, float y, float z)
 	{
-		this.vo = vo;
-		position.x = x;
-		position.y = y;
-		position.z = z;
+		create(vo, x, y, z);
 	}
 	
 	public GameObject(String model, Vector3 colour, String texture, float x, float y, float z)
 	{
 		Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read());
 		this.vo = new VisibleObject(mesh, colour, texture);
+		
+		create(vo, x, y, z);
+	}
+	
+	public void create(VisibleObject vo, float x, float y, float z)
+	{
+		UID = this.toString()+System.currentTimeMillis()+this.hashCode()+System.nanoTime();
+		
+		this.vo = vo;
 		position.x = x;
 		position.y = y;
 		position.z = z;
+		
+		dimensions = vo.getMesh().calculateBoundingBox().getDimensions();
 	}
 	
+	public BoundingBox getBoundingBox()
+	{
+		BoundingBox box = new BoundingBox(position, position.cpy().add(dimensions));
+		return box;
+	}
 
 	public void applyMovement()
 	{
+		float oldX = position.x/10;
+		float oldZ = position.z/10;
+		
 		Level lvl = GameData.currentLevel;
 		
-		if (collision) {
-			// Apply up/down movement (y axis)
-			Vector3 cpos = this.getCPosition();
-			if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z)) {
-				getVelocity().y = 0;
+		// Apply up/down movement (y axis)
+		Vector3 cpos = this.getCPosition();
+		BoundingBox box = getBoundingBox();
+		
+		if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID)) {
+			getVelocity().y = 0;
+		}
+		this.translate(0, getVelocity().y, 0);
+		
+		
+		cpos.y += getVelocity().y;
+		// Apply x and z axis movement
+		box = getBoundingBox();
+		
+		if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z	+ getVelocity().z, box, UID)) {
+			
+			box = getBoundingBox();
+			if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z, box, UID)) {
+				getVelocity().x = 0;
 			}
-			this.translate(0, getVelocity().y, 0);
-			cpos.y += getVelocity().y;
-			// Apply x and z axis movement
-			if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z
-					+ getVelocity().z)) {
-				if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z)) {
-					getVelocity().x = 0;
-				}
 
-				if (lvl.checkCollision(cpos.x, cpos.y, cpos.z + getVelocity().z)) {
-					getVelocity().z = 0;
-				}
+			box = getBoundingBox();
+			if (lvl.checkCollision(cpos.x, cpos.y, cpos.z + getVelocity().z, box, UID)) {
+				getVelocity().z = 0;
 			}
 		}
+		
 		this.translate(getVelocity().x, 0, getVelocity().z);
 		
 		getVelocity().x = 0;
 		getVelocity().z = 0;
+		
+		float newX = position.x/10;
+		float newZ = position.z/10;
+		
+		GameData.currentLevel.moveActor(oldX, oldZ, newX, newZ, UID);
 		
 	}
 	

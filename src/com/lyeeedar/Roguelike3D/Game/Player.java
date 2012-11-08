@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 
 public class Player extends GameActor {
@@ -45,7 +46,6 @@ public class Player extends GameActor {
 		rotate((float)Gdx.input.getDeltaX()*xrotate*move, 0, 1, 0);
 		
 		updateView();
-
 	}
 	
 	

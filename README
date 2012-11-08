@@ -8,9 +8,9 @@ Welcome to the design document for the 3D Roguelike game *insert name here*
 
 Upcoming Features
 
-1. Enemy base code
+1. Collision Detection
 2. Item base code
-3. Place enemy on map
+3. Spell Code
 4. Place item on map
 5. Level features, water, lava etc
 

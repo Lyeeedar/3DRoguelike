@@ -15,18 +15,21 @@ public class VisibleObject {
 	
 	public VisibleObject(Mesh mesh, Vector3 colour, String textureName)
 	{
-		this.mesh = mesh;
-		this.colour = colour;
-		
-		texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"), true);
+		Texture texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"), true);
 		//texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"));
 		texture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
 		texture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
 		//texture.setFilter( TextureFilter.Nearest, TextureFilter.Nearest );
-
+		
+		create(mesh, colour, texture);
 	}
 	
 	public VisibleObject(Mesh mesh, Vector3 colour, Texture texture)
+	{
+		create(mesh, colour, texture);
+	}
+	
+	public void create(Mesh mesh, Vector3 colour, Texture texture)
 	{
 		this.mesh = mesh;
 		this.colour = colour;

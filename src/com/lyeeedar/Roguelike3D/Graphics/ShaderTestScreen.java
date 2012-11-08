@@ -236,8 +236,6 @@ public class ShaderTestScreen extends GameScreen {
 	    }
 		
 	    GameData.createNewLevel();
-	    //GameData.player = new Player("model@", new float[]{1.0f, 1.0f, 1.0f}, "tex.", 0, 0, 0);
-	    GameData.player.collision = false;
 		
 	}
 

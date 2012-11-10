@@ -38,9 +38,8 @@ public class Player extends GameActor {
 		Vector3 dir = rotation;
 		if( (dir.y>-0.7) && (pitch<0) || (dir.y<+0.7) && (pitch>0) )
 		{
-			Vector3 localAxisX = rotation.cpy();
-			localAxisX.crs(up).nor();
-			rotate(pitch, localAxisX.x, localAxisX.y, localAxisX.z);
+			//float axis = Math.abs(dir.x);
+			rotate(pitch, 1, 0, 0);
 		}
 
 		rotate((float)Gdx.input.getDeltaX()*xrotate*move, 0, 1, 0);

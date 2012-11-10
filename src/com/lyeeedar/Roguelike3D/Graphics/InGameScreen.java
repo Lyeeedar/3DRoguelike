@@ -31,7 +31,7 @@ public class InGameScreen extends GameScreen {
 
 		// Projection matrix - The camera details, i.e. the fov, the view distance and the screen size
 		Matrix4 projection = new Matrix4();
-		projection.setToProjection(0.1f, 500.0f, 60.0f, (float)screen_width/(float)screen_height);	
+		projection.setToProjection(0.01f, 500.0f, 70.0f, (float)screen_width/(float)screen_height);	
 		
 		Matrix4 pv = projection.mul(view);
 
@@ -45,7 +45,7 @@ public class InGameScreen extends GameScreen {
 
 			// Rotation matrix - The rotation of the object
 			Matrix4 axis = new Matrix4();
-			axis.setToRotation(go.getRotation().x, go.getRotation().y, go.getRotation().z, 180);
+			axis.setToRotation(go.getRotation().x, go.getRotation().y, go.getRotation().z, 0);
 
 			// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
 			Matrix4 mvp = pv.cpy().mul(model).mul(axis);
@@ -142,7 +142,7 @@ public class InGameScreen extends GameScreen {
 
 					// Rotation matrix - The rotation of the object
 					Matrix4 axis = new Matrix4();
-					axis.setToRotation(go.getRotation().x, go.getRotation().y, go.getRotation().z, 360);
+					axis.set(go.getRotationMatrix());
 
 					// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
 					Matrix4 mvp = pv.cpy().mul(model).mul(axis);

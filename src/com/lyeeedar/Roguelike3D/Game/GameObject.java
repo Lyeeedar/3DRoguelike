@@ -60,11 +60,26 @@ public class GameObject {
 		position.z = z;
 		
 		dimensions = vo.getMesh().calculateBoundingBox().getDimensions();
+		
+		if (Math.abs(dimensions.x) > Math.abs(dimensions.z))
+		{
+			dimensions.z = dimensions.x * (dimensions.z / Math.abs(dimensions.z));
+		}
+		else
+		{
+			dimensions.x = dimensions.z * (dimensions.x / Math.abs(dimensions.x));
+		}
 	}
 	
 	public BoundingBox getBoundingBox()
 	{
 		BoundingBox box = new BoundingBox(position, position.cpy().add(dimensions));
+		return box;
+	}
+	
+	public BoundingBox getBoundingBox(Vector3 pos)
+	{
+		BoundingBox box = new BoundingBox(pos, pos.cpy().add(dimensions));
 		return box;
 	}
 
@@ -77,9 +92,8 @@ public class GameObject {
 		
 		// Apply up/down movement (y axis)
 		Vector3 cpos = this.getCPosition();
-		BoundingBox box = getBoundingBox();
 		
-		if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID)) {
+		if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z, getBoundingBox(new Vector3(cpos.x, cpos.y + getVelocity().y, cpos.z)), UID)) {
 			getVelocity().y = 0;
 		}
 		this.translate(0, getVelocity().y, 0);
@@ -87,17 +101,14 @@ public class GameObject {
 		
 		cpos.y += getVelocity().y;
 		// Apply x and z axis movement
-		box = getBoundingBox();
 		
-		if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z	+ getVelocity().z, box, UID)) {
+		if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z	+ getVelocity().z, getBoundingBox(new Vector3(cpos.x + getVelocity().x, cpos.y, cpos.z + getVelocity().z)), UID)) {
 			
-			box = getBoundingBox();
-			if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z, box, UID)) {
+			if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z, getBoundingBox(new Vector3(cpos.x + getVelocity().x, cpos.y, cpos.z)), UID)) {
 				getVelocity().x = 0;
 			}
 
-			box = getBoundingBox();
-			if (lvl.checkCollision(cpos.x, cpos.y, cpos.z + getVelocity().z, box, UID)) {
+			if (lvl.checkCollision(cpos.x, cpos.y, cpos.z + getVelocity().z, getBoundingBox(new Vector3(cpos.x, cpos.y, cpos.z + getVelocity().z)), UID)) {
 				getVelocity().z = 0;
 			}
 		}
@@ -117,9 +128,9 @@ public class GameObject {
 	Matrix4 rotationMatrix = new Matrix4();
 	public void rotate(float angle, float x, float y, float z)
 	{
-		rotationMatrix.setToRotation(x, y, z, angle);
+		rotationMatrix.rotate(x, y, z, angle);
 		
-		rotation.rot(rotationMatrix);
+		rotation = new Vector3(0, 0, -1).rot(rotationMatrix);
 	}
 
 	public void translate(float x, float y, float z)
@@ -202,6 +213,22 @@ public class GameObject {
 
 	public void setView(Matrix4 view) {
 		this.view = view;
+	}
+
+	public Vector3 getDimensions() {
+		return dimensions;
+	}
+
+	public void setDimensions(Vector3 dimensions) {
+		this.dimensions = dimensions;
+	}
+
+	public Matrix4 getRotationMatrix() {
+		return rotationMatrix;
+	}
+
+	public void setRotationMatrix(Matrix4 rotationMatrix) {
+		this.rotationMatrix = rotationMatrix;
 	}
 
 }

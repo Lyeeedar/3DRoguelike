@@ -49,7 +49,7 @@ public class Enemy extends GameActor {
 		}
 		else
 		{
-			if (ran.nextInt(200) == 1)
+			if (ran.nextInt(130) == 1)
 			{
 				turnLock = ran.nextInt(3);
 				

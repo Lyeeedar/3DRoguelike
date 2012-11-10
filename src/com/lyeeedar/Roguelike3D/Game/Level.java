@@ -180,47 +180,26 @@ public class Level {
 	public boolean checkTileCollision(Tile t, BoundingBox box, String UID)
 	{
 		if (t.character == ' ') return true;
-		
-		boolean check = false;
-		
+
 		for (Character c : solids)
 		{
 			if (t.character == c)
 			{
 				return true;
-				//check = true;
-				//break;
 			}
 		}
 		
-		if (check)
+		for (GameActor ga : t.actors)
 		{
-			BoundingBox tbox = t.floorGo.getBoundingBox();
+			if (ga.UID.equals(UID)) continue;
 			
-			System.out.println("Player:");
-			System.out.println("Min="+box.min+"   Max="+box.max);
-			System.out.println("Block:");
-			System.out.println("Min="+tbox.min+"   Max="+tbox.max);
-			
-			boolean collide = interectBoxes(box, tbox);
-			System.out.println("Collision="+collide);
-			
-			if (collide) return true;
-			
-			for (GameActor ga : t.actors)
-			{
-				if (ga.UID.equals(UID)) continue;
-				
-				BoundingBox abox = ga.getBoundingBox();
-				
-				if (interectBoxes(box, abox)) return true;
-			}
+			if (intersectBoxes(box, ga.getBoundingBox())) return true;
 		}
 		
 		return false;
 	}
 	
-	public boolean interectBoxes(BoundingBox b1, BoundingBox b2)
+	public boolean intersectBoxes(BoundingBox b1, BoundingBox b2)
 	{
 		if (
 			b1.min.x < b2.max.x &&

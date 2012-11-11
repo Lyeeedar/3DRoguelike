@@ -223,6 +223,14 @@ public class InGameScreen extends GameScreen {
 					go.vo.texture.bind();
 					go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
 					shader.end();
+					
+					GameData.collisionShader.begin();
+					
+					model = new Matrix4();
+					model.setToTranslation(go.getCollisionBox().position);
+					GameData.collisionShader.setUniformMatrix("u_mvp", pv.cpy().mul(model));
+					go.collisionMesh.render(shader, GL20.GL_LINE_LOOP);
+					GameData.collisionShader.end();
 				}
 			}
 		}

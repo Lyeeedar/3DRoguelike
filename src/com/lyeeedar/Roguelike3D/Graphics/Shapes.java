@@ -3,8 +3,15 @@ package com.lyeeedar.Roguelike3D.Graphics;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.math.Vector3;
 
 public class Shapes {
+	
+	public static Mesh genCuboid(Vector3 dimensions)
+	{
+		return genCuboid(dimensions.x, dimensions.y, dimensions.z);
+	}
+	
 	public static Mesh genCuboid (float x, float y, float z) {
 		Mesh mesh = new Mesh(true, 24, 36, 
 				new VertexAttribute(Usage.Position, 3, "a_position"),
@@ -143,6 +150,19 @@ public class Shapes {
 		mesh.setIndices(indices);
 
 		return mesh;
+	}
+	
+	public static void translateCubeMesh(Mesh mesh, float x, float y, float z)
+	{
+		float[] newPos = new float[mesh.getMaxVertices()*8];
+		mesh.getVertices(newPos);
+		for (int i = 0; i < mesh.getMaxVertices(); i++)
+		{
+			newPos[i] += x;
+			newPos[i+1] += y;
+			newPos[i+2] += z;
+		}
+		mesh.setVertices(newPos);
 	}
 	
 }

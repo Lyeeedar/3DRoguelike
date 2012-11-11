@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.lyeeedar.Roguelike3D.Graphics.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 
 public class GameObject {
@@ -28,14 +29,11 @@ public class GameObject {
 	protected Vector3 tmpVec = new Vector3();
 	protected Matrix4 tmpMat = new Matrix4();
 	
-	protected Vector3 dimensions;
+	public CollisionBox collisionBox;
 
 	public VisibleObject vo;
-
-	public GameObject(VisibleObject vo)
-	{
-		this.vo = vo;
-	}
+	
+	public Mesh collisionMesh;
 
 	public GameObject(VisibleObject vo, float x, float y, float z)
 	{
@@ -59,28 +57,29 @@ public class GameObject {
 		position.y = y;
 		position.z = z;
 		
-		dimensions = vo.getMesh().calculateBoundingBox().getDimensions();
+		BoundingBox box = vo.getMesh().calculateBoundingBox();
+
+		Vector3 dimensions = box.getDimensions().div(2.0f);
 		
+		float min = 0;
+	
 		if (Math.abs(dimensions.x) > Math.abs(dimensions.z))
 		{
+			min = box.min.x;
 			dimensions.z = dimensions.x * (dimensions.z / Math.abs(dimensions.z));
 		}
 		else
 		{
+			min = box.min.z;
 			dimensions.x = dimensions.z * (dimensions.x / Math.abs(dimensions.x));
 		}
-	}
-	
-	public BoundingBox getBoundingBox()
-	{
-		BoundingBox box = new BoundingBox(position, position.cpy().add(dimensions));
-		return box;
-	}
-	
-	public BoundingBox getBoundingBox(Vector3 pos)
-	{
-		BoundingBox box = new BoundingBox(pos, pos.cpy().add(dimensions));
-		return box;
+		
+		Mesh mesh = Shapes.genCuboid(dimensions);
+		
+		//Shapes.translateCubeMesh(mesh, min, box.min.y, min);
+		
+		collisionMesh = mesh;
+		collisionBox = new CollisionBox(dimensions);
 	}
 
 	public void applyMovement()
@@ -93,7 +92,10 @@ public class GameObject {
 		// Apply up/down movement (y axis)
 		Vector3 cpos = this.getCPosition();
 		
-		if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z, getBoundingBox(new Vector3(cpos.x, cpos.y + getVelocity().y, cpos.z)), UID)) {
+		CollisionBox box = collisionBox.cpy();
+		box.translate(0, getVelocity().y, 0);
+		
+		if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID)) {
 			getVelocity().y = 0;
 		}
 		this.translate(0, getVelocity().y, 0);
@@ -102,13 +104,22 @@ public class GameObject {
 		cpos.y += getVelocity().y;
 		// Apply x and z axis movement
 		
-		if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z	+ getVelocity().z, getBoundingBox(new Vector3(cpos.x + getVelocity().x, cpos.y, cpos.z + getVelocity().z)), UID)) {
+		box = collisionBox.cpy();
+		box.translate(getVelocity().x, 0, getVelocity().z);
+		
+		if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z	+ getVelocity().z, box, UID)) {
 			
-			if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z, getBoundingBox(new Vector3(cpos.x + getVelocity().x, cpos.y, cpos.z)), UID)) {
+			box = collisionBox.cpy();
+			box.translate(getVelocity().x, 0, 0);
+			
+			if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z, box, UID)) {
 				getVelocity().x = 0;
 			}
 
-			if (lvl.checkCollision(cpos.x, cpos.y, cpos.z + getVelocity().z, getBoundingBox(new Vector3(cpos.x, cpos.y, cpos.z + getVelocity().z)), UID)) {
+			box = collisionBox.cpy();
+			box.translate(0, 0, getVelocity().z);
+			
+			if (lvl.checkCollision(cpos.x, cpos.y, cpos.z + getVelocity().z, box, UID)) {
 				getVelocity().z = 0;
 			}
 		}
@@ -135,12 +146,13 @@ public class GameObject {
 
 	public void translate(float x, float y, float z)
 	{
-		position.add(x, y, z);
+		translate(new Vector3(x, y, z));
 	}
 	
 	public void translate(Vector3 vec)
 	{
 		position.add(vec);
+		collisionBox.translate(vec);
 	}
 
 	public void left_right(float mag)
@@ -173,7 +185,8 @@ public class GameObject {
 	}
 
 	public void setPosition(Vector3 position) {
-		this.position = position;
+		this.position = position.cpy();
+		this.collisionBox.position = position.cpy();
 	}
 
 
@@ -215,20 +228,36 @@ public class GameObject {
 		this.view = view;
 	}
 
-	public Vector3 getDimensions() {
-		return dimensions;
-	}
-
-	public void setDimensions(Vector3 dimensions) {
-		this.dimensions = dimensions;
-	}
-
 	public Matrix4 getRotationMatrix() {
 		return rotationMatrix;
 	}
 
 	public void setRotationMatrix(Matrix4 rotationMatrix) {
 		this.rotationMatrix = rotationMatrix;
+	}
+
+	public String getUID() {
+		return UID;
+	}
+
+	public void setUID(String uID) {
+		UID = uID;
+	}
+
+	public CollisionBox getCollisionBox() {
+		return collisionBox;
+	}
+
+	public void setCollisionBox(CollisionBox collisionBox) {
+		this.collisionBox = collisionBox;
+	}
+
+	public Mesh getCollisionMesh() {
+		return collisionMesh;
+	}
+
+	public void setCollisionMesh(Mesh collisionMesh) {
+		this.collisionMesh = collisionMesh;
 	}
 
 }

@@ -111,7 +111,7 @@ public class Level {
 		}
 	}
 	
-	public boolean checkCollision(float x, float y, float z, BoundingBox box, String UID)
+	public boolean checkCollision(float x, float y, float z, CollisionBox box, String UID)
 	{	
 		int ix = (int)(x+0.5f);
 		int iz = (int)(z+0.5f);
@@ -123,62 +123,7 @@ public class Level {
 		
 		t = getLevelArray()[ix][iz];
 		if (y < t.floor || y > t.roof) return true;
-		if (checkTileCollision(t, box, UID)) return true;
 		
-//		if (iz-1 > -1)
-//		{
-//			t = getLevelArray()[ix][iz-1];
-//			if (checkTileCollision(t, box, UID)) return true;
-//		}
-//
-//		if (iz+1 < getLevelArray().length)
-//		{
-//			t = getLevelArray()[ix][iz+1];
-//			if (checkTileCollision(t, box, UID)) return true;
-//		}
-//
-//		if (ix-1 > -1 && iz-1 > -1)
-//		{
-//			t = getLevelArray()[ix-1][iz-1];
-//			if (checkTileCollision(t, box, UID)) return true;
-//		}
-//
-//		if (ix-1 > -1)
-//		{
-//			t = getLevelArray()[ix-1][iz];
-//			if (checkTileCollision(t, box, UID)) return true;
-//		}
-//
-//		if (ix-1 > -1 && iz+1 < getLevelArray().length)
-//		{
-//			t = getLevelArray()[ix-1][iz+1];
-//			if (checkTileCollision(t, box, UID)) return true;
-//		}
-//
-//		if (ix+1 < getLevelArray()[0].length && iz-1 > -1)
-//		{
-//			t = getLevelArray()[ix+1][iz-1];
-//			if (checkTileCollision(t, box, UID)) return true;
-//		}
-//
-//		if (ix+1 < getLevelArray()[0].length)
-//		{
-//			t = getLevelArray()[ix+1][iz];
-//			if (checkTileCollision(t, box, UID)) return true;
-//		}
-//
-//		if (ix+1 < getLevelArray()[0].length && iz+1 < getLevelArray().length)
-//		{
-//			t = getLevelArray()[ix+1][iz+1];
-//			if (checkTileCollision(t, box, UID)) return true;
-//		}
-		
-		
-		return false;
-	}
-	
-	public boolean checkTileCollision(Tile t, BoundingBox box, String UID)
-	{
 		if (t.character == ' ') return true;
 
 		for (Character c : solids)
@@ -189,28 +134,72 @@ public class Level {
 			}
 		}
 		
-		for (GameActor ga : t.actors)
+		if (checkTileCollision(t, box, UID)) return true;
+		
+		if (iz-1 > -1)
 		{
-			if (ga.UID.equals(UID)) continue;
-			
-			if (intersectBoxes(box, ga.getBoundingBox())) return true;
+			t = getLevelArray()[ix][iz-1];
+			if (checkTileCollision(t, box, UID)) return true;
 		}
+
+		if (iz+1 < getLevelArray().length)
+		{
+			t = getLevelArray()[ix][iz+1];
+			if (checkTileCollision(t, box, UID)) return true;
+		}
+
+		if (ix-1 > -1 && iz-1 > -1)
+		{
+			t = getLevelArray()[ix-1][iz-1];
+			if (checkTileCollision(t, box, UID)) return true;
+		}
+
+		if (ix-1 > -1)
+		{
+			t = getLevelArray()[ix-1][iz];
+			if (checkTileCollision(t, box, UID)) return true;
+		}
+
+		if (ix-1 > -1 && iz+1 < getLevelArray().length)
+		{
+			t = getLevelArray()[ix-1][iz+1];
+			if (checkTileCollision(t, box, UID)) return true;
+		}
+
+		if (ix+1 < getLevelArray()[0].length && iz-1 > -1)
+		{
+			t = getLevelArray()[ix+1][iz-1];
+			if (checkTileCollision(t, box, UID)) return true;
+		}
+
+		if (ix+1 < getLevelArray()[0].length)
+		{
+			t = getLevelArray()[ix+1][iz];
+			if (checkTileCollision(t, box, UID)) return true;
+		}
+
+		if (ix+1 < getLevelArray()[0].length && iz+1 < getLevelArray().length)
+		{
+			t = getLevelArray()[ix+1][iz+1];
+			if (checkTileCollision(t, box, UID)) return true;
+		}
+		
 		
 		return false;
 	}
 	
-	public boolean intersectBoxes(BoundingBox b1, BoundingBox b2)
+	public boolean checkTileCollision(Tile t, CollisionBox box, String UID)
 	{
-		if (
-			b1.min.x < b2.max.x &&
-			b1.min.y < b2.max.y &&
-			b1.min.z < b2.max.z &&
-			b1.max.x > b2.min.x &&
-			b1.max.y > b2.min.y &&
-			b1.max.z > b2.min.z
-			) return true;
-		else return false;
+		for (GameActor ga : t.actors)
+		{
+			if (ga.UID.equals(UID)) continue;
+			
+			if (box.intersect(ga.getCollisionBox())) return true;
+		}
+		
+		return false;
 	}
+
 	
 	public void moveActor(float oldX, float oldZ, float newX, float newZ, String UID)
 	{

@@ -2,9 +2,12 @@ package com.lyeeedar.Roguelike3D.Game;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.TestFrame;
 import com.lyeeedar.Roguelike3D.Graphics.Light;
+import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 
 
 public class GameData {
@@ -20,6 +23,11 @@ public class GameData {
 	public static ArrayList<GameActor> actors;
 	
 	public static TestFrame frame;
+	
+	public static ShaderProgram collisionShader = new ShaderProgram(
+			Gdx.files.internal("data/shaders/collision_box.vert").readString(),
+            Gdx.files.internal("data/shaders/collision_box.frag").readString()
+            );
 	
 	public static void createNewLevel()
 	{
@@ -42,13 +50,16 @@ public class GameData {
 		
 		currentLevel.setLevelLights(lights);
 		
+		VisibleObject vo = VisibleObject.createCuboid(3, 3, 3, new Vector3(0.6f, 0, 0), "blank");
+		
 		player = new Player("model@", new Vector3(0, 0.6f, 0), "blank", 0, 0, 0);
+		//player = new Player(vo, 0, 0, 0);
 
 		for (int x = 10; x < 50; x++)
 		{
 			for (int y = 10; y < 50; y++)
 			{
-				if (!currentLevel.checkCollision(x, 0, y, player.getBoundingBox(), ""))
+				if (!currentLevel.checkCollision(x, 0, y, player.getCollisionBox(), ""))
 				{
 					currentLevel.getLevelArray()[x][y].actors.add(player);
 					player.setPosition(new Vector3(x*10, 0, y*10));
@@ -60,15 +71,16 @@ public class GameData {
 		
 		for (int i = 1; i < 10; i++)
 		{
-			Enemy e = new Enemy("model@", new Vector3(0.6f, 0, 0), "blank", 0, -2, 0);
+			//Enemy e = new Enemy(vo, 0, 1, 0);
+			Enemy e = new Enemy("model@", new Vector3(0.6f, 0, 0), "blank", 0, 0, 0);
 			for (int x = 0; x < 50; x += i)
 			{
 				for (int y = 0; y < 50; y += i)
 				{
-					if (!currentLevel.checkCollision(x, 0, y, e.getBoundingBox(), ""))
+					if (!currentLevel.checkCollision(x, 0, y, e.getCollisionBox(), ""))
 					{
 						currentLevel.getLevelArray()[x][y].actors.add(e);
-						e.setPosition(new Vector3(x*10, 0, y*10));
+						e.setPosition(new Vector3(x*10, 2, y*10));
 						x = 51;
 						y = 51;
 					}

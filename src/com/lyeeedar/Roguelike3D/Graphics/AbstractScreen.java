@@ -12,30 +12,40 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
+ 
 
-public abstract class GameScreen implements Screen{
+public abstract class AbstractScreen implements Screen{
 	
 	int screen_width;
 	int screen_height;
 
-	Roguelike3DGame game;
+	protected final Roguelike3DGame game;
 
-	DecalBatch decalbatch = new DecalBatch();
-	SpriteBatch spritebatch = new SpriteBatch();
-	BitmapFont font = new BitmapFont();
+	protected final DecalBatch decalBatch;
+	protected final SpriteBatch spriteBatch;
+	protected BitmapFont font;
+	protected final Stage stage;
+
 	
 	ArrayList<GameObject> objects = new ArrayList<GameObject>();
 	ArrayList<ShaderProgram> shaders = new ArrayList<ShaderProgram>();
 	
 	int shaderIndex = 0;
 
-	public GameScreen(Roguelike3DGame game)
+	public AbstractScreen(Roguelike3DGame game)
 	{
 		this.game = game;
+		
+		font = new BitmapFont(Gdx.files.internal("data/skins/arial-15.fnt"), false);
+		spriteBatch = new SpriteBatch();
+		decalBatch = new DecalBatch();
+		stage = new Stage(0, 0, true, spriteBatch);
 		
 		create();
 	}
@@ -65,21 +75,27 @@ public abstract class GameScreen implements Screen{
 		draw(delta);
 
 		update(delta);
-		
+
 		Gdx.gl.glDisable(GL20.GL_CULL_FACE);
 		
-		spritebatch.begin();
+		spriteBatch.begin();
 		font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-		font.draw(spritebatch, ""+Gdx.graphics.getFramesPerSecond(), 20, 580);
-		font.draw(spritebatch, "Pos: "+GameData.player.getPosition(), 20, 550);
-		font.draw(spritebatch, "Ang: "+GameData.player.getRotation(), 20, 520);
-		spritebatch.end();
+		font.draw(spriteBatch, ""+Gdx.graphics.getFramesPerSecond(), 20, 580);
+		font.draw(spriteBatch, "Pos: "+GameData.player.getPosition(), 20, 550);
+		font.draw(spriteBatch, "Ang: "+GameData.player.getRotation(), 20, 520);
+		spriteBatch.end();
+		
+		stage.act( delta );
+        stage.draw();
+		
 	}
 
 	@Override
 	public void resize(int width, int height) {
 		screen_width = width;
 		screen_height = height;
+		
+		stage.setViewport( width, height, true );
 	}
 
 	@Override
@@ -96,9 +112,10 @@ public abstract class GameScreen implements Screen{
 		objects.clear();
 		shaders.clear();
 		
-		decalbatch.dispose();
-		spritebatch.dispose();
+		decalBatch.dispose();
+		spriteBatch.dispose();
 		font.dispose();
+		stage.dispose();
 
 	}
 	

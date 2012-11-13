@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 
-public class MainMenuScreen extends GameScreen {
+public class MainMenuScreen extends AbstractScreen {
 	
 	BitmapFont font;
 	Mesh mesh;

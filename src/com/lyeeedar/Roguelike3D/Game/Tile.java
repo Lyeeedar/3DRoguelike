@@ -12,6 +12,7 @@ public class Tile {
 	public GameObject floorGo;
 	public GameObject roofGo;
 	public ArrayList<GameActor> actors = new ArrayList<GameActor>();
+	public ArrayList<VisibleItem> items = new ArrayList<VisibleItem>();
 	
 	public Tile (char character, float floor, float roof, float height)
 	{

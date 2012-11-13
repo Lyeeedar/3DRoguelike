@@ -26,11 +26,22 @@ public class Player extends GameActor {
 		
 		float move = delta * 10;
 
-		if (Gdx.input.isKeyPressed(Keys.LEFT)) left_right(move);
-		if (Gdx.input.isKeyPressed(Keys.RIGHT)) left_right(-move);
+		if (grounded)
+		{
+			if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A)) left_right(move);
+			if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D)) left_right(-move);
 
-		if (Gdx.input.isKeyPressed(Keys.UP)) forward_backward(move);
-		if (Gdx.input.isKeyPressed(Keys.DOWN)) forward_backward(-move);
+			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) forward_backward(move);
+			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) forward_backward(-move);
+
+			if ( (grounded) && (Gdx.input.isKeyPressed(Keys.SPACE))) velocity.y += 0.4;
+		}
+		
+		if (Gdx.input.isKeyPressed(Keys.B))
+		{
+			velocity.y = 0.4f;
+			velocity.x = 0.6f;
+		}
 		
 		applyMovement();
 
@@ -45,6 +56,8 @@ public class Player extends GameActor {
 		rotate((float)Gdx.input.getDeltaX()*xrotate*move, 0, 1, 0);
 		
 		updateView();
+		
+		GameData.currentLevel.getLevelLights().get(0).position = position.cpy();
 	}
 	
 	

@@ -29,7 +29,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Player;
 
-public class LibGDXSplashScreen extends GameScreen {
+public class LibGDXSplashScreen extends AbstractScreen {
 	
 	public LibGDXSplashScreen(Roguelike3DGame game)
 	{

@@ -4,17 +4,20 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameActor;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Tile;
 
-public class InGameScreen extends GameScreen {
+public class InGameScreen extends AbstractScreen {
 	
 	ArrayList<Light> currentLights = new ArrayList<Light>();
 
@@ -56,10 +59,11 @@ public class InGameScreen extends GameScreen {
 			
 			for (Light l : GameData.currentLevel.getLevelLights())
 			{
-				if (l.inDrawDistance(go.getPosition().cpy(), 20)) currentLights.add(l);
+				//if (l.inDrawDistance(go.getPosition().cpy(), 20)) currentLights.add(l);
+				currentLights.add(l);
 			}
 			
-			shaderIndex = currentLights.size();
+			shaderIndex = 1;//currentLights.size();
 
 			ShaderProgram shader = shaders.get(shaderIndex);
 			
@@ -76,7 +80,9 @@ public class InGameScreen extends GameScreen {
 			{
 				shader.begin();
 				shader.setUniformMatrix("u_mvp", mvp);
-				shader.setUniformf("u_position", go.getPosition());
+				//shader.setUniformf("u_position", go.getPosition());
+				shader.setUniformMatrix("u_model", new Matrix4().setToTranslation(go.getPosition()).mul(axis));
+				shader.setUniformMatrix("u_normal", new Matrix3().set(axis.toNormalMatrix()));
 				shader.setUniformf("u_colour", new Vector3(go.vo.colour));
 				shader.setUniformf("u_ambient", GameData.currentLevel.getAmbient());
 				
@@ -153,10 +159,11 @@ public class InGameScreen extends GameScreen {
 					
 					for (Light l : GameData.currentLevel.getLevelLights())
 					{
-						if (l.inDrawDistance(go.getPosition().cpy(), 20)) currentLights.add(l);
+						//if (l.inDrawDistance(go.getPosition().cpy(), 2000)) currentLights.add(l);
+						currentLights.add(l);
 					}
 					
-					shaderIndex = currentLights.size();
+					shaderIndex = 1;//currentLights.size();
 
 					ShaderProgram shader = shaders.get(shaderIndex);
 					
@@ -173,7 +180,10 @@ public class InGameScreen extends GameScreen {
 					{
 						shader.begin();
 						shader.setUniformMatrix("u_mvp", mvp);
-						shader.setUniformf("u_position", go.getPosition());
+						//shader.setUniformf("u_position", go.getPosition());
+						shader.setUniformMatrix("u_model", new Matrix4().setToTranslation(go.getPosition()).mul(axis));
+						//shader.setUniformf("u_light_to_model", go.getPosition().cpy().sub(currentLights.get(0).position));
+						shader.setUniformMatrix("u_normal", new Matrix3().set(axis.toNormalMatrix()));
 						shader.setUniformf("u_colour", new Vector3(go.vo.colour));
 						shader.setUniformf("u_ambient", GameData.currentLevel.getAmbient());
 						
@@ -224,19 +234,19 @@ public class InGameScreen extends GameScreen {
 					go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
 					shader.end();
 					
-					GameData.collisionShader.begin();
-					
-					model = new Matrix4();
-					model.setToTranslation(go.getCollisionBox().position);
-					GameData.collisionShader.setUniformMatrix("u_mvp", pv.cpy().mul(model));
-					go.collisionMesh.render(shader, GL20.GL_LINE_LOOP);
-					GameData.collisionShader.end();
+//					GameData.collisionShader.begin();
+//					model = new Matrix4();
+//					model.setToTranslation(go.getCollisionBox().position);
+//					GameData.collisionShader.setUniformMatrix("u_mvp", pv.cpy().mul(model));
+//					go.collisionMesh.render(shader, GL20.GL_LINE_LOOP);
+//					GameData.collisionShader.end();
 				}
 			}
 		}
 	}
 	
 	ArrayList<GameActor> gameActors = new ArrayList<GameActor>();
+	int count = 1;
 	@Override
 	void update(float delta) {
 		gameActors.clear();
@@ -258,11 +268,48 @@ public class InGameScreen extends GameScreen {
 		
 		if (Gdx.input.justTouched()) game.switchScreen("LibGDXSplash");
 		
-		//GameData.frame.paint(GameData.frame.getGraphics());
+		count--;
+		if (count <= 0) {
+			count = 10;
+			//GameData.frame.paint(GameData.frame.getGraphics());
+			String map = "";
+			for (Tile[] row : GameData.currentLevel.getLevelArray()) {
+				String r = "";
+				for (Tile t : row) {
+					if (t.actors.size() != 0) {
+						boolean player = false;
+						for (GameActor ga : t.actors) {
+							if (ga.UID.equals(GameData.player.UID)) {
+								player = true;
+								break;
+							}
+						}
+
+						if (player) {
+							r += '@';
+						} else {
+							r += '&';
+						}
+					} else
+						r += t.character;
+				}
+				map += r + "\n";
+			}
+			label.setText(map);
+		}
 	}
 
+	Label label;
 	@Override
 	public void create() {
+		
+		Skin skin = new Skin(Gdx.files.internal( "data/skins/uiskin.json" ));
+		//skin.addResource("verdana", font);
+		//skin.("default_font1", new BitmapFont());
+		font = skin.getFont("default-font");
+		label = new Label("", skin);
+		
+		stage.addActor(label);
 		
 		ShaderProgram shader = new ShaderProgram(
 	            Gdx.files.internal("data/shaders/basic_movement.vert").readString(),
@@ -276,8 +323,10 @@ public class InGameScreen extends GameScreen {
 	    }
 	    
 	    shader = new ShaderProgram(
-	    		Gdx.files.internal("data/shaders/1src_vert_lighting.vert").readString(),
-	            Gdx.files.internal("data/shaders/1src_vert_lighting.frag").readString());
+//	    		Gdx.files.internal("data/shaders/1src_vert_lighting.vert").readString(),
+//	            Gdx.files.internal("data/shaders/1src_vert_lighting.frag").readString());
+	    		Gdx.files.internal("data/shaders/basic_diffuse_lighting.vert").readString(),
+	            Gdx.files.internal("data/shaders/basic_diffuse_lighting.frag").readString());
 	    if(!shader.isCompiled()) {
 	        Gdx.app.log("Problem loading shader:", shader.getLog());
 	    }

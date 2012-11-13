@@ -9,6 +9,8 @@ import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 
 
 public abstract class GameActor extends GameObject{
+	
+	HashMap<String, Item> inventory = new HashMap<String, Item>();
 
 	public GameActor(VisibleObject vo, float x, float y, float z) {
 		super(vo, x, y, z);

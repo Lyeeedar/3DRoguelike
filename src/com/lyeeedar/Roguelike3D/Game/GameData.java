@@ -24,6 +24,8 @@ public class GameData {
 	
 	public static TestFrame frame;
 	
+	public static float gravity = 0.01f;
+	
 	public static ShaderProgram collisionShader = new ShaderProgram(
 			Gdx.files.internal("data/shaders/collision_box.vert").readString(),
             Gdx.files.internal("data/shaders/collision_box.frag").readString()
@@ -42,9 +44,9 @@ public class GameData {
 		
 		ArrayList<Light> lights = new ArrayList<Light>(); 
 		
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 1; i++)
 		{
-			Light l = new Light(new Vector3(0.5f+(i/10), 0.5f+(i/7), 0.5f+(i/9)), new Vector3(i*100, 5, i*100), new Vector3(i*100, 5, i*100), 100);
+			Light l = new Light(new Vector3(0.4f+(i/10), 0.8f+(i/7), 0.5f+(i/9)), new Vector3(i*100, 5, i*100), new Vector3(i*100, 5, i*100), 0.05f);
 			lights.add(l);
 		}
 		
@@ -72,7 +74,7 @@ public class GameData {
 		for (int i = 1; i < 10; i++)
 		{
 			//Enemy e = new Enemy(vo, 0, 1, 0);
-			Enemy e = new Enemy("model@", new Vector3(0.6f, 0, 0), "blank", 0, 0, 0);
+			Enemy e = new Enemy("modelE", new Vector3(0.6f, 0.1f, 0.1f), "blank", 0, 0, 0);
 			for (int x = 0; x < 50; x += i)
 			{
 				for (int y = 0; y < 50; y += i)

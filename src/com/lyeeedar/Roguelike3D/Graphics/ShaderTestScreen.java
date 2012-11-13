@@ -21,7 +21,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Player;
 
-public class ShaderTestScreen extends GameScreen {
+public class ShaderTestScreen extends AbstractScreen {
 
 	public ShaderTestScreen(Roguelike3DGame game) {
 		super(game);
@@ -46,7 +46,7 @@ public class ShaderTestScreen extends GameScreen {
 
 			// Rotation matrix - The rotation of the object
 			Matrix4 axis = new Matrix4();
-			axis.setFromEulerAngles(go.getRotation().x, go.getRotation().y, go.getRotation().z);
+			axis.set(go.getRotationMatrix());
 
 			// View matrix - The position and direction of the 'camera'. In this case, the player.
 			Matrix4 view = new Matrix4();
@@ -93,7 +93,7 @@ public class ShaderTestScreen extends GameScreen {
 				Matrix4 normal = new Matrix4();
 				Matrix3 normal3 = new Matrix3();
 				
-				normal.setFromEulerAngles(go.getRotation().x, go.getRotation().y, go.getRotation().z);
+				normal.set(go.getRotationMatrix());
 				
 				// Model matrix - The position of the object in 3D space comparative to the origin
 				Matrix4 m = new Matrix4();
@@ -101,11 +101,11 @@ public class ShaderTestScreen extends GameScreen {
 
 				// Rotation matrix - The rotation of the object
 				Matrix4 a = new Matrix4();
-				axis.setFromEulerAngles(go.getRotation().x, go.getRotation().y, go.getRotation().z);
+				axis.set(go.getRotationMatrix());
 				
 				Matrix4 ma = m.mul(a);
 				
-				normal3.set(normal.toNormalMatrix());
+				normal3.set(view.mul(normal).toNormalMatrix());
 				
 				shader.setUniformMatrix("u_normal", normal3);
 			
@@ -128,11 +128,11 @@ public class ShaderTestScreen extends GameScreen {
 		
 		Gdx.gl.glDisable(GL20.GL_CULL_FACE);
 		
-		spritebatch.begin();
+		spriteBatch.begin();
 		font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-		font.draw(spritebatch, "Shader: "+shaderName, 20, 490);
-		font.draw(spritebatch, "Player Controlled: "+playerControl, 20, 460);
-		spritebatch.end();
+		font.draw(spriteBatch, "Shader: "+shaderName, 20, 490);
+		font.draw(spriteBatch, "Player Controlled: "+playerControl, 20, 460);
+		spriteBatch.end();
 		
 		Gdx.gl.glEnable(GL20.GL_CULL_FACE);
 

@@ -8,7 +8,7 @@ import com.lyeeedar.Roguelike3D.Graphics.*;
 
 public class Roguelike3DGame extends Game {
 
-	public HashMap<String, GameScreen> screens = new HashMap<String, GameScreen>();
+	public HashMap<String, AbstractScreen> screens = new HashMap<String, AbstractScreen>();
 	
 	@Override
 	public void create() {

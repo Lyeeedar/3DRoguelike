@@ -13,7 +13,7 @@ import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
 
 public class GameObject {
 	
-	String UID;
+	public String UID;
 	
 	final Random ran = new Random();
 	
@@ -34,6 +34,8 @@ public class GameObject {
 	public VisibleObject vo;
 	
 	public Mesh collisionMesh;
+	
+	public boolean grounded = true;
 
 	public GameObject(VisibleObject vo, float x, float y, float z)
 	{
@@ -87,6 +89,17 @@ public class GameObject {
 		float oldX = position.x/10;
 		float oldZ = position.z/10;
 		
+		velocity.y -= GameData.gravity;
+		
+		if (velocity.x < -2) velocity.x = -1;
+		if (velocity.x > 2) velocity.x = 1;
+		
+		if (velocity.y < -2) velocity.y = -1;
+		if (velocity.y > 2) velocity.y = 1;
+		
+		if (velocity.z < -2) velocity.z = -1;
+		if (velocity.z > 2) velocity.z = 1;
+		
 		Level lvl = GameData.currentLevel;
 		
 		// Apply up/down movement (y axis)
@@ -96,7 +109,36 @@ public class GameObject {
 		box.translate(0, getVelocity().y, 0);
 		
 		if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID)) {
-			getVelocity().y = 0;
+			
+			Tile t = lvl.getTile(cpos.x, cpos.y + getVelocity().y, cpos.z);
+			
+			if (cpos.y == t.height)
+			{
+				getVelocity().y = 0;
+				grounded = true;
+			}
+			else if (getVelocity().y < 0)
+			{
+				getVelocity().y = t.height - cpos.y;
+				grounded = true;
+				
+				box = collisionBox.cpy();
+				box.translate(0, getVelocity().y, 0);
+				
+				if (lvl.checkEntities(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID) != null)
+				{
+					getVelocity().y = 0;
+				}
+			}
+			else
+			{
+				getVelocity().y = 0;
+			}
+			
+		}
+		else
+		{
+			grounded = false;
 		}
 		this.translate(0, getVelocity().y, 0);
 		
@@ -126,8 +168,26 @@ public class GameObject {
 		
 		this.translate(getVelocity().x, 0, getVelocity().z);
 		
-		getVelocity().x = 0;
-		getVelocity().z = 0;
+		if (grounded)
+		{
+			if (getVelocity().x != 0)
+			{
+				getVelocity().x /= 1.1f;
+				
+				if (Math.abs(getVelocity().x) < 0.01f) getVelocity().x = 0;
+				
+				getVelocity().x = 0;
+			}
+			
+			if (getVelocity().z != 0)
+			{
+				getVelocity().z /= 1.1f;
+				
+				if (Math.abs(getVelocity().z) < 0.01f) getVelocity().z = 0;
+				
+				getVelocity().z = 0;
+			}
+		}
 		
 		float newX = position.x/10;
 		float newZ = position.z/10;

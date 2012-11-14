@@ -17,7 +17,7 @@ public class Level {
 	private ArrayList<Light> levelLights = new ArrayList<Light>();
 	private ArrayList<GameObject> levelGraphics = new ArrayList<GameObject>();
 	
-	Vector3 ambient = new Vector3(0.01f, 0.01f, 0.01f);
+	Vector3 ambient = new Vector3(0f, 0f, 0f);
 	Vector3 defColour = new Vector3(0.8f, 0.9f, 0.6f);
 	HashMap<Character, String> descriptions = new HashMap<Character, String>();
 	HashMap<Character, Vector3> colours = new HashMap<Character, Vector3>();
@@ -42,7 +42,7 @@ public class Level {
 		{
 			for (int y = 0; y < height; y++)
 			{
-				getLevelArray()[x][y] = new Tile('#', 0, 13, 13);
+				getLevelArray()[x][y] = new Tile('#', 0, 15, 15);
 			}
 		}
 		
@@ -111,7 +111,7 @@ public class Level {
 		}
 	}
 	
-	public Tile getTile(float x, float y, float z)
+	public Tile getTile(float x, float z)
 	{
 		int ix = (int)(x+0.5f);
 		int iz = (int)(z+0.5f);
@@ -121,14 +121,14 @@ public class Level {
 	
 	public boolean checkCollision(float x, float y, float z, CollisionBox box, String UID)
 	{
-		boolean level = checkLevelCollision(x, y, z, box, UID);
+		boolean level = checkLevelCollision(x, y, z);
 		
 		if (level) return true;
 		
 		return checkEntities(x, y, z, box, UID) != null;
 	}
 	
-	public boolean checkLevelCollision(float x, float y, float z, CollisionBox box, String UID)
+	public boolean checkLevelCollision(float x, float y, float z)
 	{	
 		int ix = (int)(x+0.5f);
 		int iz = (int)(z+0.5f);
@@ -139,7 +139,7 @@ public class Level {
 		Tile t = null;
 		
 		t = getLevelArray()[ix][iz];
-		if (y < t.floor || y > t.roof) return true;
+		if (y < t.floor || y*10 > t.roof) return true;
 		
 		return checkSolid(ix, iz);
 	}
@@ -435,7 +435,7 @@ public class Level {
 				{
 					Tile t = getLevelArray()[x][y];
 					t.character = '#';
-					t.height = 13;
+					t.height = 15;
 				}
 				
 				if (chWl(x-1, y) && chWl(x, y-1)

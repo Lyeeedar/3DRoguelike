@@ -8,8 +8,7 @@ import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.lyeeedar.Roguelike3D.Graphics.Shapes;
-import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.*;
 
 public class GameObject {
 	
@@ -36,6 +35,8 @@ public class GameObject {
 	public Mesh collisionMesh;
 	
 	public boolean grounded = true;
+	
+	public Light boundLight;
 
 	public GameObject(VisibleObject vo, float x, float y, float z)
 	{
@@ -110,7 +111,7 @@ public class GameObject {
 		
 		if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID)) {
 			
-			Tile t = lvl.getTile(cpos.x, cpos.y + getVelocity().y, cpos.z);
+			Tile t = lvl.getTile(cpos.x, cpos.z);
 			
 			if (cpos.y == t.height)
 			{
@@ -172,7 +173,7 @@ public class GameObject {
 		{
 			if (getVelocity().x != 0)
 			{
-				getVelocity().x /= 1.1f;
+				getVelocity().x *= 0.99f;
 				
 				if (Math.abs(getVelocity().x) < 0.01f) getVelocity().x = 0;
 				
@@ -181,7 +182,7 @@ public class GameObject {
 			
 			if (getVelocity().z != 0)
 			{
-				getVelocity().z /= 1.1f;
+				getVelocity().z *= 0.99f;
 				
 				if (Math.abs(getVelocity().z) < 0.01f) getVelocity().z = 0;
 				
@@ -201,7 +202,7 @@ public class GameObject {
 	{
 		rotationMatrix.rotate(x, y, z, angle);
 		
-		rotation = new Vector3(0, 0, -1).rot(rotationMatrix);
+		rotation = rotation.set(0, 0, -1).rot(rotationMatrix);
 	}
 
 	public void translate(float x, float y, float z)
@@ -213,6 +214,7 @@ public class GameObject {
 	{
 		position.add(vec);
 		collisionBox.translate(vec);
+		if (boundLight != null) boundLight.position = position;
 	}
 
 	public void left_right(float mag)

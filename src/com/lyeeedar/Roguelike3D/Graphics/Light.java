@@ -18,9 +18,9 @@ public class Light {
 		this.attenuation = attenuation;
 	}
 	
-	public boolean inDrawDistance(Vector3 pos, float offset)
+	public boolean inDrawDistance(Vector3 pos)
 	{
-		if (pos.dst(position) + offset < attenuation) return true;
+		if (1 < (pos.dst(position) * attenuation)*0.001f) return true;
 		
 		return false;
 	}

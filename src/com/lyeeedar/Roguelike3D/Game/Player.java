@@ -34,30 +34,37 @@ public class Player extends GameActor {
 			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) forward_backward(move);
 			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) forward_backward(-move);
 
-			if ( (grounded) && (Gdx.input.isKeyPressed(Keys.SPACE))) velocity.y += 0.4;
+			if ( (grounded) && (Gdx.input.isKeyPressed(Keys.SPACE))) velocity.y += 0.6;
 		}
 		
 		if (Gdx.input.isKeyPressed(Keys.B))
 		{
-			velocity.y = 0.4f;
-			velocity.x = 0.6f;
+			velocity.y = 0.9f;
+			velocity.x = 0.9f;
 		}
 		
 		applyMovement();
 
 		float pitch = (float)Gdx.input.getDeltaY()*yrotate*move;
-		Vector3 dir = rotation;
+		Vector3 dir = rotation.cpy().nor();
 		if( (dir.y>-0.7) && (pitch<0) || (dir.y<+0.7) && (pitch>0) )
 		{
-			//float axis = Math.abs(dir.x);
 			rotate(pitch, 1, 0, 0);
+			//rotate(pitch, rotation.x, 0, rotation.y);
 		}
+
+//		if( (dir.y>-0.7) && (pitch<0) || (dir.y<+0.7) && (pitch>0) )
+//		{
+//			Vector3 localAxisX = rotation.cpy();
+//			localAxisX.crs(up);
+//			rotate(pitch, localAxisX.x, localAxisX.y, localAxisX.z);
+//		}
 
 		rotate((float)Gdx.input.getDeltaX()*xrotate*move, 0, 1, 0);
 		
 		updateView();
 		
-		GameData.currentLevel.getLevelLights().get(0).position = position.cpy();
+		//GameData.currentLevel.getLevelLights().get(0).position = position.cpy();
 	}
 	
 	

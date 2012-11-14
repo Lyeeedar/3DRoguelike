@@ -1,6 +1,7 @@
 package com.lyeeedar.Roguelike3D.Game;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -24,7 +25,7 @@ public class GameData {
 	
 	public static TestFrame frame;
 	
-	public static float gravity = 0.01f;
+	public static float gravity = 0.03f;
 	
 	public static ShaderProgram collisionShader = new ShaderProgram(
 			Gdx.files.internal("data/shaders/collision_box.vert").readString(),
@@ -42,12 +43,31 @@ public class GameData {
 		
 		currentLevel.createLevelGraphics();
 		
-		ArrayList<Light> lights = new ArrayList<Light>(); 
+		ArrayList<Light> lights = new ArrayList<Light>();
 		
-		for (int i = 0; i < 1; i++)
-		{
-			Light l = new Light(new Vector3(0.4f+(i/10), 0.8f+(i/7), 0.5f+(i/9)), new Vector3(i*100, 5, i*100), new Vector3(i*100, 5, i*100), 0.05f);
-			lights.add(l);
+		Random ran = new Random();
+		
+		for (int i = 0; i < 5; i++)
+		{		
+			while (true)
+			{
+				int x = ran.nextInt(50);
+				int z = ran.nextInt(50);
+				Vector3 pos = new Vector3(x, 1, z);
+				if (!currentLevel.checkLevelCollision(pos.x, pos.y, pos.z) && currentLevel.getTile(pos.x, pos.z).items.size() == 0)
+				{
+					pos.x *= 10;
+					pos.z += 10;
+					Light l = new Light(new Vector3(1.0f, 0.9f, 0.5f), pos, new Vector3(i*100, 5, i*100), 0.2f);
+					lights.add(l);
+					
+					VisibleItem vi = new VisibleItem("model!", new Vector3(1.0f, 0.9f, 0.1f), "blank", pos.x, pos.y, pos.z, new Item());
+					vi.boundLight = l;
+					currentLevel.getLevelArray()[x][z].items.add(vi);
+					
+					break;
+				}
+			}
 		}
 		
 		currentLevel.setLevelLights(lights);
@@ -65,6 +85,7 @@ public class GameData {
 				{
 					currentLevel.getLevelArray()[x][y].actors.add(player);
 					player.setPosition(new Vector3(x*10, 0, y*10));
+					lights.get(0).position = new Vector3(x*10, 0, y*10);
 					x = 51;
 					y = 51;
 				}

@@ -42,7 +42,7 @@ public abstract class AbstractScreen implements Screen{
 	{
 		this.game = game;
 		
-		font = new BitmapFont(Gdx.files.internal("data/skins/arial-15.fnt"), false);
+		font = new BitmapFont(Gdx.files.internal("data/skins/default.fnt"), false);
 		spriteBatch = new SpriteBatch();
 		decalBatch = new DecalBatch();
 		stage = new Stage(0, 0, true, spriteBatch);

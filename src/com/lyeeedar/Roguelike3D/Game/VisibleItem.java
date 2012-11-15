@@ -22,9 +22,32 @@ public class VisibleItem extends GameObject {
 		Vector3 cpos = this.getCPosition();
 		actor = GameData.currentLevel.checkEntities(cpos.x, cpos.y, cpos.z, getCollisionBox(), UID);
 		if (actor != null) {
+			System.out.println("Pickup!");
 			actor.inventory.put(item.name, item);
 			GameData.currentLevel.removeItem(cpos.x, cpos.z, UID);
 		}
+	}
+	
+	@Override
+	public void applyMovement()
+	{
+		Vector3 p = this.getCPosition();
+		
+		float oldX = p.x;
+		float oldZ = p.z;
+		
+		//System.out.println("Start   "+p);
+		
+		super.applyMovement();
+		
+		p = this.getCPosition();
+		
+		float newX = p.x;
+		float newZ = p.z;
+		
+		//System.out.println("End    "+p);
+		
+		GameData.currentLevel.moveItem(oldX, oldZ, newX, newZ, UID);
 	}
 
 }

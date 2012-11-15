@@ -19,7 +19,6 @@ public class Roguelike3DGame extends Game {
 	{
 		screens.put("LibGDXSplash", new LibGDXSplashScreen(this));
 		screens.put("MainMenu", new MainMenuScreen(this));
-		screens.put("ShaderTest", new ShaderTestScreen(this));
 		screens.put("InGame", new InGameScreen(this));
 		setScreen(screens.get("LibGDXSplash"));
 	}

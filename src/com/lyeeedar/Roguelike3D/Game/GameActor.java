@@ -20,11 +20,22 @@ public abstract class GameActor extends GameObject{
 	{
 		super(model, colour, texture, x, y, z);
 	}
+	
+	@Override
+	public void applyMovement()
+	{
+		float oldX = position.x/10;
+		float oldZ = position.z/10;
+		
+		super.applyMovement();
+		
+		float newX = position.x/10;
+		float newZ = position.z/10;
+		
+		GameData.currentLevel.moveActor(oldX, oldZ, newX, newZ, UID);
+	}
 
 	float health;
 	HashMap<String, Integer> defenses;
 	int speed;
-	
-	
-	public abstract void update(float delta);
 }

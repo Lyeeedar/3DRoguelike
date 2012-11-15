@@ -25,57 +25,59 @@ public class InGameScreen extends AbstractScreen {
 		super(game);
 	}
 
+	public static final Matrix4 pv = new Matrix4();
 	@Override
 	void draw(float delta) {
 		
-		// View matrix - The position and direction of the 'camera'. In this case, the player.
-		Matrix4 view = GameData.player.getView();
-
 		// Projection matrix - The camera details, i.e. the fov, the view distance and the screen size
-		Matrix4 projection = new Matrix4();
-		projection.setToProjection(0.01f, 500.0f, 70.0f, (float)screen_width/(float)screen_height);	
-		
-		Matrix4 pv = projection.mul(view);
+		pv.setToProjection(0.01f, 500.0f, 70.0f, (float)screen_width/(float)screen_height).mul(GameData.player.getView());
 
 		for (GameObject go : GameData.currentLevel.getLevelGraphics())
 		{
-			drawGameObject(go, pv);
+			drawGameObject(go);
 		}
 		
-		for (Tile[] ts : GameData.currentLevel.getLevelArray())
+		for (int x = 0; x < GameData.currentLevel.getLevelArray().length; x++)
 		{
-			for (Tile t : ts)
+			for (int z = 0; z < GameData.currentLevel.getLevelArray()[0].length; z++)
 			{
+				Tile t = GameData.currentLevel.getLevelArray()[x][z];
 				for (GameActor go : t.actors)
 				{
-					drawGameObject(go, pv);
+					drawGameObject(go);
+					drawCollisionBox(go);
 				}
 				
 				for (VisibleItem vi : t.items)
 				{
-					drawGameObject(vi, pv);
+					//System.out.println(x + "   " + z);
+					drawGameObjectMovementOnly(vi);
+					drawCollisionBox(vi);
 				}
 			}
 		}
 	}
 	
 	public static final int maxLights = 5;
+	public static final float[] light_vectors = new float[maxLights*3];
+	public static final float[] light_colours = new float[maxLights*3];
+	public static final float[] light_atts = new float[maxLights];
+	public static final Matrix3 normal = new Matrix3();
 	
-	public void drawGameObject(GameObject go, Matrix4 pv)
+	public static final Matrix4 model = new Matrix4();
+	public static final Matrix4 mvp = new Matrix4();
+	
+	public void drawGameObject(GameObject go)
 	{
+		if (go.vo == null) return;
+		
 		/** Calculate Matrix's for use in shaders **/
 		
 		// Model matrix - The position of the object in 3D space comparative to the origin
-		Matrix4 model = new Matrix4();
-		model.setToTranslation(go.getPosition());
-
-		// Rotation matrix - The rotation of the object
-		Matrix4 axis = new Matrix4();
-		axis.set(go.getRotationMatrix());
+		model.setToTranslation(go.getPosition()).mul(go.getRotationMatrix());
 
 		// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
-		Matrix4 mvp = pv.cpy().mul(model).mul(axis);
-		
+		mvp.set(pv).mul(model);
 		
 		/** Work out how many lights effect this Object **/
 		currentLights.clear();
@@ -86,11 +88,8 @@ public class InGameScreen extends AbstractScreen {
 			currentLights.add(l);
 		}
 		
-		float[] light_vectors = new float[maxLights*3];
-		float[] light_colours = new float[maxLights*3];
-		float[] light_atts = new float[maxLights];
-		
-		for (int i = 0; i < maxLights && i < currentLights.size(); i++)
+		int i = 0;
+		for (; i < maxLights && i < currentLights.size(); i++)
 		{
 			Vector3 vec = currentLights.get(i).position;
 			light_vectors[i*3] = vec.x;
@@ -104,14 +103,27 @@ public class InGameScreen extends AbstractScreen {
 			
 			light_atts[i] = currentLights.get(i).attenuation;
 		}
+		
+		for (; i < maxLights; i++)
+		{
+			light_vectors[i*3] = 0;
+			light_vectors[(i*3)+1] = 0;
+			light_vectors[(i*3)+2] = 0;
+			
+			light_colours[i*3] = 0;
+			light_colours[(i*3)+1] = 0;
+			light_colours[(i*3)+2] = 0;
+			
+			light_atts[i] = 0;
+		}
 
 		ShaderProgram shader = shaders.get(0);
 		
 		shader.begin();
 		shader.setUniformMatrix("u_mvp", mvp);
-		shader.setUniformMatrix("u_model", new Matrix4().setToTranslation(go.getPosition()).mul(axis));
-		shader.setUniformMatrix("u_normal", new Matrix3().set(axis.toNormalMatrix()));
-		shader.setUniformf("u_colour", new Vector3(go.vo.colour));
+		shader.setUniformMatrix("u_model", model);
+		shader.setUniformMatrix("u_normal", normal.set(model.toNormalMatrix()));
+		shader.setUniformf("u_colour", go.vo.colour);
 		shader.setUniformf("u_ambient", GameData.currentLevel.getAmbient());
 		
 		shader.setUniform3fv("u_light_vector", light_vectors, 0, maxLights*3);
@@ -121,60 +133,67 @@ public class InGameScreen extends AbstractScreen {
 		go.vo.texture.bind();
 		go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
 		shader.end();
-		
-//		GameData.collisionShader.begin();
-//		model = new Matrix4();
-//		model.setToTranslation(go.getCollisionBox().position);
-//		GameData.collisionShader.setUniformMatrix("u_mvp", pv.cpy().mul(model));
-//		go.collisionMesh.render(shader, GL20.GL_LINE_LOOP);
-//		GameData.collisionShader.end();
 	}
 	
-	public void drawGameObjectMovementOnly(GameObject go, Matrix4 pv)
+	public void drawCollisionBox(GameObject go)
 	{
+		// Model matrix - The position of the object in 3D space comparative to the origin
+		model.setToTranslation(go.collisionBox.position);
+		// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
+		mvp.set(pv).mul(model);
+		
+		GameData.collisionShader.begin();
+		GameData.collisionShader.setUniformMatrix("u_mvp", mvp);
+		go.collisionMesh.render(GameData.collisionShader, GL20.GL_LINE_LOOP);
+		GameData.collisionShader.end();
+	}
+	
+	public void drawGameObjectMovementOnly(GameObject go)
+	{
+		if (go.vo == null) return;
+		
 		/** Calculate Matrix's for use in shaders **/
 		
 		// Model matrix - The position of the object in 3D space comparative to the origin
-		Matrix4 model = new Matrix4();
-		model.setToTranslation(go.getPosition());
-
-		// Rotation matrix - The rotation of the object
-		Matrix4 axis = new Matrix4();
-		axis.set(go.getRotationMatrix());
+		model.setToTranslation(go.getPosition()).mul(go.getRotationMatrix());
 
 		// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
-		Matrix4 mvp = pv.cpy().mul(model).mul(axis);
+		mvp.set(pv).mul(model);
 		
 		ShaderProgram shader = shaders.get(1);
 		
 		shader.begin();
 		shader.setUniformMatrix("u_mvp", mvp);
-		shader.setUniformf("u_colour", new Vector3(go.vo.colour));
-		shader.setUniformf("u_ambient", GameData.currentLevel.getAmbient());
+		shader.setUniformf("u_colour", go.vo.colour);
 
 		go.vo.texture.bind();
 		go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
 		shader.end();
 	}
 	
-	ArrayList<GameActor> gameActors = new ArrayList<GameActor>();
+	ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
 	int count = 1;
 	@Override
 	void update(float delta) {
 		
-		gameActors.clear();
+		gameObjects.clear();
 		for (Tile[] ts : GameData.currentLevel.getLevelArray())
 		{
 			for (Tile t : ts)
 			{
 				for (GameActor ga : t.actors)
 				{
-					gameActors.add(ga);
+					gameObjects.add(ga);
+				}
+				
+				for (VisibleItem vi : t.items)
+				{
+					gameObjects.add(vi);
 				}
 			}
 		}
 		
-		for (GameActor ga : gameActors)
+		for (GameObject ga : gameObjects)
 		{
 			ga.update(delta);
 		}

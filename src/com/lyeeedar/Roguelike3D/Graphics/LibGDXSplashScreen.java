@@ -68,7 +68,6 @@ public class LibGDXSplashScreen extends AbstractScreen {
 			go.vo.texture.bind();
 			shader.setUniformMatrix("u_mvp", mvp);
 			shader.setUniformf("u_colour", new Vector3(go.vo.colour));
-			shader.setUniformf("u_ambient", new Vector3(1, 1, 1));
 			go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
 			shader.end();
 		}

@@ -17,7 +17,7 @@ public class Level {
 	private ArrayList<Light> levelLights = new ArrayList<Light>();
 	private ArrayList<GameObject> levelGraphics = new ArrayList<GameObject>();
 	
-	Vector3 ambient = new Vector3(0f, 0f, 0f);
+	Vector3 ambient = new Vector3(0.2f, 0.2f, 0.2f);
 	Vector3 defColour = new Vector3(0.8f, 0.9f, 0.6f);
 	HashMap<Character, String> descriptions = new HashMap<Character, String>();
 	HashMap<Character, Vector3> colours = new HashMap<Character, Vector3>();
@@ -139,7 +139,7 @@ public class Level {
 		Tile t = null;
 		
 		t = getLevelArray()[ix][iz];
-		if (y < t.floor || y*10 > t.roof) return true;
+		if (y*10 < t.floor || y*10 > t.roof) return true;
 		
 		return checkSolid(ix, iz);
 	}
@@ -248,22 +248,38 @@ public class Level {
 		return null;
 	}
 	
+	public void removeLight(String UID)
+	{
+		for (int i = 0; i < this.levelLights.size(); i++)
+		{
+			if (levelLights.get(i).UID.equals(UID))
+			{
+				levelLights.remove(i);
+				return;
+			}
+		}
+	}
+	
 	public void removeItem(float oldX, float oldZ, String UID)
 	{
 		int ox = (int)(oldX+0.5f);
 		int oz = (int)(oldZ+0.5f);
+		
+		//System.out.println(oldX + "   " + oldZ + "   " + ox + "   " + oz);
 
 		int i = 0;
 		for (VisibleItem ga : levelArray[ox][oz].items)
 		{
+			//System.out.println(ga.UID);
 			if (ga.UID.equals(UID)) 
-			{ 
-				levelArray[ox][oz].actors.get(i).dispose();
-				levelArray[ox][oz].actors.remove(i);
-				break;
+			{
+				if (ga.boundLight!= null) removeLight(ga.boundLight.UID);
+				levelArray[ox][oz].items.remove(i);
+				return;
 			}
 			i++;
 		}
+		System.err.println("Failed to remove item!");
 	}
 	
 	public void removeActor(float oldX, float oldZ, String UID)
@@ -276,12 +292,13 @@ public class Level {
 		{
 			if (ga.UID.equals(UID)) 
 			{
-				levelArray[ox][oz].actors.get(i).dispose();
+				if (ga.boundLight!= null) removeLight(ga.boundLight.UID);
 				levelArray[ox][oz].actors.remove(i);
-				break;
+				return;
 			}
 			i++;
 		}
+		System.err.println("Failed to remove actor!");
 	}
 
 	
@@ -317,6 +334,60 @@ public class Level {
 		}
 		
 		levelArray[nx][nz].actors.add(actor);
+	}
+	
+	public void moveItem(float oldX, float oldZ, float newX, float newZ, String UID)
+	{
+		int ox = (int)(oldX+0.5f);
+		int oz = (int)(oldZ+0.5f);
+		
+		int nx = (int)(newX+0.5f);
+		int nz = (int)(newZ+0.5f);
+		
+		//System.out.println("p   "+ ox + "  " + oz + "   " + nx + "   " + nz);
+		
+		if (ox == nx && oz == nz) return;
+		if (checkSolid(nx, nz)) return;
+		
+		VisibleItem item = null;
+		
+		int i = 0;
+		for (VisibleItem vi : levelArray[ox][oz].items)
+		{
+			if (vi.UID.equals(UID)) 
+			{ 
+				item = levelArray[ox][oz].items.get(i);
+				levelArray[ox][oz].items.remove(i);
+				break;
+			}
+			i++;
+		}
+		
+		if (item == null)
+		{
+			System.err.println("Error removing item from tile:"+ox+" "+oz);
+			return;
+		}
+		
+		levelArray[nx][nz].items.add(item);
+	}
+	
+	public void addItem(float x, float z, VisibleItem item)
+	{
+		int ox = (int)(x+0.5f);
+		int oz = (int)(z+0.5f);
+		
+		levelArray[ox][oz].items.add(item);
+
+	}
+	
+	public void addActor(float x, float z, GameActor actor)
+	{
+		int ox = (int)(x+0.5f);
+		int oz = (int)(z+0.5f);
+		
+		levelArray[ox][oz].actors.add(actor);
+
 	}
 	
 	public boolean checkOpaque(int x, int z)

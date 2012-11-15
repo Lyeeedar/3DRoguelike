@@ -6,6 +6,12 @@ public class CollisionBox {
 	public Vector3 position;
 	public Vector3 dimensions;
 	
+	public CollisionBox()
+	{
+		position = new Vector3();
+		dimensions = new Vector3();
+	}
+	
 	public CollisionBox(Vector3 dimensions)
 	{
 		position = new Vector3();
@@ -41,9 +47,14 @@ public class CollisionBox {
 		else return false;
 	}
 	
-	public CollisionBox cpy()
+	/**
+	 * Copy the values from this collision box into the given collision box
+	 * @param box
+	 */
+	public void cpy(CollisionBox box)
 	{
-		return new CollisionBox(position.cpy(), dimensions.cpy());
+		box.position.set(position);
+		box.dimensions.set(dimensions);
 	}
 
 }

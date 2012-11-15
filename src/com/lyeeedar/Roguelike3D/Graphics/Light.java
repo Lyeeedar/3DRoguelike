@@ -9,6 +9,8 @@ public class Light {
 	public Vector3 direction;
 	
 	public float attenuation;
+	
+	public String UID;
 		
 	public Light(Vector3 colour, Vector3 position, Vector3 direction, float attenuation)
 	{
@@ -16,6 +18,8 @@ public class Light {
 		this.position = position;
 		this.direction = direction;
 		this.attenuation = attenuation;
+		
+		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 	}
 	
 	public boolean inDrawDistance(Vector3 pos)

@@ -21,9 +21,10 @@ public class GameObject {
 
 	// x y z
 	protected Vector3 position = new Vector3();
-	protected Vector3 rotation = new Vector3(-1, 0, 0);
-	protected Matrix4 view = new Matrix4();
+	protected Vector3 rotation = new Vector3(1, 0, 1);
 	protected Vector3 velocity = new Vector3();
+	
+	public Vector3 up = new Vector3(0, 1, 0);
 
 	protected Vector3 tmpVec = new Vector3();
 	protected Matrix4 tmpMat = new Matrix4();
@@ -37,6 +38,8 @@ public class GameObject {
 	public boolean grounded = true;
 	
 	public Light boundLight;
+	
+	protected Matrix4 view = new Matrix4();
 
 	public GameObject(VisibleObject vo, float x, float y, float z)
 	{
@@ -45,8 +48,15 @@ public class GameObject {
 	
 	public GameObject(String model, Vector3 colour, String texture, float x, float y, float z)
 	{
-		Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read());
-		this.vo = new VisibleObject(mesh, colour, texture);
+		if (model == null)
+		{
+			vo = null;
+		}
+		else
+		{
+			Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read());
+			vo = new VisibleObject(mesh, colour, texture);
+		}
 		
 		create(vo, x, y, z);
 	}
@@ -60,7 +70,16 @@ public class GameObject {
 		position.y = y;
 		position.z = z;
 		
-		BoundingBox box = vo.getMesh().calculateBoundingBox();
+		BoundingBox box;
+		if (vo == null)
+		{
+			box = new BoundingBox(new Vector3(0, 0, 0), new Vector3(10, 10, 10));
+		}
+		else
+		{
+			box = vo.getMesh().calculateBoundingBox();
+		}
+		 
 
 		Vector3 dimensions = box.getDimensions().div(2.0f);
 		
@@ -83,13 +102,11 @@ public class GameObject {
 		
 		collisionMesh = mesh;
 		collisionBox = new CollisionBox(dimensions);
+		collisionBox.position = new Vector3(x, y, z);
 	}
 
 	public void applyMovement()
 	{
-		float oldX = position.x/10;
-		float oldZ = position.z/10;
-		
 		velocity.y -= GameData.gravity;
 		
 		if (velocity.x < -2) velocity.x = -1;
@@ -106,27 +123,43 @@ public class GameObject {
 		// Apply up/down movement (y axis)
 		Vector3 cpos = this.getCPosition();
 		
-		CollisionBox box = collisionBox.cpy();
+		final CollisionBox box = new CollisionBox();
+		collisionBox.cpy(box);
 		box.translate(0, getVelocity().y, 0);
 		
 		if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID)) {
 			
 			Tile t = lvl.getTile(cpos.x, cpos.z);
 			
-			if (cpos.y == t.height)
+			float ypos = cpos.y*10;
+			
+			if (ypos == t.height)
 			{
 				getVelocity().y = 0;
 				grounded = true;
+			}
+			else if (ypos < t.floor)
+			{
+				System.out.println("lower than the floor!    "+UID);
+				this.positionYAbsolutely(t.floor*10);
+				getVelocity().y = 0;
+				grounded = true;
+			}
+			else if (ypos > t.roof)
+			{
+				System.out.println("higher than the roof!    "+UID);
+				this.positionYAbsolutely((t.roof-1)*10);
+				getVelocity().y = 0;
 			}
 			else if (getVelocity().y < 0)
 			{
 				getVelocity().y = t.height - cpos.y;
 				grounded = true;
 				
-				box = collisionBox.cpy();
+				collisionBox.cpy(box);
 				box.translate(0, getVelocity().y, 0);
 				
-				if (lvl.checkEntities(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID) != null)
+				if (getVelocity().y > 0 || lvl.checkEntities(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID) != null)
 				{
 					getVelocity().y = 0;
 				}
@@ -147,19 +180,19 @@ public class GameObject {
 		cpos.y += getVelocity().y;
 		// Apply x and z axis movement
 		
-		box = collisionBox.cpy();
+		collisionBox.cpy(box);
 		box.translate(getVelocity().x, 0, getVelocity().z);
 		
 		if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z	+ getVelocity().z, box, UID)) {
 			
-			box = collisionBox.cpy();
+			collisionBox.cpy(box);
 			box.translate(getVelocity().x, 0, 0);
 			
 			if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z, box, UID)) {
 				getVelocity().x = 0;
 			}
 
-			box = collisionBox.cpy();
+			collisionBox.cpy(box);
 			box.translate(0, 0, getVelocity().z);
 			
 			if (lvl.checkCollision(cpos.x, cpos.y, cpos.z + getVelocity().z, box, UID)) {
@@ -173,36 +206,40 @@ public class GameObject {
 		{
 			if (getVelocity().x != 0)
 			{
-				getVelocity().x *= 0.99f;
-				
-				if (Math.abs(getVelocity().x) < 0.01f) getVelocity().x = 0;
-				
 				getVelocity().x = 0;
 			}
 			
 			if (getVelocity().z != 0)
 			{
-				getVelocity().z *= 0.99f;
-				
-				if (Math.abs(getVelocity().z) < 0.01f) getVelocity().z = 0;
-				
 				getVelocity().z = 0;
 			}
 		}
 		
-		float newX = position.x/10;
-		float newZ = position.z/10;
-		
-		GameData.currentLevel.moveActor(oldX, oldZ, newX, newZ, UID);
-		
 	}
 	
 	Matrix4 rotationMatrix = new Matrix4();
-	public void rotate(float angle, float x, float y, float z)
-	{
-		rotationMatrix.rotate(x, y, z, angle);
+//	public void rotate(float angle, float x, float y, float z)
+//	{
+//		rotationMatrix.rotate(x, y, z, angle);
+//		
+	//		rotation = rotation.set(0, 0, -1).rot(rotationMatrix);
+	//	}
+
+	public void rotate (float angle, float axisX, float axisY, float axisZ) {
+		rotate(tmpVec.set(axisX, axisY, axisZ), angle);
+	}
+
+	/** Rotates the direction and up vector of this camera by the given angle around the given axis. The direction and up vector
+	 * will not be orthogonalized.
+	 *
+	 * @param axis
+	 * @param angle the angle */
+	public void rotate (Vector3 axis, float angle) {
+		rotationMatrix.rotate(axis.x, axis.y, axis.z, angle);
 		
-		rotation = rotation.set(0, 0, -1).rot(rotationMatrix);
+		tmpMat.setToRotation(axis, angle);
+		rotation.mul(tmpMat).nor();
+		up.mul(tmpMat).nor();
 	}
 
 	public void translate(float x, float y, float z)
@@ -216,7 +253,20 @@ public class GameObject {
 		collisionBox.translate(vec);
 		if (boundLight != null) boundLight.position = position;
 	}
+	
+	public void positionAbsolutely(Vector3 position)
+	{
+		this.position.set(position);
+		collisionBox.position.set(position);
+		if (boundLight != null) boundLight.position = this.position;
+	}
 
+	public void positionYAbsolutely(float y)
+	{
+		position.y = y;
+		collisionBox.position.y = y;
+		if (boundLight != null) boundLight.position.y = y;
+	}
 	public void left_right(float mag)
 	{
 		velocity.x += (float)Math.sin(rotation.z) * mag;
@@ -229,16 +279,16 @@ public class GameObject {
 		velocity.z += (float)Math.sin(rotation.z) * mag;
 	}
 	
-	static final Vector3 up = new Vector3(0, 1, 0);
+	final Vector3 viewPos = new Vector3();
 	public void updateView()
 	{
-		view.setToLookAt(position, position.cpy().add(rotation), up);
+		view.setToLookAt(position, viewPos.set(position).add(rotation), up);
 	}
 
+	public final Vector3 nvec = new Vector3();
 	public Vector3 getCPosition()
 	{
-		Vector3 nvec = position.cpy();
-		nvec.div(10);
+		nvec.set(position).div(10);
 		return nvec;
 	}
 	
@@ -247,8 +297,8 @@ public class GameObject {
 	}
 
 	public void setPosition(Vector3 position) {
-		this.position = position.cpy();
-		this.collisionBox.position = position.cpy();
+		this.position.set(position);
+		this.collisionBox.position.set(position);
 	}
 
 
@@ -286,17 +336,13 @@ public class GameObject {
 		return view;
 	}
 
-	public void setView(Matrix4 view) {
-		this.view = view;
-	}
-
-	public Matrix4 getRotationMatrix() {
-		return rotationMatrix;
-	}
-
-	public void setRotationMatrix(Matrix4 rotationMatrix) {
-		this.rotationMatrix = rotationMatrix;
-	}
+//	public Matrix4 getRotationMatrix() {
+//		return rotationMatrix;
+//	}
+//
+//	public void setRotationMatrix(Matrix4 rotationMatrix) {
+//		this.rotationMatrix = rotationMatrix;
+//	}
 
 	public String getUID() {
 		return UID;
@@ -320,6 +366,19 @@ public class GameObject {
 
 	public void setCollisionMesh(Mesh collisionMesh) {
 		this.collisionMesh = collisionMesh;
+	}
+
+	public Matrix4 getRotationMatrix() {
+		return rotationMatrix;
+	}
+
+	public void setRotationMatrix(Matrix4 rotationMatrix) {
+		this.rotationMatrix = rotationMatrix;
+	}
+	
+	public void update(float delta)
+	{
+		
 	}
 
 }

@@ -1,12 +1,16 @@
-package com.lyeeedar.Roguelike3D.Game;
+package com.lyeeedar.Roguelike3D.Game.Item;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.GameObject;
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 
 public class VisibleItem extends GameObject {
 
 	Item item;
 	
-	public VisibleItem(String model, Vector3 colour, String texture, float x,
+	public VisibleItem(String model, Color colour, String texture, float x,
 			float y, float z, Item item) {
 		super(model, colour, texture, x, y, z);
 		
@@ -20,11 +24,11 @@ public class VisibleItem extends GameObject {
 		GameActor actor = null;
 		
 		Vector3 cpos = this.getCPosition();
-		actor = GameData.currentLevel.checkEntities(cpos.x, cpos.y, cpos.z, getCollisionBox(), UID);
+		actor = GameData.level.checkEntities(cpos.x, cpos.y, cpos.z, getCollisionBox(), UID);
 		if (actor != null) {
 			System.out.println("Pickup!");
 			actor.inventory.put(item.name, item);
-			GameData.currentLevel.removeItem(cpos.x, cpos.z, UID);
+			GameData.level.removeItem(cpos.x, cpos.z, UID);
 		}
 	}
 	
@@ -47,7 +51,7 @@ public class VisibleItem extends GameObject {
 		
 		//System.out.println("End    "+p);
 		
-		GameData.currentLevel.moveItem(oldX, oldZ, newX, newZ, UID);
+		GameData.level.moveItem(oldX, oldZ, newX, newZ, UID);
 	}
 
 }

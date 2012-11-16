@@ -1,12 +1,13 @@
-package com.lyeeedar.Roguelike3D.Game;
+package com.lyeeedar.Roguelike3D.Game.Actor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class Player extends GameActor {
 
@@ -16,7 +17,7 @@ public class Player extends GameActor {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Player(String model, Vector3 colour, String texture, float x, float y, float z)
+	public Player(String model, Color colour, String texture, float x, float y, float z)
 	{
 		super(model, colour, texture, x, y, z);
 	}
@@ -63,10 +64,6 @@ public class Player extends GameActor {
 		}
 
 		rotate((float)Gdx.input.getDeltaX()*xrotate*move, 0, 1, 0);
-		
-		updateView();
-		
-		//GameData.currentLevel.getLevelLights().get(0).position = position.cpy();
 	}
 	
 	

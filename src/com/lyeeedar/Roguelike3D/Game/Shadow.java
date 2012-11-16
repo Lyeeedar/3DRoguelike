@@ -159,7 +159,7 @@ public class Shadow
 				lit[temp[0]][temp[1]] = true;
 	
 				
-				if ((!seen[temp[0]][temp[1]]) && (!(GameData.currentLevel.checkOpaque(temp[0], temp[1]))))
+				if ((!seen[temp[0]][temp[1]]) && (!(GameData.level.checkOpaque(temp[0], temp[1]))))
 				 seen[temp[0]][temp[1]] = true;
 			}
 
@@ -279,7 +279,7 @@ public class Shadow
 	private boolean isOpaque(int x, int y, int octant)
 	{
 		int[] pos = TranslateOctant(new int[]{x,y}, octant);
-		return GameData.currentLevel.checkOpaque(pos[0], pos[1]);
+		return GameData.level.checkOpaque(pos[0], pos[1]);
 	}
 }
 

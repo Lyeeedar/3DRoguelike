@@ -55,11 +55,11 @@ class DrawingCanvas extends JPanel
 		int lx = (int)(GameData.player.getRotation().x);
 		int lz = (int)(GameData.player.getRotation().z);
 		
-		for (int x = 0; x < GameData.currentLevel.getLevelArray().length; x++)
+		for (int x = 0; x < GameData.level.getLevelArray().length; x++)
 		{
-			for (int y = 0; y < GameData.currentLevel.getLevelArray()[0].length; y++)
+			for (int y = 0; y < GameData.level.getLevelArray()[0].length; y++)
 			{
-				g2.drawString(""+GameData.currentLevel.getLevelArray()[x][y].character, (400-(px))+(x*10), (300-(pz))+(y*10));
+				g2.drawString(""+GameData.level.getLevelArray()[x][y].character, (400-(px))+(x*10), (300-(pz))+(y*10));
 			}
 		}
 

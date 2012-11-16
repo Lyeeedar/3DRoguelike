@@ -1,4 +1,4 @@
-package com.lyeeedar.Roguelike3D.Graphics;
+package com.lyeeedar.Roguelike3D.Graphics.Models;
 
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;

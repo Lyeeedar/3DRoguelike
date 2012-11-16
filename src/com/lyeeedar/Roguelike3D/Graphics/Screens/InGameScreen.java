@@ -15,6 +15,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.*;
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
+import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
+import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 
 public class InGameScreen extends AbstractScreen {
 	
@@ -32,16 +35,16 @@ public class InGameScreen extends AbstractScreen {
 		// Projection matrix - The camera details, i.e. the fov, the view distance and the screen size
 		pv.setToProjection(0.01f, 500.0f, 70.0f, (float)screen_width/(float)screen_height).mul(GameData.player.getView());
 
-		for (GameObject go : GameData.currentLevel.getLevelGraphics())
+		for (GameObject go : GameData.level.getLevelGraphics())
 		{
 			drawGameObject(go);
 		}
 		
-		for (int x = 0; x < GameData.currentLevel.getLevelArray().length; x++)
+		for (int x = 0; x < GameData.level.getLevelArray().length; x++)
 		{
-			for (int z = 0; z < GameData.currentLevel.getLevelArray()[0].length; z++)
+			for (int z = 0; z < GameData.level.getLevelArray()[0].length; z++)
 			{
-				Tile t = GameData.currentLevel.getLevelArray()[x][z];
+				Tile t = GameData.level.getLevelArray()[x][z];
 				for (GameActor go : t.actors)
 				{
 					drawGameObject(go);
@@ -82,7 +85,7 @@ public class InGameScreen extends AbstractScreen {
 		/** Work out how many lights effect this Object **/
 		currentLights.clear();
 		
-		for (Light l : GameData.currentLevel.getLevelLights())
+		for (Light l : GameData.level.getLevelLights())
 		{
 			//if (l.inDrawDistance(go.getPosition().cpy(), 2000)) currentLights.add(l);
 			currentLights.add(l);
@@ -124,7 +127,7 @@ public class InGameScreen extends AbstractScreen {
 		shader.setUniformMatrix("u_model", model);
 		shader.setUniformMatrix("u_normal", normal.set(model.toNormalMatrix()));
 		shader.setUniformf("u_colour", go.vo.colour);
-		shader.setUniformf("u_ambient", GameData.currentLevel.getAmbient());
+		shader.setUniformf("u_ambient", GameData.level.getAmbient());
 		
 		shader.setUniform3fv("u_light_vector", light_vectors, 0, maxLights*3);
 		shader.setUniform3fv("u_light_colour", light_colours, 0, maxLights*3);
@@ -177,7 +180,7 @@ public class InGameScreen extends AbstractScreen {
 	void update(float delta) {
 		
 		gameObjects.clear();
-		for (Tile[] ts : GameData.currentLevel.getLevelArray())
+		for (Tile[] ts : GameData.level.getLevelArray())
 		{
 			for (Tile t : ts)
 			{
@@ -205,7 +208,7 @@ public class InGameScreen extends AbstractScreen {
 			count = 10;
 			//GameData.frame.paint(GameData.frame.getGraphics());
 			String map = "";
-			for (Tile[] row : GameData.currentLevel.getLevelArray()) {
+			for (Tile[] row : GameData.level.getLevelArray()) {
 				String r = "";
 				for (Tile t : row) {
 					if (t.actors.size() != 0) {

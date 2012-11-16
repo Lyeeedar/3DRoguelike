@@ -1,9 +1,10 @@
-package com.lyeeedar.Roguelike3D.Game;
+package com.lyeeedar.Roguelike3D.Game.Actor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
-import com.lyeeedar.Roguelike3D.Graphics.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class Enemy extends GameActor {
 
@@ -12,7 +13,7 @@ public class Enemy extends GameActor {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Enemy(String model, Vector3 colour, String texture, float x, float y, float z)
+	public Enemy(String model, Color colour, String texture, float x, float y, float z)
 	{
 		super(model, colour, texture, x, y, z);
 	}

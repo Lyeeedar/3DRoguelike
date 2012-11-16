@@ -3,21 +3,29 @@ package com.lyeeedar.Roguelike3D.Game;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.lyeeedar.Roguelike3D.Game.Actor.CollisionBox;
+import com.lyeeedar.Roguelike3D.Game.Level.Level;
+import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Graphics.*;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
+import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
+import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class GameObject {
 	
 	public String UID;
 	
-	final Random ran = new Random();
+	protected final Random ran = new Random();
 	
-	final static float xrotate = -800f/720f;
-	final static float yrotate = -600f/720f;
+	protected final static float xrotate = -800f/720f;
+	protected final static float yrotate = -600f/720f;
 
 	// x y z
 	protected Vector3 position = new Vector3();
@@ -37,7 +45,7 @@ public class GameObject {
 	
 	public boolean grounded = true;
 	
-	public Light boundLight;
+	public PointLight boundLight;
 	
 	protected Matrix4 view = new Matrix4();
 
@@ -46,7 +54,7 @@ public class GameObject {
 		create(vo, x, y, z);
 	}
 	
-	public GameObject(String model, Vector3 colour, String texture, float x, float y, float z)
+	public GameObject(String model, Color colour, String texture, float x, float y, float z)
 	{
 		if (model == null)
 		{
@@ -55,7 +63,7 @@ public class GameObject {
 		else
 		{
 			Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read());
-			vo = new VisibleObject(mesh, colour, texture);
+			vo = new VisibleObject(mesh, GL20.GL_TRIANGLES, colour, texture);
 		}
 		
 		create(vo, x, y, z);
@@ -70,14 +78,14 @@ public class GameObject {
 		position.y = y;
 		position.z = z;
 		
-		BoundingBox box;
+		BoundingBox box = new BoundingBox();
 		if (vo == null)
 		{
 			box = new BoundingBox(new Vector3(0, 0, 0), new Vector3(10, 10, 10));
 		}
 		else
 		{
-			box = vo.getMesh().calculateBoundingBox();
+			vo.model.getBoundingBox(box);
 		}
 		 
 
@@ -118,7 +126,7 @@ public class GameObject {
 		if (velocity.z < -2) velocity.z = -1;
 		if (velocity.z > 2) velocity.z = 1;
 		
-		Level lvl = GameData.currentLevel;
+		Level lvl = GameData.level;
 		
 		// Apply up/down movement (y axis)
 		Vector3 cpos = this.getCPosition();
@@ -216,14 +224,6 @@ public class GameObject {
 		}
 		
 	}
-	
-	Matrix4 rotationMatrix = new Matrix4();
-//	public void rotate(float angle, float x, float y, float z)
-//	{
-//		rotationMatrix.rotate(x, y, z, angle);
-//		
-	//		rotation = rotation.set(0, 0, -1).rot(rotationMatrix);
-	//	}
 
 	public void rotate (float angle, float axisX, float axisY, float axisZ) {
 		rotate(tmpVec.set(axisX, axisY, axisZ), angle);
@@ -235,7 +235,7 @@ public class GameObject {
 	 * @param axis
 	 * @param angle the angle */
 	public void rotate (Vector3 axis, float angle) {
-		rotationMatrix.rotate(axis.x, axis.y, axis.z, angle);
+		vo.attributes.getTransform().rotate(axis.x, axis.y, axis.z, angle);
 		
 		tmpMat.setToRotation(axis, angle);
 		rotation.mul(tmpMat).nor();
@@ -249,23 +249,23 @@ public class GameObject {
 	
 	public void translate(Vector3 vec)
 	{
+		vo.attributes.getTransform().translate(vec);
 		position.add(vec);
 		collisionBox.translate(vec);
-		if (boundLight != null) boundLight.position = position;
+		if (boundLight != null) boundLight.position.set(position);
 	}
 	
 	public void positionAbsolutely(Vector3 position)
 	{
+		vo.attributes.getTransform().setToTranslation(position);
 		this.position.set(position);
 		collisionBox.position.set(position);
-		if (boundLight != null) boundLight.position = this.position;
+		if (boundLight != null) boundLight.position.set(position);
 	}
 
 	public void positionYAbsolutely(float y)
 	{
-		position.y = y;
-		collisionBox.position.y = y;
-		if (boundLight != null) boundLight.position.y = y;
+		positionAbsolutely(tmpVec.set(position.x, y, position.z));
 	}
 	public void left_right(float mag)
 	{
@@ -278,12 +278,6 @@ public class GameObject {
 		velocity.x += (float)Math.sin(rotation.x) * mag;
 		velocity.z += (float)Math.sin(rotation.z) * mag;
 	}
-	
-	final Vector3 viewPos = new Vector3();
-	public void updateView()
-	{
-		view.setToLookAt(position, viewPos.set(position).add(rotation), up);
-	}
 
 	public final Vector3 nvec = new Vector3();
 	public Vector3 getCPosition()
@@ -295,12 +289,6 @@ public class GameObject {
 	public Vector3 getPosition() {
 		return position;
 	}
-
-	public void setPosition(Vector3 position) {
-		this.position.set(position);
-		this.collisionBox.position.set(position);
-	}
-
 
 	public Vector3 getVelocity() {
 		return velocity;
@@ -323,26 +311,11 @@ public class GameObject {
 		return rotation;
 	}
 
-	public void setRotation(Vector3 euler_rotation) {
-		this.rotation = euler_rotation;
-	}
-	
 	public void dispose()
 	{
 		vo.dispose();
 	}
 
-	public Matrix4 getView() {
-		return view;
-	}
-
-//	public Matrix4 getRotationMatrix() {
-//		return rotationMatrix;
-//	}
-//
-//	public void setRotationMatrix(Matrix4 rotationMatrix) {
-//		this.rotationMatrix = rotationMatrix;
-//	}
 
 	public String getUID() {
 		return UID;
@@ -366,14 +339,6 @@ public class GameObject {
 
 	public void setCollisionMesh(Mesh collisionMesh) {
 		this.collisionMesh = collisionMesh;
-	}
-
-	public Matrix4 getRotationMatrix() {
-		return rotationMatrix;
-	}
-
-	public void setRotationMatrix(Matrix4 rotationMatrix) {
-		this.rotationMatrix = rotationMatrix;
 	}
 	
 	public void update(float delta)

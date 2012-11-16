@@ -1,4 +1,4 @@
-package com.lyeeedar.Roguelike3D.Game;
+package com.lyeeedar.Roguelike3D.Game.Actor;
 
 import com.badlogic.gdx.math.Vector3;
 

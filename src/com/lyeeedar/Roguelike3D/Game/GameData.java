@@ -40,9 +40,7 @@ public class GameData {
 	public static Player player;
 	
 	public static ArrayList<GameActor> actors;
-	
-	public static TestFrame frame;
-	
+
 	public static float gravity = 0.01f;
 	
 	public static void createNewLevel()
@@ -126,8 +124,6 @@ public class GameData {
 				}
 			}
 		}
-		
-		//frame = new TestFrame();
 	}
 
 }

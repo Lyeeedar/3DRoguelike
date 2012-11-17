@@ -9,37 +9,52 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.Level.Level;
 
 public class TestFrame extends JFrame
 {
+	public static void main(String[] args)
+	{
+		Level level = new Level(50, 50);
+		
+		new TestFrame(level);
+	}
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7985050102337369937L;
 
-	public TestFrame()
+	public TestFrame(Level level)
 	{
 		this.setFocusable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.add(new DrawingCanvas());
+		this.add(new DrawingCanvas(level));
 		
 		this.setSize(640, 480);
 		this.setVisible(true);
 	}
 }
 
-class DrawingCanvas extends JPanel
+class DrawingCanvas extends JPanel implements KeyListener
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1409207916893116457L;
 	BufferedImage im = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
+	Level level;
 	
-	public DrawingCanvas()
+	int posx = 0;
+	int posy = 0;
+	
+	public DrawingCanvas(Level level)
 	{
-		this.setFocusable(false);
+		this.level = level;
+		this.setFocusable(true);
+		this.requestFocusInWindow();
+		this.addKeyListener(this);
 		reload();
 	}
 	
@@ -49,22 +64,15 @@ class DrawingCanvas extends JPanel
 		Graphics g2 = im.createGraphics();
 		g2.setColor(Color.WHITE);
 		
-		int px = (int)GameData.player.getPosition().x;
-		int pz = (int)GameData.player.getPosition().z;
-		
-		int lx = (int)(GameData.player.getRotation().x);
-		int lz = (int)(GameData.player.getRotation().z);
-		
-		for (int x = 0; x < GameData.level.getLevelArray().length; x++)
+		for (int x = 0; x < level.getLevelArray().length; x++)
 		{
-			for (int y = 0; y < GameData.level.getLevelArray()[0].length; y++)
+			for (int y = 0; y < level.getLevelArray()[0].length; y++)
 			{
-				g2.drawString(""+GameData.level.getLevelArray()[x][y].character, (400-(px))+(x*10), (300-(pz))+(y*10));
+				g2.drawString(""+level.getLevelArray()[x][y].character, (400-(posx))+(x*10), (300-(posy))+(y*10));
 			}
 		}
 
 		g2.drawString("@", 400, 300);
-		g2.drawLine(400, 300, 400+lx, 300+lz);
 	}
 	
 	@Override
@@ -72,5 +80,39 @@ class DrawingCanvas extends JPanel
 	{
 		reload();
 		g.drawImage(im, 0, 0, null);
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_UP)
+		{
+			posy -= 5;
+		}
+		else if (e.getKeyCode() == KeyEvent.VK_DOWN)
+		{
+			posy += 5;
+		}
+		else if (e.getKeyCode() == KeyEvent.VK_LEFT)
+		{
+			posx -= 5;
+		}
+		else if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+		{
+			posx += 5;
+		}
+		
+		repaint();
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

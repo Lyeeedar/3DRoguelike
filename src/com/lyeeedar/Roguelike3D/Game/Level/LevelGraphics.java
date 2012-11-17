@@ -12,7 +12,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class LevelGraphics {
 	
-	private ArrayList<VisibleObject> levelGraphics = new ArrayList<VisibleObject>();
+	public ArrayList<VisibleObject> graphics = new ArrayList<VisibleObject>();
 	
 	public void createLevelGraphics(Tile[][] levelArray, Color roof)
 	{
@@ -32,7 +32,7 @@ public class LevelGraphics {
 				
 				VisibleObject vo = new VisibleObject(meshes.get(t.height), GL20.GL_TRIANGLES, t.colour, "tex"+t.character);
 				vo.attributes.getTransform().setToTranslation(x*10, t.height-5, z*10);
-				levelGraphics.add(vo);
+				graphics.add(vo);
 				
 				if (t.height < t.roof)
 				{
@@ -43,7 +43,7 @@ public class LevelGraphics {
 					
 					VisibleObject voRf = new VisibleObject(meshes.get(1f), GL20.GL_TRIANGLES, roof, "tex#");
 					voRf.attributes.getTransform().setToTranslation(x*10, t.roof, z*10);
-					levelGraphics.add(voRf);
+					graphics.add(voRf);
 				}
 			}
 		}	

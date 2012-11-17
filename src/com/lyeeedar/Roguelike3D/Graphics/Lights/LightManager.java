@@ -95,7 +95,7 @@ public class LightManager {
 
 			for (int i = 0; i < maxSize; i++) {
 				final PointLight light = pointLights.get(i);
-				light.priority = (int)(PointLight.PRIORITY_DISCRETE_STEPS * (light.intensity / light.position.dst(x, y, z)));
+				light.priority = (int)(PointLight.PRIORITY_DISCRETE_STEPS * (light.intensity * light.position.dst(x, y, z)));
 				// if just linear fallof
 			}
 			pointLights.sort();
@@ -119,7 +119,7 @@ public class LightManager {
 		}
 	}
 
-	/** Apply lights GLES2.0, call calculateLights before aplying */
+	/** Apply lights GLES2.0, call calculateLights before applying */
 	public void applyLights (ShaderProgram shader) {
 		shader.setUniform3fv("u_light_positions", positions, 0, maxLightsPerModel * 3);
 		shader.setUniform3fv("u_light_colours", colors, 0, maxLightsPerModel * 3);

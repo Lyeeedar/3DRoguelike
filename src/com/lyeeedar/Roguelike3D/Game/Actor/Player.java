@@ -21,6 +21,11 @@ public class Player extends GameActor {
 	{
 		super(model, colour, texture, x, y, z);
 	}
+	
+	public Player(Mesh mesh, Color colour, String texture, float x, float y, float z)
+	{
+		super(mesh, colour, texture, x, y, z);
+	}
 
 	@Override
 	public void update(float delta) {

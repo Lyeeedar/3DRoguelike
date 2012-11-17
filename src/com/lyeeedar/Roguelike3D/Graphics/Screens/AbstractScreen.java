@@ -54,7 +54,7 @@ public abstract class AbstractScreen implements Screen{
 	@Override
 	public void render(float delta) {
 		
-		Gdx.gl.glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
+		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
 		Gdx.gl.glEnable(GL20.GL_CULL_FACE);
@@ -67,7 +67,9 @@ public abstract class AbstractScreen implements Screen{
 
 		update(delta);
 
-		//Gdx.gl.glDisable(GL20.GL_CULL_FACE);
+		Gdx.gl.glDisable(GL20.GL_CULL_FACE);
+		
+		stage.draw();
 		
         fps.log();
 		

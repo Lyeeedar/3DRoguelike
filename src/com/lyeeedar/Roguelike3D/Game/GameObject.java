@@ -56,15 +56,12 @@ public class GameObject {
 	
 	public GameObject(String model, Color colour, String texture, float x, float y, float z)
 	{
-		if (model == null)
-		{
-			vo = null;
-		}
-		else
-		{
-			Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read());
-			vo = new VisibleObject(mesh, GL20.GL_TRIANGLES, colour, texture);
-		}
+		this(ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read()), colour, texture, x, y, z);
+	}
+	
+	public GameObject(Mesh mesh, Color colour, String texture, float x, float y, float z)
+	{
+		vo = new VisibleObject(mesh, GL20.GL_TRIANGLES, colour, texture);
 		
 		create(vo, x, y, z);
 	}

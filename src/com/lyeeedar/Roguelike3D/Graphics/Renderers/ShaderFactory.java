@@ -49,11 +49,11 @@ public class ShaderFactory {
 		}
 		// TODO FIX light chose method
 		String fileName;
-		//if (lights.quality == LightQuality.FRAGMENT)
-		//	fileName = "pixel_lighting";
-		//else {
+		if (lights.quality == LightQuality.FRAGMENT)
+			fileName = "pixel_lighting";
+		else {
 			fileName = "vertex_lighting";
-		//}
+		}
 		final String vertexShader = flags + Gdx.files.internal("data/shaders/" + fileName + ".vertex.glsl").readString();
 		final String fragmentShader = flags + Gdx.files.internal("data/shaders/" + fileName + ".fragment.glsl").readString();
 		

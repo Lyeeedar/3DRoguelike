@@ -32,13 +32,13 @@ public class ShaderHandler {
 	private final Array<Material> materialsWithShader = new Array<Material>(false, 64);
 
 	public ShaderProgram getShader (Material material) {
-		System.out.println("Adding shader");
 		for (int i = 0; i < materialsWithShader.size; i++) {
 			if (material.shaderEquals(materialsWithShader.get(i))) {
 				return materialsWithShader.get(i).getShader();
 			}
 		}
 
+		System.out.println("Adding shader");
 		materialsWithShader.add(material);
 		return ShaderFactory.createShader(material, lightManager);
 	}

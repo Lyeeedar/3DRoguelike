@@ -1,4 +1,4 @@
-package com.lyeeedar.Roguelike3D.Graphics;
+package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
 import java.util.ArrayList;
 
@@ -18,26 +18,24 @@ import com.lyeeedar.Roguelike3D.Game.*;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
+import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Graphics.Screens.AbstractScreen;
 
 public class InGameScreen extends AbstractScreen {
-	
-	ArrayList<Light> currentLights = new ArrayList<Light>();
-
 
 	public InGameScreen(Roguelike3DGame game) {
 		super(game);
 	}
 
-	public static final Matrix4 pv = new Matrix4();
 	@Override
-	void draw(float delta) {
+	public void draw(float delta) {
 		
-		// Projection matrix - The camera details, i.e. the fov, the view distance and the screen size
-		pv.setToProjection(0.01f, 500.0f, 70.0f, (float)screen_width/(float)screen_height).mul(GameData.player.getView());
+		protoRenderer.begin();
 
-		for (GameObject go : GameData.level.getLevelGraphics())
+		for (VisibleObject vo : GameData.levelGraphics.graphics)
 		{
-			drawGameObject(go);
+			vo.render(protoRenderer);
 		}
 		
 		for (int x = 0; x < GameData.level.getLevelArray().length; x++)
@@ -47,137 +45,23 @@ public class InGameScreen extends AbstractScreen {
 				Tile t = GameData.level.getLevelArray()[x][z];
 				for (GameActor go : t.actors)
 				{
-					drawGameObject(go);
-					drawCollisionBox(go);
+					go.vo.render(protoRenderer);
 				}
 				
 				for (VisibleItem vi : t.items)
 				{
-					//System.out.println(x + "   " + z);
-					drawGameObjectMovementOnly(vi);
-					drawCollisionBox(vi);
+					vi.vo.render(protoRenderer);
 				}
 			}
 		}
-	}
-	
-	public static final int maxLights = 5;
-	public static final float[] light_vectors = new float[maxLights*3];
-	public static final float[] light_colours = new float[maxLights*3];
-	public static final float[] light_atts = new float[maxLights];
-	public static final Matrix3 normal = new Matrix3();
-	
-	public static final Matrix4 model = new Matrix4();
-	public static final Matrix4 mvp = new Matrix4();
-	
-	public void drawGameObject(GameObject go)
-	{
-		if (go.vo == null) return;
 		
-		/** Calculate Matrix's for use in shaders **/
-		
-		// Model matrix - The position of the object in 3D space comparative to the origin
-		model.setToTranslation(go.getPosition()).mul(go.getRotationMatrix());
-
-		// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
-		mvp.set(pv).mul(model);
-		
-		/** Work out how many lights effect this Object **/
-		currentLights.clear();
-		
-		for (Light l : GameData.level.getLevelLights())
-		{
-			//if (l.inDrawDistance(go.getPosition().cpy(), 2000)) currentLights.add(l);
-			currentLights.add(l);
-		}
-		
-		int i = 0;
-		for (; i < maxLights && i < currentLights.size(); i++)
-		{
-			Vector3 vec = currentLights.get(i).position;
-			light_vectors[i*3] = vec.x;
-			light_vectors[(i*3)+1] = vec.y;
-			light_vectors[(i*3)+2] = vec.z;
-			
-			vec = currentLights.get(i).colour;
-			light_colours[i*3] = vec.x;
-			light_colours[(i*3)+1] = vec.y;
-			light_colours[(i*3)+2] = vec.z;
-			
-			light_atts[i] = currentLights.get(i).attenuation;
-		}
-		
-		for (; i < maxLights; i++)
-		{
-			light_vectors[i*3] = 0;
-			light_vectors[(i*3)+1] = 0;
-			light_vectors[(i*3)+2] = 0;
-			
-			light_colours[i*3] = 0;
-			light_colours[(i*3)+1] = 0;
-			light_colours[(i*3)+2] = 0;
-			
-			light_atts[i] = 0;
-		}
-
-		ShaderProgram shader = shaders.get(0);
-		
-		shader.begin();
-		shader.setUniformMatrix("u_mvp", mvp);
-		shader.setUniformMatrix("u_model", model);
-		shader.setUniformMatrix("u_normal", normal.set(model.toNormalMatrix()));
-		shader.setUniformf("u_colour", go.vo.colour);
-		shader.setUniformf("u_ambient", GameData.level.getAmbient());
-		
-		shader.setUniform3fv("u_light_vector", light_vectors, 0, maxLights*3);
-		shader.setUniform3fv("u_light_colour", light_colours, 0, maxLights*3);
-		shader.setUniform1fv("u_light_attenuation", light_atts, 0, maxLights);
-
-		go.vo.texture.bind();
-		go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
-		shader.end();
-	}
-	
-	public void drawCollisionBox(GameObject go)
-	{
-		// Model matrix - The position of the object in 3D space comparative to the origin
-		model.setToTranslation(go.collisionBox.position);
-		// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
-		mvp.set(pv).mul(model);
-		
-		GameData.collisionShader.begin();
-		GameData.collisionShader.setUniformMatrix("u_mvp", mvp);
-		go.collisionMesh.render(GameData.collisionShader, GL20.GL_LINE_LOOP);
-		GameData.collisionShader.end();
-	}
-	
-	public void drawGameObjectMovementOnly(GameObject go)
-	{
-		if (go.vo == null) return;
-		
-		/** Calculate Matrix's for use in shaders **/
-		
-		// Model matrix - The position of the object in 3D space comparative to the origin
-		model.setToTranslation(go.getPosition()).mul(go.getRotationMatrix());
-
-		// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
-		mvp.set(pv).mul(model);
-		
-		ShaderProgram shader = shaders.get(1);
-		
-		shader.begin();
-		shader.setUniformMatrix("u_mvp", mvp);
-		shader.setUniformf("u_colour", go.vo.colour);
-
-		go.vo.texture.bind();
-		go.vo.mesh.render(shader, GL20.GL_TRIANGLES);
-		shader.end();
+		protoRenderer.end();
 	}
 	
 	ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
 	int count = 1;
 	@Override
-	void update(float delta) {
+	public void update(float delta) {
 		
 		gameObjects.clear();
 		for (Tile[] ts : GameData.level.getLevelArray())
@@ -225,18 +109,31 @@ public class InGameScreen extends AbstractScreen {
 						} else {
 							r += '&';
 						}
-					} else
-						r += t.character;
+					}
+					else if (t.items.size() != 0)
+					{
+						r += 'i';
+					}
+					else r += t.character;
 				}
 				map += r + "\n";
 			}
 			label.setText(map);
 		}
+		
+		cam.position.set(GameData.player.getPosition());
+		cam.direction.set(GameData.player.getRotation());
+		cam.update();
 	}
 
 	Label label;
 	@Override
 	public void create() {
+		
+		GameData.createNewLevel();
+		
+		protoRenderer = new PrototypeRendererGL20(GameData.lightManager);
+		protoRenderer.cam = cam;
 		
 		Skin skin = new Skin(Gdx.files.internal( "data/skins/uiskin.json" ));
 		//skin.addResource("verdana", font);
@@ -252,51 +149,6 @@ public class InGameScreen extends AbstractScreen {
 		label.setStyle(defaultStyle);
 		
 		stage.addActor(label);
-	    
-	    ShaderProgram shader = new ShaderProgram(
-
-	    		Gdx.files.internal("data/shaders/basic_diffuse_lighting.vert").readString(),
-	            Gdx.files.internal("data/shaders/basic_diffuse_lighting.frag").readString());
-	    if(!shader.isCompiled()) {
-	        Gdx.app.log("Problem loading shader:", shader.getLog());
-	    }
-	    else
-	    {
-	    	shaders.add(shader);
-	    }
-	    
-	    shader = new ShaderProgram(
-	    		Gdx.files.internal("data/shaders/basic_movement.vert").readString(),
-	    		Gdx.files.internal("data/shaders/basic_movement.frag").readString());
-	    if(!shader.isCompiled()) {
-	    	Gdx.app.log("Problem loading shader:", shader.getLog());
-	    }
-	    else
-	    {
-	    	shaders.add(shader);
-	    }
-	    
-//	    shader = new ShaderProgram(
-//	    		Gdx.files.internal("data/shaders/2src_vert_lighting.vert").readString(),
-//	            Gdx.files.internal("data/shaders/2src_vert_lighting.frag").readString());
-//	    if(!shader.isCompiled()) {
-//	        Gdx.app.log("Problem loading shader:", shader.getLog());
-//	    }
-//	    else
-//	    {
-//	    	shaders.add(shader);
-//	    }
-//	    
-//	    shader = new ShaderProgram(
-//	            Gdx.files.internal("data/shaders/3src_vert_lighting.vert").readString(),
-//	            Gdx.files.internal("data/shaders/3src_vert_lighting.frag").readString());
-//	    if(!shader.isCompiled()) {
-//	        Gdx.app.log("Problem loading shader:", shader.getLog());
-//	    }
-//	    else
-//	    {
-//	    	shaders.add(shader);
-//	    }
 	}
 
 	@Override

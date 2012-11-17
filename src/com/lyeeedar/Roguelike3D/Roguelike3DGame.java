@@ -20,8 +20,8 @@ public class Roguelike3DGame extends Game {
 	private void loadScreens()
 	{
 		//screens.put("LibGDXSplash", new LibGDXSplashScreen(this));
-		//screens.put("InGame", new InGameScreen(this));
-		screens.put("InGame", new StillModelViewerGL20(this, "data/textures/icon.png"));
+		screens.put("InGame", new InGameScreen(this));
+		screens.put("StillMofelViewer", new StillModelViewerGL20(this, "data/textures/icon.png"));
 		
 		for (Map.Entry<String, AbstractScreen> entry : screens.entrySet())
 		{

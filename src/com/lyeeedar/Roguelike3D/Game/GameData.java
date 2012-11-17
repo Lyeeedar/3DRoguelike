@@ -17,7 +17,9 @@ import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
+import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 
@@ -50,10 +52,12 @@ public class GameData {
 		levelGraphics.createLevelGraphics(level.getLevelArray(), level.getColours().get('#'));
 		
 		ArrayList<PointLight> lights = new ArrayList<PointLight>();
+		lightManager = new LightManager(5, LightQuality.VERTEX);
+		lightManager.ambientLight.set(0.0f, 0.0f, 0.0f, 1);
 		
 		Random ran = new Random();
 		
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 15; i++)
 		{		
 			while (true)
 			{
@@ -62,11 +66,11 @@ public class GameData {
 				Vector3 pos = new Vector3(x, 1, z);
 				if (!level.checkLevelCollision(pos.x, pos.y, pos.z) && level.getTile(pos.x, pos.z).items.size() == 0)
 				{
-					PointLight l = new PointLight(pos, new Color(1.0f, 0.9f, 0.5f, 1.0f), 0.2f);
+					PointLight l = new PointLight(new Vector3(i*10, 1, i*10), new Color(1.0f, 0.9f, 0.5f, 1.0f), 0.1f);
 					lightManager.addLight(l);
 					
 					VisibleItem vi = new VisibleItem("model!", new Color(1.0f, 0.9f, 0.1f, 1.0f), "blank", pos.x*10, pos.y, pos.z*10, new Item());
-					vi.boundLight = l;
+					//vi.boundLight = l;
 					level.addItem(pos.x, pos.z, vi);
 					
 					break;
@@ -74,7 +78,7 @@ public class GameData {
 			}
 		}
 
-		player = new Player(null, new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0);
+		player = new Player(Shapes.genCuboid(0.1f, 0.1f, 0.1f), new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0);
 
 		for (int x = 10; x < 50; x++)
 		{
@@ -84,9 +88,22 @@ public class GameData {
 				{
 					level.addActor(x, y, player);
 					player.positionAbsolutely(new Vector3(x*10, 0, y*10));
-					lights.get(0).position.set(new Vector3(x*10, 0, y*10));
+//					
+//					PointLight l = new PointLight(player.position, new Color(1.0f, 0.9f, 1.0f, 1.0f), 0.1f);
+//					lightManager.addLight(l);
+					
+					//player.boundLight = l;
+					
+					PointLight l2 = new PointLight(new Vector3(x*10, 1, y+10*10), new Color(0.9f, 0.3f, 0.5f, 1.0f), 0.1f);
+					lightManager.addLight(l2);
+					
+					PointLight l3 = new PointLight(new Vector3(x*10, 1, y+50*10), new Color(0.1f, 0.9f, 0.5f, 1.0f), 0.1f);
+					lightManager.addLight(l3);
+					
 					x = 51;
 					y = 51;
+					
+					
 				}
 			}
 		}
@@ -101,7 +118,7 @@ public class GameData {
 				{
 					if (!level.checkCollision(x, 0, y, e.getCollisionBox(), ""))
 					{
-						//currentLevel.addActor(x, y, e);
+						//level.addActor(x, y, e);
 						e.positionAbsolutely(new Vector3(x*10, 2, y*10));
 						x = 51;
 						y = 51;

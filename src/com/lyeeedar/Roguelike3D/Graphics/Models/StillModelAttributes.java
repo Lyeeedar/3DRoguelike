@@ -30,8 +30,9 @@ public class StillModelAttributes implements StillModelInstance {
 	public Material material;
 	public float radius;
 
-	public StillModelAttributes (Material material) {
+	public StillModelAttributes (Material material, float radius) {
 		this.material = material;
+		this.radius = radius;
 	}
 
 	@Override
@@ -65,11 +66,10 @@ public class StillModelAttributes implements StillModelInstance {
 		
 		Material copy_material = material.copy();
 		
-		final StillModelAttributes copy = new StillModelAttributes(copy_material);
+		final StillModelAttributes copy = new StillModelAttributes(copy_material, radius);
 		
 		copy.matrix.set(matrix.val);
 		copy.origin.set(origin);
-		copy.radius = radius;
 		copy.transformedPosition.set(transformedPosition);
 		return copy;
 

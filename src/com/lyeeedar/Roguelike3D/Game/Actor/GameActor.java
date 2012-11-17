@@ -36,6 +36,11 @@ public abstract class GameActor extends GameObject{
 		super(model, colour, texture, x, y, z);
 	}
 	
+	public GameActor(Mesh mesh, Color colour, String texture, float x, float y, float z)
+	{
+		super(mesh, colour, texture, x, y, z);
+	}
+	
 	@Override
 	public void applyMovement()
 	{

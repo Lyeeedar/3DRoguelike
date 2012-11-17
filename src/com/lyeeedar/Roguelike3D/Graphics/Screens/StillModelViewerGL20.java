@@ -132,11 +132,11 @@ public class StillModelViewerGL20 extends AbstractScreen {
 		MaterialAttribute t0 = new TextureAttribute(textures[0], 0, TextureAttribute.diffuseTexture);
 		Material material = new Material("basic", c1, c2, t0);
 
-		instance = new StillModelAttributes(material);
+		instance = new StillModelAttributes(material, 5);
 		instance.getTransform().translate(-len / 2, -1, 2);
 		instance.radius = bounds.getDimensions().len() / 2;
 
-		instance2 = new StillModelAttributes(material);
+		instance2 = new StillModelAttributes(material, 5);
 		instance2.getTransform().translate(len / 2, -1, -7);
 
 		instance2.radius = instance.radius;
@@ -170,18 +170,6 @@ public class StillModelViewerGL20 extends AbstractScreen {
 		protoRenderer.draw(model, instance);
 		protoRenderer.draw(model, instance2);
 		protoRenderer.end();
-		
-		// Model matrix - The position of the object in 3D space comparative to the origin
-		testmodel.set(instance.getTransform()).translate(1, 2, -10);
-		// Model-View-Projection matrix - The matrix used to transform the objects mesh coordinates to get them onto the screen
-		mvp.set(cam.combined).mul(testmodel);
-
-		shader.begin();
-		textures[0].bind();
-		shader.setUniformMatrix("u_mvp", mvp);
-		//shader.setUniformf("u_colour", Color.GREEN);
-		model.subMeshes[0].mesh.render(shader, GL20.GL_TRIANGLES);
-		shader.end();
 		
 		Gdx.gl.glDisable(GL20.GL_CULL_FACE);
 

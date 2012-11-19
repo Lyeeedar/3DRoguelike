@@ -47,11 +47,11 @@ public class GameData {
 	{
 		level = new Level(50, 50);
 		
-		levelGraphics.createLevelGraphics(level.getLevelArray(), level.getColours().get('#'));
+		levelGraphics.createLevelGraphics(level.getLevelArray(), level.getColours());
 		
 		ArrayList<PointLight> lights = new ArrayList<PointLight>();
-		lightManager = new LightManager(5, LightQuality.VERTEX);
-		lightManager.ambientLight.set(0.0f, 0.0f, 0.0f, 1);
+		lightManager = new LightManager(0, LightQuality.VERTEX);
+		lightManager.ambientLight.set(0.5f, 0.5f, 0.5f, 1);
 		
 		Random ran = new Random();
 		

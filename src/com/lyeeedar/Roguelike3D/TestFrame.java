@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.Level.AbstractDungeon;
+import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 
 public class TestFrame extends JFrame
@@ -39,6 +41,7 @@ public class TestFrame extends JFrame
 
 class DrawingCanvas extends JPanel implements KeyListener
 {
+	AbstractDungeon ad = new AbstractDungeon(50, 5, 0, 0, 9, 9);
 	/**
 	 * 
 	 */
@@ -46,8 +49,8 @@ class DrawingCanvas extends JPanel implements KeyListener
 	BufferedImage im = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
 	Level level;
 	
-	int posx = 0;
-	int posy = 0;
+	int posx = 25;
+	int posy = 25;
 	
 	public DrawingCanvas(Level level)
 	{
@@ -60,19 +63,28 @@ class DrawingCanvas extends JPanel implements KeyListener
 	
 	public void reload()
 	{
-		im = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
+		im = new BufferedImage(1200, 1200, BufferedImage.TYPE_INT_RGB);
 		Graphics g2 = im.createGraphics();
 		g2.setColor(Color.WHITE);
 		
-		for (int x = 0; x < level.getLevelArray().length; x++)
+		for (int x = 0; x < ad.rooms.length; x++)
 		{
-			for (int y = 0; y < level.getLevelArray()[0].length; y++)
+			for (int y = 0; y < ad.rooms[0].length; y++)
 			{
-				g2.drawString(""+level.getLevelArray()[x][y].character, (400-(posx))+(x*10), (300-(posy))+(y*10));
+				DungeonRoom dr = ad.rooms[x][y];
+				
+				if (dr.up.size()==0 && dr.down.size()==0 && dr.left.size()==0 && dr.right.size()==0) g2.setColor(Color.WHITE);
+				else g2.setColor(Color.GREEN);
+				
+				for (int ix = 0; ix < dr.width; ix++)
+				{
+					for (int iy = 0; iy < dr.height; iy++)
+					{
+						g2.drawString(""+dr.tiles[ix][iy].character, (x*10*(dr.width+1)) + (ix*10), (y*10*(dr.height+1)) + (iy*10));
+					}
+				}
 			}
 		}
-
-		g2.drawString("@", 400, 300);
 	}
 	
 	@Override

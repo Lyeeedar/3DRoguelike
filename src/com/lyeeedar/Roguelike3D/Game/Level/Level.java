@@ -38,7 +38,7 @@ public class Level {
 		colours.put(' ', new Color(0.8f, 0.9f, 0.6f, 1.0f));
 		
 		MapGenerator generator = new MapGenerator(width, height, solids, opaques, colours);
-		generator.createLevelComplex();
+		//generator.createLevelComplex();
 		generator.clearWalls();
 		levelArray = generator.getLevel();
 	}

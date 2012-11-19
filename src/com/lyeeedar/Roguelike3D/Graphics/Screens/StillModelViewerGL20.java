@@ -143,15 +143,15 @@ public class StillModelViewerGL20 extends AbstractScreen {
 
 		
 		shader = new ShaderProgram(
-	    		Gdx.files.internal("data/shaders/basic_movement.vert").readString(),
-	    		Gdx.files.internal("data/shaders/basic_movement.frag").readString());
+	    		Gdx.files.internal("data/shaders/model/basic_movement.vert").readString(),
+	    		Gdx.files.internal("data/shaders/model/basic_movement.frag").readString());
 	    if(!shader.isCompiled()) {
 	    	Gdx.app.log("Problem loading shader:", shader.getLog());
 	    }
 	    
 	    shader = new ShaderProgram(
-	    		Gdx.files.internal("data/shaders/collision_box.vert").readString(),
-	    		Gdx.files.internal("data/shaders/collision_box.frag").readString());
+	    		Gdx.files.internal("data/shaders/model/collision_box.vert").readString(),
+	    		Gdx.files.internal("data/shaders/model/collision_box.frag").readString());
 	    if(!shader.isCompiled()) {
 	    	Gdx.app.log("Problem loading shader:", shader.getLog());
 	    }

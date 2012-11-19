@@ -14,7 +14,7 @@ public class LevelGraphics {
 	
 	public ArrayList<VisibleObject> graphics = new ArrayList<VisibleObject>();
 	
-	public void createLevelGraphics(Tile[][] levelArray, Color roof)
+	public void createLevelGraphics(Tile[][] levelArray, HashMap<Character, Color> colours)
 	{
 		HashMap<Float, Mesh> meshes = new HashMap<Float, Mesh>();
 		
@@ -30,7 +30,7 @@ public class LevelGraphics {
 					meshes.put(t.height, Shapes.genCuboid(5, t.height, 5));
 				}
 				
-				VisibleObject vo = new VisibleObject(meshes.get(t.height), GL20.GL_TRIANGLES, t.colour, "tex"+t.character);
+				VisibleObject vo = new VisibleObject(meshes.get(t.height), GL20.GL_TRIANGLES, colours.get(t.character), "tex"+t.character);
 				vo.attributes.getTransform().setToTranslation(x*10, t.height-5, z*10);
 				graphics.add(vo);
 				
@@ -41,7 +41,7 @@ public class LevelGraphics {
 						meshes.put(1f, Shapes.genCuboid(5, 1, 5));
 					}
 					
-					VisibleObject voRf = new VisibleObject(meshes.get(1f), GL20.GL_TRIANGLES, roof, "tex#");
+					VisibleObject voRf = new VisibleObject(meshes.get(1f), GL20.GL_TRIANGLES, colours.get('#'), "tex#");
 					voRf.attributes.getTransform().setToTranslation(x*10, t.roof, z*10);
 					graphics.add(voRf);
 				}

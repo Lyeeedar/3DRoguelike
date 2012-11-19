@@ -54,8 +54,8 @@ public class ShaderFactory {
 		else {
 			fileName = "vertex_lighting";
 		}
-		final String vertexShader = flags + Gdx.files.internal("data/shaders/" + fileName + ".vertex.glsl").readString();
-		final String fragmentShader = flags + Gdx.files.internal("data/shaders/" + fileName + ".fragment.glsl").readString();
+		final String vertexShader = flags + Gdx.files.internal("data/shaders/model/" + fileName + ".vertex.glsl").readString();
+		final String fragmentShader = flags + Gdx.files.internal("data/shaders/model/" + fileName + ".fragment.glsl").readString();
 		
 		ShaderProgram.pedantic = false;
 		final ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);

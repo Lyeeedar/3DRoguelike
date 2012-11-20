@@ -8,14 +8,14 @@ public class AbstractTile {
 		DOOR
 	}
 	
-	int x;
-	int y;
+	public int x;
+	public int y;
 	
-	int influence = 25;
+	public int influence = 25;
 	
-	TileType tileType;
+	public TileType tileType;
 	
-	boolean room = false;
+	public boolean room = false;
 	
 	public AbstractTile(int x, int y, TileType tileType)
 	{

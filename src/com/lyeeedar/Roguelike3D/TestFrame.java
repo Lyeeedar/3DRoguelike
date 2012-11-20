@@ -11,9 +11,12 @@ import javax.swing.JPanel;
 
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
-import com.lyeeedar.Roguelike3D.Game.Level.AbstractDungeon;
+import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile;
+import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
+import com.lyeeedar.Roguelike3D.Game.Level.SerkGenerator;
+import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 
 public class TestFrame extends JFrame
 {
@@ -41,7 +44,7 @@ public class TestFrame extends JFrame
 
 class DrawingCanvas extends JPanel implements KeyListener
 {
-	AbstractDungeon ad = new AbstractDungeon(50, 10, 1, 1, 4, 4);
+	AbstractTile[][] tiles = new AbstractTile[40][40];
 	/**
 	 * 
 	 */
@@ -54,10 +57,20 @@ class DrawingCanvas extends JPanel implements KeyListener
 	
 	public DrawingCanvas(Level level)
 	{
+		for (int x = 0; x < 40; x++)
+		{
+			for (int y = 0; y < 40; y++)
+			{
+				tiles[x][y] = new AbstractTile(x, y, TileType.WALL);
+			}
+		}
+		
 		this.level = level;
 		this.setFocusable(true);
 		this.requestFocusInWindow();
 		this.addKeyListener(this);
+		SerkGenerator sg = new SerkGenerator(tiles);
+		sg.generate();
 		reload();
 	}
 	
@@ -67,22 +80,28 @@ class DrawingCanvas extends JPanel implements KeyListener
 		Graphics g2 = im.createGraphics();
 		g2.setColor(Color.WHITE);
 		
-		for (int x = 0; x < ad.rooms.length; x++)
+		for (int x = 0; x < tiles.length; x++)
 		{
-			for (int y = 0; y < ad.rooms[0].length; y++)
+			for (int y = 0; y < tiles[0].length; y++)
 			{
-				DungeonRoom dr = ad.rooms[x][y];
-				
-				if (dr.up.size()==0 && dr.down.size()==0 && dr.left.size()==0 && dr.right.size()==0) g2.setColor(Color.WHITE);
-				else g2.setColor(Color.GREEN);
-				
-				for (int ix = 0; ix < dr.width; ix++)
+				if (tiles[x][y].tileType == TileType.FLOOR)
 				{
-					for (int iy = 0; iy < dr.height; iy++)
-					{
-						g2.drawString(""+dr.tiles[ix][iy].character, (x*10*(dr.width+1)) + (ix*10), (y*10*(dr.height+1)) + (iy*10));
-					}
+					g2.setColor(Color.GREEN);
 				}
+				else if (tiles[x][y].tileType == TileType.DOOR)
+				{
+					g2.setColor(Color.RED);
+				}
+				else if (tiles[x][y].room)
+				{
+					g2.setColor(Color.BLUE);
+				}
+				else if (tiles[x][y].tileType == TileType.WALL)
+				{
+					g2.setColor(Color.WHITE);
+				}
+				
+				g2.fillRect(x*20, y*20, 15, 15);
 			}
 		}
 	}

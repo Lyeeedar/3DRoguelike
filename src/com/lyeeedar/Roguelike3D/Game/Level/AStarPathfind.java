@@ -3,8 +3,6 @@ package com.lyeeedar.Roguelike3D.Game.Level;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.lyeeedar.Roguelike3D.Game.Level.PathFind.Node;
-
 public class AStarPathfind
 {
 	Random ran = new Random();

@@ -15,18 +15,19 @@ import com.lyeeedar.Roguelike3D.Game.Level.DelaunayTriangulation.*;
  */
 public class SerkGenerator implements AbstractGenerator{
 	
-	public static final int NOISE_PERSISTANCE = 3;
-	public static final int NOISE_OCTAVES = 5;
+	protected static final int NOISE_PERSISTANCE = 3;
+	protected static final int NOISE_OCTAVES = 5;
 	
-	public static final int ROOM_PLACE_ATTEMPTS = 10;
-	public static final int STAIR_MIN = 3;
-	public static final int STAIR_VAR = 3;
-	public static final int MAIN_MIN = 10;
-	public static final int MAIN_VAR = 5;
-	public static final int SPECIAL_MIN = 6;
-	public static final int SPECIAL_VAR = 6;
-	public static final int OTHER_MIN = 5;
-	public static final int OTHER_VAR = 3;
+	protected static final int ROOM_PLACE_ATTEMPTS = 50;
+	protected static final int ROOM_PLACE_PADDING = 2;
+	protected static final int STAIR_MIN = 3;
+	protected static final int STAIR_VAR = 3;
+	protected static final int MAIN_MIN = 10;
+	protected static final int MAIN_VAR = 5;
+	protected static final int SPECIAL_MIN = 6;
+	protected static final int SPECIAL_VAR = 6;
+	protected static final int OTHER_MIN = 5;
+	protected static final int OTHER_VAR = 3;
 
 	final ArrayList<DungeonRoom> rooms = new ArrayList<DungeonRoom>();
 	final AbstractTile[][] tiles;
@@ -47,14 +48,44 @@ public class SerkGenerator implements AbstractGenerator{
 		
 		setInfluence();
 		
+		placeRoom(RoomType.MAIN);
 		placeRoom(RoomType.START);
-
 		placeRoom(RoomType.END);
+		
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		placeRoom(RoomType.OTHER);
+		
+		connectRooms();
 		
 		return rooms;
 	}
 	
-	public void connectRooms()
+	protected void connectRooms()
 	{
 		ArrayList<Pnt> roomPnts = new ArrayList<Pnt>();
 		
@@ -81,9 +112,44 @@ public class SerkGenerator implements AbstractGenerator{
 		{
 			calculatePaths(paths, tri);
 		}
+
+		for (Pnt[] p : paths)
+		{
+			AStarPathfind pathFind = new AStarPathfind(tiles, (int)p[0].coord(0), (int)p[0].coord(1), (int)p[1].coord(0), (int)p[1].coord(1));
+			carveCorridor(pathFind.getPath());
+		}
 	}
 	
-	public void calculatePaths(ArrayList<Pnt[]> paths, Triangle triangle)
+	protected void carveCorridor(int[][] path)
+	{
+		boolean room = tiles[path[0][0]][path[0][1]].room;
+		if (!room) System.err.println("Error! Room Linking path did not start in a Room!");
+		
+		AbstractTile t = null;
+		AbstractTile lt = null;
+		for (int[] pos : path)
+		{
+			lt = t;
+			t = tiles[pos[0]][pos[1]];
+			if (!room && t.room)
+			{
+				lt.tileType = TileType.DOOR;
+				t.tileType = TileType.FLOOR;
+			}
+			else if (room && !t.room)
+			{
+				t.tileType =TileType.DOOR;
+			}
+			else
+			{
+				t.tileType = TileType.FLOOR;
+			}
+			t.influence = 0;
+			room = t.room;
+		}
+	}
+	
+	protected void calculatePaths(ArrayList<Pnt[]> paths, Triangle triangle)
 	{
 		Pnt[] vertices = triangle.toArray(new Pnt[0]);
 		
@@ -132,7 +198,7 @@ public class SerkGenerator implements AbstractGenerator{
         }
 	}
 	
-    public void addPath(Pnt p1, Pnt p2, ArrayList<Pnt[]> paths)
+    protected void addPath(Pnt p1, Pnt p2, ArrayList<Pnt[]> paths)
     {
     	if (p1.coord(0) < 0 || p2.coord(0) < 0)
     	{
@@ -160,7 +226,7 @@ public class SerkGenerator implements AbstractGenerator{
 	ArrayList<Pnt[]> ignorePnts = new ArrayList<Pnt[]>();
 	ArrayList<Pnt[]> addedPnts = new ArrayList<Pnt[]>();
     
-    public boolean checkIgnored(Pnt p1, Pnt p2)
+    protected boolean checkIgnored(Pnt p1, Pnt p2)
     {
     	for (Pnt[] p : ignorePnts)
     	{
@@ -176,23 +242,24 @@ public class SerkGenerator implements AbstractGenerator{
     	return true;
     }
     
-    public boolean checkAdded(Pnt p1, Pnt p2)
+    protected boolean checkAdded(Pnt p1, Pnt p2)
     {
-    	for (Pnt[] p : addedPnts)
-    	{
-    		if (p[0].equals(p1) && p[1].equals(p2))
-    		{
-    			return false;
-    		}
-    		else if (p[0].equals(p2) && p[1].equals(p1))
-    		{
-    			return false;
-    		}
-    	}
-    	return true;
+//    	for (Pnt[] p : addedPnts)
+//    	{
+//    		if (p[0].equals(p1) && p[1].equals(p2))
+//    		{
+//    			return false;
+//    		}
+//    		else if (p[0].equals(p2) && p[1].equals(p1))
+//    		{
+//    			return false;
+//    		}
+//    	}
+//    	return true;
+    	return false;
     }
 
-	public void setInfluence()
+	protected void setInfluence()
 	{
 		PerlinNoise noise = new PerlinNoise();
 		for (int x = 0; x < width; x++)
@@ -204,54 +271,55 @@ public class SerkGenerator implements AbstractGenerator{
 		}
 	}
 	
-	public boolean placeRoom(RoomType roomType)
+	protected boolean placeRoom(RoomType roomType)
 	{
-		int width = 0;
-		int height = 0;
+		int rwidth = 0;
+		int rheight = 0;
 		int px = 0;
 		int py = 0;
 		
 		if (roomType == RoomType.START)
 		{
-			width = STAIR_MIN+ran.nextInt(STAIR_VAR);
-			height = STAIR_MIN+ran.nextInt(STAIR_VAR);
+			rwidth = STAIR_MIN+ran.nextInt(STAIR_VAR);
+			rheight = STAIR_MIN+ran.nextInt(STAIR_VAR);
 		}
 		else if (roomType == RoomType.END)
 		{
-			width = STAIR_MIN+ran.nextInt(STAIR_VAR);
-			height = STAIR_MIN+ran.nextInt(STAIR_VAR);
+			rwidth = STAIR_MIN+ran.nextInt(STAIR_VAR);
+			rheight = STAIR_MIN+ran.nextInt(STAIR_VAR);
 		}
 		else if (roomType == RoomType.MAIN)
 		{
-			width = MAIN_MIN+ran.nextInt(MAIN_VAR);
-			height = MAIN_MIN+ran.nextInt(MAIN_VAR);
+			rwidth = MAIN_MIN+ran.nextInt(MAIN_VAR);
+			rheight = MAIN_MIN+ran.nextInt(MAIN_VAR);
 		}
 		else if (roomType == RoomType.SPECIAL)
 		{
-			width = SPECIAL_MIN+ran.nextInt(SPECIAL_VAR);
-			height = SPECIAL_MIN+ran.nextInt(SPECIAL_VAR);
+			rwidth = SPECIAL_MIN+ran.nextInt(SPECIAL_VAR);
+			rheight = SPECIAL_MIN+ran.nextInt(SPECIAL_VAR);
 		}
 		else if (roomType == RoomType.OTHER)
 		{
-			width = OTHER_MIN+ran.nextInt(OTHER_VAR);
-			height = OTHER_MIN+ran.nextInt(OTHER_VAR);
+			rwidth = OTHER_MIN+ran.nextInt(OTHER_VAR);
+			rheight = OTHER_MIN+ran.nextInt(OTHER_VAR);
 		}
 		
 		for (int i = 0; i < ROOM_PLACE_ATTEMPTS; i++)
 		{
-			 px = ran.nextInt(width);
-			 py = ran.nextInt(height);
+			 px = ROOM_PLACE_PADDING+ran.nextInt(width-rwidth-ROOM_PLACE_PADDING-ROOM_PLACE_PADDING);
+			 py = ROOM_PLACE_PADDING+ran.nextInt(height-rheight-ROOM_PLACE_PADDING-ROOM_PLACE_PADDING);
 			
-			 if (checkRoom(px, py, width, height))
+			 if (checkRoom(px, py, rwidth, rheight))
 			 {
-					addRoom(px, py, width, height, roomType);
+					addRoom(px, py, rwidth, rheight, roomType);
 					return true;
 			 }
 		}
+		System.err.println("Failed to place room!");
 		return false;
 	}
 	
-	public void addRoom(int px, int py, int width, int height, RoomType roomType)
+	protected void addRoom(int px, int py, int width, int height, RoomType roomType)
 	{
 		for (int x = px; x < px+width; x++)
 		{
@@ -266,21 +334,28 @@ public class SerkGenerator implements AbstractGenerator{
 		rooms.add(room);
 	}
 	
-	public boolean checkRoom(int px, int py, int width, int height)
+	protected boolean checkRoom(int px, int py, int rwidth, int rheight)
 	{
-		if (px+width > width)
+		if (px+rwidth+ROOM_PLACE_PADDING > width)
+		{
+			return false;
+		}
+		else if (py+rheight+ROOM_PLACE_PADDING > height)
+		{
+			return false;
+		}
+		else if (px-ROOM_PLACE_PADDING < 0)
+		{
+			return false;
+		}
+		else if (py-ROOM_PLACE_PADDING < 0)
 		{
 			return false;
 		}
 		
-		if (py+height > height)
+		for (int x = px-ROOM_PLACE_PADDING; x < px+rwidth+ROOM_PLACE_PADDING; x++)
 		{
-			return false;
-		}
-		
-		for (int x = px; x < px+width; x++)
-		{
-			for (int y = py; y < py+height; y++)
+			for (int y = py-ROOM_PLACE_PADDING; y < py+rheight+ROOM_PLACE_PADDING; y++)
 			{
 				if (tiles[x][y].room)
 				{

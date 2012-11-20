@@ -41,7 +41,7 @@ public class TestFrame extends JFrame
 
 class DrawingCanvas extends JPanel implements KeyListener
 {
-	AbstractDungeon ad = new AbstractDungeon(50, 5, 0, 0, 9, 9);
+	AbstractDungeon ad = new AbstractDungeon(50, 10, 1, 1, 4, 4);
 	/**
 	 * 
 	 */

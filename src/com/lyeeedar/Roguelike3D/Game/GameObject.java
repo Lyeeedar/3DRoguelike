@@ -112,16 +112,16 @@ public class GameObject {
 
 	public void applyMovement()
 	{
-		velocity.y -= GameData.gravity;
+		//if (velocity.len() == 0) return;
 		
-		if (velocity.x < -2) velocity.x = -1;
-		if (velocity.x > 2) velocity.x = 1;
+		if (velocity.x < -2) velocity.x = -2;
+		if (velocity.x > 2) velocity.x = 2;
 		
-		if (velocity.y < -2) velocity.y = -1;
-		if (velocity.y > 2) velocity.y = 1;
+		if (velocity.y < -2) velocity.y = -2;
+		if (velocity.y > 2) velocity.y = 2;
 		
-		if (velocity.z < -2) velocity.z = -1;
-		if (velocity.z > 2) velocity.z = 1;
+		if (velocity.z < -2) velocity.z = -2;
+		if (velocity.z > 2) velocity.z = 2;
 		
 		Level lvl = GameData.level;
 		
@@ -132,8 +132,8 @@ public class GameObject {
 		collisionBox.cpy(box);
 		box.translate(0, getVelocity().y, 0);
 		
-		if (lvl.checkCollision(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID)) {
-			
+		if (lvl.checkCollision(box, UID)) {
+
 			Tile t = lvl.getTile(cpos.x, cpos.z);
 			
 			float ypos = cpos.y*10;
@@ -164,7 +164,7 @@ public class GameObject {
 				collisionBox.cpy(box);
 				box.translate(0, getVelocity().y, 0);
 				
-				if (getVelocity().y > 0 || lvl.checkEntities(cpos.x, cpos.y + getVelocity().y, cpos.z, box, UID) != null)
+				if (getVelocity().y > 0 || lvl.checkEntities(box, UID) != null)
 				{
 					getVelocity().y = 0;
 				}
@@ -188,19 +188,19 @@ public class GameObject {
 		collisionBox.cpy(box);
 		box.translate(getVelocity().x, 0, getVelocity().z);
 		
-		if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z	+ getVelocity().z, box, UID)) {
+		if (lvl.checkCollision(box, UID)) {
 			
 			collisionBox.cpy(box);
 			box.translate(getVelocity().x, 0, 0);
 			
-			if (lvl.checkCollision(cpos.x + getVelocity().x, cpos.y, cpos.z, box, UID)) {
+			if (lvl.checkCollision(box, UID)) {
 				getVelocity().x = 0;
 			}
 
 			collisionBox.cpy(box);
 			box.translate(0, 0, getVelocity().z);
 			
-			if (lvl.checkCollision(cpos.x, cpos.y, cpos.z + getVelocity().z, box, UID)) {
+			if (lvl.checkCollision(box, UID)) {
 				getVelocity().z = 0;
 			}
 		}
@@ -246,17 +246,17 @@ public class GameObject {
 	
 	public void translate(Vector3 vec)
 	{
-		vo.attributes.getTransform().translate(vec);
 		position.add(vec);
 		collisionBox.translate(vec);
+		vo.attributes.getTransform().setToTranslation(position);
 		if (boundLight != null) boundLight.position.set(position);
 	}
 	
 	public void positionAbsolutely(Vector3 position)
 	{
-		vo.attributes.getTransform().setToTranslation(position);
 		this.position.set(position);
 		collisionBox.position.set(position);
+		vo.attributes.getTransform().setToTranslation(this.position);
 		if (boundLight != null) boundLight.position.set(position);
 	}
 

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class Enemy extends GameActor {
@@ -29,6 +30,8 @@ public class Enemy extends GameActor {
 	public void update(float delta) {
 		
 		float move = delta*10;
+		
+		velocity.y -= GameData.gravity*move;
 		
 		moveLock -= delta;
 		turnLock -= delta;

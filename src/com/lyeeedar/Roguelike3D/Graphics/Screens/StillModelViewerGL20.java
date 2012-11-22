@@ -39,9 +39,11 @@ import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
@@ -75,7 +77,7 @@ public class StillModelViewerGL20 extends AbstractScreen {
 	private StillModelAttributes instance;
 	private StillModelAttributes instance2;
 	ShaderProgram shader;
-
+	
 	public StillModelViewerGL20 (Roguelike3DGame game, String... textureFileNames) {
 		super(game);
 		this.textureFileNames = textureFileNames;

@@ -38,21 +38,14 @@ public class InGameScreen extends AbstractScreen {
 			vo.render(protoRenderer);
 		}
 		
-		for (int x = 0; x < GameData.level.getLevelArray().length; x++)
+		for (GameActor go : GameData.level.actors)
 		{
-			for (int z = 0; z < GameData.level.getLevelArray()[0].length; z++)
-			{
-				Tile t = GameData.level.getLevelArray()[x][z];
-				for (GameActor go : t.actors)
-				{
-					go.vo.render(protoRenderer);
-				}
-				
-				for (VisibleItem vi : t.items)
-				{
-					vi.vo.render(protoRenderer);
-				}
-			}
+			go.vo.render(protoRenderer);
+		}
+		
+		for (VisibleItem vi : GameData.level.items)
+		{
+			vi.vo.render(protoRenderer);
 		}
 		
 		protoRenderer.end();
@@ -64,20 +57,14 @@ public class InGameScreen extends AbstractScreen {
 	public void update(float delta) {
 		
 		gameObjects.clear();
-		for (Tile[] ts : GameData.level.getLevelArray())
+		for (GameActor ga : GameData.level.actors)
 		{
-			for (Tile t : ts)
-			{
-				for (GameActor ga : t.actors)
-				{
-					gameObjects.add(ga);
-				}
-				
-				for (VisibleItem vi : t.items)
-				{
-					gameObjects.add(vi);
-				}
-			}
+			gameObjects.add(ga);
+		}
+		
+		for (VisibleItem vi : GameData.level.items)
+		{
+			gameObjects.add(vi);
 		}
 		
 		for (GameObject ga : gameObjects)
@@ -95,26 +82,7 @@ public class InGameScreen extends AbstractScreen {
 			for (Tile[] row : GameData.level.getLevelArray()) {
 				String r = "";
 				for (Tile t : row) {
-					if (t.actors.size() != 0) {
-						boolean player = false;
-						for (GameActor ga : t.actors) {
-							if (ga.UID.equals(GameData.player.UID)) {
-								player = true;
-								break;
-							}
-						}
-
-						if (player) {
-							r += '@';
-						} else {
-							r += '&';
-						}
-					}
-					else if (t.items.size() != 0)
-					{
-						r += 'i';
-					}
-					else r += t.character;
+					r += t.character;
 				}
 				map += r + "\n";
 			}
@@ -159,7 +127,7 @@ public class InGameScreen extends AbstractScreen {
 	@Override
 	public void show()
 	{
-		//Gdx.input.setCursorCatched(true);
+		Gdx.input.setCursorCatched(true);
 	}
 
 	@Override

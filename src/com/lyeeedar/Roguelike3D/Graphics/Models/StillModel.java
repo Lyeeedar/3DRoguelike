@@ -18,6 +18,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Models;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
@@ -30,6 +31,10 @@ public class StillModel implements Model {
 		for (int i = 0; i < subMeshes.length ; ++i) {
 			this.subMeshes[i] = (StillSubMesh)subMeshes[i];
 		}	
+	}
+	
+	public StillModel (Mesh mesh, int primitive_type) {
+		this.subMeshes = new StillSubMesh[]{new StillSubMesh("basic", mesh, primitive_type)};	
 	}
 
 	@Override

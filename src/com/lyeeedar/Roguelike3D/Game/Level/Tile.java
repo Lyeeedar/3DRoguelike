@@ -14,8 +14,6 @@ public class Tile {
 	public float roof;
 	public float height;
 	public boolean visible = false;
-	public ArrayList<GameActor> actors = new ArrayList<GameActor>();
-	public ArrayList<VisibleItem> items = new ArrayList<VisibleItem>();
 	
 	public Tile (char character, float floor, float roof, float height)
 	{

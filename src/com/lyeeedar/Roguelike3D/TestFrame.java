@@ -22,7 +22,7 @@ public class TestFrame extends JFrame
 {
 	public static void main(String[] args)
 	{
-		Level level = new Level(50, 50);
+		Level level = new Level(80, 80);
 		
 		new TestFrame(level);
 	}
@@ -44,7 +44,7 @@ public class TestFrame extends JFrame
 
 class DrawingCanvas extends JPanel implements KeyListener
 {
-	AbstractTile[][] tiles = new AbstractTile[40][40];
+	AbstractTile[][] tiles = new AbstractTile[50][50];
 	/**
 	 * 
 	 */
@@ -57,9 +57,9 @@ class DrawingCanvas extends JPanel implements KeyListener
 	
 	public DrawingCanvas(Level level)
 	{
-		for (int x = 0; x < 40; x++)
+		for (int x = 0; x < 50; x++)
 		{
-			for (int y = 0; y < 40; y++)
+			for (int y = 0; y < 50; y++)
 			{
 				tiles[x][y] = new AbstractTile(x, y, TileType.WALL);
 			}

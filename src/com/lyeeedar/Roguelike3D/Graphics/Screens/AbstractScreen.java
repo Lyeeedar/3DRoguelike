@@ -58,12 +58,12 @@ public abstract class AbstractScreen implements Screen{
 		
 		protoRenderer = new PrototypeRendererGL20(GameData.lightManager);
 		//frameBuffer = new FrameBuffer(Format.RGBA4444, 800, 600, true);
-		frameBuffer = new FrameBuffer(Format.RGB888, 800, 600, true);
+		frameBuffer = new FrameBuffer(Format.RGB565, 800, 600, true);
 		
 		fullscreenQuad = new FullscreenQuad();
 		shader = new ShaderProgram(
-				Gdx.files.internal("data/shaders/fullscreen/texture.vertex.glsl"),
-				Gdx.files.internal("data/shaders/fullscreen/texture.fragment.glsl")
+				Gdx.files.internal("data/shaders/postprocessing/texture.vertex.glsl"),
+				Gdx.files.internal("data/shaders/postprocessing/texture.fragment.glsl")
 				);
 		if (!shader.isCompiled()) Gdx.app.log("Problem loading shader:", shader.getLog());
 	}
@@ -73,39 +73,38 @@ public abstract class AbstractScreen implements Screen{
 		
 		update(delta);
 	
-		frameBuffer.begin();
-		Gdx.gl20.glViewport(0, 0, frameBuffer.getWidth(), frameBuffer.getHeight());
+		//frameBuffer.begin();
 		
-		Gdx.gl20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		Gdx.graphics.getGL20().glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
-		Gdx.gl20.glEnable(GL20.GL_CULL_FACE);
-		Gdx.gl20.glCullFace(GL20.GL_BACK);
+		Gdx.graphics.getGL20().glEnable(GL20.GL_CULL_FACE);
+		Gdx.graphics.getGL20().glCullFace(GL20.GL_BACK);
 		
-		Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
-		Gdx.gl20.glDepthMask(true);
+		Gdx.graphics.getGL20().glEnable(GL20.GL_DEPTH_TEST);
+		Gdx.graphics.getGL20().glDepthMask(true);
+		
+		//Gdx.graphics.getGL20().glDisable(GL20.GL_DITHER);
 
 		draw(delta);
-		frameBuffer.end();
-
-		Gdx.graphics.getGL20().glViewport(0, 0, 800, 600);
+		//frameBuffer.end();
 		
-		Gdx.gl20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		//Gdx.graphics.getGL20().glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		//Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
-		Gdx.gl20.glDepthMask(true);
+		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
+		//Gdx.graphics.getGL20().glDepthMask(false);
 		
-		shader.begin();
-		frameBuffer.getColorBufferTexture().bind();
-		//shader.setUniformMatrix("u_mvp", cam.combined.cpy().mul());
-		fullscreenQuad.render(shader);
-		shader.end();
+		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
 		
-		Gdx.gl20.glDisable(GL20.GL_DEPTH_TEST);
-		Gdx.gl20.glDepthMask(false);
 		
-		Gdx.gl.glDisable(GL20.GL_CULL_FACE);
+		Gdx.graphics.getGL20().glEnable(GL20.GL_TEXTURE_2D);
+		
+//		spriteBatch.begin();
+//		spriteBatch.draw(frameBuffer.getColorBufferTexture(), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+//				0, 0, frameBuffer.getColorBufferTexture().getWidth(), frameBuffer.getColorBufferTexture().getHeight(),
+//				false, true);
+//		spriteBatch.end();
 		
 		stage.draw();
 		
@@ -118,10 +117,8 @@ public abstract class AbstractScreen implements Screen{
 		screen_width = width;
 		screen_height = height;
 
-		float aspectRatio = (float) width / (float) height;
-        //cam = new PerspectiveCamera(90, 2f * aspectRatio, 2f);
         cam = new PerspectiveCamera(90, width, height);
-        frameBuffer = new FrameBuffer(Format.RGB888, width, height, true);
+        frameBuffer = new FrameBuffer(Format.RGB565, width, height, true);
         cam.near = 0.01f;
         cam.far = 200;
         protoRenderer.cam = cam;

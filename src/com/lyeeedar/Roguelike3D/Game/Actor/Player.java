@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class Player extends GameActor {
@@ -28,9 +29,12 @@ public class Player extends GameActor {
 	}
 
 	@Override
-	public void update(float delta) {
+	public void update(float delta) {	
 		
 		float move = delta * 10;
+		
+		velocity.y -= GameData.gravity*move;
+		
 
 		if (grounded)
 		{

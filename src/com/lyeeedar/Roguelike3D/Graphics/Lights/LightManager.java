@@ -95,8 +95,8 @@ public class LightManager {
 
 			for (int i = 0; i < maxSize; i++) {
 				final PointLight light = pointLights.get(i);
-				light.priority = (int)(PointLight.PRIORITY_DISCRETE_STEPS * (light.intensity * light.position.dst(x, y, z)));
-				// if just linear fallof
+				light.priority = (int)(PointLight.PRIORITY_DISCRETE_STEPS * ((light.intensity) * light.position.dst(x, y, z)));
+				// if just linear falloff
 			}
 			pointLights.sort();
 		}
@@ -119,6 +119,23 @@ public class LightManager {
 		}
 	}
 
+	public long getLightsHash()
+	{
+		final int maxSize = pointLights.size;
+		final int size = maxLightsPerModel > maxSize ? maxSize : maxLightsPerModel;
+		long hash = 1;
+		for (int i = 0; i < size; i++) {
+			final PointLight light = pointLights.get(i);
+			long temp = 1;
+			for (int ii = 0; ii < light.UID.length(); ii++)
+			{
+				temp += (int)light.UID.charAt(ii);
+			}
+			hash *= temp;
+		}
+		return hash;
+	}
+	
 	/** Apply lights GLES2.0, call calculateLights before applying */
 	public void applyLights (ShaderProgram shader) {
 		shader.setUniform3fv("u_light_positions", positions, 0, maxLightsPerModel * 3);

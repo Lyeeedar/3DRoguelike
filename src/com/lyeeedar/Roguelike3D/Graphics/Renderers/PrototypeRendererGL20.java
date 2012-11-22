@@ -31,9 +31,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20.Drawabl
 
 public class PrototypeRendererGL20 implements ModelRenderer {
 
-	static final int SIZE = 256;// TODO better way
-	//final private Array<Model> modelQueue = new Array<Model>(false, SIZE);
-	//final private Array<StillModelattributes> modelattributess = new Array<StillModelattributes>(false, SIZE);
+	static final int SIZE = 256;
 
 	final ShaderHandler shaderHandler;
 	private LightManager lightManager;
@@ -59,15 +57,9 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 	@Override
 	public void draw (StillModel model, StillModelAttributes attributes) {
 		if (cam != null) if (!cam.frustum.sphereInFrustum(attributes.getSortCenter(), attributes.getBoundingSphereRadius())) return;
+		//if (cam != null) if (cam.position.dst(attributes.getSortCenter()) > 150) return;
 		drawableManager.add(model, attributes);
 	}
-
-//	@Override
-//	public void draw (AnimatedModel model, AnimatedModelattributes attributes) {
-//		if (cam != null) if (!cam.frustum.sphereInFrustum(attributes.getSortCenter(), attributes.getBoundingSphereRadius())) return;
-//
-//		drawableManager.add(model, attributes);
-//	}
 
 	@Override
 	public void end () {
@@ -87,13 +79,12 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			final Drawable drawable = drawableManager.drawables.get(i);
 
 			final Vector3 center = drawable.sortCenter;
+			long light_hash = lightManager.getLightsHash();
 			lightManager.calculateLights(center.x, center.y, center.z);
+			boolean check = (light_hash == lightManager.getLightsHash());
 
 			final Matrix4 modelMatrix = drawable.transform;
 			normalMatrix.set(modelMatrix);
-
-			//if (drawable.isAnimated)
-			//	((AnimatedModel)(drawable.model)).setAnimation(drawable.animation, drawable.animationTime, drawable.isLooping);
 
 			final SubMesh subMeshes[] = drawable.model.getSubMeshes();
 
@@ -104,11 +95,11 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 				final Material material = drawable.materials.get(j);
 
 				// bind new shader if material can't use old one
-				final boolean shaderChanged = bindShader(material);
+				final boolean shaderChanged = bindShader(material, check);
 
 				if (shaderChanged || matrixChanged) {
-					currentShader.setUniformMatrix("u_normal_matrix", normalMatrix, false);
-					currentShader.setUniformMatrix("u_model_matrix", modelMatrix, false);
+					currentShader.setUniformMatrix("u_normal_matrix", normalMatrix);
+					currentShader.setUniformMatrix("u_model_matrix", modelMatrix);
 					matrixChanged = false;
 				}
 
@@ -125,10 +116,6 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 							// need to be done, shader textureAtribute name could be changed.
 							currentShader.setUniformi(texAtrib.name, texAtrib.unit);
 						}
-//					} else if (atrib attributesof GpuSkinningAttribute) {
-//						GpuSkinningAttribute gpuAttrib = (GpuSkinningAttribute) atrib;
-//						gpuAttrib.setModelMatrix(modelMatrix);
-//						gpuAttrib.bind(currentShader);
 					} else {
 						atrib.bind(currentShader);
 					}
@@ -151,7 +138,7 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 		}
 		for (int i = 0, len = TextureAttribute.MAX_TEXTURE_UNITS; i < len; i++)
 			lastTexture[i] = null;
-		// clear all queus
+		// clear all queues
 
 		drawing = false;
 
@@ -160,9 +147,9 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 
 	/** @param material
 	 * @return true if new shader was binded */
-	boolean bindShader (Material material) {
+	boolean bindShader (Material material, boolean check) {
 		ShaderProgram shader = material.getShader();
-		if (shader == currentShader) return false;
+		if (check && shader == currentShader) return false;
 
 		currentShader = shader;
 		currentShader.begin();
@@ -196,13 +183,12 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			final Drawable drawable = transparentDrawables.get(i);
 
 			final Vector3 center = drawable.sortCenter;
+			long light_hash = lightManager.getLightsHash();
 			lightManager.calculateLights(center.x, center.y, center.z);
+			boolean check = (light_hash == lightManager.getLightsHash());
 
 			final Matrix4 modelMatrix = drawable.transform;
 			normalMatrix.set(modelMatrix);
-
-			//if (drawable.isAnimated)
-			//	((AnimatedModel)(drawable.model)).setAnimation(drawable.animation, drawable.animationTime, drawable.isLooping);
 
 			final SubMesh subMeshes[] = drawable.model.getSubMeshes();
 
@@ -213,7 +199,7 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 				final Material material = drawable.materials.get(j);
 
 				// bind new shader if material can't use old one
-				final boolean shaderChanged = bindShader(material);
+				final boolean shaderChanged = bindShader(material, check);
 
 				if (shaderChanged || matrixChanged) {
 					currentShader.setUniformMatrix("u_normal_matrix", normalMatrix, false);
@@ -242,10 +228,6 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 							// need to be done, shader textureAtribute name could be changed.
 							currentShader.setUniformi(texAtrib.name, texAtrib.unit);
 						}
-//					} else if (atrib attributesof GpuSkinningAttribute) {
-//						final GpuSkinningAttribute gpuAtrib = (GpuSkinningAttribute)atrib;
-//						gpuAtrib.setModelMatrix(modelMatrix);
-//						gpuAtrib.bind(currentShader);
 					} else {
 						atrib.bind(currentShader);
 					}
@@ -282,16 +264,6 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			else
 				drawables.add(drawable);
 		}
-
-//		public void add (AnimatedModel model, AnimatedModelattributes attributes) {
-//			Drawable drawable = drawablePool.obtain();
-//			drawable.set(model, attributes);
-//
-//			if (drawable.blending)
-//				drawablesBlended.add(drawable);
-//			else
-//				drawables.add(drawable);
-//		}
 
 		public void clear () {
 			clear(drawables);
@@ -343,18 +315,9 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 				isAnimated = false;
 			}
 
-//			public void set (AnimatedModel model, AnimatedModelattributes attributes) {
-//				setCommon(model, attributes);
-//				isAnimated = true;
-//				animation = attributes.getAnimation();
-//				animationTime = attributes.getAnimationTime();
-//				isLooping = attributes.isLooping();
-//			}
-
 			private void setCommon (Model model, StillModelAttributes attributes) {
 				this.model = model;
 				modelHash = model.hashCode();
-				// transform.set(attributes.getTransform().val);
 				System.arraycopy(attributes.getTransform().val, 0, transform.val, 0, 16);
 
 				sortCenter.set(attributes.getSortCenter());

@@ -24,11 +24,11 @@ public class VisibleItem extends GameObject {
 		GameActor actor = null;
 		
 		Vector3 cpos = this.getCPosition();
-		actor = GameData.level.checkEntities(cpos.x, cpos.y, cpos.z, getCollisionBox(), UID);
+		actor = GameData.level.checkEntities(getCollisionBox(), UID);
 		if (actor != null) {
 			System.out.println("Pickup!");
 			actor.inventory.put(item.name, item);
-			GameData.level.removeItem(cpos.x, cpos.z, UID);
+			GameData.level.removeItem(UID);
 		}
 	}
 	
@@ -51,7 +51,7 @@ public class VisibleItem extends GameObject {
 		
 		//System.out.println("End    "+p);
 		
-		GameData.level.moveItem(oldX, oldZ, newX, newZ, UID);
+		//GameData.level.moveItem(oldX, oldZ, newX, newZ, UID);
 	}
 
 }

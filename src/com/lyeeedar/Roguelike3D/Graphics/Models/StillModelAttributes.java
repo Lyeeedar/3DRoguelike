@@ -32,6 +32,8 @@ public class StillModelAttributes implements StillModelInstance {
 
 	public StillModelAttributes (Material material, float radius) {
 		this.material = material;
+		
+		if (radius < 10) radius = 10;
 		this.radius = radius;
 	}
 

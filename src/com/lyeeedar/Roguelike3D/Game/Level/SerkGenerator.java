@@ -19,15 +19,15 @@ public class SerkGenerator implements AbstractGenerator{
 	protected static final int NOISE_OCTAVES = 5;
 	
 	protected static final int ROOM_PLACE_ATTEMPTS = 50;
-	protected static final int ROOM_PLACE_PADDING = 2;
+	protected static final int ROOM_PLACE_PADDING = 3;
 	protected static final int STAIR_MIN = 3;
 	protected static final int STAIR_VAR = 3;
 	protected static final int MAIN_MIN = 10;
 	protected static final int MAIN_VAR = 5;
 	protected static final int SPECIAL_MIN = 6;
 	protected static final int SPECIAL_VAR = 6;
-	protected static final int OTHER_MIN = 5;
-	protected static final int OTHER_VAR = 3;
+	protected static final int OTHER_MIN = 2;
+	protected static final int OTHER_VAR = 5;
 
 	final ArrayList<DungeonRoom> rooms = new ArrayList<DungeonRoom>();
 	final AbstractTile[][] tiles;
@@ -48,9 +48,12 @@ public class SerkGenerator implements AbstractGenerator{
 		
 		setInfluence();
 		
-		placeRoom(RoomType.MAIN);
 		placeRoom(RoomType.START);
 		placeRoom(RoomType.END);
+		
+		placeRoom(RoomType.MAIN);
+		placeRoom(RoomType.SPECIAL);
+		placeRoom(RoomType.SPECIAL);
 		
 		placeRoom(RoomType.OTHER);
 		placeRoom(RoomType.OTHER);
@@ -244,18 +247,17 @@ public class SerkGenerator implements AbstractGenerator{
     
     protected boolean checkAdded(Pnt p1, Pnt p2)
     {
-//    	for (Pnt[] p : addedPnts)
-//    	{
-//    		if (p[0].equals(p1) && p[1].equals(p2))
-//    		{
-//    			return false;
-//    		}
-//    		else if (p[0].equals(p2) && p[1].equals(p1))
-//    		{
-//    			return false;
-//    		}
-//    	}
-//    	return true;
+    	for (Pnt[] p : addedPnts)
+    	{
+    		if (p[0].equals(p1) && p[1].equals(p2))
+    		{
+    			return true;
+    		}
+    		else if (p[0].equals(p2) && p[1].equals(p1))
+    		{
+    			return true;
+    		}
+    	}
     	return false;
     }
 
@@ -266,7 +268,7 @@ public class SerkGenerator implements AbstractGenerator{
 		{
 			for (int y = 0; y < height; y++)
 			{
-				tiles[x][y].influence += noise.PerlinNoise_2D(x, y, NOISE_PERSISTANCE, NOISE_OCTAVES);
+				tiles[x][y].influence += noise.PerlinNoise_2D(x, y, NOISE_PERSISTANCE, NOISE_OCTAVES)*10;
 			}
 		}
 	}
@@ -327,6 +329,7 @@ public class SerkGenerator implements AbstractGenerator{
 			{
 				tiles[x][y].room = true;
 				tiles[x][y].influence = 0;
+				tiles[x][y].tileType = TileType.FLOOR;
 			}
 		}
 		

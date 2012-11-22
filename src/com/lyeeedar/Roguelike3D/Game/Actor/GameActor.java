@@ -52,7 +52,7 @@ public abstract class GameActor extends GameObject{
 		float newX = position.x/10;
 		float newZ = position.z/10;
 		
-		GameData.level.moveActor(oldX, oldZ, newX, newZ, UID);
+		//GameData.level.moveActor(oldX, oldZ, newX, newZ, UID);
 	}
 	
 	public void damage(String type, int amount)

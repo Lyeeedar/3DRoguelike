@@ -63,7 +63,14 @@ public class Material {
 				break;
 			}
 		}
-
+	}
+	
+	public void addAttributes(MaterialAttribute... attributes)
+	{
+		for (int i = 0; i < attributes.length; i++)
+		{
+			this.attributes.add(attributes[i]);
+		}
 	}
 
 	public void bind (ShaderProgram program) {

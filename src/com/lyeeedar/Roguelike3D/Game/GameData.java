@@ -21,6 +21,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.GlowAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
@@ -57,8 +58,8 @@ public class GameData {
 		
 		time = System.nanoTime();
 
-		lightManager = new LightManager(10, LightQuality.VERTEX);
-		lightManager.ambientLight.set(0.8f, 0.8f, 0.8f, 1);
+		lightManager = new LightManager(15, LightQuality.VERTEX);
+		lightManager.ambientLight.set(0.1f, 0.1f, 0.1f, 1);
 		System.out.println("Created Light Manager in: "+((System.nanoTime()-time)/1000000000.0f)+"s");
 		
 
@@ -81,36 +82,38 @@ public class GameData {
 		{		
 			int x = ran.nextInt(55);
 			int z = ran.nextInt(55);
-			PointLight l = new PointLight(new Vector3(i*10, 1, i*10), new Color(0.3f, 0.3f, 0.3f, 1.0f), 35f);
+			PointLight l = new PointLight(new Vector3(player.position.x+x, 5, player.position.z+z), new Color(0.9f, 0.9f, 0.9f, 1.0f), 0.2f);
 			lightManager.addLight(l);
 			
 			VisibleItem vi = new VisibleItem("model!", new Color(1.0f, 0.9f, 0.1f, 1.0f), "blank", player.position.x+x, 5, player.position.z+z, new Item());
+			vi.vo.attributes.material.addAttributes(new GlowAttribute(0.9f, GlowAttribute.glow));
 			vi.boundLight = l;
 			level.addItem(vi);
+
 		}
 		System.out.println("Placed Items in: "+((System.nanoTime()-time)/1000000000.0f)+"s");
 
 		
 		time = System.nanoTime();
-//		for (int i = 1; i < 30; i++)
-//		{
-//			while (true)
-//			{
-//				int x = ran.nextInt(50);
-//				int z = ran.nextInt(50);
-//				Vector3 pos = new Vector3(x, 1, z);
-//				if (!level.checkLevelCollision(pos.x*10, pos.y, pos.z*10))
-//				{
-//					Enemy e = new Enemy("modelE", new Color(0.6f, 0.1f, 0.1f, 1.0f), "blank", x*10, 0, z*10);
-//					
-//					//level.addActor(e);
-//					x = 51;
-//					z = 51;
-//					
-//					break;
-//				}
-//			}
-//		}
+		for (int i = 1; i < 30; i++)
+		{
+			while (true)
+			{
+				int x = ran.nextInt(50);
+				int z = ran.nextInt(50);
+				Vector3 pos = new Vector3(x, 1, z);
+				if (!level.checkLevelCollision(pos.x*10, pos.y, pos.z*10))
+				{
+					Enemy e = new Enemy("modelE", new Color(0.6f, 0.1f, 0.1f, 1.0f), "blank", x*10, 0, z*10);
+					
+					level.addActor(e);
+					x = 51;
+					z = 51;
+					
+					break;
+				}
+			}
+		}
 		System.out.println("Placed enemies in: "+((System.nanoTime()-time)/1000000000.0f)+"s");
 	}
 

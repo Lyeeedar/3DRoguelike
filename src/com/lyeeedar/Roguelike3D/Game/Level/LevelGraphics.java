@@ -32,7 +32,7 @@ public class LevelGraphics {
 		
 		for (int x = 0; x < width; x++)
 		{
-			System.out.println("Creating x="+x+" Column");
+			//System.out.println("Creating x="+x+" Column");
 			for (int z = 0; z < height; z++)
 			{
 				Tile t = levelArray[x][z];
@@ -58,7 +58,7 @@ public class LevelGraphics {
 		{
 			for (int y = 0; y < hBlocks; y++)
 			{
-				System.out.println("Creating chunk x="+(x*CHUNK_WIDTH)+"-"+((x*CHUNK_WIDTH)+CHUNK_WIDTH)+"  y="+(y*CHUNK_HEIGHT)+"-"+((y*CHUNK_HEIGHT)+CHUNK_HEIGHT));
+				//System.out.println("Creating chunk x="+(x*CHUNK_WIDTH)+"-"+((x*CHUNK_WIDTH)+CHUNK_WIDTH)+"  y="+(y*CHUNK_HEIGHT)+"-"+((y*CHUNK_HEIGHT)+CHUNK_HEIGHT));
 				Chunk chunk = new Chunk();
 				
 				int startx = x*CHUNK_WIDTH;
@@ -79,7 +79,7 @@ public class LevelGraphics {
 		
 		for (int x = 0; x < width; x++)
 		{
-			System.out.println("Disposing x="+x+" Column");
+			//System.out.println("Disposing x="+x+" Column");
 			for (int z = 0; z < height; z++)
 			{
 				if (tempVOs[x][z] != null) tempVOs[x][z].dispose();
@@ -128,7 +128,7 @@ class Chunk
 		
 		for (Map.Entry<Character, ArrayList<VisibleObject>> entry : block.entrySet())
 		{
-			System.out.println("Merging meshes for -"+entry.getKey() + " Number="+entry.getValue().size());
+			//System.out.println("Merging meshes for -"+entry.getKey() + " Number="+entry.getValue().size());
 			
 			final Mesh[] meshes = new Mesh[entry.getValue().size()];
 			

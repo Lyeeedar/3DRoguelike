@@ -22,11 +22,13 @@ import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 
 public class StillModelAttributes implements StillModelInstance {
 	static final private float[] vec3 = {0, 0, 0};
+	final private Matrix4 tempMat = new Matrix4();
 
 	final public Vector3 origin = new Vector3();
 	final public Vector3 transformedPosition = new Vector3();
 
-	final public Matrix4 matrix = new Matrix4();
+	final public Matrix4 position = new Matrix4();
+	final public Matrix4 rotation = new Matrix4();
 	public Material material;
 	public float radius;
 
@@ -39,7 +41,11 @@ public class StillModelAttributes implements StillModelInstance {
 
 	@Override
 	public Matrix4 getTransform () {
-		return matrix;
+		return position;
+	}
+	
+	public Matrix4 getRotation () {
+		return rotation;
 	}
 
 	@Override
@@ -47,7 +53,7 @@ public class StillModelAttributes implements StillModelInstance {
 		vec3[0] = origin.x;
 		vec3[1] = origin.y;
 		vec3[2] = origin.z;
-		Matrix4.mulVec(matrix.val, vec3);
+		Matrix4.mulVec(tempMat.set(position).mul(rotation).val, vec3);
 		transformedPosition.x = vec3[0];
 		transformedPosition.y = vec3[1];
 		transformedPosition.z = vec3[2];
@@ -70,7 +76,8 @@ public class StillModelAttributes implements StillModelInstance {
 		
 		final StillModelAttributes copy = new StillModelAttributes(copy_material, radius);
 		
-		copy.matrix.set(matrix.val);
+		copy.position.set(position.val);
+		copy.rotation.set(rotation.val);
 		copy.origin.set(origin);
 		copy.transformedPosition.set(transformedPosition);
 		return copy;

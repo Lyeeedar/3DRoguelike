@@ -112,7 +112,6 @@ public class GameObject {
 
 	public void applyMovement()
 	{
-		//if (velocity.len() == 0) return;
 		
 		if (velocity.x < -2) velocity.x = -2;
 		if (velocity.x > 2) velocity.x = 2;
@@ -232,11 +231,11 @@ public class GameObject {
 	 * @param axis
 	 * @param angle the angle */
 	public void rotate (Vector3 axis, float angle) {
-		vo.attributes.getTransform().rotate(axis.x, axis.y, axis.z, angle);
-		
 		tmpMat.setToRotation(axis, angle);
 		rotation.mul(tmpMat).nor();
 		up.mul(tmpMat).nor();
+		
+		vo.attributes.getRotation().setToLookAt(tmpVec.set(0, 0, 0).sub(rotation), up);
 	}
 
 	public void translate(float x, float y, float z)

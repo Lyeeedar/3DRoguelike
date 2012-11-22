@@ -36,7 +36,6 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 	final ShaderHandler shaderHandler;
 	private LightManager lightManager;
 	private boolean drawing;
-	final private Matrix3 normalMatrix = new Matrix3();
 	public Camera cam;
 
 	DrawableManager drawableManager = new DrawableManager();
@@ -83,8 +82,8 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			lightManager.calculateLights(center.x, center.y, center.z);
 			boolean check = (light_hash == lightManager.getLightsHash());
 
-			final Matrix4 modelMatrix = drawable.transform;
-			normalMatrix.set(modelMatrix);
+			final Matrix3 normalMatrix = new Matrix3().set(drawable.rotation);
+			final Matrix4 modelMatrix = drawable.transform.mul(drawable.rotation);
 
 			final SubMesh subMeshes[] = drawable.model.getSubMeshes();
 
@@ -187,8 +186,8 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			lightManager.calculateLights(center.x, center.y, center.z);
 			boolean check = (light_hash == lightManager.getLightsHash());
 
-			final Matrix4 modelMatrix = drawable.transform;
-			normalMatrix.set(modelMatrix);
+			final Matrix4 modelMatrix = drawable.transform.mul(drawable.rotation);
+			final Matrix3 normalMatrix = new Matrix3().set(drawable.rotation);
 
 			final SubMesh subMeshes[] = drawable.model.getSubMeshes();
 
@@ -299,6 +298,7 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			private static final int PRIORITY_DISCRETE_STEPS = 256;
 			Model model;
 			final Matrix4 transform = new Matrix4();
+			final Matrix4 rotation = new Matrix4();
 			final Vector3 sortCenter = new Vector3();
 			final Array<Material> materials = new Array<Material>(2);
 			boolean isAnimated;
@@ -319,6 +319,7 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 				this.model = model;
 				modelHash = model.hashCode();
 				System.arraycopy(attributes.getTransform().val, 0, transform.val, 0, 16);
+				System.arraycopy(attributes.getRotation().val, 0, rotation.val, 0, 16);
 
 				sortCenter.set(attributes.getSortCenter());
 				distance = (int)(PRIORITY_DISCRETE_STEPS * sortCenter.dst(cam.position));

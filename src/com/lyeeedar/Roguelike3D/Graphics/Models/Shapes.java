@@ -218,7 +218,7 @@ public class Shapes {
 	      final Mesh result = new Mesh(true, vertCount, idxCount, attributes);
 	      result.setVertices(vertices);
 	      result.setIndices(indices);
-	      System.out.println("Merged!");
+	      //System.out.println("Merged!");
 	      return result;
 	   }
 	

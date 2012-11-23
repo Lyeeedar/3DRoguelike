@@ -32,7 +32,12 @@ public class ShaderFactory {
 
 		final StringBuilder flags = new StringBuilder(128);
 		flags.append(lightsNum);
-		flags.append(lights.maxLightsPerModel);
+		
+		if (material.affectedByLighting)
+			flags.append(lights.maxLightsPerModel);
+		else
+			flags.append(0);
+		
 		flags.append("\n");
 		
 		flags.append(dir_light);

@@ -23,6 +23,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Renderers.ShaderHandler;
 public class Material {
 	protected String name;
 	public Array<MaterialAttribute> attributes;
+	
+	public boolean affectedByLighting = true;
 
 	/** This flag is true if material contain blendingAttribute */
 	protected boolean needBlending;
@@ -108,6 +110,7 @@ public class Material {
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		Material other = (Material)obj;
+		if (other.affectedByLighting != this.affectedByLighting) return false;
 		if (other.attributes.size != attributes.size) return false;
 		for (int i = 0; i < attributes.size; i++) {
 			if (!attributes.get(i).equals(other.attributes.get(i))) return false;

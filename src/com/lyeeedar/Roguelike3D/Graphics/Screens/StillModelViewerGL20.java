@@ -126,7 +126,7 @@ public class StillModelViewerGL20 extends AbstractScreen {
 		}
 		lightManager.ambientLight.set(0.3f, 0.5f, 0.6f, 1);
 
-		protoRenderer = new PrototypeRendererGL20(lightManager);
+		//protoRenderer = new PrototypeRendererGL20(lightManager);
 		protoRenderer.cam = cam;
 
 		MaterialAttribute c1 = new ColorAttribute(new Color(0.5f, 0.51f, 0.51f, 1.0f), ColorAttribute.specular);

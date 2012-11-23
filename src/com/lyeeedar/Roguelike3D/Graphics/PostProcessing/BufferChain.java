@@ -12,6 +12,8 @@ public class BufferChain {
 	FrameBuffer[] buffers;
 
 	int currentBuffer;
+	
+	Texture texture;
 
 	public BufferChain(Format format, int width, int height) {
 		updateBuffers(format, width, height);
@@ -29,13 +31,37 @@ public class BufferChain {
 		currentBuffer = 0;
 	}
 	
+	public void begin(Texture texture)
+	{
+		this.texture = texture;
+	}
+	
 	public void applyEffect(PostProcessingEffect effect)
 	{
-		
+		nextBuffer();
+		buffers[currentBuffer].begin();
+		effect.render(texture);
+		buffers[currentBuffer].end();
+		texture = buffers[currentBuffer].getColorBufferTexture();
 	}
 	
 	public Texture getFinalImage()
 	{
 		return buffers[currentBuffer].getColorBufferTexture();
+	}
+	
+	private void nextBuffer()
+	{
+		currentBuffer++;
+		
+		if (currentBuffer == NUM_BUFFERS) currentBuffer = 0;
+	}
+	
+	public void dispose()
+	{
+		for (int i = 0; i < buffers.length; i++)
+		{
+			buffers[i].dispose();
+		}
 	}
 }

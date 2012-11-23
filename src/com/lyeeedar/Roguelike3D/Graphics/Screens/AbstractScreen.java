@@ -25,6 +25,8 @@ import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Graphics.Models.FullscreenQuad;
+import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor;
+import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor.Effect;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
  
 
@@ -40,9 +42,7 @@ public abstract class AbstractScreen implements Screen{
 	protected final Stage stage;
 
 	protected PrototypeRendererGL20 protoRenderer;
-	protected FrameBuffer frameBuffer;
-	protected FullscreenQuad fullscreenQuad;
-	protected ShaderProgram shader;
+	protected final PostProcessor postProcessor;
 	
 	PerspectiveCamera cam;
 	
@@ -57,15 +57,9 @@ public abstract class AbstractScreen implements Screen{
 		stage = new Stage(0, 0, true, spriteBatch);
 		
 		protoRenderer = new PrototypeRendererGL20(GameData.lightManager);
-		frameBuffer = new FrameBuffer(Format.RGBA4444, 800, 600, true);
-		//frameBuffer = new FrameBuffer(Format.RGB4444, 800, 600, true);
 		
-		fullscreenQuad = new FullscreenQuad();
-		shader = new ShaderProgram(
-				Gdx.files.internal("data/shaders/postprocessing/blur_horizontal.vertex.glsl"),
-				Gdx.files.internal("data/shaders/postprocessing/blur_horizontal.fragment.glsl")
-				);
-		if (!shader.isCompiled()) Gdx.app.log("Problem loading shader:", shader.getLog());
+		postProcessor = new PostProcessor(Format.RGBA4444, 800, 600);
+		postProcessor.addEffect(Effect.GLOW);
 	}
 
 	@Override
@@ -73,7 +67,7 @@ public abstract class AbstractScreen implements Screen{
 		
 		update(delta);
 	
-		frameBuffer.begin();
+		postProcessor.begin();
 		
 		Gdx.graphics.getGL20().glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -90,28 +84,13 @@ public abstract class AbstractScreen implements Screen{
 		//Gdx.graphics.getGL20().glDisable(GL20.GL_DITHER);
 
 		draw(delta);
-		frameBuffer.end();
 		
-		Gdx.graphics.getGL20().glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
+		postProcessor.end();
+
 		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
 		//Gdx.graphics.getGL20().glDepthMask(false);
 		
 		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
-		
-		
-		//Gdx.graphics.getGL20().glDisable(GL20.GL_POLYGON_OFFSET_FILL);
-		
-		//spriteBatch.setShader(shader);
-		
-		spriteBatch.begin();
-		spriteBatch.draw(frameBuffer.getColorBufferTexture(), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
-				0, 0, frameBuffer.getColorBufferTexture().getWidth(), frameBuffer.getColorBufferTexture().getHeight(),
-				false, true);
-		spriteBatch.end();
-		
-		spriteBatch.setShader(null);
 		
 		stage.draw();
 		
@@ -125,7 +104,7 @@ public abstract class AbstractScreen implements Screen{
 		screen_height = height;
 
         cam = new PerspectiveCamera(90, width, height);
-        frameBuffer = new FrameBuffer(Format.RGBA4444, width, height, true);
+        postProcessor.updateBufferSettings(Format.RGBA4444, width, height);
         cam.near = 1.0f;
         cam.far = 200;
         protoRenderer.cam = cam;
@@ -136,6 +115,7 @@ public abstract class AbstractScreen implements Screen{
 	@Override
 	public void dispose() {
 		protoRenderer.dispose();
+		postProcessor.dispose();
 
 		spriteBatch.dispose();
 		font.dispose();

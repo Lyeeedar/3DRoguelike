@@ -2,6 +2,7 @@ package com.lyeeedar.Roguelike3D.Graphics.PostProcessing;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -9,12 +10,13 @@ import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.Effects.GlowEffect;
 import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.Effects.PostProcessingEffect;
 
 public class PostProcessor {
 	
 	public enum Effect {
-		BLUR,
 		GLOW
 	}
 	
@@ -30,6 +32,8 @@ public class PostProcessor {
 	private final HashMap<Effect, PostProcessingEffect> effects = new HashMap<Effect, PostProcessingEffect>();
 	
 	private final BufferChain bufferChain;
+	
+	private final ShaderProgram shader;
 
 	public PostProcessor(Format format, int width, int height) {
 		this.format = format;
@@ -38,11 +42,33 @@ public class PostProcessor {
 		
 		captureBuffer = new FrameBuffer(format, width, height, true);
 		bufferChain = new BufferChain(format, width, height);
+		
+		setupEffects();
+		
+		shader = new ShaderProgram(
+				Gdx.files.internal("data/shaders/postprocessing/default.vertex.glsl"),
+				Gdx.files.internal("data/shaders/postprocessing/default.fragment.glsl")
+				);
+		if (!shader.isCompiled()) Gdx.app.log("Problem loading shader:", shader.getLog());
+	}
+	
+	public void setEffectChain(Effect... effects)
+	{
+		effectChain.clear();
+		for (int i = 0; i < effects.length; i++)
+		{
+			effectChain.add(effects[i]);
+		}
+	}
+	
+	public void addEffect(Effect effect)
+	{
+		effectChain.add(effect);
 	}
 	
 	public void setupEffects()
 	{
-		
+		effects.put(Effect.GLOW, new GlowEffect());
 	}
 	
 	public void updateBufferSettings(Format format, int width, int height) {
@@ -72,6 +98,11 @@ public class PostProcessor {
 		Texture texture = applyEffectChain();
 
 		batch.begin();
+		batch.setShader(shader);
+		batch.draw(captureBuffer.getColorBufferTexture(), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+				0, 0, captureBuffer.getColorBufferTexture().getWidth(), captureBuffer.getColorBufferTexture().getHeight(),
+				false, true);
+		batch.setShader(null);
 		batch.draw(texture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
 				0, 0, texture.getWidth(), texture.getHeight(),
 				false, true);
@@ -80,6 +111,8 @@ public class PostProcessor {
 	
 	private Texture applyEffectChain()
 	{
+		bufferChain.begin(captureBuffer.getColorBufferTexture());
+		
 		for (Effect effect : effectChain)
 		{
 			bufferChain.applyEffect(effects.get(effect));
@@ -91,6 +124,12 @@ public class PostProcessor {
 	public void dispose()
 	{
 		captureBuffer.dispose();
+		bufferChain.dispose();
+		
+		for (Map.Entry<Effect, PostProcessingEffect> entry : effects.entrySet())
+		{
+			entry.getValue().dispose();
+		}
 	}
 
 	public Format getFormat() {

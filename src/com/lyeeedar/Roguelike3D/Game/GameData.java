@@ -58,7 +58,7 @@ public class GameData {
 		
 		time = System.nanoTime();
 
-		lightManager = new LightManager(15, LightQuality.VERTEX);
+		lightManager = new LightManager(10, LightQuality.VERTEX);
 		lightManager.ambientLight.set(0.1f, 0.1f, 0.1f, 1);
 		System.out.println("Created Light Manager in: "+((System.nanoTime()-time)/1000000000.0f)+"s");
 		
@@ -87,7 +87,9 @@ public class GameData {
 			
 			VisibleItem vi = new VisibleItem("model!", new Color(1.0f, 0.9f, 0.1f, 1.0f), "blank", player.position.x+x, 5, player.position.z+z, new Item());
 			vi.vo.attributes.material.addAttributes(new GlowAttribute(0.9f, GlowAttribute.glow));
+			vi.vo.attributes.material.affectedByLighting = false;
 			vi.boundLight = l;
+		
 			level.addItem(vi);
 
 		}

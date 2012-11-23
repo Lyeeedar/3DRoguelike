@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 
 public class LightManager {
 	
@@ -74,11 +75,6 @@ public class LightManager {
 
 	public void clear () {
 		pointLights.clear();
-	}
-
-	public void calculateAndApplyLightsToModel (Vector3 center, ShaderProgram shader) {
-		this.calculateLights(center.x, center.y, center.z);
-		this.applyLights(shader);
 	}
 
 	// TODO make it better if it slow
@@ -137,13 +133,20 @@ public class LightManager {
 	}
 	
 	/** Apply lights GLES2.0, call calculateLights before applying */
-	public void applyLights (ShaderProgram shader) {
+	public void applyLights (ShaderProgram shader, Material material) {
+		
+		if (!material.affectedByLighting) return;
+		
 		shader.setUniform3fv("u_light_positions", positions, 0, maxLightsPerModel * 3);
 		shader.setUniform3fv("u_light_colours", colors, 0, maxLightsPerModel * 3);
 		shader.setUniform1fv("u_light_intensities", intensities, 0, maxLightsPerModel);
 	}
 
-	public void applyGlobalLights (ShaderProgram shader) {
+	public static final Color WHITE = Color.WHITE;
+	public void applyGlobalLights (ShaderProgram shader, Material material) {
+		
+		if (!material.affectedByLighting) return;
+		
 		shader.setUniformf("u_ambient", ambientLight);
 		if (dirLight != null) {
 			final Vector3 v = dirLight.direction;

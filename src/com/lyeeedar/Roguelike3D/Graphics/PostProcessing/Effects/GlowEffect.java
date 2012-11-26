@@ -12,8 +12,8 @@ public class GlowEffect extends PostProcessingEffect {
 	@Override
 	public void create() {
 		shader = new ShaderProgram(
-				Gdx.files.internal("data/shaders/postprocessing/blur_horizontal.vertex.glsl"),
-				Gdx.files.internal("data/shaders/postprocessing/blur_horizontal.fragment.glsl")
+				Gdx.files.internal("data/shaders/postprocessing/glow.vertex.glsl"),
+				Gdx.files.internal("data/shaders/postprocessing/glow.fragment.glsl")
 				);
 		if (!shader.isCompiled()) Gdx.app.log("Problem loading shader:", shader.getLog());
 	}

@@ -8,6 +8,10 @@ import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.GameData.Elements;
+import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
+import com.lyeeedar.Roguelike3D.Game.Spell.Spell.SpellBehaviour;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.GlowAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class Player extends GameActor {
@@ -73,6 +77,18 @@ public class Player extends GameActor {
 		}
 
 		rotate((float)Gdx.input.getDeltaX()*xrotate*move, 0, 1, 0);
+		
+		if (Gdx.input.isKeyPressed(Keys.C)) {
+			Spell spell = new Spell("modelf", Color.RED, "blank", position.x, position.y, position.z);
+			spell.setData(Elements.FIRE, UID, 5, 1);
+			spell.addBehaviour(SpellBehaviour.PROJECTILE);
+			
+			spell.getRotation().set(rotation);
+			
+			spell.vo.attributes.material.addAttributes(new GlowAttribute(0.2f, GlowAttribute.glow));
+			
+			GameData.level.addSpell(spell);
+		}
 	}
 	
 	

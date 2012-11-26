@@ -29,16 +29,32 @@ public abstract class GameActor extends GameObject{
 
 	public GameActor(VisibleObject vo, float x, float y, float z) {
 		super(vo, x, y, z);
+		
+		setupDefenses();
 	}
 	
 	public GameActor(String model, Color colour, String texture, float x, float y, float z)
 	{
 		super(model, colour, texture, x, y, z);
+		
+		setupDefenses();
 	}
 	
 	public GameActor(Mesh mesh, Color colour, String texture, float x, float y, float z)
 	{
 		super(mesh, colour, texture, x, y, z);
+		
+		setupDefenses();
+	}
+	
+	public void setupDefenses()
+	{
+		defenses = new HashMap<Elements, Integer>();
+		
+		defenses.put(Elements.FIRE, 0);
+		defenses.put(Elements.AIR, 0);
+		defenses.put(Elements.WATER, 0);
+		defenses.put(Elements.PHYSICAL, 0);
 	}
 	
 	@Override
@@ -55,7 +71,7 @@ public abstract class GameActor extends GameObject{
 		//GameData.level.moveActor(oldX, oldZ, newX, newZ, UID);
 	}
 	
-	public void damage(String type, int amount)
+	public void damage(Elements type, float amount)
 	{
 		if (!alive) return;
 		

@@ -25,10 +25,8 @@ public class PointLight implements Comparable {
 
 	final public Vector3 position;
 	final public Color colour;
-	// or just
-	// public float x,y,z;
-	// public float r,g,b;
 
+	public float attenuation;
 	public float intensity;
 
 	protected int priority;
@@ -39,15 +37,16 @@ public class PointLight implements Comparable {
 	
 	public PointLight()
 	{
-		this(new Vector3(), new Color(), 1.0f);
+		this(new Vector3(), new Color(), 1.0f, 1.0f);
 	}
 	
-	public PointLight(Vector3 position, Color colour, float intensity)
+	public PointLight(Vector3 position, Color colour, float attentuation, float intensity)
 	{
 		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.position = position;
 		this.colour = colour;
 		this.intensity = intensity;
+		this.attenuation = attentuation;
 	}
 	
 	public void positionAbsolutely(float x, float y, float z)

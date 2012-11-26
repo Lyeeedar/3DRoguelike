@@ -9,6 +9,6 @@ import java.util.ArrayList;
  */
 public interface AbstractGenerator {
 	
-	public ArrayList<DungeonRoom> generate();
+	public ArrayList<DungeonRoom> generate(BiomeReader biome);
 
 }

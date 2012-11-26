@@ -22,7 +22,7 @@ public class LevelGraphics {
 	
 	public ArrayList<VisibleObject> graphics = new ArrayList<VisibleObject>();
 	
-	public void createLevelGraphics(Tile[][] levelArray, HashMap<Character, Color> colours)
+	public void createLevelGraphics(Tile[][] levelArray, HashMap<Character, Color> colours, BiomeReader biome)
 	{
 		int width = levelArray.length;
 		int height = levelArray[0].length;
@@ -32,19 +32,18 @@ public class LevelGraphics {
 		
 		for (int x = 0; x < width; x++)
 		{
-			//System.out.println("Creating x="+x+" Column");
 			for (int z = 0; z < height; z++)
 			{
 				Tile t = levelArray[x][z];
 				if (t.character == ' ') continue;
 
-				VisibleObject vo = new VisibleObject(Shapes.genCuboid(5, t.height, 5), GL20.GL_TRIANGLES, colours.get(t.character), "tex"+t.character);
+				VisibleObject vo = new VisibleObject(Shapes.genCuboid(5, t.height, 5), GL20.GL_TRIANGLES, colours.get(t.character), getTexture(t.character, biome));
 				vo.attributes.getTransform().setToTranslation(x*10, t.height-5, z*10);
 				tempVOs[x][z] = vo;
 				
 				if (t.height < t.roof)
 				{
-					VisibleObject voRf = new VisibleObject(Shapes.genCuboid(5, 1, 5), GL20.GL_TRIANGLES, colours.get('#'), "tex#");
+					VisibleObject voRf = new VisibleObject(Shapes.genCuboid(5, 1, 5), GL20.GL_TRIANGLES, colours.get('#'), getTexture('#', biome));
 					voRf.attributes.getTransform().setToTranslation(x*10, t.roof, z*10);
 					tempRoofs[x][z] = voRf;
 				}
@@ -58,7 +57,6 @@ public class LevelGraphics {
 		{
 			for (int y = 0; y < hBlocks; y++)
 			{
-				//System.out.println("Creating chunk x="+(x*CHUNK_WIDTH)+"-"+((x*CHUNK_WIDTH)+CHUNK_WIDTH)+"  y="+(y*CHUNK_HEIGHT)+"-"+((y*CHUNK_HEIGHT)+CHUNK_HEIGHT));
 				Chunk chunk = new Chunk();
 				
 				int startx = x*CHUNK_WIDTH;
@@ -79,13 +77,28 @@ public class LevelGraphics {
 		
 		for (int x = 0; x < width; x++)
 		{
-			//System.out.println("Disposing x="+x+" Column");
 			for (int z = 0; z < height; z++)
 			{
 				if (tempVOs[x][z] != null) tempVOs[x][z].dispose();
 				if (tempRoofs[x][z] != null) tempRoofs[x][z].dispose();
 			}
 		}
+	}
+	
+	public String getTexture(char c, BiomeReader biome)
+	{
+		String text = null;
+		
+		if (c == '#')
+		{
+			text = biome.getWallTexture();
+		}
+		else if (c == '.')
+		{
+			text = biome.getFloorTexture();
+		}
+			
+		return text;
 	}
 
 }

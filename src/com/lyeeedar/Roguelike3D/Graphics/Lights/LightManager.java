@@ -35,6 +35,7 @@ public class LightManager {
 	final public Array<PointLight> pointLights = new Array<PointLight>(false, maxLights);
 	final private float[] positions;
 	final private float[] colors;
+	final private float[] attenuations;
 	final private float[] intensities;
 
 	public final int maxLightsPerModel;
@@ -54,6 +55,7 @@ public class LightManager {
 
 		colors = new float[3 * maxLightsPerModel];
 		positions = new float[3 * maxLightsPerModel];
+		attenuations = new float[maxLightsPerModel];
 		intensities = new float[maxLightsPerModel];
 	}
 
@@ -111,6 +113,8 @@ public class LightManager {
 			colors[3 * i + 1] = col.g;
 			colors[3 * i + 2] = col.b;
 
+			attenuations[i] = light.attenuation;
+			
 			intensities[i] = light.intensity;
 		}
 	}
@@ -140,6 +144,7 @@ public class LightManager {
 		shader.setUniform3fv("u_light_positions", positions, 0, maxLightsPerModel * 3);
 		shader.setUniform3fv("u_light_colours", colors, 0, maxLightsPerModel * 3);
 		shader.setUniform1fv("u_light_intensities", intensities, 0, maxLightsPerModel);
+		shader.setUniform1fv("u_light_attenuations", attenuations, 0, maxLightsPerModel);
 	}
 
 	public static final Color WHITE = Color.WHITE;

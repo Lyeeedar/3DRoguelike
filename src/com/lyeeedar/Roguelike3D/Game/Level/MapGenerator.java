@@ -9,15 +9,23 @@ import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 
 public class MapGenerator {
+	
+	public enum GeneratorType {
+		SERK
+	}
 
 	private Tile[][] levelArray;
 	ArrayList<Character> solids;
 	ArrayList<Character> opaques;
 	HashMap<Character, Color> colours;
 	ArrayList<DungeonRoom> rooms;
+	
+	int ceiling;
 
-	public MapGenerator(int width, int height, ArrayList<Character> solids, ArrayList<Character> opaques, HashMap<Character, Color> colours)
+	public MapGenerator(int width, int height, ArrayList<Character> solids, ArrayList<Character> opaques, HashMap<Character, Color> colours, GeneratorType gtype, BiomeReader biome)
 	{
+		this.ceiling = biome.getHeight();
+		
 		this.solids = solids;
 		this.opaques = opaques;
 		this.colours = colours;
@@ -29,12 +37,12 @@ public class MapGenerator {
 			for (int y = 0; y < height; y++)
 			{
 				tiles[x][y] = new AbstractTile(x, y, TileType.WALL);
-				levelArray[x][y] = new Tile('#', 0, 15, 15);
+				levelArray[x][y] = new Tile('#', 0, ceiling, ceiling);
 			}
 		}
 		
-		AbstractGenerator generator = new SerkGenerator(tiles);
-		rooms = generator.generate();
+		AbstractGenerator generator = getGenerator(gtype, tiles, biome);
+		rooms = generator.generate(biome);
 		
 		for (int x = 0; x < width; x++)
 		{
@@ -42,12 +50,21 @@ public class MapGenerator {
 			{
 				if (tiles[x][y].tileType != TileType.WALL)
 				{
-					levelArray[x][y] = new Tile('.', 0, 15, 0);
+					levelArray[x][y] = new Tile('.', 0, ceiling, 0);
 				}
 			}
 		}
 		
 		clearWalls();
+	}
+	
+	private AbstractGenerator getGenerator(GeneratorType gtype, AbstractTile[][] tiles, BiomeReader biome)
+	{
+		if (gtype == GeneratorType.SERK)
+		{
+			return new SerkGenerator(tiles, biome);
+		}
+		return null;
 	}
 
 	public Tile[][] getLevel()
@@ -76,7 +93,7 @@ public class MapGenerator {
 						|| y == 0 || y == levelArray[0].length-1)
 				{
 					Tile t = levelArray[x][y];
-					updateTile(levelArray[x][y], 15, '#');
+					updateTile(levelArray[x][y], ceiling, '#');
 				}
 
 				if (chWl(x-1, y) && chWl(x, y-1)

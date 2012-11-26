@@ -68,6 +68,7 @@ public class PostProcessor {
 	
 	public void setupEffects()
 	{
+		effects.clear();
 		effects.put(Effect.GLOW, new GlowEffect());
 	}
 	

@@ -18,6 +18,7 @@ import com.lyeeedar.Roguelike3D.Game.*;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
+import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 import com.lyeeedar.Roguelike3D.Graphics.Screens.AbstractScreen;
@@ -48,6 +49,11 @@ public class InGameScreen extends AbstractScreen {
 			vi.vo.render(protoRenderer);
 		}
 		
+		for (Spell sp : GameData.level.spells)
+		{
+			sp.vo.render(protoRenderer);
+		}
+		
 		protoRenderer.end();
 	}
 	
@@ -65,6 +71,11 @@ public class InGameScreen extends AbstractScreen {
 		for (VisibleItem vi : GameData.level.items)
 		{
 			gameObjects.add(vi);
+		}
+		
+		for (Spell sp : GameData.level.spells)
+		{
+			gameObjects.add(sp);
 		}
 		
 		for (GameObject ga : gameObjects)

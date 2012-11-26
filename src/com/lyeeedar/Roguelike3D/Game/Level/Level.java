@@ -13,6 +13,8 @@ import com.lyeeedar.Roguelike3D.Game.Actor.CollisionBox;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
+import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
+import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 
@@ -27,13 +29,14 @@ public class Level {
 	
 	public ArrayList<GameActor> actors = new ArrayList<GameActor>();
 	public ArrayList<VisibleItem> items = new ArrayList<VisibleItem>();
+	public ArrayList<Spell> spells = new ArrayList<Spell>();
 	
 	public ArrayList<DungeonRoom> rooms;
 	
 	public int width;
 	public int height;
 	
-	public Level(int width, int height)
+	public Level(int width, int height, GeneratorType gtype, BiomeReader biome)
 	{
 		this.width = width;
 		this.height = height;
@@ -44,11 +47,11 @@ public class Level {
 		opaques.add('#');
 		opaques.add(' ');
 		
-		colours.put('#', new Color(0.3f, 0.2f, 0.1f, 1.0f));
-		colours.put('.', new Color(0.3f, 0.6f, 0.1f, 1.0f));
-		colours.put(' ', new Color(0.8f, 0.9f, 0.6f, 1.0f));
+		colours.put('#', biome.getWallColour());
+		colours.put('.', biome.getFloorColour());
+		colours.put(' ', biome.getWallColour());
 		
-		MapGenerator generator = new MapGenerator(width, height, solids, opaques, colours);
+		MapGenerator generator = new MapGenerator(width, height, solids, opaques, colours, gtype, biome);
 		levelArray = generator.getLevel();
 		rooms = generator.getRooms();
 	}
@@ -63,6 +66,13 @@ public class Level {
 	
 	public boolean checkCollision(CollisionBox box, String UID)
 	{
+		if (checkBoxToLevelCollision(box)) return true;
+		
+		return checkEntities(box, UID) != null;
+	}
+	
+	public boolean checkBoxToLevelCollision(CollisionBox box)
+	{
 		if (checkLevelCollision(box.position.x, box.position.y, box.position.z)) return true;
 		if (checkLevelCollision(box.position.x+box.dimensions.x, box.position.y, box.position.z)) return true;
 		if (checkLevelCollision(box.position.x, box.position.y+box.dimensions.y, box.position.z)) return true;
@@ -72,7 +82,7 @@ public class Level {
 		if (checkLevelCollision(box.position.x, box.position.y+box.dimensions.y, box.position.z+box.dimensions.z)) return true;
 		if (checkLevelCollision(box.position.x+box.dimensions.x, box.position.y+box.dimensions.y, box.position.z+box.dimensions.z)) return true;
 		
-		return checkEntities(box, UID) != null;
+		return false;
 	}
 	
 	public boolean checkLevelCollision(float x, float y, float z)
@@ -123,13 +133,12 @@ public class Level {
 		
 		return null;
 	}
-//	
+	
 	public void removeItem(String UID)
 	{
 		int i = 0;
 		for (VisibleItem ga : items)
 		{
-			//System.out.println(ga.UID);
 			if (ga.UID.equals(UID)) 
 			{
 				if (ga.boundLight!= null) GameData.lightManager.removeLight(ga.boundLight.UID);
@@ -156,110 +165,7 @@ public class Level {
 		}
 		System.err.println("Failed to remove actor!");
 	}
-//
-//	
-//	public void moveActor(float oldX, float oldZ, float newX, float newZ, String UID)
-//	{
-//		int ox = (int)(oldX+0.5f);
-//		int oz = (int)(oldZ+0.5f);
-//		
-//		int nx = (int)(newX+0.5f);
-//		int nz = (int)(newZ+0.5f);
-//		
-//		if (ox == nx && oz == nz) return;
-//		if (checkSolid(nx, nz)) return;
-//		
-//		GameActor actor = null;
-//		
-//		int i = 0;
-//		for (GameActor ga : levelArray[ox][oz].actors)
-//		{
-//			if (ga.UID.equals(UID)) 
-//			{ 
-//				actor = levelArray[ox][oz].actors.get(i);
-//				levelArray[ox][oz].actors.remove(i);
-//				break;
-//			}
-//			i++;
-//		}
-//		
-//		if (actor == null)
-//		{
-//			System.err.println("Error removing actor from tile:"+ox+" "+oz);
-//			bruteForceMoveActor(newX, newZ, UID);
-//			return;
-//		}
-//		
-//		levelArray[nx][nz].actors.add(actor);
-//	}
-//	
-//	public void bruteForceMoveActor(float newX, float newZ, String UID)
-//	{
-//		int nx = (int)(newX+0.5f);
-//		int nz = (int)(newZ+0.5f);
-//		
-//		GameActor actor = null;
-//		for (int x = 0; x < levelArray.length; x++)
-//		{
-//			for (int y = 0; y < levelArray[0].length; y++)
-//			{
-//				int i = 0;
-//				for (GameActor ga : levelArray[x][y].actors)
-//				{
-//					if (ga.UID.equals(UID)) 
-//					{ 
-//						actor = levelArray[x][y].actors.get(i);
-//						levelArray[x][y].actors.remove(i);
-//						break;
-//					}
-//					i++;
-//				}
-//				if (actor != null)
-//				{
-//					levelArray[nx][nz].actors.add(actor);
-//					return;
-//				}
-//			}
-//		}
-//		System.err.println("Failed brute force move actor!");
-//	}
-//	
-//	public void moveItem(float oldX, float oldZ, float newX, float newZ, String UID)
-//	{
-//		int ox = (int)(oldX+0.5f);
-//		int oz = (int)(oldZ+0.5f);
-//		
-//		int nx = (int)(newX+0.5f);
-//		int nz = (int)(newZ+0.5f);
-//		
-//		//System.out.println("p   "+ ox + "  " + oz + "   " + nx + "   " + nz);
-//		
-//		if (ox == nx && oz == nz) return;
-//		if (checkSolid(nx, nz)) return;
-//		
-//		VisibleItem item = null;
-//		
-//		int i = 0;
-//		for (VisibleItem vi : levelArray[ox][oz].items)
-//		{
-//			if (vi.UID.equals(UID)) 
-//			{ 
-//				item = levelArray[ox][oz].items.get(i);
-//				levelArray[ox][oz].items.remove(i);
-//				break;
-//			}
-//			i++;
-//		}
-//		
-//		if (item == null)
-//		{
-//			System.err.println("Error removing item from tile:"+ox+" "+oz);
-//			return;
-//		}
-//		
-//		levelArray[nx][nz].items.add(item);
-//	}
-//	
+
 	public void addItem(VisibleItem item)
 	{
 		items.add(item);
@@ -268,6 +174,11 @@ public class Level {
 	public void addActor(GameActor actor)
 	{
 		actors.add(actor);
+	}
+	
+	public void addSpell(Spell spell)
+	{
+		spells.add(spell);
 	}
 	
 	public boolean checkOpaque(int x, int z)

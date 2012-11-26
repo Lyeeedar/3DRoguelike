@@ -15,6 +15,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
+import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
 import com.lyeeedar.Roguelike3D.Game.Level.SerkGenerator;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 
@@ -22,9 +23,9 @@ public class TestFrame extends JFrame
 {
 	public static void main(String[] args)
 	{
-		Level level = new Level(80, 80);
+		//Level level = new Level(80, 80, GeneratorType.SERK);
 		
-		new TestFrame(level);
+		//new TestFrame(level);
 	}
 	/**
 	 * 
@@ -69,8 +70,8 @@ class DrawingCanvas extends JPanel implements KeyListener
 		this.setFocusable(true);
 		this.requestFocusInWindow();
 		this.addKeyListener(this);
-		SerkGenerator sg = new SerkGenerator(tiles);
-		sg.generate();
+		//SerkGenerator sg = new SerkGenerator(tiles);
+		//sg.generate();
 		reload();
 	}
 	

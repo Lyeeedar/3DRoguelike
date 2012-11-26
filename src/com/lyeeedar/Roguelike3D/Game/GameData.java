@@ -14,10 +14,12 @@ import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
+import com.lyeeedar.Roguelike3D.Game.Level.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
+import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
@@ -48,18 +50,20 @@ public class GameData {
 	
 	public static void createNewLevel()
 	{
+		BiomeReader biome = new BiomeReader("Generic");
+		
 		long time = System.nanoTime();
-		level = new Level(50, 50);
+		level = new Level(60, 60, biome.getGenerator(), biome);
 		System.out.println("Created Level in: "+((System.nanoTime()-time)/1000000000.0f)+"s");
 		
 		time = System.nanoTime();
-		levelGraphics.createLevelGraphics(level.getLevelArray(), level.getColours());
+		levelGraphics.createLevelGraphics(level.getLevelArray(), level.getColours(), biome);
 		System.out.println("Created Level Graphics in: "+((System.nanoTime()-time)/1000000000.0f)+"s");
 		
 		time = System.nanoTime();
 
 		lightManager = new LightManager(10, LightQuality.VERTEX);
-		lightManager.ambientLight.set(0.1f, 0.1f, 0.1f, 1);
+		lightManager.ambientLight.set(biome.getAmbientLight());
 		System.out.println("Created Light Manager in: "+((System.nanoTime()-time)/1000000000.0f)+"s");
 		
 
@@ -82,7 +86,7 @@ public class GameData {
 		{		
 			int x = ran.nextInt(55);
 			int z = ran.nextInt(55);
-			PointLight l = new PointLight(new Vector3(player.position.x+x, 5, player.position.z+z), new Color(0.9f, 0.9f, 0.9f, 1.0f), 0.2f);
+			PointLight l = new PointLight(new Vector3(player.position.x+x, 5, player.position.z+z), new Color(0.9f, 0.9f, 0.1f, 1.0f), 0.4f, 8.0f);
 			lightManager.addLight(l);
 			
 			VisibleItem vi = new VisibleItem("model!", new Color(1.0f, 0.9f, 0.1f, 1.0f), "blank", player.position.x+x, 5, player.position.z+z, new Item());

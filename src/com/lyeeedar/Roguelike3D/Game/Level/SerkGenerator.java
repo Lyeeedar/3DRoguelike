@@ -18,16 +18,18 @@ public class SerkGenerator implements AbstractGenerator{
 	protected static final int NOISE_PERSISTANCE = 3;
 	protected static final int NOISE_OCTAVES = 5;
 	
-	protected static final int ROOM_PLACE_ATTEMPTS = 50;
-	protected static final int ROOM_PLACE_PADDING = 3;
-	protected static final int STAIR_MIN = 3;
-	protected static final int STAIR_VAR = 3;
-	protected static final int MAIN_MIN = 10;
-	protected static final int MAIN_VAR = 5;
-	protected static final int SPECIAL_MIN = 6;
-	protected static final int SPECIAL_VAR = 6;
-	protected static final int OTHER_MIN = 2;
-	protected static final int OTHER_VAR = 5;
+	protected static final int ROOM_PLACE_ATTEMPTS = 150;
+	protected final int ROOM_PLACE_PADDING;
+	protected final int START_MIN;
+	protected final int START_VAR;
+	protected final int END_MIN;
+	protected final int END_VAR;
+	protected final int MAIN_MIN;
+	protected final int MAIN_VAR;
+	protected final int SPECIAL_MIN;
+	protected final int SPECIAL_VAR;
+	protected final int OTHER_MIN;
+	protected final int OTHER_VAR;
 
 	final ArrayList<DungeonRoom> rooms = new ArrayList<DungeonRoom>();
 	final AbstractTile[][] tiles;
@@ -36,53 +38,60 @@ public class SerkGenerator implements AbstractGenerator{
 	final int width;
 	final int height;
 	
-	public SerkGenerator(AbstractTile[][] tiles)
+	public SerkGenerator(AbstractTile[][] tiles, BiomeReader biome)
 	{
 		this.tiles = tiles;
 		this.width = tiles.length;
 		this.height = tiles[0].length;
+		
+		ROOM_PLACE_PADDING = biome.getRoomPadding();
+		START_MIN = biome.getRoomSizeMin(RoomType.START);
+		START_VAR = biome.getRoomSizeVar(RoomType.START);
+		END_MIN = biome.getRoomSizeMin(RoomType.END);
+		END_VAR = biome.getRoomSizeVar(RoomType.END);
+		MAIN_MIN = biome.getRoomSizeMin(RoomType.MAIN);
+		MAIN_VAR = biome.getRoomSizeVar(RoomType.MAIN);
+		SPECIAL_MIN = biome.getRoomSizeMin(RoomType.SPECIAL);
+		SPECIAL_VAR = biome.getRoomSizeVar(RoomType.SPECIAL);
+		OTHER_MIN = biome.getRoomSizeMin(RoomType.OTHER);
+		OTHER_VAR = biome.getRoomSizeVar(RoomType.OTHER);
 	}
 	
 	@Override
-	public ArrayList<DungeonRoom> generate() {
+	public ArrayList<DungeonRoom> generate(BiomeReader biome) {
 		
 		setInfluence();
 		
-		placeRoom(RoomType.START);
-		placeRoom(RoomType.END);
+		int reps = biome.getRoomNumberMin(RoomType.START)+ran.nextInt(biome.getRoomNumberVar(RoomType.START));
+		for (int i = 0 ; i < reps; i++)
+		{
+			placeRoom(RoomType.START);
+		}
 		
-		placeRoom(RoomType.MAIN);
-		placeRoom(RoomType.SPECIAL);
-		placeRoom(RoomType.SPECIAL);
+		reps = biome.getRoomNumberMin(RoomType.END)+ran.nextInt(biome.getRoomNumberVar(RoomType.END));
+		for (int i = 0 ; i < reps; i++)
+		{
+			placeRoom(RoomType.END);
+		}
 		
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
+		reps = biome.getRoomNumberMin(RoomType.MAIN)+ran.nextInt(biome.getRoomNumberVar(RoomType.MAIN));
+		for (int i = 0 ; i < reps; i++)
+		{
+			placeRoom(RoomType.MAIN);
+		}
 		
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
+		reps = biome.getRoomNumberMin(RoomType.SPECIAL)+ran.nextInt(biome.getRoomNumberVar(RoomType.SPECIAL));
+		for (int i = 0 ; i < reps; i++)
+		{
+			placeRoom(RoomType.SPECIAL);
+		}
 		
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		placeRoom(RoomType.OTHER);
-		
+		reps = biome.getRoomNumberMin(RoomType.OTHER)+ran.nextInt(biome.getRoomNumberVar(RoomType.OTHER));
+		for (int i = 0 ; i < reps; i++)
+		{
+			placeRoom(RoomType.OTHER);
+		}
+
 		connectRooms();
 		
 		return rooms;
@@ -282,13 +291,13 @@ public class SerkGenerator implements AbstractGenerator{
 		
 		if (roomType == RoomType.START)
 		{
-			rwidth = STAIR_MIN+ran.nextInt(STAIR_VAR);
-			rheight = STAIR_MIN+ran.nextInt(STAIR_VAR);
+			rwidth = START_MIN+ran.nextInt(START_VAR);
+			rheight = START_MIN+ran.nextInt(START_VAR);
 		}
 		else if (roomType == RoomType.END)
 		{
-			rwidth = STAIR_MIN+ran.nextInt(STAIR_VAR);
-			rheight = STAIR_MIN+ran.nextInt(STAIR_VAR);
+			rwidth = END_MIN+ran.nextInt(END_VAR);
+			rheight = END_MIN+ran.nextInt(END_VAR);
 		}
 		else if (roomType == RoomType.MAIN)
 		{

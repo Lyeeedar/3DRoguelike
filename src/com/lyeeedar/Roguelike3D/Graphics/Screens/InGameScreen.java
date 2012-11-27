@@ -30,9 +30,7 @@ public class InGameScreen extends AbstractScreen {
 	}
 
 	@Override
-	public void draw(float delta) {
-		
-		protoRenderer.begin();
+	public void draw3D(float delta) {
 
 		for (VisibleObject vo : GameData.levelGraphics.graphics)
 		{
@@ -53,8 +51,7 @@ public class InGameScreen extends AbstractScreen {
 		{
 			sp.vo.render(protoRenderer);
 		}
-		
-		protoRenderer.end();
+
 	}
 	
 	ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
@@ -109,16 +106,12 @@ public class InGameScreen extends AbstractScreen {
 	@Override
 	public void create() {
 		
-		GameData.createNewLevel();
+		GameData.createNewLevel(game);
 		
 		protoRenderer = new PrototypeRendererGL20(GameData.lightManager);
 		protoRenderer.cam = cam;
 		
-		Skin skin = new Skin(Gdx.files.internal( "data/skins/uiskin.json" ));
-		//skin.addResource("verdana", font);
-		//skin.("default_font1", new BitmapFont());
-		//font = skin.getFont("default-font");
-		
+		Skin skin = new Skin(Gdx.files.internal( "data/skins/uiskin.json" ));	
 	    
 		label = new Label("", skin);
 		
@@ -149,6 +142,12 @@ public class InGameScreen extends AbstractScreen {
 
 	@Override
 	public void resume() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void draw2D(float delta) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -72,13 +72,13 @@ public class PostProcessor {
 		effects.put(Effect.GLOW, new GlowEffect());
 	}
 	
-	public void updateBufferSettings(Format format, int width, int height) {
+	public void updateBufferSettings(Format format, int f, int g) {
 		this.format = format;
-		this.width = width;
-		this.height = height;
+		this.width = f;
+		this.height = g;
 		
-		captureBuffer = new FrameBuffer(format, width, height, true);
-		bufferChain.updateBuffers(format, width, height);
+		captureBuffer = new FrameBuffer(format, f, g, true);
+		bufferChain.updateBuffers(format, f, g);
 	}
 	
 	public void begin()

@@ -263,6 +263,12 @@ public class GameObject {
 	{
 		positionAbsolutely(tmpVec.set(position.x, y, position.z));
 	}
+	
+	public void positionAbsolutely(float x, float y, float z)
+	{
+		positionAbsolutely(tmpVec.set(x, y, z));
+	}
+	
 	public void left_right(float mag)
 	{
 		velocity.x += (float)Math.sin(rotation.z) * mag;

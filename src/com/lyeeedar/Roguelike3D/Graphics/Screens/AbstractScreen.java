@@ -76,22 +76,19 @@ public abstract class AbstractScreen implements Screen{
 		Gdx.graphics.getGL20().glCullFace(GL20.GL_BACK);
 		
 		Gdx.graphics.getGL20().glEnable(GL20.GL_DEPTH_TEST);
-		Gdx.graphics.getGL20().glDepthMask(true);
+		Gdx.graphics.getGL20().glDepthMask(true);	
 		
-		//Gdx.graphics.getGL20().glEnable(GL20.GL_POLYGON_OFFSET_FILL);
-		//Gdx.graphics.getGL20().glPolygonOffset(1.0f, 1.0f);
+		protoRenderer.begin();
+		draw3D(delta);
+		protoRenderer.end();
 		
-		//Gdx.graphics.getGL20().glDisable(GL20.GL_DITHER);
-
-		draw(delta);
+		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);	
+		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
+		
+		draw2D(delta);
 		
 		postProcessor.end();
 
-		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
-		//Gdx.graphics.getGL20().glDepthMask(false);
-		
-		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
-		
 		stage.draw();
 		
         fps.log();
@@ -109,7 +106,7 @@ public abstract class AbstractScreen implements Screen{
         cam.far = 200;
         protoRenderer.cam = cam;
 		
-		stage.setViewport( width, height, true );
+		stage.setViewport( width, height, true);
 	}
 
 	@Override
@@ -123,14 +120,9 @@ public abstract class AbstractScreen implements Screen{
 
 	}
 	
-	@Override
-	public void show()
-	{
-		
-	}
-	
 	public abstract void create();
-	public abstract void draw(float delta);
+	public abstract void draw3D(float delta);
+	public abstract void draw2D(float delta);
 	public abstract void update(float delta);
 
 }

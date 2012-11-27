@@ -209,4 +209,22 @@ public class StillModelViewerGL20 extends AbstractScreen {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void show() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void draw3D(float delta) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void draw2D(float delta) {
+		// TODO Auto-generated method stub
+		
+	}
 }

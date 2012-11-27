@@ -11,6 +11,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.CollisionBox;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
+import com.lyeeedar.Roguelike3D.Game.Actor.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
@@ -30,6 +31,7 @@ public class Level {
 	public ArrayList<GameActor> actors = new ArrayList<GameActor>();
 	public ArrayList<VisibleItem> items = new ArrayList<VisibleItem>();
 	public ArrayList<Spell> spells = new ArrayList<Spell>();
+	public ArrayList<LevelObject> levelObjects = new ArrayList<LevelObject>();
 	
 	public ArrayList<DungeonRoom> rooms;
 	
@@ -54,6 +56,37 @@ public class Level {
 		MapGenerator generator = new MapGenerator(width, height, solids, opaques, colours, gtype, biome);
 		levelArray = generator.getLevel();
 		rooms = generator.getRooms();
+	}
+	
+	int fillRoomIndex = 0;
+	public boolean fillRoom(RoomReader rReader)
+	{
+		if (fillRoomIndex == rooms.size())
+		{
+			return true;
+		}
+		
+		DungeonRoom room = rooms.get(fillRoomIndex);
+		AbstractRoom aroom = rReader.getRoom(room.roomtype, room.width, room.height);
+		
+		if (aroom == null) {
+			fillRoomIndex++;
+			System.out.println("Failed to place "+room.roomtype);
+			return false;
+		}
+		System.out.println("Placed "+room.roomtype);
+		
+		for (int i = 0; i < aroom.width; i++)
+		{
+			for (int j = 0; j < aroom.height; j++)
+			{
+				levelArray[room.x+i][room.y+j].height += 2;
+			}
+		}
+		
+		
+		fillRoomIndex++;
+		return false;
 	}
 	
 	public Tile getTile(float x, float z)
@@ -179,6 +212,11 @@ public class Level {
 	public void addSpell(Spell spell)
 	{
 		spells.add(spell);
+	}
+	
+	public void addLvlObject(LevelObject lo)
+	{
+		levelObjects.add(lo);
 	}
 	
 	public boolean checkOpaque(int x, int z)

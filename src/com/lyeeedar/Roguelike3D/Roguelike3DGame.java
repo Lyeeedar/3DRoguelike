@@ -7,6 +7,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.lyeeedar.Roguelike3D.Game.Level.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
+import com.lyeeedar.Roguelike3D.Game.Level.RoomReader;
 import com.lyeeedar.Roguelike3D.Graphics.Screens.*;
 
 
@@ -37,9 +38,9 @@ public class Roguelike3DGame extends Game {
 		}
 	}
 	
-	public void loadLevel(int width, int height, BiomeReader biome, String nextScreen)
+	public void loadLevel(int width, int height, BiomeReader biome, RoomReader rReader, String nextScreen)
 	{
-		loading_screen.setSettings(width, height, biome, nextScreen);
+		loading_screen.setSettings(width, height, biome, rReader, nextScreen);
 		setScreen(loading_screen);
 	}
 

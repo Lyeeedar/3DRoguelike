@@ -6,6 +6,7 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
@@ -21,12 +22,15 @@ import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
+import com.lyeeedar.Roguelike3D.Game.Level.RoomReader;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.GlowAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.Particle;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 
 public class GameData {
@@ -49,10 +53,14 @@ public class GameData {
 
 	public static float gravity = 0.1f;
 	
+	public static ArrayList<Particle> particles = new ArrayList<Particle>();
+	public static ArrayList<ParticleEmitter> particleEmitters = new ArrayList<ParticleEmitter>();
+	
 	public static void createNewLevel(final Roguelike3DGame game)
 	{	
-		BiomeReader biome = new BiomeReader("Generic");
-		game.loadLevel(60, 60, biome, "InGame");
+		BiomeReader biome = new BiomeReader("generic");
+		RoomReader rReader = new RoomReader("generic");
+		game.loadLevel(60, 60, biome, rReader, "InGame");
 
 		lightManager = new LightManager(10, LightQuality.VERTEX);
 		lightManager.ambientLight.set(biome.getAmbientLight());

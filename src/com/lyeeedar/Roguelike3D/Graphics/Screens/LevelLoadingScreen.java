@@ -15,6 +15,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
+import com.lyeeedar.Roguelike3D.Game.Level.RoomReader;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
@@ -34,6 +35,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 	Level level;
 	LevelGraphics graphics;
 	BiomeReader biome;
+	RoomReader rReader;
 	
 	float taskSteps;
 	
@@ -46,15 +48,16 @@ public class LevelLoadingScreen extends AbstractScreen{
 		super(game);
 	}
 	
-	public void setSettings(int width, int height, BiomeReader biome, String nextScreen)
+	public void setSettings(int width, int height, BiomeReader biome, RoomReader rReader, String nextScreen)
 	{
 		this.width = width;
 		this.height = height;
 		
+		this.rReader = rReader;
 		this.biome = biome;
 		this.nextScreen = nextScreen;
 		
-		float size = height*1.5f;
+		float size = height*2.0f;
 		
 		taskSteps = 100f/size;
 		
@@ -73,12 +76,20 @@ public class LevelLoadingScreen extends AbstractScreen{
 		}
 		else if (loadingStage == 1)
 		{
+			message = "Filling Rooms";
+			boolean done = level.fillRoom(rReader);
+			percent += taskSteps;
+			
+			if (done) loadingStage++;
+		}
+		else if (loadingStage == 2)
+		{
 			message = "Creating Fundamental Structure";
 			graphics = new LevelGraphics(level.getLevelArray(), level.getColours(), biome);
 			loadingStage++;
 			percent += taskSteps*5;
 		}
-		else if (loadingStage == 2)
+		else if (loadingStage == 3)
 		{
 			message = "Forcing Matter Into Existence";
 			boolean done = graphics.createTileRow();
@@ -86,7 +97,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 			
 			if (done) loadingStage++;
 		}
-		else if (loadingStage == 3)
+		else if (loadingStage == 4)
 		{
 			message = "Coalescing Matter";
 			boolean done = graphics.createChunkRow();
@@ -94,14 +105,14 @@ public class LevelLoadingScreen extends AbstractScreen{
 			
 			if (done) loadingStage++;
 		}
-		else if (loadingStage == 4)
+		else if (loadingStage == 5)
 		{
 			message = "Cleaning Up";
 			boolean done = graphics.disposeTileRow();
 			
 			if (done) loadingStage++;
 		}
-		else if (loadingStage == 5)
+		else if (loadingStage == 6)
 		{
 			message = "Positioning You";
 			for (DungeonRoom room : level.rooms)
@@ -115,7 +126,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 			}
 			loadingStage++;
 		}
-		else if (loadingStage == 6) 
+		else if (loadingStage == 7) 
 		{
 			GameData.level = level;
 			GameData.levelGraphics = graphics;

@@ -13,6 +13,8 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -25,6 +27,8 @@ import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Graphics.Models.FullscreenQuad;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.Particle;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor;
 import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor.Effect;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
@@ -38,6 +42,7 @@ public abstract class AbstractScreen implements Screen{
 	protected final Roguelike3DGame game;
 
 	protected final SpriteBatch spriteBatch;
+	protected final DecalBatch decalBatch;
 	protected BitmapFont font;
 	protected final Stage stage;
 
@@ -54,6 +59,9 @@ public abstract class AbstractScreen implements Screen{
 		
 		font = new BitmapFont(Gdx.files.internal("data/skins/default.fnt"), false);
 		spriteBatch = new SpriteBatch();
+		decalBatch = new DecalBatch();
+		decalBatch.setGroupStrategy(new CameraGroupStrategy(cam));
+
 		stage = new Stage(0, 0, true, spriteBatch);
 		
 		protoRenderer = new PrototypeRendererGL20(GameData.lightManager);
@@ -61,6 +69,8 @@ public abstract class AbstractScreen implements Screen{
 		postProcessor = new PostProcessor(Format.RGBA4444, 800, 600);
 		postProcessor.addEffect(Effect.GLOW);
 	}
+	
+	private ArrayList<Particle> keep = new ArrayList<Particle>();
 
 	@Override
 	public void render(float delta) {
@@ -82,8 +92,30 @@ public abstract class AbstractScreen implements Screen{
 		draw3D(delta);
 		protoRenderer.end();
 		
-		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);	
 		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
+//		Gdx.graphics.getGL20().glEnable(GL20.GL_POLYGON_OFFSET_FILL);
+//		Gdx.graphics.getGL20().glPolygonOffset(0.9f,0.9f);
+		
+		for (ParticleEmitter pe : GameData.particleEmitters)
+		{
+			pe.update(delta);
+		}
+		
+		keep.clear();
+		for (Particle p : GameData.particles)
+		{
+			p.update(delta);
+			p.lookAt(cam);
+			decalBatch.add(p.decal);
+			
+			if (p.alive) keep.add(p);
+		}
+		decalBatch.flush();
+		GameData.particles.clear();
+		GameData.particles.addAll(keep);
+		
+		//Gdx.graphics.getGL20().glDisable(GL20.GL_POLYGON_OFFSET_FILL);
+		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);	
 		
 		draw2D(delta);
 		
@@ -97,6 +129,7 @@ public abstract class AbstractScreen implements Screen{
 
 	@Override
 	public void resize(int width, int height) {
+		
 		screen_width = width;
 		screen_height = height;
 
@@ -105,6 +138,8 @@ public abstract class AbstractScreen implements Screen{
         cam.near = 1.0f;
         cam.far = 200;
         protoRenderer.cam = cam;
+        
+        decalBatch.setGroupStrategy(new CameraGroupStrategy(cam));
 		
 		stage.setViewport( width, height, true);
 	}

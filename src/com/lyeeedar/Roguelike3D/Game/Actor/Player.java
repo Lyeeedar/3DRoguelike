@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 Philip Collin.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ * 
+ * Contributors:
+ *     Philip Collin - initial API and implementation
+ ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Actor;
 
 import com.badlogic.gdx.Gdx;
@@ -38,9 +48,13 @@ public class Player extends GameActor {
 	{
 		super(mesh, colour, texture, x, y, z);
 	}
+	
+	float cooldown = 0;
 
 	@Override
 	public void update(float delta) {	
+		
+		cooldown -= delta;
 		
 		float move = delta * 10;
 		
@@ -58,7 +72,7 @@ public class Player extends GameActor {
 			if ( (grounded) && (Gdx.input.isKeyPressed(Keys.SPACE))) velocity.y += 0.4;
 		}
 		
-		if (Gdx.input.isKeyPressed(Keys.B))
+		if (Gdx.input.isKeyPressed(Keys.B) && cooldown < 0)
 		{
 //			float x = position.x;
 //			float z = position.z;
@@ -73,10 +87,12 @@ public class Player extends GameActor {
 //				GameData.decals.add(d);
 //			}
 			
-			ParticleEmitter p = new ParticleEmitter(position.x, position.y, position.z, 10, 10, 10, 1);
+			ParticleEmitter p = new ParticleEmitter(position.x, position.y-5, position.z, 5, 5, 5, 0.5f);
 			
 			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 1.5f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1);
 			GameData.particleEmitters.add(p);
+			
+			cooldown = 1;
 		}
 		
 		applyMovement();

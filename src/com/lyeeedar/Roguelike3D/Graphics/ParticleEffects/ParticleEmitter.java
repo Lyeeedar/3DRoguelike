@@ -10,14 +10,22 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.ParticleEffects;
 
+import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Random;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 
 public class ParticleEmitter {
+	
+	ArrayDeque<Particle> active;
+	ArrayDeque<Particle> inactive;
 	
 	PointLight boundLight;
 	
@@ -27,7 +35,9 @@ public class ParticleEmitter {
 	
 	float x; float y; float z; float vx; float vy; float vz; float speed;
 	
-	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed)
+	float radius;
+	
+	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles)
 	{
 		this.x = x;
 		this.y = y;
@@ -36,6 +46,17 @@ public class ParticleEmitter {
 		this.vy = vy;
 		this.vz = vz;
 		this.speed = speed;
+		
+		active = new ArrayDeque<Particle>(particles);
+		inactive = new ArrayDeque<Particle>(particles);
+		
+		for (int i = 0; i < particles; i++)
+		{
+			Particle p = new Particle(false);
+			inactive.add(p);
+		}
+		
+		radius = vx + vz;
 	}
 	
 	String texture; Vector3 velocity; float atime; Color start; Color end; float width; float height;
@@ -53,27 +74,64 @@ public class ParticleEmitter {
 		float intensity = 1-(speed/10);
 		float attenuation = (vx+vy+vz)/1000;
 		
+		Color lightCol = new Color((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
+		
 		if (boundLight == null)
 		{
-			boundLight = new PointLight(new Vector3(x, y, z), start, attenuation, intensity);
+			boundLight = new PointLight(new Vector3(x, y, z), lightCol, attenuation, intensity);
 			GameData.lightManager.addLight(boundLight);
 		}
 		else
 		{
-			boundLight.colour = start;
+			boundLight.colour = lightCol;
 			boundLight.attenuation = attenuation;
 			boundLight.intensity = intensity;
 		}
 	}
 	
+	public void render(DecalBatch batch, Camera cam)
+	{
+		for (Particle p : active)
+		{
+			p.lookAt(cam);
+			batch.add(p.decal);
+		}
+	}
+	
 	public void update(float delta)
 	{
-		time -= delta;
-		if (time > 0) return;
+		Iterator<Particle> pItr = active.iterator();
 		
-		Particle p = new Particle(texture, velocity.cpy(), atime, start, end, width, height, x+(vx*ran.nextFloat()), y+(vy*ran.nextFloat()), z+(vz*ran.nextFloat()));
+		while (pItr.hasNext())
+		{
+			Particle p = pItr.next();
+			p.update(delta);
+			
+			if (!p.alive)
+			{
+				pItr.remove();
+				inactive.add(p);
+			}
+		}
+		
+		time -= delta;
+		if (time > 0 || inactive.size() == 0) return;
+		
+		Particle p = inactive.pop();
+		p.set(texture, velocity.cpy(), atime, start, end, width, height, x+(vx*ran.nextFloat()), y+(vy*ran.nextFloat()), z+(vz*ran.nextFloat()));
 
-		GameData.particles.add(p);
+		active.add(p);
+	}
+	
+	final Vector3 tmpVec = new Vector3();
+	public Vector3 getPos()
+	{
+		return tmpVec.set(x, y, z);
+	}
+	
+	public float getRadius()
+	{
+		return radius;
 	}
 	
 	public void dispose()

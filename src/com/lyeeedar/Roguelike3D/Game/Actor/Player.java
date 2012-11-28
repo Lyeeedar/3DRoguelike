@@ -87,9 +87,9 @@ public class Player extends GameActor {
 //				GameData.decals.add(d);
 //			}
 			
-			ParticleEmitter p = new ParticleEmitter(position.x, position.y-5, position.z, 5, 5, 5, 0.5f);
+			ParticleEmitter p = new ParticleEmitter(position.x, position.y-5, position.z, 5, 5, 5, 0.75f, 100);
 			
-			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 1.5f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1);
+			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1);
 			GameData.particleEmitters.add(p);
 			
 			cooldown = 1;
@@ -97,24 +97,10 @@ public class Player extends GameActor {
 		
 		applyMovement();
 
-		float pitch = (float)Gdx.input.getDeltaY()*yrotate*move;
-		Vector3 dir = rotation.cpy().nor();
-		//System.out.println(dir.y);
-		//if( (dir.y>-0.7) && (pitch<0) || (dir.y<+0.7) && (pitch>0) )
-		//{
-			//rotate(pitch, 1, 0, 0);
-			//rotate(pitch, rotation.x, 0, rotation.y);
-		//}
+		Yrotate((float)Gdx.input.getDeltaY()*yrotate*move);
 
-		if( (dir.y>-0.7) && (pitch<0) || (dir.y<+0.7) && (pitch>0) )
-		{
-			Vector3 localAxisX = rotation.cpy();
-			localAxisX.crs(up.tmp()).nor();
-			rotate(pitch, localAxisX.x, localAxisX.y, localAxisX.z);
 
-		}
-
-		rotate((float)Gdx.input.getDeltaX()*xrotate*move, 0, 1, 0);
+		Xrotate((float)Gdx.input.getDeltaX()*xrotate*move);
 		
 		if (Gdx.input.isKeyPressed(Keys.C)) {
 			Spell spell = new Spell("modelf", Color.RED, "blank", position.x, position.y, position.z);

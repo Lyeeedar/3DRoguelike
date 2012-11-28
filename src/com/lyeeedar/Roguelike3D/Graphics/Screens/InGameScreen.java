@@ -30,6 +30,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 import com.lyeeedar.Roguelike3D.Graphics.Screens.AbstractScreen;
 
@@ -40,7 +41,7 @@ public class InGameScreen extends AbstractScreen {
 	}
 
 	@Override
-	public void draw3D(float delta) {
+	public void drawModels(float delta) {
 
 		for (VisibleObject vo : GameData.levelGraphics.graphics)
 		{
@@ -62,6 +63,22 @@ public class InGameScreen extends AbstractScreen {
 			sp.vo.render(protoRenderer);
 		}
 
+	}
+	
+	@Override
+	public void drawDecals(float delta) {
+		for (ParticleEmitter pe : GameData.particleEmitters)
+		{
+			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
+			pe.update(delta);
+			pe.render(decalBatch, cam);
+		}
+		
+	}
+
+	@Override
+	public void drawOrthogonals(float delta) {
+		
 	}
 	
 	ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
@@ -152,12 +169,6 @@ public class InGameScreen extends AbstractScreen {
 
 	@Override
 	public void resume() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void draw2D(float delta) {
 		// TODO Auto-generated method stub
 		
 	}

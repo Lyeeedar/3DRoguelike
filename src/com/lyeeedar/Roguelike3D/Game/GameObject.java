@@ -230,9 +230,26 @@ public class GameObject {
 		}
 		
 	}
+	
+	public void Yrotate (float angle) {
+		
+		Vector3 dir = rotation.cpy().nor();
 
-	public void rotate (float angle, float axisX, float axisY, float axisZ) {
-		rotate(tmpVec.set(axisX, axisY, axisZ), angle);
+		if( (dir.y>-0.7) && (angle<0) || (dir.y<+0.7) && (angle>0) )
+		{
+			Vector3 localAxisX = rotation.cpy();
+			localAxisX.crs(up.tmp()).nor();
+			rotate(localAxisX.x, localAxisX.y, localAxisX.z, angle);
+
+		}
+	}
+
+	public void Xrotate (float angle) {
+		rotate(tmpVec.set(0, 1, 0), angle);
+	}
+	
+	public void rotate (float x, float y, float z, float angle) {
+		rotate(tmpVec.set(x, y, z), angle);
 	}
 
 	/** Rotates the direction and up vector of this camera by the given angle around the given axis. The direction and up vector
@@ -245,7 +262,7 @@ public class GameObject {
 		rotation.mul(tmpMat).nor();
 		up.mul(tmpMat).nor();
 		
-		vo.attributes.getRotation().setToLookAt(tmpVec.set(0, 0, 0).sub(rotation), up);
+		vo.attributes.getRotation().setToLookAt(tmpVec.set(0, 0, 0).add(rotation), up).inv();
 	}
 
 	public void translate(float x, float y, float z)

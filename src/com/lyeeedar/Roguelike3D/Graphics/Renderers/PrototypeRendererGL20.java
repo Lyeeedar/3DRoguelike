@@ -65,7 +65,6 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 	@Override
 	public void draw (StillModel model, StillModelAttributes attributes) {
 		if (cam != null) if (!cam.frustum.sphereInFrustum(attributes.getSortCenter(), attributes.getBoundingSphereRadius())) return;
-		//if (cam != null) if (cam.position.dst(attributes.getSortCenter()) > 150) return;
 		drawableManager.add(model, attributes);
 	}
 

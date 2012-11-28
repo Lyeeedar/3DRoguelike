@@ -60,7 +60,7 @@ public class Enemy extends GameActor {
 			
 		if (turnLock > 0)
 		{
-			rotate(turnDirection*xrotate*move*5, 0, 1, 0);
+			Xrotate(turnDirection*xrotate*move*5);
 		}
 		else
 		{

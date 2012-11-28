@@ -79,8 +79,6 @@ public abstract class AbstractScreen implements Screen{
 		postProcessor = new PostProcessor(Format.RGBA4444, 800, 600);
 		postProcessor.addEffect(Effect.GLOW);
 	}
-	
-	private ArrayList<Particle> keep = new ArrayList<Particle>();
 
 	@Override
 	public void render(float delta) {
@@ -99,35 +97,20 @@ public abstract class AbstractScreen implements Screen{
 		Gdx.graphics.getGL20().glDepthMask(true);	
 		
 		protoRenderer.begin();
-		draw3D(delta);
+		drawModels(delta);
 		protoRenderer.end();
 		
 		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
 //		Gdx.graphics.getGL20().glEnable(GL20.GL_POLYGON_OFFSET_FILL);
 //		Gdx.graphics.getGL20().glPolygonOffset(0.9f,0.9f);
 		
-		for (ParticleEmitter pe : GameData.particleEmitters)
-		{
-			pe.update(delta);
-		}
-		
-		keep.clear();
-		for (Particle p : GameData.particles)
-		{
-			p.update(delta);
-			p.lookAt(cam);
-			decalBatch.add(p.decal);
-			
-			if (p.alive) keep.add(p);
-		}
+		drawDecals(delta);
 		decalBatch.flush();
-		GameData.particles.clear();
-		GameData.particles.addAll(keep);
 		
 		//Gdx.graphics.getGL20().glDisable(GL20.GL_POLYGON_OFFSET_FILL);
 		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);	
 		
-		draw2D(delta);
+		drawOrthogonals(delta);
 		
 		postProcessor.end();
 
@@ -166,8 +149,9 @@ public abstract class AbstractScreen implements Screen{
 	}
 	
 	public abstract void create();
-	public abstract void draw3D(float delta);
-	public abstract void draw2D(float delta);
+	public abstract void drawModels(float delta);
+	public abstract void drawDecals(float delta);
+	public abstract void drawOrthogonals(float delta);
 	public abstract void update(float delta);
 
 }

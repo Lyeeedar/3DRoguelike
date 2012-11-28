@@ -63,7 +63,6 @@ public class GameData {
 
 	public static float gravity = 0.1f;
 	
-	public static ArrayList<Particle> particles = new ArrayList<Particle>();
 	public static ArrayList<ParticleEmitter> particleEmitters = new ArrayList<ParticleEmitter>();
 	
 	public static void createNewLevel(final Roguelike3DGame game)

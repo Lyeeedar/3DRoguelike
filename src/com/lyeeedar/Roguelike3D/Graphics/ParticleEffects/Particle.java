@@ -33,8 +33,45 @@ public class Particle {
 	
 	public boolean alive = true;
 	
+	final String UID;
+	
+	public Particle(boolean alive)
+	{
+		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
+		alive = false;
+	}
+	
 	public Particle(String texture, Vector3 velocity, float time, Color start, Color end, float width, float height, float x, float y, float z)
 	{
+		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
+		this.velocity = velocity;
+		this.remainingTime = time;
+		this.start = start;
+		
+		if (end != null) this.end = end;
+		else this.end = start;
+		
+		float rdiff = end.r-start.r;
+		rstep = rdiff/time;
+		
+		float gdiff = end.g-start.g;
+		gstep = gdiff/time;
+		
+		float bdiff = end.b-start.b;
+		bstep = bdiff/time;
+		
+		TextureRegion tex = new TextureRegion(new Texture(Gdx.files.internal(texture)));
+
+		decal = Decal.newDecal(width, height, tex, true);
+		decal.setColor(start.r, start.g, start.b, start.a);
+		
+		decal.getPosition().set(x, y, z);
+	}
+	
+	public void set(String texture, Vector3 velocity, float time, Color start, Color end, float width, float height, float x, float y, float z)
+	{		
+		alive = true;
+		
 		this.velocity = velocity;
 		this.remainingTime = time;
 		this.start = start;
@@ -75,5 +112,17 @@ public class Particle {
 	public void lookAt(Camera cam)
 	{
 		decal.lookAt(cam.position, cam.up);
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof Particle)) return false;
+		Particle p = (Particle)o;
+		
+		if (p.alive != alive) return false;
+		
+		if (p.UID.equals(UID)) return true;
+		else return false;
 	}
 }

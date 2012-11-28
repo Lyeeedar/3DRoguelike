@@ -11,14 +11,17 @@
 package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
+import com.lyeeedar.Roguelike3D.Game.Actor.Enemy;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
@@ -134,6 +137,26 @@ public class LevelLoadingScreen extends AbstractScreen{
 					level.addActor(GameData.player);
 				}
 			}
+			Random ran = new Random();
+			for (int i = 1; i < 30; i++)
+			{
+				while (true)
+				{
+					int x = ran.nextInt(50);
+					int z = ran.nextInt(50);
+					Vector3 pos = new Vector3(x, 1, z);
+					if (!level.checkLevelCollision(pos.x*10, pos.y, pos.z*10))
+					{
+						Enemy e = new Enemy("modelE", new Color(0.6f, 0.1f, 0.1f, 1.0f), "blank", x*10, 0, z*10);
+						
+						level.addActor(e);
+						x = 51;
+						z = 51;
+						
+						break;
+					}
+				}
+			}
 			loadingStage++;
 		}
 		else if (loadingStage == 7) 
@@ -147,7 +170,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 	}
 
 	@Override
-	public void draw3D(float delta) {
+	public void drawModels(float delta) {
 		
 		for (GameObject go : objects)
 		{
@@ -156,7 +179,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 	}
 	
 	@Override
-	public void draw2D(float delta) {
+	public void drawOrthogonals(float delta) {
 		
 		spriteBatch.begin();
 		
@@ -165,6 +188,11 @@ public class LevelLoadingScreen extends AbstractScreen{
 		font.drawMultiLine(spriteBatch, message, 250, 175);
 		
 		spriteBatch.end();
+	}
+	
+	@Override
+	public void drawDecals(float delta) {
+	
 	}
 
 
@@ -225,7 +253,6 @@ public class LevelLoadingScreen extends AbstractScreen{
 
 	@Override
 	public void resume() {
-		
 	}
 
 }

@@ -24,12 +24,8 @@ public class Shapes {
 		return genCuboid(dimensions.x, dimensions.y, dimensions.z);
 	}
 	
-	public static Mesh genCuboid (float x, float y, float z) {
-		Mesh mesh = new Mesh(true, 24, 36, 
-				new VertexAttribute(Usage.Position, 3, "a_position"),
-				new VertexAttribute(Usage.Normal, 3, "a_normal"),
-				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoord0"));
-
+	public static float[] genCubeVertices(float x, float y, float z)
+	{
 		float[] cubeVerts = {
 				-x, -y, -z, // bottom
 				-x, -y, z,
@@ -93,6 +89,7 @@ public class Shapes {
 				1.0f, 0.0f, 0.0f};
 
 		float[] cubeTex = {
+					
 				0.0f, 0.0f, // bottom
 				0.0f, z,
 				x, z,
@@ -103,25 +100,27 @@ public class Shapes {
 				0.0f, z,
 				0.0f, 0.0f,
 				
-				0.0f, 0.0f, // back
+				x, y, // back
+				x, 0.0f,
+				0.0f, 0.0f,
 				0.0f, y,
-				x, y,
-				x, 0.0f,
 				
-				0.0f, 0.0f, // front
+				x, y, // front
+				x, 0.0f,
+				0.0f, 0.0f,
 				0.0f, y,
-				x, y,
-				x, 0.0f,
 				
-				0.0f, 0.0f, // left
-				0.0f, z,
-				x, z,
-				x, 0.0f,
+				z, y, // left
+				0.0f, y,
+				0.0f, 0.0f,
+				z, 0.0f,
 				
-				0.0f, 0.0f, // right
-				0.0f, z,
-				x, z,
-				x, 0.0f};
+				z, y, // right
+				0.0f, y,
+				0.0f, 0.0f,
+				z, 0.0f
+
+				};
 
 		float[] vertices = new float[24 * 8];
 		int pIdx = 0;
@@ -137,8 +136,13 @@ public class Shapes {
 			vertices[i++] = cubeTex[tIdx++];
 			vertices[i++] = cubeTex[tIdx++];
 		}
-
-		short[] indices = {
+		
+		return vertices;
+	}
+	
+	public static short[] genCubeIndices()
+	{
+		return new short[] {
 				0, 2, 1, // bottom
 				0, 3, 2,
 				
@@ -157,11 +161,38 @@ public class Shapes {
 				20, 23, 22, // right
 				20, 22, 21
 				};
+	}
+	
+	public static Mesh genCuboid (float x, float y, float z) {
+		Mesh mesh = new Mesh(true, 24, 36, 
+				new VertexAttribute(Usage.Position, 3, "a_position"),
+				new VertexAttribute(Usage.Normal, 3, "a_normal"),
+				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoord0"));
+
+		float[] vertices = genCubeVertices(x, y, z);
+
+		short[] indices = genCubeIndices();
 
 		mesh.setVertices(vertices);
 		mesh.setIndices(indices);
 
 		return mesh;
+	}
+	
+	public static TempMesh genTempCuboid (float x, float y, float z) {
+
+		float[] vertices = genCubeVertices(x, y, z);
+
+		short[] indices = genCubeIndices();
+
+		VertexAttribute[] attributes = {
+				new VertexAttribute(Usage.Position, 3, "a_position"),
+				new VertexAttribute(Usage.Normal, 3, "a_normal"),
+				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoord0")
+				};
+		TempMesh tmpMesh = new TempMesh(vertices, indices, 36, 8, 24, attributes);
+
+		return tmpMesh;
 	}
 	
 	public static void translateCubeMesh(Mesh mesh, float x, float y, float z)
@@ -176,6 +207,16 @@ public class Shapes {
 			newPos[(i*vertexSize)+2] += z;
 		}
 		mesh.setVertices(newPos);
+	}
+	
+	public static void translateCubeVertices(int vertexNum, int vertexSize, float[] vertices, float x, float y, float z)
+	{
+		for (int i = 0; i < vertexNum; i++)
+		{
+			vertices[(i*vertexSize)] += x;
+			vertices[(i*vertexSize)+1] += y;
+			vertices[(i*vertexSize)+2] += z;
+		}
 	}
 	
 	/**
@@ -209,7 +250,6 @@ public class Shapes {
 
 	         for (int j = 0; j < vsize; j++)
 	         {
-	        	 //System.out.println("vertex "+(voffset+j)+" is "+tempVerts[j]);
 	        	 vertices[voffset+j] = tempVerts[j];
 	         }
 	         
@@ -217,7 +257,6 @@ public class Shapes {
 	         
 	         for (int j = 0; j < isize; j++)
 	         {
-	        	 //System.out.println("index "+(ioffset+j)+" is "+(tempIdxs[j]+(i*mesh.getNumVertices())));
 	            indices[ioffset+j] = (short)(tempIdxs[j] + (i*mesh.getNumVertices()));
 	         }
 	         
@@ -228,36 +267,49 @@ public class Shapes {
 	      final Mesh result = new Mesh(true, vertCount, idxCount, attributes);
 	      result.setVertices(vertices);
 	      result.setIndices(indices);
-	      //System.out.println("Merged!");
+
 	      return result;
 	   }
-	
-	/**
-	    * Method to transform the positions in the float array. Normals will be kept as is. This is a potentially slow operation, use with care.
-	    * @param matrix the transformation matrix
-	    * @param vertices the float array
-	    * @param vertexSize the number of floats in each vertex
-	    * @param offset the offset within a vertex to the position
-	    * @param dimensions the size of the position
-	    * @param start the vertex to start with
-	    * @param count the amount of vertices to transform
-	    */
-	   public static void transform(final Matrix4 matrix, final float[] vertices, int vertexSize, int count) {
-		   System.out.println("Transforming");
-	      
-	      final Vector3 tmp = Vector3.tmp;
-	      
-	      int idx = 0;
-	      for (int i = 0; i < count; i++) {
-	    	  System.out.println("Before:" + vertices[idx] +" " + vertices[idx+1] + " " + vertices[idx+2]);
-	            tmp.set(vertices[idx], vertices[idx + 1], vertices[idx + 2]).mul(matrix);
-	            vertices[idx] = tmp.x;
-	            vertices[idx+1] = tmp.y;
-	            vertices[idx+2] = tmp.z;
-	            System.out.println("After:" + vertices[idx] +" " + vertices[idx+1] + " " + vertices[idx+2]);
-	            idx += vertexSize;
-	         }
-	      
-	      System.out.println("Done Transforming");
-	   }
+
+	   public static Mesh merge(final TempMesh[] tmpMeshes) {
+		   
+		      final int vertCount = tmpMeshes[0].vertexNum * tmpMeshes.length;
+		      final int idxCount = tmpMeshes[0].indiceNum * tmpMeshes.length;
+		      final int vertexSize = tmpMeshes[0].vertexSize;
+		      
+		      final float vertices[] = new float[vertCount * vertexSize];
+		      final short indices[] = new short[idxCount];
+
+		      int voffset = 0;
+		      int ioffset = 0;
+		      
+		      for (int i = 0; i < tmpMeshes.length; i++) {
+		         final TempMesh tmpMesh = tmpMeshes[i];
+		         
+		         final int vsize = tmpMesh.vertexNum * vertexSize;
+		         final int isize = tmpMesh.indiceNum;
+		         
+		         final float[] tempVerts = tmpMesh.vertices;
+		         final short[] tempIdxs = tmpMesh.indices;
+
+		         for (int j = 0; j < vsize; j++)
+		         {
+		        	 vertices[voffset+j] = tempVerts[j];
+		         }
+		         
+		         for (int j = 0; j < isize; j++)
+		         {
+		            indices[ioffset+j] = (short)(tempIdxs[j] + (i*tmpMesh.vertexNum));
+		         }
+		         
+		         voffset += vsize;
+		         ioffset += isize;
+		      }
+		      
+		      final Mesh result = new Mesh(true, vertCount, idxCount, tmpMeshes[0].attributes);
+		      result.setVertices(vertices);
+		      result.setIndices(indices);
+
+		      return result;
+		   }
 }

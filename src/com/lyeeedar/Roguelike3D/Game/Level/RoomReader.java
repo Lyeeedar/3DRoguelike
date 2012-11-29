@@ -135,9 +135,13 @@ public class RoomReader {
 		AbstractRoom room = new AbstractRoom(rwidth, rheight);
 		
 		Node roomGraphics = getNode(ROOM, chosen.getChildNodes());
-		for (int i = 0; i < rheight; i++)
+		int roomIndex = 0;
+		for (int i = 0; i < roomGraphics.getChildNodes().getLength(); i++)
 		{
-			room.setRow(i, getNodeValue(ROW+(i+1), roomGraphics.getChildNodes()).toCharArray());
+			Node n = roomGraphics.getChildNodes().item(i);
+			if (!n.getNodeName().equalsIgnoreCase(ROW)) continue;
+			room.setRow(roomIndex, n.getTextContent().toCharArray());
+			roomIndex++;
 		}
 		
 		Node define = getNode(DEFINITIONS, chosen.getChildNodes());
@@ -145,7 +149,7 @@ public class RoomReader {
 		for (int i = 0; i < define.getChildNodes().getLength(); i++)
 		{
 			Node symbol = define.getChildNodes().item(i);
-			if (symbol.getNodeType() == Node.TEXT_NODE) continue;
+			if (!symbol.getNodeName().equalsIgnoreCase(SYMBOL)) continue;
 			
 			char character = getNodeValue(CHAR, symbol.getChildNodes()).charAt(0);
 			String type = getNodeValue(TYPE, symbol.getChildNodes());

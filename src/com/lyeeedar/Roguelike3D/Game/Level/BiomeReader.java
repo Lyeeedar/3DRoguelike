@@ -29,6 +29,8 @@ public class BiomeReader {
 	
 	public static final String NAME = "name";
 	public static final String GENERATOR = "generator";
+	public static final String DESCRIPTION = "description";
+	public static final String CHAR = "char";
 	public static final String HEIGHT = "height";
 	public static final String WALL = "wall";
 	public static final String FLOOR = "floor";
@@ -90,6 +92,25 @@ public class BiomeReader {
 		}
 		
 		return gtype;
+	}
+	
+	public String getDescription(char c) 
+	{
+		Node desc = getNode(DESCRIPTION, biome.getChildNodes());
+		
+		for (int i = 0; i < desc.getChildNodes().getLength(); i++)
+		{
+			Node n = desc.getChildNodes().item(i);
+			
+			if (!n.getNodeName().equalsIgnoreCase(CHAR)) continue;
+			
+			if (getNodeValue(CHAR, n.getChildNodes()).charAt(0) == c)
+			{
+				return getNodeValue(DESCRIPTION, n.getChildNodes());
+			}
+		}
+		
+		return "";
 	}
 	
 	public int getHeight()

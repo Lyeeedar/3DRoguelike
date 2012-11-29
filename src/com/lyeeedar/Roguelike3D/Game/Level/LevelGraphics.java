@@ -23,6 +23,8 @@ import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillModel;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillModelAttributes;
+import com.lyeeedar.Roguelike3D.Graphics.Models.TempMesh;
+import com.lyeeedar.Roguelike3D.Graphics.Models.TempVO;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class LevelGraphics {
@@ -39,8 +41,8 @@ public class LevelGraphics {
 	int width;
 	int height;
 	
-	VisibleObject[][] tempVOs;
-	VisibleObject[][] tempRoofs;
+	TempVO[][] tempVOs;
+	TempVO[][] tempRoofs;
 	
 	int wBlocks;
 	int hBlocks;
@@ -54,8 +56,8 @@ public class LevelGraphics {
 		width = levelArray.length;
 		height = levelArray[0].length;
 		
-		tempVOs = new VisibleObject[width][height];
-		tempRoofs = new VisibleObject[width][height];
+		tempVOs = new TempVO[width][height];
+		tempRoofs = new TempVO[width][height];
 		
 		wBlocks = width/CHUNK_WIDTH;
 		hBlocks = height/CHUNK_HEIGHT;
@@ -71,14 +73,12 @@ public class LevelGraphics {
 			Tile t = levelArray[tileX][z];
 			if (t.character == ' ') continue;
 
-			VisibleObject vo = new VisibleObject(Shapes.genCuboid(5, t.height, 5), GL20.GL_TRIANGLES, colours.get(t.character), getTexture(t.character, biome));
-			vo.attributes.getTransform().setToTranslation(tileX*10, t.height-5, z*10);
+			TempVO vo = new TempVO(Shapes.genTempCuboid(5, t.height, 5), GL20.GL_TRIANGLES, colours.get(t.character), getTexture(t.character, biome), tileX*10, t.height-5, z*10);
 			tempVOs[tileX][z] = vo;
 			
 			if (t.height < t.roof)
 			{
-				VisibleObject voRf = new VisibleObject(Shapes.genCuboid(5, 1, 5), GL20.GL_TRIANGLES, colours.get('#'), getTexture('#', biome));
-				voRf.attributes.getTransform().setToTranslation(tileX*10, t.roof, z*10);
+				TempVO voRf = new TempVO(Shapes.genTempCuboid(5, 1, 5), GL20.GL_TRIANGLES, colours.get('#'), getTexture('#', biome), tileX*10, t.roof, z*10);
 				tempRoofs[tileX][z] = voRf;
 			}
 		}
@@ -120,17 +120,18 @@ public class LevelGraphics {
 	int disposeX = 0;
 	public boolean disposeTileRow()
 	{
-		if (disposeX == width) return true;
-		
-		for (int z = 0; z < height; z++)
-		{
-			if (tempVOs[disposeX][z] != null) tempVOs[disposeX][z].dispose();
-			if (tempRoofs[disposeX][z] != null) tempRoofs[disposeX][z].dispose();
-		}
-		
-		disposeX++;
-		
-		return false;
+		//if (disposeX == width)
+		return true;
+//		
+//		for (int z = 0; z < height; z++)
+//		{
+//			//if (tempVOs[disposeX][z] != null) tempVOs[disposeX][z].dispose();
+//			//if (tempRoofs[disposeX][z] != null) tempRoofs[disposeX][z].dispose();
+//		}
+//		
+//		disposeX++;
+//		
+//		return false;
 	}
 	
 	public String getTexture(char c, BiomeReader biome)
@@ -160,11 +161,11 @@ public class LevelGraphics {
 
 class Chunk
 {
-	HashMap<Character, ArrayList<VisibleObject>> block = new HashMap<Character, ArrayList<VisibleObject>>();
+	HashMap<Character, ArrayList<TempVO>> block = new HashMap<Character, ArrayList<TempVO>>();
 	
 	public boolean isEmpty()
 	{
-		for (Map.Entry<Character, ArrayList<VisibleObject>> entry : block.entrySet())
+		for (Map.Entry<Character, ArrayList<TempVO>> entry : block.entrySet())
 		{
 			if (entry.getValue().size() != 0) return false;
 		}
@@ -172,18 +173,18 @@ class Chunk
 		return true;
 	}
 	
-	public void addVO(VisibleObject vo, char c)
+	public void addVO(TempVO vo, char c)
 	{
 		if (vo == null) return;
 		
 		if (block.containsKey(c))
 		{
-			ArrayList<VisibleObject> vos = block.get(c);
+			ArrayList<TempVO> vos = block.get(c);
 			vos.add(vo);
 		}
 		else
 		{
-			ArrayList<VisibleObject> vos = new ArrayList<VisibleObject>();
+			ArrayList<TempVO> vos = new ArrayList<TempVO>();
 			vos.add(vo);
 			block.put(c, vos);
 		}
@@ -194,33 +195,31 @@ class Chunk
 	{
 		ArrayList<VisibleObject> vos = new ArrayList<VisibleObject>();
 		
-		for (Map.Entry<Character, ArrayList<VisibleObject>> entry : block.entrySet())
+		for (Map.Entry<Character, ArrayList<TempVO>> entry : block.entrySet())
 		{
-			//System.out.println("Merging meshes for -"+entry.getKey() + " Number="+entry.getValue().size());
+
+			final TempMesh[] meshes = new TempMesh[entry.getValue().size()];
 			
-			final Mesh[] meshes = new Mesh[entry.getValue().size()];
-			
-			final Vector3 baseVec = entry.getValue().get(0).attributes.getSortCenter().cpy();
+			final TempVO base = entry.getValue().get(0);
+			final Vector3 baseVec = new Vector3(base.x, base.y, base.z);
 			
 			int i = 0;
-			for (VisibleObject vo : entry.getValue())
+			for (TempVO vo : entry.getValue())
 			{
-				Mesh mesh = vo.model.subMeshes[0].mesh;
+				TempMesh mesh = vo.mesh;
 				
-				tempVec.set(vo.attributes.getSortCenter());
+				tempVec.set(vo.x, vo.y, vo.z);
 				tempVec.sub(baseVec);
-				Shapes.translateCubeMesh(mesh, tempVec.x, tempVec.y, tempVec.z);
+				Shapes.translateCubeVertices(mesh.vertexNum, mesh.vertexSize, mesh.vertices, tempVec.x, tempVec.y, tempVec.z);
 				
 				meshes[i] = mesh;
 				i++;
 			}
 			
 			Mesh merged = Shapes.merge(meshes);
-			StillModel mergedModel = new StillModel(merged, entry.getValue().get(0).model.subMeshes[0].primitiveType);
-			StillModelAttributes attributes = new StillModelAttributes(entry.getValue().get(0).attributes.material,
-					entry.getValue().get(0).attributes.radius*entry.getValue().size());
-			attributes.getTransform().setToTranslation(baseVec);
-			VisibleObject vo = new VisibleObject(mergedModel, attributes);
+			
+			VisibleObject vo = new VisibleObject(merged, base.primitive_type, base.colour, base.textureName);
+			vo.attributes.getTransform().setToTranslation(baseVec);
 			vos.add(vo);
 		}
 		

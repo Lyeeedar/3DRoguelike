@@ -23,6 +23,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
+import com.lyeeedar.Roguelike3D.Game.Level.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
@@ -33,9 +34,10 @@ public class TestFrame extends JFrame
 {
 	public static void main(String[] args)
 	{
-		//Level level = new Level(80, 80, GeneratorType.SERK);
+		BiomeReader biome = new BiomeReader("generic");
+		Level level = new Level(80, 80, GeneratorType.SERK, biome);
 		
-		//new TestFrame(level);
+		new TestFrame(level);
 	}
 	/**
 	 * 

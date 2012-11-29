@@ -14,11 +14,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
+import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractRoom;
+import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
-public class LevelObject extends GameObject{
+public abstract class LevelObject extends GameObject{
 
 	public boolean visible = true;
 	public final AbstractObject ao;
@@ -44,5 +46,15 @@ public class LevelObject extends GameObject{
 		super(model, colour, texture, x, y, z);
 		this.ao = ao;
 	}
-
+	
+	public static LevelObject checkObject(AbstractObject ao, float x, float y, float z, Level level)
+	{
+		LevelObject lo = null;
+		if (ao.type == ObjectType.DOOR_UNLOCKED)
+		{
+			lo = Door.create(ao, level, x, y, z);
+		}
+		
+		return lo;
+	}
 }

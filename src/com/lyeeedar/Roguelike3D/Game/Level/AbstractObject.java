@@ -15,6 +15,8 @@ import com.badlogic.gdx.graphics.Color;
 public class AbstractObject {
 	
 	public enum ObjectType {
+		DOOR_UNLOCKED,
+		DOOR_LOCKED,
 		STATIC,
 		SPAWNER_0,
 		SPAWNER_1,
@@ -52,6 +54,19 @@ public class AbstractObject {
 		this.description = description;
 	}
 	
+	float x; float y; float z;
+	public AbstractObject(char character, ObjectType type, boolean visible, String description, float x, float y, float z)
+	{
+		this.character = character;
+		this.type = type;
+		this.visible = visible;
+		this.description = description;
+		
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+	
 	private ObjectType stringToObjectType(String type)
 	{
 		ObjectType otype = null;
@@ -59,6 +74,14 @@ public class AbstractObject {
 		if (type.equalsIgnoreCase("STATIC"))
 		{
 			otype = ObjectType.STATIC;
+		}
+		else if (type.equalsIgnoreCase("DOOR_UNLOCKED"))
+		{
+			otype = ObjectType.DOOR_UNLOCKED;
+		}
+		else if (type.equalsIgnoreCase("DOOR_LOCKED"))
+		{
+			otype = ObjectType.DOOR_LOCKED;
 		}
 		else if (type.equalsIgnoreCase("SPAWNER_0"))
 		{

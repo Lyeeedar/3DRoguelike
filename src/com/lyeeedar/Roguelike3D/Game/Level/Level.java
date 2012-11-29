@@ -25,6 +25,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.Static;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
@@ -67,6 +68,16 @@ public class Level {
 		MapGenerator generator = new MapGenerator(width, height, solids, opaques, colours, gtype, biome);
 		levelArray = generator.getLevel();
 		rooms = generator.getRooms();
+		
+		for (AbstractObject ao : generator.getObjects())
+		{
+			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this);
+			
+			if (lo != null)
+			{
+				levelObjects.add(lo);
+			}
+		}
 	}
 	
 	int fillRoomIndex = 0;
@@ -105,29 +116,33 @@ public class Level {
 					
 					if (ao == null) continue;
 					
-					System.out.println(aroom.contents[i][j]);
-					
-					if (ao.visible)
+					LevelObject lo = LevelObject.checkObject(ao, (room.x+1)*10, 0, (room.y+j)*10, this);
+
+					if (lo != null)
+					{
+						
+					}
+					else if (ao.visible)
 					{
 						String texture = ao.texture;
 						Color colour = ao.colour;
 						if (ao.modelType.equalsIgnoreCase("model"))
 						{
-							LevelObject lo = new LevelObject(ao.modelName, colour, texture, (room.x+1)*10, 0, (room.y+j)*10, ao);
-							levelObjects.add(lo);
+							lo = new Static(ao.modelName, colour, texture, (room.x+1)*10, 0, (room.y+j)*10, ao);
 						}
 						else if (ao.modelType.equalsIgnoreCase("cube"))
 						{
 							Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
-							LevelObject lo = new LevelObject(mesh, colour, texture, (room.x+i)*10, 0, (room.y+j)*10, ao);
-							levelObjects.add(lo);
+							lo = new Static(mesh, colour, texture, (room.x+i)*10, 0, (room.y+j)*10, ao);
 						}
 					}
 					else
 					{
-						LevelObject lo = new LevelObject(false, (room.x+1)*10, 0, (room.y+j)*10, ao);
-						levelObjects.add(lo);
+						lo = new Static(false, (room.x+1)*10, 0, (room.y+j)*10, ao);
+						
 					}
+					
+					levelObjects.add(lo);
 				}
 				
 			}

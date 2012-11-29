@@ -137,7 +137,7 @@ public class RoomReader {
 		Node roomGraphics = getNode(ROOM, chosen.getChildNodes());
 		for (int i = 0; i < rheight; i++)
 		{
-			room.setRow(i, getNodeValue(ROW+i, roomGraphics.getChildNodes()).toCharArray());
+			room.setRow(i, getNodeValue(ROW+(i+1), roomGraphics.getChildNodes()).toCharArray());
 		}
 		
 		Node define = getNode(DEFINITIONS, chosen.getChildNodes());

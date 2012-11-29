@@ -30,19 +30,19 @@ public class AbstractObject {
 		STAIR_DOWN
 	}
 	
-	char character;
-	ObjectType type;
-	boolean visible;
-	String description;
+	public final char character;
+	public final ObjectType type;
+	public final boolean visible;
+	public final String description;
 	
-	String modelType;
-	String modelName;
+	public String modelType;
+	public String modelName;
 	
-	float[] modelDimensions;
+	public float[] modelDimensions;
 	
-	String texture;
+	public String texture;
 
-	Color colour;
+	public Color colour;
 	
 	public AbstractObject(char character, String type, boolean visible, String description)
 	{
@@ -127,10 +127,5 @@ public class AbstractObject {
 		this.modelName = modelName;
 		this.texture = texture;
 		this.colour = colour;
-	}
-	
-	public void apply(Level level)
-	{
-		
 	}
 }

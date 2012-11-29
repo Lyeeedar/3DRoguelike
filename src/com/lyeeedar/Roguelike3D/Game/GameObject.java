@@ -30,6 +30,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class GameObject {
 	
+	public static final float PHYSICS_DAMAGE_THRESHHOLD = 1.0f;
+	
 	public String UID;
 	
 	protected final Random ran = new Random();
@@ -38,14 +40,14 @@ public class GameObject {
 	protected final static float yrotate = -600f/720f;
 
 	// x y z
-	protected Vector3 position = new Vector3();
-	protected Vector3 rotation = new Vector3(1, 0, 1);
-	protected Vector3 velocity = new Vector3();
+	protected final Vector3 position = new Vector3();
+	protected final Vector3 rotation = new Vector3(1, 0, 1);
+	protected final Vector3 velocity = new Vector3();
 	
-	public Vector3 up = new Vector3(0, 1, 0);
+	public final Vector3 up = new Vector3(0, 1, 0);
 
-	protected Vector3 tmpVec = new Vector3();
-	protected Matrix4 tmpMat = new Matrix4();
+	protected final Vector3 tmpVec = new Vector3();
+	protected final Matrix4 tmpMat = new Matrix4();
 	
 	public CollisionBox collisionBox;
 
@@ -71,9 +73,7 @@ public class GameObject {
 	
 	public GameObject(Mesh mesh, Color colour, String texture, float x, float y, float z)
 	{
-		vo = new VisibleObject(mesh, GL20.GL_TRIANGLES, colour, texture);
-		
-		create(vo, x, y, z);
+		this(new VisibleObject(mesh, GL20.GL_TRIANGLES, colour, texture), x, y, z);
 	}
 	
 	public void create(VisibleObject vo, float x, float y, float z)
@@ -118,10 +118,16 @@ public class GameObject {
 		collisionMesh = mesh;
 		collisionBox = new CollisionBox(dimensions);
 		collisionBox.position = new Vector3(x, y, z);
+		
+		translate(0, 0, 0);
 	}
 
+	float startVelocity = 0;
+	float endVelocity = 0;
+	float negatedVelocity = 0;
 	public void applyMovement()
 	{
+		startVelocity = Math.abs(velocity.x)+Math.abs(velocity.y)+Math.abs(velocity.z);
 		
 		if (velocity.x < -2) velocity.x = -2;
 		if (velocity.x > 2) velocity.x = 2;
@@ -229,6 +235,15 @@ public class GameObject {
 			}
 		}
 		
+		endVelocity = Math.abs(velocity.x)+Math.abs(velocity.y)+Math.abs(velocity.z);
+
+		negatedVelocity = startVelocity-endVelocity;
+		
+		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
+		{
+			System.out.println("ouch! "+negatedVelocity);
+		}
+		
 	}
 	
 	public void Yrotate (float angle) {
@@ -321,11 +336,6 @@ public class GameObject {
 
 	public Vector3 getVelocity() {
 		return velocity;
-	}
-
-
-	public void setVelocity(Vector3 velocity) {
-		this.velocity = velocity;
 	}
 
 	public VisibleObject getVo() {

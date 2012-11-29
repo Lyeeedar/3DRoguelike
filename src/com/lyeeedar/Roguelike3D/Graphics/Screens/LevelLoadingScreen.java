@@ -180,6 +180,11 @@ public class LevelLoadingScreen extends AbstractScreen{
 	
 	@Override
 	public void drawOrthogonals(float delta) {
+
+	}
+	
+	@Override
+	public void drawDecals(float delta) {
 		
 		spriteBatch.begin();
 		
@@ -188,11 +193,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		font.drawMultiLine(spriteBatch, message, 250, 175);
 		
 		spriteBatch.end();
-	}
-	
-	@Override
-	public void drawDecals(float delta) {
-	
+
 	}
 
 

@@ -26,8 +26,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.*;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
+import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
@@ -48,9 +50,15 @@ public class InGameScreen extends AbstractScreen {
 			vo.render(protoRenderer);
 		}
 		
-		for (GameActor go : GameData.level.actors)
+		for (LevelObject lo : GameData.level.levelObjects)
 		{
-			go.vo.render(protoRenderer);
+			if (!lo.visible) continue;
+			lo.vo.render(protoRenderer);
+		}
+		
+		for (GameActor ga : GameData.level.actors)
+		{
+			ga.vo.render(protoRenderer);
 		}
 		
 		for (VisibleItem vi : GameData.level.items)
@@ -65,20 +73,31 @@ public class InGameScreen extends AbstractScreen {
 
 	}
 	
+	float time = 0;
+	int particleNum = 0;
 	@Override
 	public void drawDecals(float delta) {
+		particleNum = 0;
 		for (ParticleEmitter pe : GameData.particleEmitters)
 		{
 			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
 			pe.update(delta);
 			pe.render(decalBatch, cam);
+			particleNum += pe.particles;
 		}
-		
+		time -= delta;
+		if (time < 0)
+		{
+			System.out.println("Visible Particles: "+particleNum);
+			time = 1;
+		}
 	}
 
 	@Override
 	public void drawOrthogonals(float delta) {
-		
+		font.draw(spriteBatch, "X: "+GameData.player.getPosition().x, 20, 100);
+		font.draw(spriteBatch, "Y: "+GameData.player.getPosition().y, 20, 70);
+		font.draw(spriteBatch, "Z: "+GameData.player.getPosition().z, 20, 40);
 	}
 	
 	ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
@@ -87,6 +106,11 @@ public class InGameScreen extends AbstractScreen {
 	public void update(float delta) {
 		
 		gameObjects.clear();
+		for (LevelObject lo : GameData.level.levelObjects)
+		{
+			gameObjects.add(lo);
+		}
+		
 		for (GameActor ga : GameData.level.actors)
 		{
 			gameObjects.add(ga);
@@ -121,11 +145,11 @@ public class InGameScreen extends AbstractScreen {
 				}
 				map += r + "\n";
 			}
-			label.setText(map);
+			//label.setText(map);
 		}
 		
-		cam.position.set(GameData.player.getPosition());
-		cam.direction.set(GameData.player.getRotation());
+		cam.position.set(GameData.player.getPosition()).add(GameData.player.offsetPos);
+		cam.direction.set(GameData.player.getRotation()).add(GameData.player.offsetRot);
 		cam.update();
 	}
 
@@ -159,6 +183,14 @@ public class InGameScreen extends AbstractScreen {
 	public void show()
 	{
 		Gdx.input.setCursorCatched(true);
+		
+		
+		Player p = GameData.player;
+		ParticleEmitter pe = new ParticleEmitter(p.getPosition().x, p.getPosition().y+15, p.getPosition().z, 35, 0, 35, 0.75f, 1000);
+		
+		Color rain = new Color(0f, 0.345098f, 0.345098f, 1.0f);
+		pe.setDecal("data/textures/texr.png", new Vector3(0.0f, -21.0f, 0.0f), 5, rain, rain, 1, 1, false);
+		GameData.particleEmitters.add(pe);
 	}
 
 	@Override

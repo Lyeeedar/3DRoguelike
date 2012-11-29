@@ -21,11 +21,12 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.CollisionBox;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
-import com.lyeeedar.Roguelike3D.Game.Actor.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
+import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 
@@ -90,7 +91,45 @@ public class Level {
 		{
 			for (int j = 0; j < aroom.height; j++)
 			{
-				levelArray[room.x+i][room.y+j].height += 2;
+				if (aroom.contents[i][j] == '#')
+				{
+					levelArray[room.x+i][room.y+j].character = '#';
+					levelArray[room.x+i][room.y+j].height = levelArray[room.x+i][room.y+j].roof;
+				}
+				else
+				{
+					levelArray[room.x+i][room.y+j].character = '.';
+					levelArray[room.x+i][room.y+j].height = levelArray[room.x+i][room.y+j].floor;
+					
+					AbstractObject ao = aroom.objects.get(aroom.contents[i][j]);
+					
+					if (ao == null) continue;
+					
+					System.out.println(aroom.contents[i][j]);
+					
+					if (ao.visible)
+					{
+						String texture = ao.texture;
+						Color colour = ao.colour;
+						if (ao.modelType.equalsIgnoreCase("model"))
+						{
+							LevelObject lo = new LevelObject(ao.modelName, colour, texture, (room.x+1)*10, 0, (room.y+j)*10, ao);
+							levelObjects.add(lo);
+						}
+						else if (ao.modelType.equalsIgnoreCase("cube"))
+						{
+							Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
+							LevelObject lo = new LevelObject(mesh, colour, texture, (room.x+i)*10, 0, (room.y+j)*10, ao);
+							levelObjects.add(lo);
+						}
+					}
+					else
+					{
+						LevelObject lo = new LevelObject(false, (room.x+1)*10, 0, (room.y+j)*10, ao);
+						levelObjects.add(lo);
+					}
+				}
+				
 			}
 		}
 		

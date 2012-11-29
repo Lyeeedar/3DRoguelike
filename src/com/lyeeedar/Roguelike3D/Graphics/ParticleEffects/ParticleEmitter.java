@@ -24,6 +24,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 
 public class ParticleEmitter {
 	
+	String UID;
+	
 	ArrayDeque<Particle> active;
 	ArrayDeque<Particle> inactive;
 	
@@ -37,8 +39,12 @@ public class ParticleEmitter {
 	
 	float radius;
 	
+	public int particles;
+	
 	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles)
 	{
+		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
+		this.particles = particles;
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -61,7 +67,7 @@ public class ParticleEmitter {
 	
 	String texture; Vector3 velocity; float atime; Color start; Color end; float width; float height;
 	
-	public void setDecal(String texture, Vector3 velocity, float atime, Color start, Color end, float width, float height)
+	public void setDecal(String texture, Vector3 velocity, float atime, Color start, Color end, float width, float height, boolean light)
 	{
 		this.texture = texture;
 		this.velocity = velocity;
@@ -71,21 +77,32 @@ public class ParticleEmitter {
 		this.width = width;
 		this.height = height;
 		
-		float intensity = 1-(speed/10);
-		float attenuation = (vx+vy+vz)/1000;
-		
-		Color lightCol = new Color((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
-		
-		if (boundLight == null)
+		if (light)
 		{
-			boundLight = new PointLight(new Vector3(x, y, z), lightCol, attenuation, intensity);
-			GameData.lightManager.addLight(boundLight);
+			float intensity = 1-(speed/10);
+			float attenuation = (vx+vy+vz)/1000;
+			
+			Color lightCol = new Color((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
+			
+			if (boundLight == null)
+			{
+				boundLight = new PointLight(new Vector3(x, y, z), lightCol, attenuation, intensity);
+				GameData.lightManager.addLight(boundLight);
+			}
+			else
+			{
+				boundLight.colour = lightCol;
+				boundLight.attenuation = attenuation;
+				boundLight.intensity = intensity;
+			}
 		}
 		else
 		{
-			boundLight.colour = lightCol;
-			boundLight.attenuation = attenuation;
-			boundLight.intensity = intensity;
+			if (boundLight != null)
+			{
+				GameData.lightManager.removeLight(boundLight.UID);
+				boundLight = null;
+			}
 		}
 	}
 	

@@ -76,7 +76,7 @@ public abstract class AbstractScreen implements Screen{
 		
 		protoRenderer = new PrototypeRendererGL20(GameData.lightManager);
 		
-		postProcessor = new PostProcessor(Format.RGBA4444, 800, 600);
+		postProcessor = new PostProcessor(Format.RGBA4444, 1200, 860);
 		postProcessor.addEffect(Effect.GLOW);
 	}
 
@@ -108,11 +108,13 @@ public abstract class AbstractScreen implements Screen{
 		decalBatch.flush();
 		
 		//Gdx.graphics.getGL20().glDisable(GL20.GL_POLYGON_OFFSET_FILL);
-		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);	
-		
-		drawOrthogonals(delta);
+		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
 		
 		postProcessor.end();
+		
+		spriteBatch.begin();
+		drawOrthogonals(delta);
+		spriteBatch.end();
 
 		stage.draw();
 		
@@ -148,10 +150,29 @@ public abstract class AbstractScreen implements Screen{
 
 	}
 	
+	/**
+	 * Put all the creation of the objects used by the screen in here to avoid reloading everything on a screenswap
+	 */
 	public abstract void create();
+	/**
+	 * Draw models using {@link PrototypeRendererGL20}. Everything drawn in this method will also be passed through the post-processor
+	 * @param delta
+	 */
 	public abstract void drawModels(float delta);
+	/**
+	 * Draw decals here. Everything drawn in this method will also be passed through the post-processor
+	 * @param delta
+	 */
 	public abstract void drawDecals(float delta);
+	/**
+	 * Draw sprites using sprite batch. Everything drawn here will NOT be post-processed
+	 * @param delta
+	 */
 	public abstract void drawOrthogonals(float delta);
+	/**
+	 * Update game logic
+	 * @param delta
+	 */
 	public abstract void update(float delta);
 
 }

@@ -33,6 +33,8 @@ import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public class Player extends GameActor {
 
+	public final Vector3 offsetPos = new Vector3();
+	public final Vector3 offsetRot = new Vector3();
 	
 	public Player(VisibleObject vo, float x, float y, float z) {
 		super(vo, x, y, z);
@@ -73,23 +75,10 @@ public class Player extends GameActor {
 		}
 		
 		if (Gdx.input.isKeyPressed(Keys.B) && cooldown < 0)
-		{
-//			float x = position.x;
-//			float z = position.z;
-//			
-//			for (int i = 0; i < 20; i++)
-//			{
-//				TextureRegion t = new TextureRegion(new Texture(Gdx.files.internal("data/skins/loading_bar.png")));
-//				Decal d = Decal.newDecal(5, 5, t, true);
-//				
-//				d.setPosition(x+(i/2f), 10-(i/2f), z+(i/10f));
-//				
-//				GameData.decals.add(d);
-//			}
-			
+		{			
 			ParticleEmitter p = new ParticleEmitter(position.x, position.y-5, position.z, 5, 5, 5, 0.75f, 100);
 			
-			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1);
+			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1, true);
 			GameData.particleEmitters.add(p);
 			
 			cooldown = 1;

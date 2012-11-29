@@ -116,7 +116,7 @@ public class Level {
 					
 					if (ao == null) continue;
 					
-					LevelObject lo = LevelObject.checkObject(ao, (room.x+1)*10, 0, (room.y+j)*10, this);
+					LevelObject lo = LevelObject.checkObject(ao, (room.x+i)*10, 0, (room.y+j)*10, this);
 
 					if (lo != null)
 					{
@@ -128,7 +128,7 @@ public class Level {
 						Color colour = ao.colour;
 						if (ao.modelType.equalsIgnoreCase("model"))
 						{
-							lo = new Static(ao.modelName, colour, texture, (room.x+1)*10, 0, (room.y+j)*10, ao);
+							lo = new Static(ao.modelName, colour, texture, (room.x+i)*10, 0, (room.y+j)*10, ao);
 						}
 						else if (ao.modelType.equalsIgnoreCase("cube"))
 						{

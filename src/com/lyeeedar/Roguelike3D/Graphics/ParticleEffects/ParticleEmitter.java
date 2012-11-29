@@ -24,7 +24,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 
 public class ParticleEmitter {
 	
-	String UID;
+	public String UID;
 	
 	ArrayDeque<Particle> active;
 	ArrayDeque<Particle> inactive;
@@ -86,7 +86,7 @@ public class ParticleEmitter {
 			
 			if (boundLight == null)
 			{
-				boundLight = new PointLight(new Vector3(x, y, z), lightCol, attenuation, intensity);
+				boundLight = new PointLight(new Vector3(x, y+vy, z), lightCol, attenuation, intensity);
 				GameData.lightManager.addLight(boundLight);
 			}
 			else

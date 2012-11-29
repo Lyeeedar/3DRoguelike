@@ -12,6 +12,8 @@ package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Roguelike3D.Game.GameData.Elements;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
@@ -19,6 +21,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.AbstractRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public abstract class LevelObject extends GameObject{
 
@@ -28,7 +31,7 @@ public abstract class LevelObject extends GameObject{
 	public LevelObject(boolean visible, float x, float y, float z, AbstractObject ao)
 	{
 		super(Shapes.genCuboid(0.1f, 0.1f, 0.1f), Color.WHITE, "blank", x, y, z);
-		visible = false;
+		this.visible = visible;
 		this.ao = ao;
 	}
 
@@ -53,6 +56,13 @@ public abstract class LevelObject extends GameObject{
 		if (ao.type == ObjectType.DOOR_UNLOCKED)
 		{
 			lo = Door.create(ao, level, x, y, z);
+		}
+		if (ao.type == ObjectType.FIRE_CAMP)
+		{
+			ParticleEmitter p = new ParticleEmitter(x-5, y-5, z-5, 5, 5, 5, 0.75f, 100);
+			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1, true);
+
+			lo = new DamageField(Shapes.genCuboid(5, 5, 5), x, y, z, ao, 0.5f, Elements.FIRE, p);
 		}
 		
 		return lo;

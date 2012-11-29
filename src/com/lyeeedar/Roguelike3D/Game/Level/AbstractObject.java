@@ -29,7 +29,8 @@ public class AbstractObject {
 		SPAWNER_8,
 		SPAWNER_9,
 		STAIR_UP,
-		STAIR_DOWN
+		STAIR_DOWN,
+		FIRE_CAMP
 	}
 	
 	public final char character;
@@ -130,6 +131,10 @@ public class AbstractObject {
 		else if (type.equalsIgnoreCase("STAIR_DOWN"))
 		{
 			otype = ObjectType.STAIR_DOWN;
+		}
+		else if (type.equalsIgnoreCase("FIRE_CAMP"))
+		{
+			otype = ObjectType.FIRE_CAMP;
 		}
 		
 		return otype;

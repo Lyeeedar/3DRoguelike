@@ -156,4 +156,12 @@ public class AbstractObject {
 		this.texture = texture;
 		this.colour = colour;
 	}
+	
+	public AbstractObject cpy()
+	{
+		AbstractObject ao = new AbstractObject(character, type, visible, description);
+		ao.setModel(modelType, modelName, texture, colour, modelDimensions);
+		
+		return ao;
+	}
 }

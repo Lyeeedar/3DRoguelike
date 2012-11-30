@@ -59,7 +59,7 @@ public abstract class LevelObject extends GameObject{
 		}
 		if (ao.type == ObjectType.FIRE_CAMP)
 		{
-			ParticleEmitter p = new ParticleEmitter(x-5, y-5, z-5, 5, 5, 5, 0.75f, 100);
+			ParticleEmitter p = new ParticleEmitter(x-2.5f, y-5, z-2.5f, 5, 5, 5, 0.75f, 100);
 			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1, true);
 
 			lo = new DamageField(Shapes.genCuboid(5, 5, 5), x, y, z, ao, 0.5f, Elements.FIRE, p);

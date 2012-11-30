@@ -86,7 +86,7 @@ public class ParticleEmitter {
 			
 			if (boundLight == null)
 			{
-				boundLight = new PointLight(new Vector3(x, y+vy, z), lightCol, attenuation, intensity);
+				boundLight = new PointLight(new Vector3(x+(vx/2f), y+vy, z+(vz/2)), lightCol, attenuation, intensity);
 				GameData.lightManager.addLight(boundLight);
 			}
 			else

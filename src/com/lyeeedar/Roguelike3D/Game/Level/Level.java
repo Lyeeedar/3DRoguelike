@@ -83,6 +83,8 @@ public class Level {
 	int fillRoomIndex = 0;
 	public boolean fillRoom(RoomReader rReader)
 	{
+		ArrayList<AbstractObject> aObjects = new ArrayList<AbstractObject>();
+		
 		if (fillRoomIndex == rooms.size())
 		{
 			return true;
@@ -116,36 +118,47 @@ public class Level {
 					
 					if (ao == null) continue;
 					
-					LevelObject lo = LevelObject.checkObject(ao, (room.x+i)*10, 0, (room.y+j)*10, this);
-
-					if (lo != null)
-					{
-						
-					}
-					else if (ao.visible)
-					{
-						String texture = ao.texture;
-						Color colour = ao.colour;
-						if (ao.modelType.equalsIgnoreCase("model"))
-						{
-							lo = new Static(ao.modelName, colour, texture, (room.x+i)*10, 0, (room.y+j)*10, ao);
-						}
-						else if (ao.modelType.equalsIgnoreCase("cube"))
-						{
-							Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
-							lo = new Static(mesh, colour, texture, (room.x+i)*10, 0, (room.y+j)*10, ao);
-						}
-					}
-					else
-					{
-						lo = new Static(false, (room.x+1)*10, 0, (room.y+j)*10, ao);
-						
-					}
+					ao = ao.cpy();
 					
-					levelObjects.add(lo);
+					ao.x = room.x+i;
+					ao.z = room.y+j;
+					//ao.y = levelArray[room.x+i][room.y+j].floor;
+					
+					aObjects.add(ao);
 				}
 				
 			}
+		}
+		
+		for (AbstractObject ao : aObjects)
+		{
+			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this);
+	
+			if (lo != null)
+			{
+				
+			}
+			else if (ao.visible)
+			{
+				String texture = ao.texture;
+				Color colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("model"))
+				{
+					lo = new Static(ao.modelName, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
+					lo = new Static(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
+				}
+			}
+			else
+			{
+				lo = new Static(false, (ao.x)*10, 0, (ao.z)*10, ao);
+				
+			}
+			
+			levelObjects.add(lo);
 		}
 		
 		

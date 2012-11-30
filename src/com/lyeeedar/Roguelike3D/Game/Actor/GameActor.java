@@ -33,7 +33,7 @@ public abstract class GameActor extends GameObject{
 	int health;
 	
 	HashMap<Elements, Integer> defenses;
-	int speed;
+	int speed = 2;
 	
 	boolean alive = true;
 

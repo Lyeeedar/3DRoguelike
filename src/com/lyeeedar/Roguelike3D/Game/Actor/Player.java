@@ -53,23 +53,26 @@ public class Player extends GameActor {
 	
 	float cooldown = 0;
 
+	float move = 0;
+	float xR = 0;
+	float yR = 0;
 	@Override
 	public void update(float delta) {	
 		
 		cooldown -= delta;
 		
-		float move = delta * 10;
+		move = delta * 10;
 		
 		velocity.y -= GameData.gravity*move;
 		
 
 		if (grounded)
 		{
-			if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A)) left_right(move);
-			if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D)) left_right(-move);
+			if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A)) left_right(move*speed);
+			if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D)) left_right(-move*speed);
 
-			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) forward_backward(move);
-			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) forward_backward(-move);
+			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) forward_backward(move*speed);
+			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) forward_backward(-move*(speed/2));
 
 			if ( (grounded) && (Gdx.input.isKeyPressed(Keys.SPACE))) velocity.y += 0.4;
 		}
@@ -86,10 +89,18 @@ public class Player extends GameActor {
 		
 		applyMovement();
 
-		Yrotate((float)Gdx.input.getDeltaY()*yrotate*move);
+		xR = (float)Gdx.input.getDeltaX()*xrotate*move;
+		yR = (float)Gdx.input.getDeltaY()*yrotate*move;
+		
+		if (xR < -5.0f) xR = -5.0f;
+		else if (xR > 5.0f) xR = 5.0f;
+		
+		if (yR < -3.0f) yR = -3.0f;
+		else if (yR > 3.0f) yR = 3.0f;
+		
+		Yrotate(yR);
 
-
-		Xrotate((float)Gdx.input.getDeltaX()*xrotate*move);
+		Xrotate(xR);
 		
 		if (Gdx.input.isKeyPressed(Keys.C)) {
 			Spell spell = new Spell("modelf", Color.RED, "blank", position.x, position.y, position.z);

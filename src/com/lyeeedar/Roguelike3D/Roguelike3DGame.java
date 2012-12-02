@@ -59,4 +59,9 @@ public class Roguelike3DGame extends Game {
 		currentScreen = screen;
 		setScreen(screens.get(screen));
 	}
+	
+	public void ANNIHALATE()
+	{
+		System.exit(0);
+	}
 }

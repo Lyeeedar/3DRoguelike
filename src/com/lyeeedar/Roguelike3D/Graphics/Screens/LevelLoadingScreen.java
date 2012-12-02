@@ -31,6 +31,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.RoomReader;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
+import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
@@ -70,7 +71,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		this.biome = biome;
 		this.nextScreen = nextScreen;
 		
-		float size = height*2.0f;
+		float size = height*1.5f;
 		
 		taskSteps = 100f/size;
 		
@@ -132,13 +133,13 @@ public class LevelLoadingScreen extends AbstractScreen{
 			{
 				if (room.roomtype == RoomType.START)
 				{
-					GameData.player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", room.x*10+(room.width/2)*10, 3, room.y*10+(room.height/2)*10);
+					GameData.player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", room.x*10+(room.width/2)*10, 4, room.y*10+(room.height/2)*10);
 					
 					level.addActor(GameData.player);
 				}
 			}
 			Random ran = new Random();
-			for (int i = 1; i < 30; i++)
+			for (int i = 1; i < 10; i++)
 			{
 				while (true)
 				{
@@ -148,8 +149,9 @@ public class LevelLoadingScreen extends AbstractScreen{
 					if (!level.checkLevelCollision(pos.x*10, pos.y, pos.z*10))
 					{
 						Enemy e = new Enemy("modelE", new Color(0.6f, 0.1f, 0.1f, 1.0f), "blank", x*10, 0, z*10);
-						
+						e.description = "This is a nasty horrible enemy. It has lots of horrible parts and its really red.";
 						level.addActor(e);
+						
 						x = 51;
 						z = 51;
 						
@@ -219,7 +221,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		protoRenderer = new PrototypeRendererGL20(lightManager);
 		protoRenderer.cam = cam;
 		
-		VisibleObject vo = VisibleObject.createCuboid(1, 1, 1, GL20.GL_TRIANGLES, Color.WHITE, "icon");
+		VisibleObject vo = VisibleObject.createCuboid(2, 2, 2, GL20.GL_TRIANGLES, Color.WHITE, "icon");
 		vo.attributes.material.affectedByLighting = false;
 		GameObject go = new GameObject(vo, 0, 0, -4);
 		

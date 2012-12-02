@@ -59,8 +59,6 @@ public class GameData {
 	
 	public static Player player;
 	
-	public static ArrayList<GameActor> actors;
-
 	public static float gravity = 0.1f;
 	
 	public static ArrayList<ParticleEmitter> particleEmitters = new ArrayList<ParticleEmitter>();

@@ -16,21 +16,31 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Roguelike3D.Game.Actor.CollisionBox;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Graphics.*;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.ColorAttribute;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.MaterialAttribute;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
+import com.lyeeedar.Roguelike3D.Graphics.Models.StillModel;
+import com.lyeeedar.Roguelike3D.Graphics.Models.StillModelAttributes;
+import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
+import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class GameObject {
 	
-	public static final float PHYSICS_DAMAGE_THRESHHOLD = 1.0f;
+	public static final float PHYSICS_DAMAGE_THRESHHOLD = 2.0f;
 	
 	public String UID;
 	
@@ -53,13 +63,18 @@ public class GameObject {
 
 	public VisibleObject vo;
 	
-	public Mesh collisionMesh;
+	public StillModel collisionMesh;
+	public StillModelAttributes collisionAttributes;
 	
 	public boolean grounded = true;
 	
 	public PointLight boundLight;
 	
 	protected Matrix4 view = new Matrix4();
+	
+	public boolean visible = true;
+	
+	public String description = "";
 
 	public GameObject(VisibleObject vo, float x, float y, float z)
 	{
@@ -88,36 +103,40 @@ public class GameObject {
 		BoundingBox box = new BoundingBox();
 		if (vo == null)
 		{
-			box = new BoundingBox(new Vector3(0, 0, 0), new Vector3(10, 10, 10));
+			box = new BoundingBox(new Vector3(0, 0, 0), new Vector3(5, 5, 5));
 		}
 		else
 		{
 			vo.model.getBoundingBox(box);
 		}
-		 
 
-		Vector3 dimensions = box.getDimensions().div(2.0f);
+		Vector3 dimensions = box.getDimensions();
 		
-		float min = 0;
-	
+		float dist = 0;
+		
 		if (Math.abs(dimensions.x) > Math.abs(dimensions.z))
 		{
-			min = box.min.x;
 			dimensions.z = dimensions.x * (dimensions.z / Math.abs(dimensions.z));
+			dist = dimensions.z;
 		}
 		else
 		{
-			min = box.min.z;
 			dimensions.x = dimensions.z * (dimensions.x / Math.abs(dimensions.x));
+			dist = dimensions.x;
 		}
 		
-		Mesh mesh = Shapes.genCuboid(dimensions);
+		vo.attributes.radius = dist/2;
 		
-		//Shapes.translateCubeMesh(mesh, min, box.min.y, min);
-		
-		collisionMesh = mesh;
+		Mesh mesh = Shapes.genCuboid(dimensions.cpy());
+		StillModel model = new StillModel(new SubMesh[]{new StillSubMesh("Collision Box", mesh, GL20.GL_LINE_LOOP)});
+		MaterialAttribute c = new ColorAttribute(Color.RED, ColorAttribute.diffuse);
+		MaterialAttribute t = new TextureAttribute(new Texture(Gdx.files.internal("data/textures/blank.png")), 0, TextureAttribute.diffuseTexture);
+		Material material = new Material("basic", c, t);	
+		collisionAttributes = new StillModelAttributes(material, 1);
+
+		collisionMesh = model;
 		collisionBox = new CollisionBox(dimensions);
-		collisionBox.position = new Vector3(x, y, z);
+		collisionBox.position.add(x, y, z);
 		
 		translate(0, 0, 0);
 	}
@@ -125,8 +144,11 @@ public class GameObject {
 	float startVelocity = 0;
 	float endVelocity = 0;
 	float negatedVelocity = 0;
+	final Ray ray = new Ray(new Vector3(), new Vector3());
 	public void applyMovement()
 	{
+		if (velocity.len2() == 0) return;
+		
 		startVelocity = Math.abs(velocity.x)+Math.abs(velocity.y)+Math.abs(velocity.z);
 		
 		if (velocity.x < -2) velocity.x = -2;
@@ -140,82 +162,40 @@ public class GameObject {
 		
 		Level lvl = GameData.level;
 		
-		// Apply up/down movement (y axis)
-		Vector3 cpos = this.getCPosition();
+		Tile below = lvl.getTile(position.x/10, position.z/10) ;
 		
-		final CollisionBox box = new CollisionBox();
-		collisionBox.cpy(box);
-		box.translate(0, getVelocity().y, 0);
-		
-		if (lvl.checkCollision(box, UID)) {
-
-			Tile t = lvl.getTile(cpos.x, cpos.z);
+		// below
+		if (position.y+velocity.y-vo.attributes.radius < below.floor) {
+			velocity.y = 0;
+			this.positionYAbsolutely(below.floor+vo.attributes.radius);
+			grounded = true;
+		}
+		// above
+		else if (position.y+velocity.y+vo.attributes.radius > below.roof) {
+			tmpVec.set(position);
+			this.positionYAbsolutely(below.roof-vo.attributes.radius);
 			
-			float ypos = cpos.y*10;
-			
-			if (ypos == t.height)
+			if (lvl.checkCollision(position.tmp(), vo.attributes.radius, UID))
 			{
-				getVelocity().y = 0;
-				grounded = true;
-			}
-			else if (ypos < t.floor)
-			{
-				System.out.println("lower than the floor!    "+UID);
-				this.positionYAbsolutely(t.floor*10);
-				getVelocity().y = 0;
-				grounded = true;
-			}
-			else if (ypos > t.roof)
-			{
-				System.out.println("higher than the roof!    "+UID);
-				this.positionYAbsolutely((t.roof-1)*10);
-				getVelocity().y = 0;
-			}
-			else if (getVelocity().y < 0)
-			{
-				getVelocity().y = t.height - cpos.y;
-				grounded = true;
-				
-				collisionBox.cpy(box);
-				box.translate(0, getVelocity().y, 0);
-				
-				if (getVelocity().y > 0 || lvl.checkEntities(box, UID) != null)
-				{
-					getVelocity().y = 0;
-				}
-			}
-			else
-			{
-				getVelocity().y = 0;
+				this.positionAbsolutely(tmpVec);
 			}
 			
+			velocity.y = 0;
+			grounded = false;
 		}
 		else
 		{
+			this.translate(0, velocity.y, 0);
 			grounded = false;
 		}
-		this.translate(0, getVelocity().y, 0);
 		
-		
-		cpos.y += getVelocity().y;
-		// Apply x and z axis movement
-		
-		collisionBox.cpy(box);
-		box.translate(getVelocity().x, 0, getVelocity().z);
-		
-		if (lvl.checkCollision(box, UID)) {
-			
-			collisionBox.cpy(box);
-			box.translate(getVelocity().x, 0, 0);
-			
-			if (lvl.checkCollision(box, UID)) {
+		if (lvl.checkCollision(position.tmp().add(velocity.x, 0, velocity.z), vo.attributes.radius, UID)) {
+
+			if (lvl.checkCollision(position.tmp().add(velocity.x, 0, 0), vo.attributes.radius, UID)) {
 				getVelocity().x = 0;
 			}
 
-			collisionBox.cpy(box);
-			box.translate(0, 0, getVelocity().z);
-			
-			if (lvl.checkCollision(box, UID)) {
+			if (lvl.checkCollision(position.tmp().add(velocity.x, 0, velocity.z), vo.attributes.radius, UID)) {
 				getVelocity().z = 0;
 			}
 		}
@@ -243,7 +223,6 @@ public class GameObject {
 		{
 			System.out.println("ouch! "+negatedVelocity);
 		}
-		
 	}
 	
 	public void Yrotate (float angle) {
@@ -288,7 +267,7 @@ public class GameObject {
 	public void translate(Vector3 vec)
 	{
 		position.add(vec);
-		collisionBox.translate(vec);
+		collisionBox.position.set(position);
 		vo.attributes.getTransform().setToTranslation(position);
 		if (boundLight != null) boundLight.position.set(position);
 	}
@@ -372,12 +351,8 @@ public class GameObject {
 		this.collisionBox = collisionBox;
 	}
 
-	public Mesh getCollisionMesh() {
+	public StillModel getCollisionMesh() {
 		return collisionMesh;
-	}
-
-	public void setCollisionMesh(Mesh collisionMesh) {
-		this.collisionMesh = collisionMesh;
 	}
 	
 	public void update(float delta)

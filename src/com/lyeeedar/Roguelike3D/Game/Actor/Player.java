@@ -22,8 +22,10 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Elements;
+import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell.SpellBehaviour;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.GlowAttribute;
@@ -32,23 +34,17 @@ import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.Particle;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public class Player extends GameActor {
+	
+	public GameObject lookedAtObject;
 
 	public final Vector3 offsetPos = new Vector3();
 	public final Vector3 offsetRot = new Vector3();
 	
-	public Player(VisibleObject vo, float x, float y, float z) {
-		super(vo, x, y, z);
-		// TODO Auto-generated constructor stub
-	}
-	
 	public Player(String model, Color colour, String texture, float x, float y, float z)
 	{
 		super(model, colour, texture, x, y, z);
-	}
-	
-	public Player(Mesh mesh, Color colour, String texture, float x, float y, float z)
-	{
-		super(mesh, colour, texture, x, y, z);
+		visible = false;
+		description = "This is you. Wave to yourself you!";
 	}
 	
 	float cooldown = 0;
@@ -56,6 +52,7 @@ public class Player extends GameActor {
 	float move = 0;
 	float xR = 0;
 	float yR = 0;
+
 	@Override
 	public void update(float delta) {	
 		
@@ -64,7 +61,6 @@ public class Player extends GameActor {
 		move = delta * 10;
 		
 		velocity.y -= GameData.gravity*move;
-		
 
 		if (grounded)
 		{

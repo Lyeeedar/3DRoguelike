@@ -37,10 +37,8 @@ public class VisibleObject {
 	public VisibleObject(Mesh mesh, int primitive_type, Color colour, String textureName)
 	{
 		Texture texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"), true);
-		//texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"));
 		texture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
 		texture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
-		//texture.setFilter( TextureFilter.Nearest, TextureFilter.Nearest );
 
 		create(mesh, primitive_type, colour, texture);
 	}

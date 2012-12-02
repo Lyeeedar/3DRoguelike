@@ -26,6 +26,10 @@ public class Shapes {
 	
 	public static float[] genCubeVertices(float x, float y, float z)
 	{
+		x /= 2.0f;
+		y /= 2.0f;
+		z /= 2.0f;
+		
 		float[] cubeVerts = {
 				-x, -y, -z, // bottom
 				-x, -y, z,
@@ -164,6 +168,7 @@ public class Shapes {
 	}
 	
 	public static Mesh genCuboid (float x, float y, float z) {
+		
 		Mesh mesh = new Mesh(true, 24, 36, 
 				new VertexAttribute(Usage.Position, 3, "a_position"),
 				new VertexAttribute(Usage.Normal, 3, "a_normal"),

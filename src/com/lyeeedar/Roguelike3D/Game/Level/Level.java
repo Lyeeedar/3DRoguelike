@@ -15,8 +15,10 @@ import java.util.Random;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.CollisionBox;
@@ -157,7 +159,7 @@ public class Level {
 				lo = new Static(false, (ao.x)*10, 0, (ao.z)*10, ao);
 				
 			}
-			
+			lo.description = ao.description;
 			levelObjects.add(lo);
 		}
 		
@@ -168,37 +170,88 @@ public class Level {
 	
 	public Tile getTile(float x, float z)
 	{
-		int ix = (int)(x+0.5f);
-		int iz = (int)(z+0.5f);
+		int ix = (int)(x);
+		int iz = (int)(z);
 		
 		return getLevelArray()[ix][iz];
 	}
 	
+	public boolean checkCollision(Vector3 position, float radius, String UID)
+	{
+		if (checkLevelCollision(position, radius)) return true;
+		return checkEntities(position, radius, UID) != null;
+	}
+	
+	public boolean checkLevelCollision(Vector3 position, float radius)
+	{
+		if (checkCollisionTile(position.x+radius, position.z)) return true;
+		if (checkCollisionTile(position.x-radius, position.z)) return true;
+		if (checkCollisionTile(position.x, position.z+radius)) return true;
+		if (checkCollisionTile(position.x, position.z-radius)) return true;
+		
+		if (checkCollisionTile(position.x+radius, position.z+radius)) return true;
+		if (checkCollisionTile(position.x-radius, position.z+radius)) return true;
+		if (checkCollisionTile(position.x-radius, position.z-radius)) return true;
+		if (checkCollisionTile(position.x+radius, position.z-radius)) return true;
+
+		
+		return false;
+	}
+	
+	private boolean checkCollisionTile(float fx, float fz)
+	{
+		int x = (int)((fx/10)+0.5f);
+		int z = (int)((fz/10)+0.5f);
+		
+		if (x < 0 || x > width) return true;
+		if (z < 0 || z > height) return true;
+
+		return checkSolid(x, z);
+	}
+	
+	public final Vector3 tmpVec = new Vector3();
+	public GameActor checkEntities(Vector3 position, float radius, String UID)
+	{
+		for (GameActor ga : actors)
+		{
+			if (ga.UID.equals(UID)) continue;
+			
+			if (position.dst2(ga.getPosition()) < (radius+ga.vo.attributes.radius)*(radius+ga.vo.attributes.radius))
+			{
+				return ga;
+			}
+		}
+		
+		return null;
+	}
+	
+	
 	public boolean checkCollision(CollisionBox box, String UID)
 	{
-		if (checkBoxToLevelCollision(box)) return true;
+		//if (checkBoxToLevelCollision(box)) return true;
 		
 		return checkEntities(box, UID) != null;
 	}
 	
 	public boolean checkBoxToLevelCollision(CollisionBox box)
 	{
-		if (checkLevelCollision(box.position.x, box.position.y, box.position.z)) return true;
-		if (checkLevelCollision(box.position.x+box.dimensions.x, box.position.y, box.position.z)) return true;
-		if (checkLevelCollision(box.position.x, box.position.y+box.dimensions.y, box.position.z)) return true;
-		if (checkLevelCollision(box.position.x+box.dimensions.x, box.position.y+box.dimensions.y, box.position.z)) return true;
-		if (checkLevelCollision(box.position.x, box.position.y, box.position.z+box.dimensions.z)) return true;
-		if (checkLevelCollision(box.position.x+box.dimensions.x, box.position.y, box.position.z+box.dimensions.z)) return true;
-		if (checkLevelCollision(box.position.x, box.position.y+box.dimensions.y, box.position.z+box.dimensions.z)) return true;
-		if (checkLevelCollision(box.position.x+box.dimensions.x, box.position.y+box.dimensions.y, box.position.z+box.dimensions.z)) return true;
+		if (checkLevelCollision(box.position.x, 						box.position.y, 					box.position.z				)) return true;		
+		if (checkLevelCollision(box.position.x, 						box.position.y+box.dimensions.y, 	box.position.z					)) return true;
+		if (checkLevelCollision(box.position.x, 						box.position.y, 					box.position.z+box.dimensions.z	)) return true;
+		if (checkLevelCollision(box.position.x, 						box.position.y+box.dimensions.y, 	box.position.z+box.dimensions.z	)) return true;
+		
+		if (checkLevelCollision(box.position.x+box.dimensions.x, 	box.position.y, 					box.position.z				)) return true;
+		if (checkLevelCollision(box.position.x+box.dimensions.x, 	box.position.y+box.dimensions.y, 	box.position.z					)) return true;
+		if (checkLevelCollision(box.position.x+box.dimensions.x, 	box.position.y, 					box.position.z+box.dimensions.z	)) return true;
+		if (checkLevelCollision(box.position.x+box.dimensions.x, 	box.position.y+box.dimensions.y, 	box.position.z+box.dimensions.z	)) return true;
 		
 		return false;
 	}
 	
 	public boolean checkLevelCollision(float x, float y, float z)
 	{					
-		int ix = (int)(x+3)/10;
-		int iz = (int)(z+3)/10;
+		int ix = (int)((x/10f));
+		int iz = (int)((z/10f));
 		
 		if (ix < 0 || ix > width) return true;
 		if (iz < 0 || iz > height) return true;
@@ -235,7 +288,7 @@ public class Level {
 		{
 			if (ga.UID.equals(UID)) continue;
 			
-			if (box.intersect(ga.getCollisionBox()))
+			if (box.intersectBoxes(ga.getCollisionBox()))
 			{
 				return ga;
 			}

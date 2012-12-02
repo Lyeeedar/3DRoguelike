@@ -67,6 +67,10 @@ public class Level {
 		colours.put('.', biome.getFloorColour());
 		colours.put(' ', biome.getWallColour());
 		
+		descriptions.put('#', biome.getDescription('#'));
+		descriptions.put('.', biome.getDescription('.'));
+		descriptions.put('R', biome.getDescription('R'));
+		
 		MapGenerator generator = new MapGenerator(width, height, solids, opaques, colours, gtype, biome);
 		levelArray = generator.getLevel();
 		rooms = generator.getRooms();
@@ -166,6 +170,47 @@ public class Level {
 		
 		fillRoomIndex++;
 		return false;
+	}
+	
+	public static final int VIEW_STEP = 10;
+	public float getDescription(Ray ray, float view, StringBuilder sB)
+	{
+		System.out.println("start");
+		
+		Vector3 pos = ray.origin.cpy();
+		Vector3 step = ray.direction.cpy().mul(VIEW_STEP);
+		
+		float dist = 0;
+		
+		for (int i = 0; i < view; i += VIEW_STEP)
+		{
+			dist += VIEW_STEP;
+			
+			if (dist*dist > view) break;
+			
+			pos.add(step);
+			
+			if (pos.x < 0 || pos.x/10 > width) { dist=view; break; }
+			if (pos.z < 0 || pos.z/10 > height) { dist=view; break; }
+			
+			Tile t = getTile(pos.x/10f, pos.z/10f);
+			
+			System.out.println(pos.y + "    " + t.height);
+			if (pos.y < t.height)
+			{
+				sB.delete(0, sB.length());
+				sB.append(descriptions.get(t.character));
+				break;
+			}
+			else if (pos.y > t.roof)
+			{
+				sB.delete(0, sB.length());
+				sB.append(descriptions.get('R'));
+				break;
+			}
+		}
+		
+		return dist*dist;
 	}
 	
 	public Tile getTile(float x, float z)

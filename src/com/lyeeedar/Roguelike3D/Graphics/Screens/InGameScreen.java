@@ -42,7 +42,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Screens.AbstractScreen;
 
 public class InGameScreen extends AbstractScreen {
 	
-	public static final int VIEW_DISTANCE = 200;
+	public static final int VIEW_DISTANCE = 2;
 	public static final boolean SHOW_COLLISION_BOX = true;
 
 	Texture crosshairs;
@@ -134,14 +134,15 @@ public class InGameScreen extends AbstractScreen {
 		font.draw(spriteBatch, "Y: "+GameData.player.getPosition().y, 20, 70);
 		font.draw(spriteBatch, "Z: "+GameData.player.getPosition().z, 20, 40);
 		
-		if (lookedAtObject != null) font.draw(spriteBatch, lookedAtObject.description, 300, 300);
+		font.draw(spriteBatch, desc, 300, 300);
 	}
 	
 	ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
 	int count = 1;
 	float dist = VIEW_DISTANCE;
 	float tempdist = 0;
-	GameObject lookedAtObject = null;
+	//GameObject lookedAtObject = null;
+	StringBuilder desc = new StringBuilder();
 	
 	@Override
 	public void update(float delta) {
@@ -186,17 +187,18 @@ public class InGameScreen extends AbstractScreen {
 				}
 				map += r + "\n";
 			}
-			//label.setText(map);
+			label.setText(map);
 		}
 		
-		cam.position.set(GameData.player.getPosition()).add(GameData.player.offsetPos).add(0, 5, 0);
+		cam.position.set(GameData.player.getPosition()).add(GameData.player.offsetPos);//.add(0, 5, 0);
 		cam.direction.set(GameData.player.getRotation()).add(GameData.player.offsetRot);
 		cam.update();
 		
-		Ray ray = cam.getPickRay(screen_height/2, screen_width/2);
-		dist = VIEW_DISTANCE;
-		lookedAtObject = null;
-		
+		Ray ray = new Ray(GameData.player.getPosition(), GameData.player.getRotation());//cam.getPickRay(screen_height/2f, screen_width/2f);
+		dist = VIEW_DISTANCE*500;
+		desc.delete(0, desc.length());
+		desc.append("There is nothing there but empty space.");
+	
 		for (GameObject go : GameData.level.actors)
 		{
 			if (go.UID.equals(GameData.player.UID)) continue;
@@ -205,7 +207,8 @@ public class InGameScreen extends AbstractScreen {
 			else if (!go.collisionBox.intersectRay(ray)) continue;
 			
 			dist = tempdist;
-			lookedAtObject = go;
+			desc.delete(0, desc.length());
+			desc.append(go.description);
 		}
 		for (GameObject go : GameData.level.levelObjects)
 		{
@@ -214,7 +217,8 @@ public class InGameScreen extends AbstractScreen {
 			else if (!go.collisionBox.intersectRay(ray)) continue;
 			
 			dist = tempdist;
-			lookedAtObject = go;
+			desc.delete(0, desc.length());
+			desc.append(go.description);
 		}
 		for (GameObject go : GameData.level.items)
 		{
@@ -223,8 +227,12 @@ public class InGameScreen extends AbstractScreen {
 			else if (!go.collisionBox.intersectRay(ray)) continue;
 			
 			dist = tempdist;
-			lookedAtObject = go;
+			desc.delete(0, desc.length());
+			desc.append(go.description);
 		}
+		
+		dist = GameData.level.getDescription(ray, dist, desc);
+		
 	}
 
 	Label label;

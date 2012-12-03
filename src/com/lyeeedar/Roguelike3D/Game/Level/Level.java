@@ -175,8 +175,6 @@ public class Level {
 	public static final int VIEW_STEP = 10;
 	public float getDescription(Ray ray, float view, StringBuilder sB)
 	{
-		System.out.println("start");
-		
 		Vector3 pos = ray.origin.cpy();
 		Vector3 step = ray.direction.cpy().mul(VIEW_STEP);
 		
@@ -195,7 +193,6 @@ public class Level {
 			
 			Tile t = getTile(pos.x/10f, pos.z/10f);
 			
-			System.out.println(pos.y + "    " + t.height);
 			if (pos.y < t.height)
 			{
 				sB.delete(0, sB.length());

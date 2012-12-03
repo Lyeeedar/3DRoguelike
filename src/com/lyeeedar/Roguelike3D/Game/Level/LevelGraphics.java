@@ -17,6 +17,11 @@ import java.util.Map;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
@@ -38,14 +43,16 @@ public class LevelGraphics {
 	HashMap<Character, Color> colours;
 	BiomeReader biome;
 	
-	int width;
-	int height;
+	public int width;
+	public int height;
 	
 	TempVO[][] tempVOs;
 	TempVO[][] tempRoofs;
 	
 	int wBlocks;
 	int hBlocks;
+	
+	public Texture map;
 	
 	public LevelGraphics(Tile[][] levelArray, HashMap<Character, Color> colours, BiomeReader biome)
 	{
@@ -61,6 +68,31 @@ public class LevelGraphics {
 		
 		wBlocks = width/CHUNK_WIDTH;
 		hBlocks = height/CHUNK_HEIGHT;
+		
+		createMap(levelArray);
+	}
+	
+	public static final int STEP = 10;
+	public void createMap(Tile[][] levelArray)
+	{
+		BitmapFont font = new BitmapFont();
+		SpriteBatch sB = new SpriteBatch();
+		FrameBuffer fB = new FrameBuffer(Format.RGBA4444, width*STEP, height*STEP, false);
+		
+		fB.begin();
+		sB.begin();
+		for (int x = 0; x < width; x++)
+		{
+			for (int y = 0; y < height; y++)
+			{
+				font.setColor(colours.get(levelArray[x][y].character));
+				font.draw(sB, ""+levelArray[x][y].character, x*STEP, y*STEP);
+			}
+		}
+		sB.end();
+		fB.end();
+		
+		map = fB.getColorBufferTexture();
 	}
 	
 	int tileX = 0;
@@ -73,12 +105,12 @@ public class LevelGraphics {
 			Tile t = levelArray[tileX][z];
 			if (t.character == ' ') continue;
 
-			TempVO vo = new TempVO(Shapes.genTempCuboid(10, t.height, 10), GL20.GL_TRIANGLES, colours.get(t.character), getTexture(t.character, biome), tileX*10, -1, z*10);
+			TempVO vo = new TempVO(Shapes.genTempCuboid(10, t.height*2, 10), GL20.GL_TRIANGLES, colours.get(t.character), getTexture(t.character, biome), tileX*10, -1, z*10);
 			tempVOs[tileX][z] = vo;
 			
 			if (t.height < t.roof)
 			{
-				TempVO voRf = new TempVO(Shapes.genTempCuboid(10, 1, 10), GL20.GL_TRIANGLES, colours.get('#'), getTexture('#', biome), tileX*10, t.roof, z*10);
+				TempVO voRf = new TempVO(Shapes.genTempCuboid(10, 2, 10), GL20.GL_TRIANGLES, colours.get('#'), getTexture('#', biome), tileX*10, t.roof, z*10);
 				tempRoofs[tileX][z] = voRf;
 			}
 		}

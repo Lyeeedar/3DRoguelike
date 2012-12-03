@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
@@ -31,6 +32,7 @@ import com.lyeeedar.Roguelike3D.Game.*;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
+import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
@@ -44,8 +46,13 @@ public class InGameScreen extends AbstractScreen {
 	
 	public static final int VIEW_DISTANCE = 2;
 	public static final boolean SHOW_COLLISION_BOX = true;
+	public static final int MAP_WIDTH = 100;
+	public static final int MAP_HEIGHT = 200;
+	public static final int MAP_X = 100;
+	public static final int MAP_Y = 100;
 
 	Texture crosshairs;
+	TextureRegion arrow;
 	
 	public InGameScreen(Roguelike3DGame game) {
 		super(game);
@@ -130,11 +137,17 @@ public class InGameScreen extends AbstractScreen {
 		
 		spriteBatch.draw(crosshairs, screen_width/2f, screen_height/2f);
 		
-		font.draw(spriteBatch, "X: "+GameData.player.getPosition().x, 20, 100);
-		font.draw(spriteBatch, "Y: "+GameData.player.getPosition().y, 20, 70);
-		font.draw(spriteBatch, "Z: "+GameData.player.getPosition().z, 20, 40);
+		int x = (int)(GameData.player.getPosition().x * ((float)LevelGraphics.STEP / 10f));
+		int y = (int)(GameData.player.getPosition().z * ((float)LevelGraphics.STEP / 10f));
+
+		spriteBatch.draw(GameData.levelGraphics.map, MAP_X, MAP_Y,
+				x-MAP_WIDTH, y-MAP_HEIGHT, MAP_WIDTH*2, MAP_HEIGHT*2);
 		
-		font.draw(spriteBatch, desc, 300, 300);
+		spriteBatch.draw(arrow, MAP_WIDTH+MAP_X, MAP_HEIGHT+MAP_Y,
+				0, 0, arrow.getRegionWidth(), arrow.getRegionHeight(),
+				1, 1, -90);
+		
+		font.draw(spriteBatch, desc, 300, 20);
 	}
 	
 	ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
@@ -187,7 +200,7 @@ public class InGameScreen extends AbstractScreen {
 				}
 				map += r + "\n";
 			}
-			label.setText(map);
+			//label.setText(map);
 		}
 		
 		cam.position.set(GameData.player.getPosition()).add(GameData.player.offsetPos);//.add(0, 5, 0);
@@ -256,6 +269,7 @@ public class InGameScreen extends AbstractScreen {
 		stage.addActor(label);
 		
 		crosshairs = new Texture(Gdx.files.internal("data/textures/crosshairs.png"));
+		arrow = new TextureRegion(new Texture(Gdx.files.internal("data/textures/arrow.png")));
 	}
 
 	@Override
@@ -287,6 +301,12 @@ public class InGameScreen extends AbstractScreen {
 	public void resume() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void superDispose() {
+		
+		crosshairs.dispose();
 	}
 
 }

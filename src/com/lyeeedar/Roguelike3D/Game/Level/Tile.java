@@ -20,8 +20,20 @@ import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 public class Tile {
 	
 	public char character;
+	
+	/**
+	 * The floor of the tile
+	 */
 	public float floor;
+	
+	/**
+	 * The roof of the tile (the very top)
+	 */
 	public float roof;
+	
+	/**
+	 * The height of the tile (if this = roof then it a full height wall)
+	 */
 	public float height;
 	public boolean visible = false;
 	

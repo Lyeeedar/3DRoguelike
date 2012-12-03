@@ -258,4 +258,8 @@ public class LevelLoadingScreen extends AbstractScreen{
 	public void resume() {
 	}
 
+	@Override
+	public void superDispose() {
+	}
+
 }

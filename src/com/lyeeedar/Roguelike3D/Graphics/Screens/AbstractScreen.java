@@ -147,6 +147,8 @@ public abstract class AbstractScreen implements Screen{
 		spriteBatch.dispose();
 		font.dispose();
 		stage.dispose();
+		
+		superDispose();
 
 	}
 	
@@ -174,5 +176,7 @@ public abstract class AbstractScreen implements Screen{
 	 * @param delta
 	 */
 	public abstract void update(float delta);
+	
+	public abstract void superDispose();
 
 }

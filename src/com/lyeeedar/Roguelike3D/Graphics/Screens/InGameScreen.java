@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix3;
@@ -44,15 +45,15 @@ import com.lyeeedar.Roguelike3D.Graphics.Screens.AbstractScreen;
 
 public class InGameScreen extends AbstractScreen {
 	
-	public static final int VIEW_DISTANCE = 2;
+	public static final int VIEW_DISTANCE = 1000;
 	public static final boolean SHOW_COLLISION_BOX = true;
-	public static final int MAP_WIDTH = 100;
-	public static final int MAP_HEIGHT = 200;
-	public static final int MAP_X = 100;
-	public static final int MAP_Y = 100;
+	public static final int MAP_WIDTH = 300;
+	public static final int MAP_HEIGHT = 300;
+	public static final int MAP_X = 10;
+	public static final int MAP_Y = 10;
 
 	Texture crosshairs;
-	TextureRegion arrow;
+	Sprite arrow;
 	
 	public InGameScreen(Roguelike3DGame game) {
 		super(game);
@@ -137,15 +138,27 @@ public class InGameScreen extends AbstractScreen {
 		
 		spriteBatch.draw(crosshairs, screen_width/2f, screen_height/2f);
 		
-		int x = (int)(GameData.player.getPosition().x * ((float)LevelGraphics.STEP / 10f));
-		int y = (int)(GameData.player.getPosition().z * ((float)LevelGraphics.STEP / 10f));
+		int x = (int)( ( GameData.player.getPosition().x / 10f ) * (float)LevelGraphics.STEP );
+		int y = (int)( ( GameData.player.getPosition().z / 10f ) * (float)LevelGraphics.STEP );
 
 		spriteBatch.draw(GameData.levelGraphics.map, MAP_X, MAP_Y,
 				x-MAP_WIDTH, y-MAP_HEIGHT, MAP_WIDTH*2, MAP_HEIGHT*2);
 		
-		spriteBatch.draw(arrow, MAP_WIDTH+MAP_X, MAP_HEIGHT+MAP_Y,
-				0, 0, arrow.getRegionWidth(), arrow.getRegionHeight(),
-				1, 1, -90);
+		// Work out angle
+		float angle = 90 * GameData.player.getRotation().x;
+		
+		if (GameData.player.getRotation().z > 0)
+		{
+			angle = 180+angle;
+		}
+		else
+		{
+			angle = 0-angle;
+		}
+		
+		arrow.setRotation(angle);
+		arrow.setPosition(MAP_WIDTH+MAP_X, MAP_HEIGHT+MAP_Y);
+		arrow.draw(spriteBatch);
 		
 		font.draw(spriteBatch, desc, 300, 20);
 	}
@@ -208,7 +221,7 @@ public class InGameScreen extends AbstractScreen {
 		cam.update();
 		
 		Ray ray = new Ray(GameData.player.getPosition(), GameData.player.getRotation());//cam.getPickRay(screen_height/2f, screen_width/2f);
-		dist = VIEW_DISTANCE*500;
+		dist = VIEW_DISTANCE;
 		desc.delete(0, desc.length());
 		desc.append("There is nothing there but empty space.");
 	
@@ -269,7 +282,7 @@ public class InGameScreen extends AbstractScreen {
 		stage.addActor(label);
 		
 		crosshairs = new Texture(Gdx.files.internal("data/textures/crosshairs.png"));
-		arrow = new TextureRegion(new Texture(Gdx.files.internal("data/textures/arrow.png")));
+		arrow = new Sprite(new Texture(Gdx.files.internal("data/textures/arrow.png")));
 	}
 
 	@Override

@@ -56,12 +56,20 @@ public abstract class LevelObject extends GameObject{
 		{
 			lo = Door.create(ao, level, x, y, z);
 		}
-		if (ao.type == ObjectType.FIRE_CAMP)
+		else if (ao.type == ObjectType.FIRE_CAMP)
 		{
 			ParticleEmitter p = new ParticleEmitter(x-2.5f, y-2, z-2.5f, 5, 5, 5, 0.75f, 100);
 			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1, true);
 
-			lo = new DamageField(Shapes.genCuboid(5, 5, 5), x, y, z, ao, 0.5f, Elements.FIRE, p);
+			lo = new EmitterObject(Shapes.genCuboid(5, 5, 5), x, y, z, ao, p, false);
+			lo.description = ao.description;
+		}
+		else if (ao.type == ObjectType.FIRE_TORCH)
+		{
+			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.75f, 10);
+			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, Color.YELLOW, Color.RED, 1, 1, true);
+
+			lo = new EmitterObject(Shapes.genCuboid(0.5f, 3, 0.5f), new Color(0.8f, 0.6f, 0.4f, 1.0f), "texw", x, y, z, ao, p, true);
 			lo.description = ao.description;
 		}
 		

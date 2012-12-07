@@ -72,7 +72,7 @@ public class LevelGraphics {
 		createMap(levelArray);
 	}
 	
-	public static final int STEP = 10;
+	public static final int STEP = 12;
 	public void createMap(Tile[][] levelArray)
 	{
 		BitmapFont font = new BitmapFont();

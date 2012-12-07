@@ -10,20 +10,25 @@ import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
-public class DamageField extends LevelObject {
-
-	float damage;
-	Elements element;
+public class EmitterObject extends LevelObject {
 	
 	ParticleEmitter emitter;
 	
-	public DamageField(Mesh mesh, float x, float y, float z, AbstractObject ao, float damage, Elements element, ParticleEmitter emitter) {
+	public EmitterObject(Mesh mesh, float x, float y, float z, AbstractObject ao, ParticleEmitter emitter, boolean visible) {
 		super(mesh, Color.WHITE, "blank", x, y, z, ao);
 		
-		visible = false;
+		this.visible = visible;
 		
-		this.damage = damage;
-		this.element = element;
+		this.emitter = emitter;
+		
+		GameData.particleEmitters.add(emitter);
+	}
+	
+	public EmitterObject(Mesh mesh, Color colour, String texture, float x, float y, float z, AbstractObject ao, ParticleEmitter emitter, boolean visible) {
+		super(mesh, colour, texture, x, y, z, ao);
+		
+		this.visible = visible;
+		
 		this.emitter = emitter;
 		
 		GameData.particleEmitters.add(emitter);

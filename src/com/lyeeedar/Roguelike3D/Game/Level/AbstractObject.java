@@ -28,9 +28,14 @@ public class AbstractObject {
 		SPAWNER_7,
 		SPAWNER_8,
 		SPAWNER_9,
+		SPAWNER_B,
 		STAIR_UP,
 		STAIR_DOWN,
-		FIRE_CAMP
+		FIRE_CAMP,
+		FIRE_TORCH,
+		TREASURE,
+		ARTIFACT,
+		ALTAR
 	}
 	
 	public final char character;
@@ -124,6 +129,10 @@ public class AbstractObject {
 		{
 			otype = ObjectType.SPAWNER_9;
 		}
+		else if (type.equalsIgnoreCase("SPAWNER_B"))
+		{
+			otype = ObjectType.SPAWNER_B;
+		}
 		else if (type.equalsIgnoreCase("STAIR_UP"))
 		{
 			otype = ObjectType.STAIR_UP;
@@ -135,6 +144,22 @@ public class AbstractObject {
 		else if (type.equalsIgnoreCase("FIRE_CAMP"))
 		{
 			otype = ObjectType.FIRE_CAMP;
+		}
+		else if (type.equalsIgnoreCase("FIRE_TORCH"))
+		{
+			otype = ObjectType.FIRE_TORCH;
+		}
+		else if (type.equalsIgnoreCase("TREASURE"))
+		{
+			otype = ObjectType.TREASURE;
+		}
+		else if (type.equalsIgnoreCase("ARTIFACT"))
+		{
+			otype = ObjectType.ARTIFACT;
+		}
+		else if (type.equalsIgnoreCase("ALTAR"))
+		{
+			otype = ObjectType.ALTAR;
 		}
 		
 		return otype;

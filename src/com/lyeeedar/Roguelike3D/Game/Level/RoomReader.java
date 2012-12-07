@@ -30,6 +30,8 @@ import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 public class RoomReader {
 	
+	public static final String ROOM_DEFINITIONS = "ROOM_DEFINITIONS";
+	public static final String GLOBAL = "GLOBAL";
 	public static final String WIDTH = "width";
 	public static final String HEIGHT = "height";
 	public static final String START = "START";
@@ -71,7 +73,7 @@ public class RoomReader {
 		try {
 			parser.parse(new InputSource(Gdx.files.internal("data/dungeons/"+biome+".data").read()));
 			doc = parser.getDocument();
-			this.biome = doc.getFirstChild();
+			this.biome = getNode(ROOM_DEFINITIONS, doc.getChildNodes());
 		} catch (SAXException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -91,12 +93,21 @@ public class RoomReader {
 			if (n.getNodeType() == Node.TEXT_NODE) continue;
 
 			int w = Integer.parseInt(getNodeValue(WIDTH, n.getChildNodes()));
+			int h = Integer.parseInt(getNodeValue(HEIGHT, n.getChildNodes()));
+			
 			if (w <= width)
 			{
-				int h = Integer.parseInt(getNodeValue(HEIGHT, n.getChildNodes()));
 				if (h <= height)
 				{
 					int priority = (width-w)+(height-h);
+					valid.put(priority, n);
+				}
+			}
+			else if (h <= width)
+			{
+				if (w <= height)
+				{
+					int priority = (width-h)+(height-w);
 					valid.put(priority, n);
 				}
 			}
@@ -132,10 +143,13 @@ public class RoomReader {
 		int rwidth = Integer.parseInt(getNodeValue(WIDTH, chosen.getChildNodes()));
 		int rheight = Integer.parseInt(getNodeValue(HEIGHT, chosen.getChildNodes()));
 		
-		AbstractRoom room = new AbstractRoom(rwidth, rheight);
+		AbstractRoom room = null; 
+		if (rwidth <= width && rheight <= height) room = new AbstractRoom(rheight, rwidth, false);
+		else room = new AbstractRoom(rheight, rwidth, true);
 		
 		Node roomGraphics = getNode(ROOM, chosen.getChildNodes());
 		int roomIndex = 0;
+		
 		for (int i = 0; i < roomGraphics.getChildNodes().getLength(); i++)
 		{
 			Node n = roomGraphics.getChildNodes().item(i);
@@ -144,11 +158,58 @@ public class RoomReader {
 			roomIndex++;
 		}
 		
-		Node define = getNode(DEFINITIONS, chosen.getChildNodes());
+		room.finaliseContents();
 		
-		for (int i = 0; i < define.getChildNodes().getLength(); i++)
+		Node define = getNode(DEFINITIONS, chosen.getChildNodes());
+		if (define != null)
 		{
-			Node symbol = define.getChildNodes().item(i);
+			for (int i = 0; i < define.getChildNodes().getLength(); i++)
+			{
+				Node symbol = define.getChildNodes().item(i);
+				if (!symbol.getNodeName().equalsIgnoreCase(SYMBOL)) continue;
+
+				char character = getNodeValue(CHAR, symbol.getChildNodes()).charAt(0);
+				String type = getNodeValue(TYPE, symbol.getChildNodes());
+				boolean visible = Boolean.parseBoolean(getNodeValue(VISIBLE, symbol.getChildNodes()));
+				String description = getNodeValue(DESCRIPTION, symbol.getChildNodes());
+
+				AbstractObject ao = new AbstractObject(character, type, visible, description);
+
+				if (visible)
+				{
+					Node model = getNode(MODEL, symbol.getChildNodes());
+					String modelType = getNodeValue(MODEL_TYPE, model.getChildNodes());
+					String modelName = getNodeValue(MODEL_NAME, model.getChildNodes());
+
+					Node dimensions = getNode(DIMENSIONS, model.getChildNodes());
+					int number = 0; 
+					if (dimensions != null) number = Integer.parseInt(getNodeValue(DIMENSIONS_NUMBER, dimensions.getChildNodes()));
+					float[] dim = new float[number];
+					for (int j = 1; j < number+1; j++)
+					{
+						dim[j-1] = Float.parseFloat(getNodeValue(DIMENSIONS_D+j, dimensions.getChildNodes()));
+					}
+
+					String texture = getNodeValue(TEXTURE, symbol.getChildNodes());
+
+					Node colour = getNode(COLOUR, symbol.getChildNodes());
+					float red = Float.parseFloat(getNodeValue(RED, colour.getChildNodes()));
+					float green = Float.parseFloat(getNodeValue(GREEN, colour.getChildNodes()));
+					float blue = Float.parseFloat(getNodeValue(BLUE, colour.getChildNodes()));
+					Color col = new Color(red, green, blue, 1.0f);
+
+					ao.setModel(modelType, modelName, texture, col, dim);
+				}
+
+				room.addObject(ao);
+			}
+		}
+		
+		Node global = getNode(GLOBAL, biome.getChildNodes());
+		for (int i = 0; i < global.getChildNodes().getLength(); i++)
+		{
+			Node symbol = global.getChildNodes().item(i);
+
 			if (!symbol.getNodeName().equalsIgnoreCase(SYMBOL)) continue;
 			
 			char character = getNodeValue(CHAR, symbol.getChildNodes()).charAt(0);
@@ -213,7 +274,7 @@ public class RoomReader {
 		{
 			rname = OTHER;
 		}
-
+		
 		return getNode(rname, biome.getChildNodes());
 	}
 	

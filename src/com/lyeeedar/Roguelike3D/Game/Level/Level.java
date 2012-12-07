@@ -158,11 +158,13 @@ public class Level {
 					lo = new Static(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
 				}
 			}
-			else
+			
+			if (lo == null)
 			{
 				lo = new Static(false, (ao.x)*10, 0, (ao.z)*10, ao);
 				
 			}
+			
 			lo.description = ao.description;
 			levelObjects.add(lo);
 		}

@@ -128,10 +128,10 @@ public abstract class AbstractScreen implements Screen{
 		screen_width = width;
 		screen_height = height;
 
-        cam = new PerspectiveCamera(90, width, height);
+        cam = new PerspectiveCamera(75, width, height);
         postProcessor.updateBufferSettings(Format.RGBA4444, width, height);
         cam.near = 1.0f;
-        cam.far = 150;
+        cam.far = 125;
         protoRenderer.cam = cam;
         
         decalBatch.setGroupStrategy(new CameraGroupStrategy(cam));

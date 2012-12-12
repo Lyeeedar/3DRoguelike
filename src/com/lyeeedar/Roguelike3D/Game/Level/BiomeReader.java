@@ -27,11 +27,15 @@ import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 public class BiomeReader {
 	
+	public static final String BIOMES = "biomes";
+	
 	public static final String NAME = "name";
 	public static final String GENERATOR = "generator";
 	public static final String DESCRIPTION = "description";
 	public static final String CHAR = "char";
 	public static final String HEIGHT = "height";
+	public static final String WIDTH = "width";
+	public static final String ROOF = "roof";
 	public static final String WALL = "wall";
 	public static final String FLOOR = "floor";
 	public static final String COLOUR_RED = "red";
@@ -52,43 +56,45 @@ public class BiomeReader {
 	public static final String VAR = "var";
 	
 	public static final String SERK = "Serk";
+	public static final String STATIC = "Static";
 	
-	Document doc;
 	Node biome;
 	
 	public BiomeReader(String biome)
 	{
-		loadBiomes();
-		setBiome(biome);
-	}
-	
-	private void loadBiomes()
-	{
+		Document doc = null;
 		DOMParser parser = new DOMParser();
 		try {
-			parser.parse(new InputSource(Gdx.files.internal("data/dungeons/biomes.data").read()));
+			parser.parse(new InputSource(Gdx.files.internal("data/xml/biomes.data").read()));
 			doc = parser.getDocument();
 		} catch (SAXException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public void setBiome(String biome)
-	{
-		NodeList root = doc.getChildNodes();
 		
-		this.biome = getNode(biome, root);
+		Node root = getNode(BIOMES, doc.getChildNodes());
+		
+		this.biome = getNode(biome, root.getChildNodes());
+		
+		if (this.biome == null)
+		{
+			System.err.println("Biome loading failed!");
+		}
 	}
+
 	
 	public GeneratorType getGenerator()
 	{
 		GeneratorType gtype = null;
 		
-		if (getNodeValue(GENERATOR, biome.getChildNodes()).equals(SERK))
+		if (getNodeValue(GENERATOR, biome.getChildNodes()).equalsIgnoreCase(SERK))
 		{
 			gtype = GeneratorType.SERK;
+		}
+		else if (getNodeValue(GENERATOR, biome.getChildNodes()).equalsIgnoreCase(STATIC))
+		{
+			gtype = GeneratorType.STATIC;
 		}
 		
 		return gtype;
@@ -113,11 +119,25 @@ public class BiomeReader {
 		return "";
 	}
 	
+	public int getWidth()
+	{
+		int width = Integer.parseInt(getNodeValue(WIDTH, biome.getChildNodes()));
+		
+		return width;
+	}
+	
 	public int getHeight()
 	{
 		int height = Integer.parseInt(getNodeValue(HEIGHT, biome.getChildNodes()));
 		
 		return height;
+	}
+	
+	public int getRoof()
+	{
+		int roof = Integer.parseInt(getNodeValue(ROOF, biome.getChildNodes()));
+		
+		return roof;
 	}
 
 	public String getWallTexture()

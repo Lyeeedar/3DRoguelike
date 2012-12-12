@@ -26,6 +26,7 @@ import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
+import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.RoomReader;
@@ -62,10 +63,10 @@ public class LevelLoadingScreen extends AbstractScreen{
 		super(game);
 	}
 	
-	public void setSettings(int width, int height, BiomeReader biome, RoomReader rReader, String nextScreen)
+	public void setSettings(BiomeReader biome, RoomReader rReader, String nextScreen)
 	{
-		this.width = width;
-		this.height = height;
+		this.width = biome.getWidth();
+		this.height = biome.getHeight();
 		
 		this.rReader = rReader;
 		this.biome = biome;
@@ -128,44 +129,8 @@ public class LevelLoadingScreen extends AbstractScreen{
 		}
 		else if (loadingStage == 6)
 		{
-			message = "Positioning You";
-			for (DungeonRoom room : level.rooms)
-			{
-				if (room.roomtype == RoomType.START)
-				{
-					GameData.player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", room.x*10+(room.width/2)*10, 4, room.y*10+(room.height/2)*10);
-					
-					level.addActor(GameData.player);
-				}
-			}
-			Random ran = new Random();
-			for (int i = 1; i < 10; i++)
-			{
-				while (true)
-				{
-					int x = ran.nextInt(50);
-					int z = ran.nextInt(50);
-					Vector3 pos = new Vector3(x, 1, z);
-					if (!level.checkLevelCollision(pos.x*10, pos.y, pos.z*10))
-					{
-						Enemy e = new Enemy("modelE", new Color(0.6f, 0.1f, 0.1f, 1.0f), "blank", x*10, 0, z*10);
-						e.description = "This is a nasty horrible enemy. It has lots of horrible parts and its really red.";
-						level.addActor(e);
-						
-						x = 51;
-						z = 51;
-						
-						break;
-					}
-				}
-			}
+			GameData.finishLoading(level, graphics, game, "InGame");
 			loadingStage++;
-		}
-		else if (loadingStage == 7) 
-		{
-			GameData.level = level;
-			GameData.levelGraphics = graphics;
-			game.switchScreen(nextScreen);
 		}
 		
 		if (percent > 100) percent = 100;

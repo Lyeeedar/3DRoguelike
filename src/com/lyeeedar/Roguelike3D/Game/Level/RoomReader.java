@@ -34,6 +34,8 @@ public class RoomReader {
 	public static final String GLOBAL = "GLOBAL";
 	public static final String WIDTH = "width";
 	public static final String HEIGHT = "height";
+	public static final String DEPTH_MIN = "depth_min";
+	public static final String DEPTH_MAX = "depth_max";
 	public static final String START = "START";
 	public static final String END = "END";
 	public static final String MAIN = "MAIN";
@@ -62,21 +64,18 @@ public class RoomReader {
 	Document doc;
 	Node biome;
 	
-	public RoomReader(String biome)
-	{
-		loadBiome(biome);
-	}
+	int depth;
 	
-	private void loadBiome(String biome)
+	public RoomReader(String biome, int depth)
 	{
+		this.depth = depth;
+
 		DOMParser parser = new DOMParser();
 		try {
-			parser.parse(new InputSource(Gdx.files.internal("data/dungeons/"+biome+".data").read()));
+			parser.parse(new InputSource(Gdx.files.internal("data/xml/"+biome+".data").read()));
 			doc = parser.getDocument();
 			this.biome = getNode(ROOM_DEFINITIONS, doc.getChildNodes());
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -85,7 +84,7 @@ public class RoomReader {
 	{
 		Node roomType = getRoomNode(rtype);
 
-		SortedMap<Integer, Node> valid = new TreeMap<Integer, Node>();
+		SortedMap<Integer, ArrayList<Node>> valid = new TreeMap<Integer, ArrayList<Node>>();
 		
 		for (int i = 0; i < roomType.getChildNodes().getLength(); i++)
 		{
@@ -100,15 +99,40 @@ public class RoomReader {
 				if (h <= height)
 				{
 					int priority = (width-w)+(height-h);
-					valid.put(priority, n);
+					if (valid.containsKey(priority))
+					{
+						valid.get(priority).add(n);
+					}
+					else
+					{
+						ArrayList<Node> ns = new ArrayList<Node>();
+						ns.add(n);
+						valid.put(priority, ns);
+					}
 				}
 			}
 			else if (h <= width)
 			{
 				if (w <= height)
 				{
-					int priority = (width-h)+(height-w);
-					valid.put(priority, n);
+					int depth_offset = 0;
+					int room_depth_min = Integer.parseInt(getNodeValue(DEPTH_MIN, n.getChildNodes()));
+					int room_depth_max = Integer.parseInt(getNodeValue(DEPTH_MAX, n.getChildNodes()));
+					
+					if (room_depth_max < depth) depth_offset = depth-room_depth_max;
+					else if (room_depth_min > depth) depth_offset = room_depth_min-depth;
+					
+					int priority = (width-h)+(height-w)+(depth_offset*2);
+					if (valid.containsKey(priority))
+					{
+						valid.get(priority).add(n);
+					}
+					else
+					{
+						ArrayList<Node> ns = new ArrayList<Node>();
+						ns.add(n);
+						valid.put(priority, ns);
+					}
 				}
 			}
 		}
@@ -138,7 +162,10 @@ public class RoomReader {
 			}
 		}
 		
-		Node chosen = (Node) valid.values().toArray()[pos];
+		
+		ArrayList<Node> ns = valid.get(valid.keySet().toArray()[pos]);
+		
+		Node chosen = ns.get(ran.nextInt(ns.size()));
 		
 		int rwidth = Integer.parseInt(getNodeValue(WIDTH, chosen.getChildNodes()));
 		int rheight = Integer.parseInt(getNodeValue(HEIGHT, chosen.getChildNodes()));

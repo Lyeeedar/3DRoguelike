@@ -297,8 +297,8 @@ public class Level {
 		int ix = (int)((x/10f));
 		int iz = (int)((z/10f));
 		
-		if (ix < 0 || ix > width) return true;
-		if (iz < 0 || iz > height) return true;
+		if (ix < 0 || ix >= width) return true;
+		if (iz < 0 || iz >= height) return true;
 
 		Tile t = null;
 		

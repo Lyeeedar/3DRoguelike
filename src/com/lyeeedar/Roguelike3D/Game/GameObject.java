@@ -42,7 +42,7 @@ public class GameObject {
 	
 	public static final float PHYSICS_DAMAGE_THRESHHOLD = 2.0f;
 	
-	public String UID;
+	public final String UID;
 	
 	protected final Random ran = new Random();
 	
@@ -78,6 +78,8 @@ public class GameObject {
 
 	public GameObject(VisibleObject vo, float x, float y, float z)
 	{
+		UID = this.toString()+System.currentTimeMillis()+this.hashCode()+System.nanoTime();
+		
 		create(vo, x, y, z);
 	}
 	
@@ -93,8 +95,6 @@ public class GameObject {
 	
 	public void create(VisibleObject vo, float x, float y, float z)
 	{
-		UID = this.toString()+System.currentTimeMillis()+this.hashCode()+System.nanoTime();
-		
 		this.vo = vo;
 		position.x = x;
 		position.y = y;
@@ -337,10 +337,6 @@ public class GameObject {
 
 	public String getUID() {
 		return UID;
-	}
-
-	public void setUID(String uID) {
-		UID = uID;
 	}
 
 	public CollisionBox getCollisionBox() {

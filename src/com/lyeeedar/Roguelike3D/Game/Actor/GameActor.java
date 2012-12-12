@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Actor;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -17,23 +18,54 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
-import com.lyeeedar.Roguelike3D.Game.GameData.Elements;
+import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 
 public abstract class GameActor extends GameObject{
+
+	// ----- Actor Statistics START ----- //
 	
-	public HashMap<String, Item> inventory = new HashMap<String, Item>();
+	public HashMap<String, Item> INVENTORY = new HashMap<String, Item>();
 	
-	String faction;
-	String name;
+	public Equippable HELMET;
+	public Equippable SHIRT;
+	public Equippable TROUSERS;
+	public Equippable BOOTS;
+	public Equippable GLOVES;
+	public Equippable L_HAND;
+	public Equippable R_HAND;
 	
-	int health;
+	public int HEALTH;
+	public int BOOST_HEALTH;
+	public HashMap<Element, Integer> DEFENSES;
+	public HashMap<Element, Integer> BOOST_DEFENSES;
 	
-	HashMap<Elements, Integer> defenses;
-	int speed = 2;
+	public int WEIGHT;
+	public int BOOST_WEIGHT;
+	
+	public float SPEED;
+	public float BOOST_SPEED;
+	public int STRENGTH;
+	public int BOOST_STRENGTH;
+	public int IQ;
+	public int BOOST_IQ;
+	
+	public int SIGHT;
+	public int BOOST_SIGHT;
+	public float ATTACK_SPEED;
+	public float BOOST_ATTACK_SPEED;
+	public float CAST_SPEED;
+	public float BOOST_CAST_SPEED;
+	
+	public String FACTION;
+	
+	public boolean IMMORTAL;
+	
+	// ----- Actor Statistics END ----- //
 	
 	boolean alive = true;
 
@@ -59,12 +91,95 @@ public abstract class GameActor extends GameObject{
 	
 	public void setupDefenses()
 	{
-		defenses = new HashMap<Elements, Integer>();
+		DEFENSES = new HashMap<Element, Integer>();
 		
-		defenses.put(Elements.FIRE, 0);
-		defenses.put(Elements.AIR, 0);
-		defenses.put(Elements.WATER, 0);
-		defenses.put(Elements.PHYSICAL, 0);
+		DEFENSES.put(Element.FIRE, 0);
+		DEFENSES.put(Element.AIR, 0);
+		DEFENSES.put(Element.WATER, 0);
+		DEFENSES.put(Element.WOOD, 0);
+		DEFENSES.put(Element.METAL, 0);
+		
+		BOOST_DEFENSES = new HashMap<Element, Integer>();
+		
+		BOOST_DEFENSES.put(Element.FIRE, 0);
+		BOOST_DEFENSES.put(Element.AIR, 0);
+		BOOST_DEFENSES.put(Element.WATER, 0);
+		BOOST_DEFENSES.put(Element.WOOD, 0);
+		BOOST_DEFENSES.put(Element.METAL, 0);
+	}
+	
+	public void calculateBoost()
+	{
+		BOOST_DEFENSES = new HashMap<Element, Integer>();
+		
+		BOOST_DEFENSES.put(Element.FIRE, 0);
+		BOOST_DEFENSES.put(Element.AIR, 0);
+		BOOST_DEFENSES.put(Element.WATER, 0);
+		BOOST_DEFENSES.put(Element.WOOD, 0);
+		BOOST_DEFENSES.put(Element.METAL, 0);
+		
+		BOOST_HEALTH = 0;
+		BOOST_WEIGHT = 0;
+		BOOST_SPEED = 0;
+		BOOST_STRENGTH = 0;
+		BOOST_IQ = 0;
+		BOOST_SIGHT = 0;
+		BOOST_ATTACK_SPEED = 0;
+		BOOST_CAST_SPEED = 0;
+		
+		if (HELMET != null)
+		{
+			addBoost(HELMET);
+		}
+		
+		if (SHIRT != null)
+		{
+			addBoost(SHIRT);
+		}
+		
+		if (TROUSERS != null)
+		{
+			addBoost(TROUSERS);
+		}
+		
+		if (BOOTS != null)
+		{
+			addBoost(BOOTS);
+		}
+		
+		if (GLOVES != null)
+		{
+			addBoost(GLOVES);
+		}
+		
+		if (L_HAND != null)
+		{
+			addBoost(L_HAND);
+		}
+		
+		if (R_HAND != null)
+		{
+			addBoost(R_HAND);
+		}
+	}
+	private void addBoost(Equippable e)
+	{
+		BOOST_HEALTH += e.HEALTH;
+		for (Map.Entry<Element, Integer> entry : e.DEFENSES.entrySet())
+		{
+			int temp = BOOST_DEFENSES.get(entry.getKey());
+			temp += entry.getValue();
+			BOOST_DEFENSES.remove(entry.getKey());
+			BOOST_DEFENSES.put(entry.getKey(), temp);
+		}
+		
+		BOOST_WEIGHT += e.WEIGHT;
+		BOOST_SPEED += e.SPEED;
+		BOOST_STRENGTH += e.STRENGTH;
+		BOOST_IQ += e.IQ;
+		BOOST_SIGHT += e.SIGHT;
+		BOOST_ATTACK_SPEED += e.ATTACK_SPEED;
+		BOOST_CAST_SPEED += e.CAST_SPEED;
 	}
 	
 	@Override
@@ -81,17 +196,17 @@ public abstract class GameActor extends GameObject{
 		//GameData.level.moveActor(oldX, oldZ, newX, newZ, UID);
 	}
 	
-	public void damage(Elements type, float amount)
+	public void damage(Element type, float amount)
 	{
-		if (!alive) return;
+		if (!alive || IMMORTAL) return;
 		
-		int eleDefense = defenses.get(type);
+		int eleDefense = DEFENSES.get(type) + BOOST_DEFENSES.get(type);
 		
 		if (eleDefense != 0) amount *= (100-eleDefense)/100;
 		
-		health -= amount;
+		HEALTH -= amount;
 
-		if (health <= 0) death();
+		if (HEALTH+BOOST_HEALTH <= 0) death();
 
 	}
 	

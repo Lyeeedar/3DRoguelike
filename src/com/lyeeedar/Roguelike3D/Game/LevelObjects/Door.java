@@ -54,7 +54,7 @@ public class Door extends LevelObject {
 		else return null;
 		
 		Color colour = Color.WHITE;
-		Door door = new Door(Shapes.genCuboid(lx, ly, lz), colour, "tex+", x, y, z, ao, hingex, hingez);
+		Door door = new Door(Shapes.genCuboid(lx, ly, lz), colour, "tex+", x, y+ly, z, ao, hingex, hingez);
 		door.description = ao.description;
 		
 		Matrix4 hinge = new Matrix4();

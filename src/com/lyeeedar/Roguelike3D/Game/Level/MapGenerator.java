@@ -22,7 +22,8 @@ import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 public class MapGenerator {
 	
 	public enum GeneratorType {
-		SERK
+		SERK,
+		STATIC
 	}
 
 	private Tile[][] levelArray;
@@ -36,7 +37,7 @@ public class MapGenerator {
 
 	public MapGenerator(int width, int height, ArrayList<Character> solids, ArrayList<Character> opaques, HashMap<Character, Color> colours, GeneratorType gtype, BiomeReader biome)
 	{
-		this.ceiling = biome.getHeight();
+		this.ceiling = biome.getRoof();
 		
 		this.solids = solids;
 		this.opaques = opaques;
@@ -91,6 +92,10 @@ public class MapGenerator {
 		if (gtype == GeneratorType.SERK)
 		{
 			return new SerkGenerator(tiles, biome);
+		}
+		else if (gtype == GeneratorType.STATIC)
+		{
+			return new StaticGenerator(tiles, biome);
 		}
 		return null;
 	}

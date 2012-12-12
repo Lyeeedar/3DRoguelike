@@ -72,12 +72,14 @@ public class LevelGraphics {
 		createMap(levelArray);
 	}
 	
-	public static final int STEP = 12;
+	public static final int STEP = 10;
 	public void createMap(Tile[][] levelArray)
 	{
 		BitmapFont font = new BitmapFont();
 		SpriteBatch sB = new SpriteBatch();
 		FrameBuffer fB = new FrameBuffer(Format.RGBA4444, width*STEP, height*STEP, false);
+		
+		System.out.println(width*STEP + "    " + height*STEP);
 		
 		fB.begin();
 		sB.begin();
@@ -85,14 +87,19 @@ public class LevelGraphics {
 		{
 			for (int y = 0; y < height; y++)
 			{
-				font.setColor(colours.get(levelArray[x][y].character));
-				font.draw(sB, ""+levelArray[x][y].character, x*STEP, y*STEP);
+				char c = levelArray[x][y].character;
+				if (c == ' ') continue;
+				font.setColor(colours.get(c));
+				font.draw(sB, ""+c, x*STEP, y*STEP);
+
 			}
 		}
 		sB.end();
 		fB.end();
 		
 		map = fB.getColorBufferTexture();
+		
+		System.out.println(map.getWidth() + "    " + map.getHeight());
 	}
 	
 	int tileX = 0;

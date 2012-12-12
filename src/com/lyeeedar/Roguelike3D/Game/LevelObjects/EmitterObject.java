@@ -5,7 +5,6 @@ import java.util.Iterator;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.lyeeedar.Roguelike3D.Game.GameData;
-import com.lyeeedar.Roguelike3D.Game.GameData.Elements;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;

@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
-import com.lyeeedar.Roguelike3D.Game.GameData.Elements;
+import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Spell.Behaviours.SpellBehaviourPackage;
 import com.lyeeedar.Roguelike3D.Game.Spell.Behaviours.SpellProjectile;
@@ -27,7 +27,7 @@ public class Spell extends GameObject{
 		PROJECTILE
 	}
 	
-	public Elements element;
+	public Element element;
 	
 	public float[] data;
 	
@@ -55,7 +55,7 @@ public class Spell extends GameObject{
 		setupBehaviours();
 	}
 	
-	public void setData(Elements element, String casterUID, float... data)
+	public void setData(Element element, String casterUID, float... data)
 	{
 		this.element = element;
 		this.casterUID = casterUID;

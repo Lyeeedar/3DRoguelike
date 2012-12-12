@@ -87,6 +87,7 @@ public class PostProcessor {
 		this.width = f;
 		this.height = g;
 		
+		captureBuffer.dispose();
 		captureBuffer = new FrameBuffer(format, f, g, true);
 		bufferChain.updateBuffers(format, f, g);
 	}

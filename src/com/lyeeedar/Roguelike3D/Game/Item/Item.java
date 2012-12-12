@@ -12,6 +12,8 @@ package com.lyeeedar.Roguelike3D.Game.Item;
 
 public class Item {
 	
-	public String name;
+	public String NAME;
+	public String DESCRIPTION;
+	public int RARITY;
 
 }

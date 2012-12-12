@@ -19,7 +19,7 @@ public class BufferChain {
 	
 	public static final int NUM_BUFFERS = 2;
 	
-	FrameBuffer[] buffers;
+	final FrameBuffer[] buffers = new FrameBuffer[NUM_BUFFERS];;
 
 	int currentBuffer;
 	
@@ -30,11 +30,10 @@ public class BufferChain {
 	}
 
 	public void updateBuffers(Format format, int width, int height) {
-		
-		buffers = new FrameBuffer[NUM_BUFFERS];
-		
+
 		for (int i = 0; i < NUM_BUFFERS; i++)
 		{
+			if (buffers[i] != null) buffers[i].dispose();
 			buffers[i] = new FrameBuffer(format, width, height, false);
 		}
 		

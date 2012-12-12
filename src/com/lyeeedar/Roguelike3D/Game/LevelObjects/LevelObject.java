@@ -13,7 +13,7 @@ package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector3;
-import com.lyeeedar.Roguelike3D.Game.GameData.Elements;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
@@ -71,6 +71,38 @@ public abstract class LevelObject extends GameObject{
 
 			lo = new EmitterObject(Shapes.genCuboid(0.5f, 3, 0.5f), new Color(0.8f, 0.6f, 0.4f, 1.0f), "texw", x, y, z, ao, p, true);
 			lo.description = ao.description;
+		}
+		else if (ao.type == ObjectType.STAIR_UP)
+		{
+			String texture = ao.texture;
+			Color colour = ao.colour;
+			if (ao.modelType.equalsIgnoreCase("model"))
+			{
+				lo = new Stair(ao.modelName, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao, GameData.createLevelUP());
+			}
+			else if (ao.modelType.equalsIgnoreCase("cube"))
+			{
+				Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
+				lo = new Stair(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao, GameData.createLevelUP());
+			}
+		}
+		else if (ao.type == ObjectType.STAIR_DOWN)
+		{
+			String texture = ao.texture;
+			Color colour = ao.colour;
+			if (ao.modelType.equalsIgnoreCase("model"))
+			{
+				lo = new Stair(ao.modelName, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao, GameData.createLevelDOWN());
+			}
+			else if (ao.modelType.equalsIgnoreCase("cube"))
+			{
+				Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
+				lo = new Stair(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao, GameData.createLevelDOWN());
+			}
+		}
+		else if (ao.type == ObjectType.PLAYER_PLACER)
+		{
+			lo = new PlayerPlacer(false, (ao.x)*10, 0, (ao.z)*10, ao);
 		}
 		
 		return lo;

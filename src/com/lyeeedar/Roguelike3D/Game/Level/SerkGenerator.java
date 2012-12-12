@@ -287,7 +287,7 @@ public class SerkGenerator implements AbstractGenerator{
 		{
 			for (int y = 0; y < height; y++)
 			{
-				tiles[x][y].influence += noise.PerlinNoise_2D(x, y, NOISE_PERSISTANCE, NOISE_OCTAVES)*10;
+				tiles[x][y].influence += noise.PerlinNoise_2D(x, y, NOISE_PERSISTANCE, NOISE_OCTAVES)*50;
 			}
 		}
 	}

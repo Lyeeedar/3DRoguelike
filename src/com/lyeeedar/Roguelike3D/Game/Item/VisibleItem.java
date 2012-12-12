@@ -37,7 +37,7 @@ public class VisibleItem extends GameObject {
 		actor = GameData.level.checkEntities(getCollisionBox(), UID);
 		if (actor != null) {
 			System.out.println("Pickup!");
-			actor.inventory.put(item.name, item);
+			actor.INVENTORY.put(item.NAME, item);
 			GameData.level.removeItem(UID);
 		}
 	}

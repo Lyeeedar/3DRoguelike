@@ -33,6 +33,7 @@ import com.lyeeedar.Roguelike3D.Game.*;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
+import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
@@ -47,8 +48,8 @@ public class InGameScreen extends AbstractScreen {
 	
 	public static final int VIEW_DISTANCE = 1000;
 	public static final boolean SHOW_COLLISION_BOX = true;
-	public static final int MAP_WIDTH = 300;
-	public static final int MAP_HEIGHT = 300;
+	public static final int MAP_WIDTH = 200;
+	public static final int MAP_HEIGHT = 200;
 	public static final int MAP_X = 10;
 	public static final int MAP_Y = 10;
 
@@ -138,11 +139,15 @@ public class InGameScreen extends AbstractScreen {
 		
 		spriteBatch.draw(crosshairs, screen_width/2f, screen_height/2f);
 		
-		int x = (int)( ( GameData.player.getPosition().x / 10f ) * (float)LevelGraphics.STEP );
-		int y = (int)( ( GameData.player.getPosition().z / 10f ) * (float)LevelGraphics.STEP );
-
-		spriteBatch.draw(GameData.levelGraphics.map, MAP_X, MAP_Y,
-				x-MAP_WIDTH, y-MAP_HEIGHT, MAP_WIDTH*2, MAP_HEIGHT*2);
+		int x = (int)( ( (GameData.player.getPosition().x / 10f) + 0.5f) * LevelGraphics.STEP );
+		int y = (int)( ( (GameData.player.getPosition().z / 10f) + 0.5f) * LevelGraphics.STEP );
+		
+		spriteBatch.draw(GameData.levelGraphics.map, MAP_X, MAP_Y, MAP_WIDTH*2, MAP_HEIGHT*2,
+				x-MAP_WIDTH, y-MAP_HEIGHT, MAP_WIDTH*2, MAP_HEIGHT*2,
+				false, false);
+		
+		System.out.println((GameData.player.getPosition().x / 10f)+0.5f);
+		System.out.println(x);
 		
 		// Work out angle
 		float angle = 90 * GameData.player.getRotation().x;
@@ -201,21 +206,6 @@ public class InGameScreen extends AbstractScreen {
 		
 		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) game.ANNIHALATE();
 		
-		count--;
-		if (count <= 0) {
-			count = 10;
-			//GameData.frame.paint(GameData.frame.getGraphics());
-			String map = "";
-			for (Tile[] row : GameData.level.getLevelArray()) {
-				String r = "";
-				for (Tile t : row) {
-					r += t.character;
-				}
-				map += r + "\n";
-			}
-			//label.setText(map);
-		}
-		
 		cam.position.set(GameData.player.getPosition()).add(GameData.player.offsetPos);//.add(0, 5, 0);
 		cam.direction.set(GameData.player.getRotation()).add(GameData.player.offsetRot);
 		cam.update();
@@ -261,26 +251,14 @@ public class InGameScreen extends AbstractScreen {
 		
 	}
 
-	Label label;
 	@Override
 	public void create() {
 		
-		GameData.createNewLevel(game);
+		GameData.init(game);
 		
 		protoRenderer = new PrototypeRendererGL20(GameData.lightManager);
 		protoRenderer.cam = cam;
-		
-		Skin skin = new Skin(Gdx.files.internal( "data/skins/uiskin.json" ));	
-	    
-		label = new Label("", skin);
-		
-		LabelStyle defaultStyle = new LabelStyle();
-	    defaultStyle.font = font;
-	    defaultStyle.fontColor = Color.WHITE;
-		label.setStyle(defaultStyle);
-		
-		stage.addActor(label);
-		
+
 		crosshairs = new Texture(Gdx.files.internal("data/textures/crosshairs.png"));
 		arrow = new Sprite(new Texture(Gdx.files.internal("data/textures/arrow.png")));
 	}

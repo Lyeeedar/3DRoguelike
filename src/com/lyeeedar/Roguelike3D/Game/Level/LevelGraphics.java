@@ -257,7 +257,7 @@ class Chunk
 			
 			Mesh merged = Shapes.merge(meshes);
 			
-			VisibleObject vo = new VisibleObject(merged, base.primitive_type, base.colour, base.textureName);
+			VisibleObject vo = new VisibleObject(merged, base.primitive_type, base.colour, base.textureName, 1.0f);
 			vo.attributes.getTransform().setToTranslation(baseVec);
 			vos.add(vo);
 		}

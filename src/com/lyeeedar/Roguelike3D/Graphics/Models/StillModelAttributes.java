@@ -25,12 +25,16 @@ public class StillModelAttributes implements StillModelInstance {
 	final public Matrix4 rotation = new Matrix4();
 	public Material material;
 	public float radius;
+	
+	public final Vector3 scale;
 
-	public StillModelAttributes (Material material, float radius) {
+	public StillModelAttributes (Material material, float radius, float scale) {
 		this.material = material;
 		
-		if (radius < 10) radius = 10;
+		if (radius < 5) radius = 5;
 		this.radius = radius;
+		
+		this.scale = new Vector3(scale, scale, scale);
 	}
 
 	@Override
@@ -68,7 +72,7 @@ public class StillModelAttributes implements StillModelInstance {
 		
 		Material copy_material = material.copy();
 		
-		final StillModelAttributes copy = new StillModelAttributes(copy_material, radius);
+		final StillModelAttributes copy = new StillModelAttributes(copy_material, radius, scale.x);
 		
 		copy.position.set(position.val);
 		copy.rotation.set(rotation.val);

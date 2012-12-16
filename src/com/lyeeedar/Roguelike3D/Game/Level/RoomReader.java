@@ -50,6 +50,7 @@ public class RoomReader {
 	public static final String MODEL = "model";
 	public static final String MODEL_TYPE = "type";
 	public static final String MODEL_NAME = "name";
+	public static final String MODEL_SCALE = "scale";
 	public static final String DIMENSIONS = "dimensions";
 	public static final String DIMENSIONS_NUMBER = "number";
 	public static final String DIMENSIONS_D = "d";
@@ -60,6 +61,11 @@ public class RoomReader {
 	public static final String BLUE = "blue";
 	public static final String ROOM = "room";
 	public static final String ROW = "row";
+	
+	public static final String META = "meta";
+	public static final String DATA = "data";
+	public static final String NAME = "name";
+	public static final String CONTENTS = "contents";
 	
 	Document doc;
 	Node biome;
@@ -201,12 +207,30 @@ public class RoomReader {
 				String description = getNodeValue(DESCRIPTION, symbol.getChildNodes());
 
 				AbstractObject ao = new AbstractObject(character, type, visible, description);
+				
+				Node meta = getNode(META, symbol.getChildNodes());
+				
+				if (meta != null)
+				{
+					for (int j = 0; j < meta.getChildNodes().getLength(); j++)
+					{
+						Node n = meta.getChildNodes().item(i);
+						
+						if (n.getNodeName().equalsIgnoreCase(DATA))
+						{
+							ao.addMeta(getNodeValue(NAME, n.getChildNodes()), getNodeValue(CONTENTS, n.getChildNodes()));
+						}
+					}
+				}
 
 				if (visible)
 				{
 					Node model = getNode(MODEL, symbol.getChildNodes());
 					String modelType = getNodeValue(MODEL_TYPE, model.getChildNodes());
 					String modelName = getNodeValue(MODEL_NAME, model.getChildNodes());
+					String ms = getNodeValue(MODEL_SCALE, model.getChildNodes());
+					float modelScale = 1.0f;
+					if (ms != null && ms.length() > 0) modelScale = Float.parseFloat(ms);
 
 					Node dimensions = getNode(DIMENSIONS, model.getChildNodes());
 					int number = 0; 
@@ -225,7 +249,7 @@ public class RoomReader {
 					float blue = Float.parseFloat(getNodeValue(BLUE, colour.getChildNodes()));
 					Color col = new Color(red, green, blue, 1.0f);
 
-					ao.setModel(modelType, modelName, texture, col, dim);
+					ao.setModel(modelType, modelName, modelScale, texture, col, dim);
 				}
 
 				room.addObject(ao);
@@ -251,6 +275,9 @@ public class RoomReader {
 				Node model = getNode(MODEL, symbol.getChildNodes());
 				String modelType = getNodeValue(MODEL_TYPE, model.getChildNodes());
 				String modelName = getNodeValue(MODEL_NAME, model.getChildNodes());
+				String ms = getNodeValue(MODEL_SCALE, model.getChildNodes());
+				float modelScale = 1.0f;
+				if (ms != null && ms.length() > 0) modelScale = Float.parseFloat(ms);
 				
 				Node dimensions = getNode(DIMENSIONS, model.getChildNodes());
 				int number = Integer.parseInt(getNodeValue(DIMENSIONS_NUMBER, dimensions.getChildNodes()));
@@ -268,7 +295,7 @@ public class RoomReader {
 				float blue = Float.parseFloat(getNodeValue(BLUE, colour.getChildNodes()));
 				Color col = new Color(red, green, blue, 1.0f);
 				
-				ao.setModel(modelType, modelName, texture, col, dim);
+				ao.setModel(modelType, modelName, modelScale, texture, col, dim);
 			}
 			
 			room.addObject(ao);

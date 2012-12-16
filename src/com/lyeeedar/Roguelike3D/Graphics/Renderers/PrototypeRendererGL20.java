@@ -327,8 +327,14 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			private void setCommon (Model model, StillModelAttributes attributes) {
 				this.model = model;
 				modelHash = model.hashCode();
-				System.arraycopy(attributes.getTransform().val, 0, transform.val, 0, 16);
-				System.arraycopy(attributes.getRotation().val, 0, rotation.val, 0, 16);
+				
+				rotation.set(attributes.getRotation());
+				
+				Vector3 t = new Vector3();
+				
+				attributes.getTransform().getTranslation(t);
+				
+				transform.setToTranslationAndScaling(t, attributes.scale);
 
 				sortCenter.set(attributes.getSortCenter());
 				distance = (int)(PRIORITY_DISCRETE_STEPS * sortCenter.dst(cam.position));

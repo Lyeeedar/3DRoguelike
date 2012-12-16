@@ -36,8 +36,10 @@ public abstract class GameActor extends GameObject{
 	public Equippable TROUSERS;
 	public Equippable BOOTS;
 	public Equippable GLOVES;
+	
 	public Equippable L_HAND;
 	public Equippable R_HAND;
+	public Equippable BOTH_HANDS;
 	
 	public int HEALTH;
 	public int BOOST_HEALTH;
@@ -69,22 +71,22 @@ public abstract class GameActor extends GameObject{
 	
 	boolean alive = true;
 
-	public GameActor(VisibleObject vo, float x, float y, float z) {
-		super(vo, x, y, z);
+	public GameActor(VisibleObject vo, float x, float y, float z, float scale) {
+		super(vo, x, y, z, scale);
 		
 		setupDefenses();
 	}
 	
-	public GameActor(String model, Color colour, String texture, float x, float y, float z)
+	public GameActor(String model, Color colour, String texture, float x, float y, float z, float scale)
 	{
-		super(model, colour, texture, x, y, z);
+		super(model, colour, texture, x, y, z, scale);
 		
 		setupDefenses();
 	}
 	
-	public GameActor(Mesh mesh, Color colour, String texture, float x, float y, float z)
+	public GameActor(Mesh mesh, Color colour, String texture, float x, float y, float z, float scale)
 	{
-		super(mesh, colour, texture, x, y, z);
+		super(mesh, colour, texture, x, y, z, scale);
 		
 		setupDefenses();
 	}
@@ -152,14 +154,21 @@ public abstract class GameActor extends GameObject{
 			addBoost(GLOVES);
 		}
 		
-		if (L_HAND != null)
+		if (BOTH_HANDS != null)
 		{
-			addBoost(L_HAND);
+			addBoost(BOTH_HANDS);
 		}
-		
-		if (R_HAND != null)
+		else
 		{
-			addBoost(R_HAND);
+			if (L_HAND != null)
+			{
+				addBoost(L_HAND);
+			}
+			
+			if (R_HAND != null)
+			{
+				addBoost(R_HAND);
+			}
 		}
 	}
 	private void addBoost(Equippable e)

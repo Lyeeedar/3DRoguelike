@@ -28,7 +28,6 @@ import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Static;
-import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
@@ -44,7 +43,6 @@ public class Level {
 	
 	public ArrayList<GameActor> actors = new ArrayList<GameActor>();
 	public ArrayList<VisibleItem> items = new ArrayList<VisibleItem>();
-	public ArrayList<Spell> spells = new ArrayList<Spell>();
 	public ArrayList<LevelObject> levelObjects = new ArrayList<LevelObject>();
 	
 	public ArrayList<DungeonRoom> rooms;
@@ -89,8 +87,6 @@ public class Level {
 	int fillRoomIndex = 0;
 	public boolean fillRoom(RoomReader rReader)
 	{
-		ArrayList<AbstractObject> aObjects = new ArrayList<AbstractObject>();
-		
 		if (fillRoomIndex == rooms.size())
 		{
 			return true;
@@ -128,47 +124,43 @@ public class Level {
 					
 					ao.x = room.x+i;
 					ao.z = room.y+j;
-					//ao.y = levelArray[room.x+i][room.y+j].floor;
+					ao.y = levelArray[room.x+i][room.y+j].floor;
 					
-					aObjects.add(ao);
+					LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this);
+					
+					if (lo != null)
+					{
+						
+					}
+					else if (ao.visible)
+					{
+						String texture = ao.texture;
+						Color colour = ao.colour;
+						if (ao.modelType.equalsIgnoreCase("model"))
+						{
+							lo = new Static(ao.modelName, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
+						}
+						else if (ao.modelType.equalsIgnoreCase("cube"))
+						{
+							Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
+							lo = new Static(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
+						}
+					}
+					
+					if (lo == null)
+					{
+						lo = new Static(false, (ao.x)*10, 0, (ao.z)*10, ao);
+						
+					}
+					
+					lo.description = ao.description;
+					levelObjects.add(lo);
+					
+					levelArray[room.x+i][room.y+j].lo = lo;
 				}
 				
 			}
 		}
-		
-		for (AbstractObject ao : aObjects)
-		{
-			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this);
-	
-			if (lo != null)
-			{
-				
-			}
-			else if (ao.visible)
-			{
-				String texture = ao.texture;
-				Color colour = ao.colour;
-				if (ao.modelType.equalsIgnoreCase("model"))
-				{
-					lo = new Static(ao.modelName, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
-				}
-				else if (ao.modelType.equalsIgnoreCase("cube"))
-				{
-					Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
-					lo = new Static(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
-				}
-			}
-			
-			if (lo == null)
-			{
-				lo = new Static(false, (ao.x)*10, 0, (ao.z)*10, ao);
-				
-			}
-			
-			lo.description = ao.description;
-			levelObjects.add(lo);
-		}
-		
 		
 		fillRoomIndex++;
 		return false;
@@ -381,11 +373,6 @@ public class Level {
 	public void addActor(GameActor actor)
 	{
 		actors.add(actor);
-	}
-	
-	public void addSpell(Spell spell)
-	{
-		spells.add(spell);
 	}
 	
 	public void addLvlObject(LevelObject lo)

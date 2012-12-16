@@ -26,8 +26,6 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
-import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
-import com.lyeeedar.Roguelike3D.Game.Spell.Spell.SpellBehaviour;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.GlowAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.Particle;
@@ -40,9 +38,9 @@ public class Player extends GameActor {
 	public final Vector3 offsetPos = new Vector3();
 	public final Vector3 offsetRot = new Vector3();
 	
-	public Player(String model, Color colour, String texture, float x, float y, float z)
+	public Player(String model, Color colour, String texture, float x, float y, float z, float scale)
 	{
-		super(model, colour, texture, x, y, z);
+		super(model, colour, texture, x, y, z, scale);
 		visible = false;
 		description = "This is you. Wave to yourself you!";
 		WEIGHT = 1;
@@ -100,17 +98,6 @@ public class Player extends GameActor {
 
 		Xrotate(xR);
 		
-		if (Gdx.input.isKeyPressed(Keys.C)) {
-			Spell spell = new Spell("modelf", Color.RED, "blank", position.x, position.y, position.z);
-			spell.setData(Element.FIRE, UID, 5, 1);
-			spell.addBehaviour(SpellBehaviour.PROJECTILE);
-			
-			spell.getRotation().set(rotation);
-			
-			spell.vo.attributes.material.addAttributes(new GlowAttribute(0.2f, GlowAttribute.glow));
-			
-			GameData.level.addSpell(spell);
-		}
 	}
 	
 	

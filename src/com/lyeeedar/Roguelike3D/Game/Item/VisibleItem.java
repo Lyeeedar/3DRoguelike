@@ -21,8 +21,8 @@ public class VisibleItem extends GameObject {
 	Item item;
 	
 	public VisibleItem(String model, Color colour, String texture, float x,
-			float y, float z, Item item) {
-		super(model, colour, texture, x, y, z);
+			float y, float z, Item item, float scale) {
+		super(model, colour, texture, x, y, z, scale);
 		
 		this.item = item;
 	}

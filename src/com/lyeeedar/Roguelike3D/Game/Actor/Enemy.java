@@ -21,18 +21,18 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 public class Enemy extends GameActor {
 
 	public Enemy(Mesh mesh, Color colour, String texture, float x, float y,
-			float z) {
-		super(mesh, colour, texture, x, y, z);
+			float z, float scale) {
+		super(mesh, colour, texture, x, y, z, scale);
 	}
 
-	public Enemy(VisibleObject vo, float x, float y, float z) {
-		super(vo, x, y, z);
-		// TODO Auto-generated constructor stub
+	public Enemy(VisibleObject vo, float x, float y, float z, float scale) {
+		super(vo, x, y, z, scale);
+
 	}
 	
-	public Enemy(String model, Color colour, String texture, float x, float y, float z)
+	public Enemy(String model, Color colour, String texture, float x, float y, float z, float scale)
 	{
-		super(model, colour, texture, x, y, z);
+		super(model, colour, texture, x, y, z, scale);
 	}
 
 	int arms = 2;

@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 
 public class Tile {
 	
@@ -36,6 +37,8 @@ public class Tile {
 	 */
 	public float height;
 	public boolean visible = false;
+	
+	public LevelObject lo;
 	
 	public Tile (char character, float floor, float roof, float height)
 	{

@@ -144,7 +144,7 @@ public class GameData {
 	{
 		if (player == null)
 		{
-			player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0);
+			player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f);
 			
 			level.addActor(player);
 		}
@@ -184,7 +184,7 @@ public class GameData {
 		return null;
 	}
 	
-	public static String createLevelUP()
+	public static String createLevelUP(String biome)
 	{
 		if (currentLevel.up_index == 0)
 		{
@@ -192,13 +192,13 @@ public class GameData {
 			return currentLevel.up_levels.get(0).UID;
 		}
 		currentLevel.up_index++;
-		LevelContainer lc = new LevelContainer(currentLevel.biome, currentLevel.depth-1);
+		LevelContainer lc = new LevelContainer(biome, currentLevel.depth-1);
 		currentLevel.addLevel_UP(lc);
 		dungeon.add(lc);
 		return lc.UID;
 	}
 	
-	public static String createLevelDOWN()
+	public static String createLevelDOWN(String biome)
 	{
 		if (currentLevel.down_index == 0)
 		{
@@ -206,7 +206,7 @@ public class GameData {
 			return currentLevel.down_levels.get(0).UID;
 		}
 		currentLevel.down_index++;
-		LevelContainer lc = new LevelContainer(currentLevel.biome, currentLevel.depth+1);
+		LevelContainer lc = new LevelContainer(biome, currentLevel.depth+1);
 		currentLevel.addLevel_DOWN(lc);
 		dungeon.add(lc);
 		return lc.UID;

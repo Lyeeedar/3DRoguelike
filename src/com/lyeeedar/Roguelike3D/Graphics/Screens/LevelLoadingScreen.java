@@ -186,9 +186,9 @@ public class LevelLoadingScreen extends AbstractScreen{
 		protoRenderer = new PrototypeRendererGL20(lightManager);
 		protoRenderer.cam = cam;
 		
-		VisibleObject vo = VisibleObject.createCuboid(2, 2, 2, GL20.GL_TRIANGLES, Color.WHITE, "icon");
+		VisibleObject vo = VisibleObject.createCuboid(2, 2, 2, GL20.GL_TRIANGLES, Color.WHITE, "icon", 0.5f);
 		vo.attributes.material.affectedByLighting = false;
-		GameObject go = new GameObject(vo, 0, 0, -4);
+		GameObject go = new GameObject(vo, 0, 0, -4, 0.5f);
 		
 		objects.add(go);
 		

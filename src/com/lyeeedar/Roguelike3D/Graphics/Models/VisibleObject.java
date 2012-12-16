@@ -34,21 +34,21 @@ public class VisibleObject {
 		this.attributes = attributes;
 	}
 
-	public VisibleObject(Mesh mesh, int primitive_type, Color colour, String textureName)
+	public VisibleObject(Mesh mesh, int primitive_type, Color colour, String textureName, float scale)
 	{
 		Texture texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"), true);
 		texture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
 		texture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
 
-		create(mesh, primitive_type, colour, texture);
+		create(mesh, primitive_type, colour, texture, scale);
 	}
 
-	public VisibleObject(Mesh mesh, int primitive_type, Color colour, Texture texture)
+	public VisibleObject(Mesh mesh, int primitive_type, Color colour, Texture texture, float scale)
 	{
-		create(mesh, primitive_type, colour, texture);
+		create(mesh, primitive_type, colour, texture, scale);
 	}
 
-	public void create(Mesh mesh, int primitive_type, Color colour, Texture texture)
+	public void create(Mesh mesh, int primitive_type, Color colour, Texture texture, float scale)
 	{
 		SubMesh[] meshes = {new StillSubMesh("SubMesh1", mesh, primitive_type)};
 		model = new StillModel(meshes);
@@ -59,12 +59,12 @@ public class VisibleObject {
 		
 		BoundingBox box = mesh.calculateBoundingBox();
 		
-		attributes = new StillModelAttributes(material, box.getDimensions().x+ box.getDimensions().z);
+		attributes = new StillModelAttributes(material, box.getDimensions().x+ box.getDimensions().z, scale);
 	}
 
-	public static VisibleObject createCuboid(float x, float y, float z, int primitive_type, Color colour, String textureName)
+	public static VisibleObject createCuboid(float x, float y, float z, int primitive_type, Color colour, String textureName, float scale)
 	{
-		return new VisibleObject(Shapes.genCuboid(x, y, z), primitive_type, colour, textureName);
+		return new VisibleObject(Shapes.genCuboid(x, y, z), primitive_type, colour, textureName, scale);
 	}
 	
 	public void render(PrototypeRendererGL20 protoRenderer)

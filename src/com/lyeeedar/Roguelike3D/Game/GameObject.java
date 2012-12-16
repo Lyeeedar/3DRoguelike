@@ -76,24 +76,24 @@ public class GameObject {
 	
 	public String description = "";
 
-	public GameObject(VisibleObject vo, float x, float y, float z)
+	public GameObject(VisibleObject vo, float x, float y, float z, float scale)
 	{
 		UID = this.toString()+System.currentTimeMillis()+this.hashCode()+System.nanoTime();
 		
-		create(vo, x, y, z);
+		create(vo, x, y, z, scale);
 	}
 	
-	public GameObject(String model, Color colour, String texture, float x, float y, float z)
+	public GameObject(String model, Color colour, String texture, float x, float y, float z, float scale)
 	{
-		this(ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read()), colour, texture, x, y, z);
+		this(ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read()), colour, texture, x, y, z, scale);
 	}
 	
-	public GameObject(Mesh mesh, Color colour, String texture, float x, float y, float z)
+	public GameObject(Mesh mesh, Color colour, String texture, float x, float y, float z, float scale)
 	{
-		this(new VisibleObject(mesh, GL20.GL_TRIANGLES, colour, texture), x, y, z);
+		this(new VisibleObject(mesh, GL20.GL_TRIANGLES, colour, texture, scale), x, y, z, scale);
 	}
 	
-	public void create(VisibleObject vo, float x, float y, float z)
+	public void create(VisibleObject vo, float x, float y, float z, float scale)
 	{
 		this.vo = vo;
 		position.x = x;
@@ -110,7 +110,7 @@ public class GameObject {
 			vo.model.getBoundingBox(box);
 		}
 
-		Vector3 dimensions = box.getDimensions();
+		Vector3 dimensions = box.getDimensions().mul(scale);
 		
 		float dist = 0;
 		
@@ -132,7 +132,7 @@ public class GameObject {
 		MaterialAttribute c = new ColorAttribute(Color.RED, ColorAttribute.diffuse);
 		MaterialAttribute t = new TextureAttribute(new Texture(Gdx.files.internal("data/textures/blank.png")), 0, TextureAttribute.diffuseTexture);
 		Material material = new Material("basic", c, t);	
-		collisionAttributes = new StillModelAttributes(material, 1);
+		collisionAttributes = new StillModelAttributes(material, 1, scale);
 
 		collisionMesh = model;
 		collisionBox = new CollisionBox(dimensions);

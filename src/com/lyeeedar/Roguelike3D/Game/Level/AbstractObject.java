@@ -10,6 +10,8 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Level;
 
+import java.util.HashMap;
+
 import com.badlogic.gdx.graphics.Color;
 
 public class AbstractObject {
@@ -47,11 +49,15 @@ public class AbstractObject {
 	public String modelType;
 	public String modelName;
 	
+	public float modelScale;
+	
 	public float[] modelDimensions;
 	
 	public String texture;
 
 	public Color colour;
+	
+	public HashMap<String, String> meta = new HashMap<String, String>();
 	
 	public AbstractObject(char character, String type, boolean visible, String description)
 	{
@@ -72,6 +78,19 @@ public class AbstractObject {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+	
+	public void addMeta(String name, String contents)
+	{
+		meta.put(name,  contents);
+	}
+	
+	public void addMeta(String[]... data)
+	{
+		for (int i = 0; i < data.length; i++)
+		{
+			meta.put(data[i][0], data[i][1]);
+		}
 	}
 	
 	private ObjectType stringToObjectType(String type)
@@ -178,11 +197,12 @@ public class AbstractObject {
 		this.description = description;
 	}
 	
-	public void setModel(String modelType, String modelName, String texture, Color colour, float[] modelDimensions)
+	public void setModel(String modelType, String modelName, float modelScale, String texture, Color colour, float[] modelDimensions)
 	{
 		this.modelDimensions = modelDimensions;
 		this.modelType = modelType;
 		this.modelName = modelName;
+		this.modelScale = modelScale;
 		this.texture = texture;
 		this.colour = colour;
 	}
@@ -190,7 +210,7 @@ public class AbstractObject {
 	public AbstractObject cpy()
 	{
 		AbstractObject ao = new AbstractObject(character, type, visible, description);
-		ao.setModel(modelType, modelName, texture, colour, modelDimensions);
+		ao.setModel(modelType, modelName, modelScale, texture, colour, modelDimensions);
 		
 		return ao;
 	}

@@ -37,7 +37,6 @@ import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
-import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillModelAttributes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
@@ -106,11 +105,6 @@ public class InGameScreen extends AbstractScreen {
 			if (!vi.visible) continue;
 			vi.vo.render(protoRenderer);
 		}
-		
-		for (Spell sp : GameData.level.spells)
-		{
-			sp.vo.render(protoRenderer);
-		}
 
 	}
 	
@@ -146,8 +140,8 @@ public class InGameScreen extends AbstractScreen {
 				x-MAP_WIDTH, y-MAP_HEIGHT, MAP_WIDTH*2, MAP_HEIGHT*2,
 				false, false);
 		
-		System.out.println((GameData.player.getPosition().x / 10f)+0.5f);
-		System.out.println(x);
+		//System.out.println((GameData.player.getPosition().x / 10f)+0.5f);
+		//System.out.println(x);
 		
 		// Work out angle
 		float angle = 90 * GameData.player.getRotation().x;
@@ -192,11 +186,6 @@ public class InGameScreen extends AbstractScreen {
 		for (VisibleItem vi : GameData.level.items)
 		{
 			gameObjects.add(vi);
-		}
-		
-		for (Spell sp : GameData.level.spells)
-		{
-			gameObjects.add(sp);
 		}
 		
 		for (GameObject ga : gameObjects)

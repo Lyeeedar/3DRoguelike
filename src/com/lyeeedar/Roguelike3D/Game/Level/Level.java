@@ -187,7 +187,7 @@ public class Level {
 			if (pos.x < 0 || pos.x/10 > width) { dist=view; break; }
 			if (pos.z < 0 || pos.z/10 > height) { dist=view; break; }
 			
-			Tile t = getTile(pos.x/10f, pos.z/10f);
+			Tile t = getTile((pos.x/10f)+0.5f, (pos.z/10f)+0.5f);
 			
 			if (pos.y < t.height)
 			{

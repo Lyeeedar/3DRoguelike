@@ -19,8 +19,10 @@ import org.xml.sax.SAXException;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
+import com.lyeeedar.Roguelike3D.Game.GameData.Weapon_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
@@ -32,6 +34,11 @@ import com.sun.org.apache.xerces.internal.parsers.DOMParser;
  *
  */
 public class MonsterEvolver extends XMLReader {
+	
+	public static final int EVOLVER_WIDTH = 20;
+	public static final int EVOLVER_HEIGHT = 20;
+	
+	public static final int EVOLVER_CREATURE_NUM = 20;
 	
 	public static final String ATTRIBUTES = "attributes";
 	public static final String MONSTERS = "monsters";
@@ -72,6 +79,19 @@ public class MonsterEvolver extends XMLReader {
 	public static final String IQ = "iq";
 	public static final String ATTACK_SPEED = "attack_speed";
 	public static final String CAST_SPEED = "cast_speed";
+	
+	public static final String MIND = "MIND";
+	public static final String SKIN = "SKIN";
+	public static final String BONES = "BONES";
+	public static final String MUSCLES = "MUSCLES";
+	public static final String ATTACK = "ATTACK";
+	
+	public static final String SCALING = "scaling";
+	public static final String TYPE = "type";
+	
+	public static final String ABSTRACT = "abstract";
+	public static final String CREATURE = "creature";
+	public static final String CALORIE_USAGE = "calorie_usage";
 	
 	final Random ran = new Random();
 	
@@ -158,7 +178,7 @@ public class MonsterEvolver extends XMLReader {
 			// Add visual
 			
 			Node visual = getNode(VISUAL, n.getChildNodes());
-			String description = getNodeValue(DESCRIPTION, visual.getChildNodes());
+			NodeList description = getNode(DESCRIPTION, visual.getChildNodes()).getChildNodes();
 			
 			Node model = getNode(MODEL, visual.getChildNodes());
 			String model_type = getNodeValue(MODEL_TYPE, model.getChildNodes());
@@ -211,8 +231,89 @@ public class MonsterEvolver extends XMLReader {
 			String touch = getNodeValue(TOUCH, damDef.getChildNodes());
 			
 			ac_e.addDamDef(pierce, impact, touch);
+
+			// Add Mind info
+			
+			Node mind = getNode(MIND, stats.getChildNodes());
+			
+			String mind_scale = getNodeValue(SCALING, mind.getChildNodes());
+			String mind_type = getNodeValue(TYPE, mind.getChildNodes());
+			
+			ac_e.addMind(mind_scale, mind_type);
+			
+			// Add Skin info
+			
+			Node skin = getNode(SKIN, stats.getChildNodes());
+
+			String skin_scale = getNodeValue(SCALING, skin.getChildNodes());
+			String skin_type = getNodeValue(TYPE, skin.getChildNodes());
+
+			ac_e.addMind(skin_scale, skin_type);
+
+			// Add Bones info
+
+			Node bones = getNode(BONES, stats.getChildNodes());
+
+			String bones_scale = getNodeValue(SCALING, bones.getChildNodes());
+			String bones_type = getNodeValue(TYPE, bones.getChildNodes());
+
+			ac_e.addMind(bones_scale, bones_type);
+			
+			// Add Muscles info
+
+			Node muscles = getNode(MUSCLES, stats.getChildNodes());
+
+			String muscles_scale = getNodeValue(SCALING, muscles.getChildNodes());
+			String muscles_type = getNodeValue(TYPE, muscles.getChildNodes());
+
+			ac_e.addMind(muscles_scale, muscles_type);
+			
+			// Add Attack info
+
+			Node attack = getNode(ATTACK, stats.getChildNodes());
+
+			String attack_scale = getNodeValue(SCALING, attack.getChildNodes());
+			String attack_type = getNodeValue(TYPE, attack.getChildNodes());
+
+			ac_e.addMind(attack_scale, attack_type);
+			
 			
 			this.creatures.put(ac_e.name, ac_e);
+			
+		}
+	}
+	
+	EvolverTile[][] grid = new EvolverTile[EVOLVER_WIDTH][EVOLVER_HEIGHT];
+	public void createMap()
+	{
+		for (int x = 0; x < EVOLVER_WIDTH; x++)
+		{
+			for (int y = 0; y < EVOLVER_HEIGHT; y++)
+			{
+				grid[x][y] = new EvolverTile();
+			}
+		}
+		
+		for (int i = 0; i < 25; i++)
+		{
+			grid[ran.nextInt(EVOLVER_WIDTH)][ran.nextInt(EVOLVER_HEIGHT)].food = true;
+		}
+	}
+	
+	public int CURRENT_CREATURE_DIFFICULTY = 0;
+	
+	Creature_Evolver[] EVOLVED_CREATURES = new Creature_Evolver[10];
+	
+	public void Evolve_Creature()
+	{
+		Node abstractList = getNode(ABSTRACT, root.getChildNodes());
+		AbstractCreature_Evolver creature = creatures.get(getNodeValue(CREATURE, abstractList.getChildNodes()));
+		int calorie_usage = Integer.parseInt(getNodeValue(CALORIE_USAGE, abstractList.getChildNodes()));
+		
+		for (int i = 0; i < EVOLVER_CREATURE_NUM; i++)
+		{
+			Creature_Evolver c_e = new Creature_Evolver(creature, calorie_usage);
+			grid[ran.nextInt(EVOLVER_WIDTH)][ran.nextInt(EVOLVER_HEIGHT)].creature = c_e;
 		}
 	}
 }
@@ -227,7 +328,6 @@ class EvolverTile
 class Creature_Evolver
 {
 	public Mind_Evolver mind;
-	public Visual_Evolver visual;
 	public Skin_Evolver skin;
 	public Bones_Evolver bones;
 	public Muscles_Evolver muscles;
@@ -235,11 +335,13 @@ class Creature_Evolver
 	
 	public AbstractCreature_Evolver creature;
 	
+	public int calorie_usage;
 	public int consumed_calories = 100;
 	public int points = 0;
 	
-	public Creature_Evolver(AbstractCreature_Evolver creature)
+	public Creature_Evolver(AbstractCreature_Evolver creature, int calorie_usage)
 	{
+		this.calorie_usage = calorie_usage;
 		this.creature = creature;
 	}
 }
@@ -253,8 +355,8 @@ class AbstractCreature_Evolver
 		this.name = name;
 	}
 	
-	String description; String model_type; String model_name; float model_scale; String texture; Color colour;
-	public void addVisual(String description, String model_type, String model_name, String model_scale, String texture, String r, String g, String b)
+	NodeList description; String model_type; String model_name; float model_scale; String texture; Color colour;
+	public void addVisual(NodeList description, String model_type, String model_name, String model_scale, String texture, String r, String g, String b)
 	{
 		this.description = description;
 		this.model_type = model_type;
@@ -300,6 +402,41 @@ class AbstractCreature_Evolver
 		damDef.put(Damage_Type.TOUCH, Integer.parseInt(touch));
 		
 	}
+	
+	float mind_scale; String mind_type;
+	public void addMind(String scale, String type)
+	{
+		this.mind_scale = Float.parseFloat(scale);
+		this.mind_type = type;
+	}
+	
+	float skin_scale; String skin_type;
+	public void addSkin(String scale, String type)
+	{
+		this.skin_scale = Float.parseFloat(scale);
+		this.skin_type = type;
+	}
+	
+	float bones_scale; String bones_type;
+	public void addBones(String scale, String type)
+	{
+		this.bones_scale = Float.parseFloat(scale);
+		this.bones_type = type;
+	}
+	
+	float muscles_scale; String muscles_type;
+	public void addMuscles(String scale, String type)
+	{
+		this.muscles_scale = Float.parseFloat(scale);
+		this.muscles_type = type;
+	}
+	
+	float attack_scale; String attack_type;
+	public void addAttack(String scale, String type)
+	{
+		this.attack_scale = Float.parseFloat(scale);
+		this.attack_type = type;
+	}
 }
 
 class Mind_Evolver
@@ -307,29 +444,98 @@ class Mind_Evolver
 	
 }
 
-class Visual_Evolver
-{
-	
-}
-
 class Skin_Evolver
 {
+	String description;
+	public void addDescription(String description)
+	{
+		this.description = description;
+	}
 	
+	int calories; int weight; int health; int strength;
+	public void addStats(String calories, String weight, String health, String strength)
+	{
+		this.calories = Integer.parseInt(calories);
+		this.weight = Integer.parseInt(weight);
+		this.health = Integer.parseInt(health);
+		this.strength = Integer.parseInt(strength);
+	}
+	
+	HashMap<Element, Integer> eleDef;
+	public void addEleDef(String fire, String water, String air, String wood, String metal, String aether, String VOID)
+	{
+		eleDef = new HashMap<Element, Integer>();
+		
+		eleDef.put(Element.FIRE, Integer.parseInt(fire));
+		eleDef.put(Element.WATER, Integer.parseInt(water));
+		eleDef.put(Element.AIR, Integer.parseInt(air));
+		eleDef.put(Element.WOOD, Integer.parseInt(wood));
+		eleDef.put(Element.METAL, Integer.parseInt(metal));
+		eleDef.put(Element.AETHER, Integer.parseInt(aether));
+		eleDef.put(Element.VOID, Integer.parseInt(VOID));
+	}
+	
+	HashMap<Damage_Type, Integer> damDef;
+	public void addDamDef(String pierce, String impact, String touch)
+	{
+		damDef = new HashMap<Damage_Type, Integer>();
+		
+		damDef.put(Damage_Type.PIERCE, Integer.parseInt(pierce));
+		damDef.put(Damage_Type.IMPACT, Integer.parseInt(impact));
+		damDef.put(Damage_Type.TOUCH, Integer.parseInt(touch));
+		
+	}
 }
 
 class Bones_Evolver
 {
+	int calories; int weight; int health;
+	public void addStats(String calories, String weight, String health)
+	{
+		this.calories = Integer.parseInt(calories);
+		this.weight = Integer.parseInt(weight);
+		this.health = Integer.parseInt(health);
+	}
 	
+	HashMap<Damage_Type, Integer> damDef;
+	public void addDamDef(String pierce, String impact, String touch)
+	{
+		damDef = new HashMap<Damage_Type, Integer>();
+		
+		damDef.put(Damage_Type.PIERCE, Integer.parseInt(pierce));
+		damDef.put(Damage_Type.IMPACT, Integer.parseInt(impact));
+		damDef.put(Damage_Type.TOUCH, Integer.parseInt(touch));
+		
+	}
 }
 
 class Muscles_Evolver
 {
-	
+	int calories; int weight; int strength;
+	public void addStats(String calories, String weight, String strength)
+	{
+		this.calories = Integer.parseInt(calories);
+		this.weight = Integer.parseInt(weight);
+		this.strength = Integer.parseInt(strength);
+	}
 }
 
 class Attack_Evolver
 {
+	String description;
+	public void addDescription(String description)
+	{
+		this.description = description;
+	}
 	
+	int calories; int weight; int strength; Weapon_Type wep_type;
+	public void addStats(String calories, String weight, String strength, String type)
+	{
+		this.calories = Integer.parseInt(calories);
+		this.weight = Integer.parseInt(weight);
+		this.strength = Integer.parseInt(strength);
+		this.wep_type = GameData.getWeaponType(type);
+	}
 }
 
 

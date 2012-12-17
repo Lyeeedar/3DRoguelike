@@ -95,19 +95,20 @@ public class GameData {
 	}
 	
 	public enum Weapon_Type {
-		CLAW(0.5f, 0.5f),
-		FIST(0.3f, 0.7f),
-		BLADE(0.9f, 0.1f),
-		CLUB(0.0f, 1.0f),
-		TEETH(1.0f, 0.0f);
+		CLAW(0.5f, 0.5f, 0.0f),
+		FIST(0.1f, 0.5f, 0.1f),
+		CLUB(0.0f, 0.9f, 0.1f),
+		TEETH(0.7f, 0.1f, 0.1f);
 		
 		public final float PIERCE;
 		public final float IMPACT;
+		public final float TOUCH;
 		
-		private Weapon_Type(float PIERCE, float IMPACT)
+		private Weapon_Type(float PIERCE, float IMPACT, float TOUCH)
 		{
 			this.PIERCE = PIERCE;
 			this.IMPACT = IMPACT;
+			this.TOUCH = TOUCH;
 		}
 	}
 	
@@ -153,11 +154,7 @@ public class GameData {
 	{
 		if (player == null)
 		{
-			System.out.println("sdfs");
-			
 			player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f);
-			PointLight pl = new PointLight(new Vector3(), Color.YELLOW, 0.01f, 4.0f);
-			//player.boundLight = pl;
 			
 			level.addActor(player);
 		}
@@ -180,9 +177,6 @@ public class GameData {
 				}
 			}
 		}
-		
-		//lightManager.removeDynamicLight(player.boundLight.UID);
-		//lightManager.addDynamicLight(player.boundLight);
 		
 		GameData.level = level;
 		currentLevel.level = level;
@@ -226,6 +220,87 @@ public class GameData {
 		currentLevel.addLevel_DOWN(lc);
 		dungeon.add(lc);
 		return lc.UID;
+	}
+	
+	
+	public static Element getElement(String eleName)
+	{
+		Element element = null;
+		
+		if (eleName.equalsIgnoreCase("FIRE"))
+		{
+			element = Element.FIRE;
+		}
+		else if (eleName.equalsIgnoreCase("WATER"))
+		{
+			element = Element.WATER;
+		}
+		else if (eleName.equalsIgnoreCase("AIR"))
+		{
+			element = Element.AIR;
+		}
+		else if (eleName.equalsIgnoreCase("WOOD"))
+		{
+			element = Element.WOOD;
+		}
+		else if (eleName.equalsIgnoreCase("METAL"))
+		{
+			element = Element.METAL;
+		}
+		else if (eleName.equalsIgnoreCase("AETHER"))
+		{
+			element = Element.AETHER;
+		}
+		else if (eleName.equalsIgnoreCase("VOID"))
+		{
+			element = Element.VOID;
+		}
+		
+		return element;
+	}
+	
+	public static Damage_Type getDamageType(String type)
+	{
+		Damage_Type damType = null;
+		
+		if (type.equalsIgnoreCase("PIERCE"))
+		{
+			damType = Damage_Type.PIERCE;
+		}
+		else if (type.equalsIgnoreCase("IMPACT"))
+		{
+			damType = Damage_Type.IMPACT;
+		}
+		else if (type.equalsIgnoreCase("TOUCH"))
+		{
+			damType = Damage_Type.TOUCH;
+		}
+		
+		return damType;
+	}
+	
+	public static Weapon_Type getWeaponType(String type)
+	{
+		Weapon_Type wepType = null;
+		
+		if (type.equalsIgnoreCase("CLAW"))
+		{
+			wepType = Weapon_Type.CLAW;
+		}
+		else if (type.equalsIgnoreCase("FIST"))
+		{
+			wepType = Weapon_Type.FIST;
+		}
+		else if (type.equalsIgnoreCase("CLUB"))
+		{
+			wepType = Weapon_Type.CLUB;
+		}
+		else if (type.equalsIgnoreCase("TEETH"))
+		{
+			wepType = Weapon_Type.TEETH;
+		}
+		
+		return wepType;
 	}
 
 }

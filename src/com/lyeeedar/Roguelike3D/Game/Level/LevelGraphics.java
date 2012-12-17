@@ -114,7 +114,7 @@ public class LevelGraphics {
 			Tile t = levelArray[tileX][z];
 			if (t.character == ' ') continue;
 
-			TempVO vo = new TempVO(Shapes.genTempCuboid(10, t.height*2, 10), GL20.GL_TRIANGLES, colours.get(t.character), getTexture(t.character, biome), tileX*10, -1, z*10);
+			TempVO vo = new TempVO(Shapes.genTempCuboid(10, t.height, 10), GL20.GL_TRIANGLES, colours.get(t.character), getTexture(t.character, biome), tileX*10, t.height/2, z*10);
 			tempVOs[tileX][z] = vo;
 			
 			if (t.height < t.roof)

@@ -45,6 +45,9 @@ import com.lyeeedar.Roguelike3D.Graphics.Screens.AbstractScreen;
 
 public class InGameScreen extends AbstractScreen {
 	
+	public boolean paused = false;
+	Texture pausedTint;
+	
 	public static final int VIEW_DISTANCE = 1000;
 	public static final boolean SHOW_COLLISION_BOX = false;
 	public static final int MAP_WIDTH = 200;
@@ -116,7 +119,6 @@ public class InGameScreen extends AbstractScreen {
 		for (ParticleEmitter pe : GameData.particleEmitters)
 		{
 			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
-			pe.update(delta);
 			pe.render(decalBatch, cam);
 			particleNum += pe.particles;
 		}
@@ -132,6 +134,11 @@ public class InGameScreen extends AbstractScreen {
 	public void drawOrthogonals(float delta) {
 		
 		spriteBatch.draw(crosshairs, screen_width/2f, screen_height/2f);
+		
+		if (paused)
+		{
+			spriteBatch.draw(pausedTint, 0, 0, screen_width, screen_height);
+		}
 		
 		int x = (int)( ( (GameData.player.getPosition().x / 10f) + 0.5f) * LevelGraphics.STEP );
 		int y = (int)( ( (GameData.player.getPosition().z / 10f) + 0.5f) * LevelGraphics.STEP );
@@ -162,45 +169,83 @@ public class InGameScreen extends AbstractScreen {
 		font.draw(spriteBatch, desc, 300, 20);
 	}
 	
-	ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
 	int count = 1;
 	float dist = VIEW_DISTANCE;
 	float tempdist = 0;
 	//GameObject lookedAtObject = null;
 	StringBuilder desc = new StringBuilder();
 	
+	boolean tabCD = false;
 	@Override
 	public void update(float delta) {
 		
-		gameObjects.clear();
-		for (LevelObject lo : GameData.level.levelObjects)
+		if (!paused)
 		{
-			gameObjects.add(lo);
-		}
-		
-		for (GameActor ga : GameData.level.actors)
-		{
-			gameObjects.add(ga);
-		}
-		
-		for (VisibleItem vi : GameData.level.items)
-		{
-			gameObjects.add(vi);
-		}
-		
-		for (GameObject ga : gameObjects)
-		{
-			ga.update(delta);
+			for (LevelObject lo : GameData.level.levelObjects)
+			{
+				lo.update(delta);
+			}
+			
+			for (GameActor ga : GameData.level.actors)
+			{
+				ga.update(delta);
+			}
+			
+			for (VisibleItem vi : GameData.level.items)
+			{
+				vi.update(delta);
+			}
+			
+			for (ParticleEmitter pe : GameData.particleEmitters)
+			{
+				if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
+				pe.update(delta);
+			}
+			
+			cam.position.set(GameData.player.getPosition()).add(GameData.player.offsetPos);
+			cam.direction.set(GameData.player.getRotation()).add(GameData.player.offsetRot);
+			cam.update();
 		}
 		
 		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) game.ANNIHALATE();
+		if (Gdx.input.isKeyPressed(Keys.TAB) && !tabCD) 
+		{
+			if (paused)
+			{
+				paused = false;
+				Gdx.input.setCursorCatched(true);
+				tabCD = true;
+			}
+			else
+			{
+				paused = true;
+				Gdx.input.setCursorCatched(false);
+				tabCD = true;
+			}
+		}
+		else if (!Gdx.input.isKeyPressed(Keys.TAB))
+		{
+			tabCD = false;
+		}
 		
-		cam.position.set(GameData.player.getPosition()).add(GameData.player.offsetPos);//.add(0, 5, 0);
-		cam.direction.set(GameData.player.getRotation()).add(GameData.player.offsetRot);
-		cam.update();
+		Ray ray = null;
 		
-		Ray ray = new Ray(GameData.player.getPosition(), GameData.player.getRotation());//cam.getPickRay(screen_height/2f, screen_width/2f);
-		dist = VIEW_DISTANCE;
+		if (paused)
+		{
+			ray = cam.getPickRay(Gdx.input.getX(), Gdx.input.getY());
+			dist = cam.far*cam.far;
+		}
+		else
+		{	
+			ray = new Ray(GameData.player.getPosition(), GameData.player.getRotation());
+			dist = VIEW_DISTANCE;
+		}
+		
+		getDescription(dist, ray);
+	}
+	
+	public void getDescription(float dist, Ray ray)
+	{
 		desc.delete(0, desc.length());
 		desc.append("There is nothing there but empty space.");
 	
@@ -237,7 +282,6 @@ public class InGameScreen extends AbstractScreen {
 		}
 		
 		dist = GameData.level.getDescription(ray, dist, desc);
-		
 	}
 
 	@Override
@@ -250,6 +294,8 @@ public class InGameScreen extends AbstractScreen {
 
 		crosshairs = new Texture(Gdx.files.internal("data/textures/crosshairs.png"));
 		arrow = new Sprite(new Texture(Gdx.files.internal("data/textures/arrow.png")));
+		
+		pausedTint = new Texture(Gdx.files.internal("data/textures/pausedScreenTint.png"));
 	}
 
 	@Override
@@ -285,7 +331,7 @@ public class InGameScreen extends AbstractScreen {
 
 	@Override
 	public void superDispose() {
-		
+		pausedTint.dispose();
 		crosshairs.dispose();
 	}
 

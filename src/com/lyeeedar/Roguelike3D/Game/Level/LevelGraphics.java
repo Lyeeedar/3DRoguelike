@@ -26,6 +26,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillModel;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillModelAttributes;
@@ -129,7 +130,7 @@ public class LevelGraphics {
 	}
 	
 	int chunkX = 0;
-	public boolean createChunkRow()
+	public boolean createChunkRow(LightManager lights, boolean bakeStatics)
 	{
 		if (chunkX == wBlocks) return true;
 		
@@ -149,29 +150,21 @@ public class LevelGraphics {
 				}
 			}
 			
-			if (!chunk.isEmpty()) graphics.addAll(chunk.merge());
+			if (chunk.isEmpty()) return false;
+			
+			ArrayList<VisibleObject> chunkGraphics = chunk.merge();
+			
+			for (VisibleObject vo : chunkGraphics)
+			{
+				vo.bakeLights(lights, bakeStatics);
+				
+				graphics.add(vo);
+			}
 		}
 		
 		chunkX++;
 		
 		return false;
-	}
-	
-	int disposeX = 0;
-	public boolean disposeTileRow()
-	{
-		//if (disposeX == width)
-		return true;
-//		
-//		for (int z = 0; z < height; z++)
-//		{
-//			//if (tempVOs[disposeX][z] != null) tempVOs[disposeX][z].dispose();
-//			//if (tempRoofs[disposeX][z] != null) tempRoofs[disposeX][z].dispose();
-//		}
-//		
-//		disposeX++;
-//		
-//		return false;
 	}
 	
 	public String getTexture(char c, BiomeReader biome)

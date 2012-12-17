@@ -26,7 +26,8 @@ public class LightManager {
 
 	public LightQuality quality;
 
-	final public Array<PointLight> pointLights = new Array<PointLight>(false, maxLights);
+	final public Array<PointLight> dynamicPointLights = new Array<PointLight>(false, maxLights);
+	final public Array<PointLight> staticPointLights = new Array<PointLight>(false, maxLights);
 	final private float[] positions;
 	final private float[] colors;
 	final private float[] attenuations;
@@ -35,9 +36,6 @@ public class LightManager {
 	public final int maxLightsPerModel;
 
 	final public Color ambientLight = new Color();
-
-	/** Only one for optimizing - at least at now */
-	public DirectionalLight dirLight;
 
 	public LightManager () {
 		this(4, LightQuality.VERTEX);
@@ -53,24 +51,33 @@ public class LightManager {
 		intensities = new float[maxLightsPerModel];
 	}
 
-	public void addLight (PointLight light) {
-		pointLights.add(light);
+	public void addDynamicLight (PointLight light) {
+		dynamicPointLights.add(light);
 	}
 	
-	public void removeLight(String UID)
+	/**
+	 * Add a static light to the scene. WARNING!!! You need to rebake the lights ({@link com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject#bakeLights(LightManager lights, boolean bakeStatics) VisibleObject.bakeLights}) for this to take any effect
+	 * @param light
+	 */
+	public void addStaticLight (PointLight light) {
+		staticPointLights.add(light);
+	}
+	
+	public void removeDynamicLight(String UID)
 	{
-		for (int i = 0; i < pointLights.size; i++)
+		for (int i = 0; i < dynamicPointLights.size; i++)
 		{
-			if (pointLights.get(i).UID.equals(UID))
+			if (dynamicPointLights.get(i).UID.equals(UID))
 			{
-				pointLights.removeIndex(i);
+				dynamicPointLights.removeIndex(i);
 				return;
 			}
 		}
 	}
 
-	public void clear () {
-		pointLights.clear();
+	public void clearAllLights () {
+		dynamicPointLights.clear();
+		staticPointLights.clear();
 	}
 
 	// TODO make it better if it slow
@@ -80,23 +87,23 @@ public class LightManager {
 	// frustum check.
 	// TODO another idea would be first cut lights that are further from model
 	// than x that would make sorted faster
-	public void calculateLights (float x, float y, float z) {
-		final int maxSize = pointLights.size;
+	public void calculateDynamicLights (float x, float y, float z) {
+		final int maxSize = dynamicPointLights.size;
 		// solve what are lights that influence most
 		if (maxSize > maxLightsPerModel) {
 
 			for (int i = 0; i < maxSize; i++) {
-				final PointLight light = pointLights.get(i);
+				final PointLight light = dynamicPointLights.get(i);
 				light.priority = (int)(PointLight.PRIORITY_DISCRETE_STEPS * ((light.intensity) * light.position.dst(x, y, z)));
 				// if just linear falloff
 			}
-			pointLights.sort();
+			dynamicPointLights.sort();
 		}
 
 		// fill the light arrays
 		final int size = maxLightsPerModel > maxSize ? maxSize : maxLightsPerModel;
 		for (int i = 0; i < size; i++) {
-			final PointLight light = pointLights.get(i);
+			final PointLight light = dynamicPointLights.get(i);
 			final Vector3 pos = light.position;
 			positions[3 * i + 0] = pos.x;
 			positions[3 * i + 1] = pos.y;
@@ -113,13 +120,13 @@ public class LightManager {
 		}
 	}
 
-	public long getLightsHash()
+	public long getDynamicLightsHash()
 	{
-		final int maxSize = pointLights.size;
+		final int maxSize = dynamicPointLights.size;
 		final int size = maxLightsPerModel > maxSize ? maxSize : maxLightsPerModel;
 		long hash = 1;
 		for (int i = 0; i < size; i++) {
-			final PointLight light = pointLights.get(i);
+			final PointLight light = dynamicPointLights.get(i);
 			long temp = 1;
 			for (int ii = 0; ii < light.UID.length(); ii++)
 			{
@@ -131,7 +138,7 @@ public class LightManager {
 	}
 	
 	/** Apply lights GLES2.0, call calculateLights before applying */
-	public void applyLights (ShaderProgram shader, Material material) {
+	public void applyDynamicLights (ShaderProgram shader, Material material) {
 		
 		if (!material.affectedByLighting) return;
 		
@@ -147,11 +154,38 @@ public class LightManager {
 		if (!material.affectedByLighting) return;
 		
 		shader.setUniformf("u_ambient", ambientLight);
-		if (dirLight != null) {
-			final Vector3 v = dirLight.direction;
-			final Color c = dirLight.color;
-			shader.setUniformf("u_directional_light_direction", v.x, v.y, v.z);
-			shader.setUniformf("u_directional_light_colour", c.r, c.g, c.b);
+	}
+	
+	public Vector3 calculateLightAtPoint(Vector3 position, Vector3 normal, boolean bakeStatics)
+	{
+		Vector3 light_agg_col = new Vector3(ambientLight.r, ambientLight.g, ambientLight.b);
+		
+		if (!bakeStatics) return light_agg_col;
+		
+		//System.out.println("Start light = "+light_agg_col);
+		
+		for (PointLight pl : staticPointLights)
+		{
+			Vector3 l_vector = pl.position.cpy();
+			l_vector.sub(position);
+			
+			light_agg_col.add(calculateLight(l_vector, pl.getColourRGB(), pl.attenuation, pl.intensity, normal.cpy()));
 		}
+		
+		//System.out.println("Final light = "+light_agg_col);
+		return light_agg_col;
+	}
+	
+	private Vector3 calculateLight(Vector3 l_vector, Vector3 l_colour, float l_attenuation, float l_intensity, Vector3 n_dir)
+	{
+		if (l_colour.len2() == 0) return new Vector3(0, 0, 0);
+
+		float distance = l_vector.len();
+		Vector3 l_dir = l_vector.nor();
+		
+		float attenuation = 1.0f / (l_attenuation * distance * distance);
+		float intensity = attenuation * Math.max(0.0f, l_dir.dot(n_dir));
+		
+		return l_colour.mul(intensity * l_intensity);
 	}
 }

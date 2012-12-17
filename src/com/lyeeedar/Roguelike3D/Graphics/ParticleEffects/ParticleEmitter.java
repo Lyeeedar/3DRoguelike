@@ -87,7 +87,7 @@ public class ParticleEmitter {
 			if (boundLight == null)
 			{
 				boundLight = new PointLight(new Vector3(x+(vx/2f), y+vy, z+(vz/2)), lightCol, attenuation, intensity);
-				GameData.lightManager.addLight(boundLight);
+				GameData.lightManager.addDynamicLight(boundLight);
 			}
 			else
 			{
@@ -100,7 +100,7 @@ public class ParticleEmitter {
 		{
 			if (boundLight != null)
 			{
-				GameData.lightManager.removeLight(boundLight.UID);
+				GameData.lightManager.removeDynamicLight(boundLight.UID);
 				boundLight = null;
 			}
 		}
@@ -153,7 +153,7 @@ public class ParticleEmitter {
 	
 	public void dispose()
 	{
-		GameData.lightManager.removeLight(boundLight.UID);
+		GameData.lightManager.removeDynamicLight(boundLight.UID);
 	}
 
 }

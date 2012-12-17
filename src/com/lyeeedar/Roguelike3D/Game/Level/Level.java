@@ -342,7 +342,7 @@ public class Level {
 		{
 			if (ga.UID.equals(UID)) 
 			{
-				if (ga.boundLight!= null) GameData.lightManager.removeLight(ga.boundLight.UID);
+				if (ga.boundLight!= null) GameData.lightManager.removeDynamicLight(ga.boundLight.UID);
 				items.remove(i);
 				return;
 			}
@@ -358,7 +358,7 @@ public class Level {
 		{
 			if (ga.UID.equals(UID)) 
 			{
-				if (ga.boundLight!= null) GameData.lightManager.removeLight(ga.boundLight.UID);
+				if (ga.boundLight!= null) GameData.lightManager.removeDynamicLight(ga.boundLight.UID);
 				actors.remove(i);
 				return;
 			}

@@ -19,6 +19,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
@@ -61,18 +62,26 @@ public abstract class LevelObject extends GameObject{
 		else if (ao.type == ObjectType.FIRE_CAMP)
 		{
 			ParticleEmitter p = new ParticleEmitter(x-2.5f, y-2, z-2.5f, 5, 5, 5, 0.75f, 100);
-			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1, true);
+			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1, false);
 
 			lo = new EmitterObject(Shapes.genCuboid(5, 5, 5), x, y, z, ao, p, false);
 			lo.description = ao.description;
+			
+			PointLight pl = new PointLight(new Vector3(x, 5, z), Color.ORANGE, 0.01f, 2.0f);
+			
+			GameData.lightManager.addStaticLight(pl);
 		}
 		else if (ao.type == ObjectType.FIRE_TORCH)
 		{
 			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.75f, 10);
-			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, Color.YELLOW, Color.RED, 1, 1, true);
+			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, Color.YELLOW, Color.RED, 1, 1, false);
 
 			lo = new EmitterObject(Shapes.genCuboid(0.5f, 3, 0.5f), new Color(0.8f, 0.6f, 0.4f, 1.0f), "texw", x, y, z, ao, p, true);
 			lo.description = ao.description;
+			
+			PointLight pl = new PointLight(new Vector3(x, y, z), Color.ORANGE, 0.1f, 1.0f);
+			
+			GameData.lightManager.addStaticLight(pl);
 		}
 		else if (ao.type == ObjectType.STAIR_UP)
 		{

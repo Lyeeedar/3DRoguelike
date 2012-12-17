@@ -67,5 +67,10 @@ public class PointLight implements Comparable {
 	public int compareTo (Object other) {
 		return this.priority - ((PointLight)other).priority;
 	}
+	
+	public Vector3 getColourRGB()
+	{
+		return new Vector3(colour.r, colour.g, colour.b);
+	}
 
 }

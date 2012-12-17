@@ -20,7 +20,6 @@ public class ShaderFactory {
 
 	static final String define = "#define ";
 	static final String lightsNum = define + "LIGHTS_NUM ";
-	static final String dir_light = define + "DIR_LIGHTS ";
 
 	static public ShaderProgram createShader (Material material, LightManager lights) {
 
@@ -32,11 +31,6 @@ public class ShaderFactory {
 		else
 			flags.append(0);
 		
-		flags.append("\n");
-		
-		flags.append(dir_light);
-		int d_l = (lights.dirLight == null) ? 0 : 1;
-		flags.append(d_l);
 		flags.append("\n");
 
 		if (material != null) {

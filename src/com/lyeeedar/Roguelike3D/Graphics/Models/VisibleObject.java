@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.ColorAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.MaterialAttribute;
@@ -50,12 +51,13 @@ public class VisibleObject {
 
 	public void create(Mesh mesh, int primitive_type, Color colour, Texture texture, float scale)
 	{
+		mesh = Shapes.insertColour(mesh, colour);
+		
 		SubMesh[] meshes = {new StillSubMesh("SubMesh1", mesh, primitive_type)};
 		model = new StillModel(meshes);
 		
-		MaterialAttribute c = new ColorAttribute(colour, ColorAttribute.diffuse);
 		MaterialAttribute t = new TextureAttribute(texture, 0, TextureAttribute.diffuseTexture);
-		Material material = new Material("basic", c, t);
+		Material material = new Material("basic", t);
 		
 		BoundingBox box = mesh.calculateBoundingBox();
 		
@@ -75,6 +77,20 @@ public class VisibleObject {
 	public void dispose()
 	{
 		model.dispose();
+	}
+	
+	public void bakeLights(LightManager lights, boolean bakeStatics)
+	{
+		int primitive_type = model.subMeshes[0].primitiveType;
+		
+		Mesh oldMesh = model.subMeshes[0].mesh;
+		
+		Mesh newMesh = Shapes.insertLight(oldMesh, lights, bakeStatics, attributes.getSortCenter(), attributes.getRotation());
+		
+		model.dispose();
+		
+		SubMesh[] meshes = {new StillSubMesh("SubMesh1", newMesh, primitive_type)};
+		model = new StillModel(meshes);
 	}
 
 }

@@ -221,7 +221,27 @@ class EvolverTile
 {
 	public boolean food = false;
 	
-	public AbstractCreature_Evolver creature = null;
+	public Creature_Evolver creature = null;
+}
+
+class Creature_Evolver
+{
+	public Mind_Evolver mind;
+	public Visual_Evolver visual;
+	public Skin_Evolver skin;
+	public Bones_Evolver bones;
+	public Muscles_Evolver muscles;
+	public Attack_Evolver attack;
+	
+	public AbstractCreature_Evolver creature;
+	
+	public int consumed_calories = 100;
+	public int points = 0;
+	
+	public Creature_Evolver(AbstractCreature_Evolver creature)
+	{
+		this.creature = creature;
+	}
 }
 
 class AbstractCreature_Evolver
@@ -282,7 +302,35 @@ class AbstractCreature_Evolver
 	}
 }
 
+class Mind_Evolver
+{
+	
+}
 
+class Visual_Evolver
+{
+	
+}
+
+class Skin_Evolver
+{
+	
+}
+
+class Bones_Evolver
+{
+	
+}
+
+class Muscles_Evolver
+{
+	
+}
+
+class Attack_Evolver
+{
+	
+}
 
 
 

@@ -86,9 +86,9 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			final Drawable drawable = drawableManager.drawables.get(i);
 
 			final Vector3 center = drawable.sortCenter;
-			long light_hash = lightManager.getLightsHash();
-			lightManager.calculateLights(center.x, center.y, center.z);
-			boolean check = (light_hash == lightManager.getLightsHash());
+			long light_hash = lightManager.getDynamicLightsHash();
+			lightManager.calculateDynamicLights(center.x, center.y, center.z);
+			boolean check = (light_hash == lightManager.getDynamicLightsHash());
 
 			final Matrix3 normalMatrix = new Matrix3().set(drawable.rotation);
 			final Matrix4 modelMatrix = drawable.transform.mul(drawable.rotation);
@@ -162,11 +162,9 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 		currentShader.begin();
 
 		lightManager.applyGlobalLights(currentShader, material);
-		lightManager.applyLights(currentShader, material);
+		lightManager.applyDynamicLights(currentShader, material);
 		
 		currentShader.setUniformMatrix("u_pv", cam.combined);
-		currentShader.setUniformf("u_cam_position", cam.position.x, cam.position.y, cam.position.z, 1.2f / cam.far);
-		currentShader.setUniformf("u_cam_direction", cam.direction.x, cam.direction.y, cam.direction.z);
 		return true;
 	}
 
@@ -191,9 +189,9 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			final Drawable drawable = transparentDrawables.get(i);
 
 			final Vector3 center = drawable.sortCenter;
-			long light_hash = lightManager.getLightsHash();
-			lightManager.calculateLights(center.x, center.y, center.z);
-			boolean check = (light_hash == lightManager.getLightsHash());
+			long light_hash = lightManager.getDynamicLightsHash();
+			lightManager.calculateDynamicLights(center.x, center.y, center.z);
+			boolean check = (light_hash == lightManager.getDynamicLightsHash());
 
 			final Matrix4 modelMatrix = drawable.transform.mul(drawable.rotation);
 			final Matrix3 normalMatrix = new Matrix3().set(drawable.rotation);

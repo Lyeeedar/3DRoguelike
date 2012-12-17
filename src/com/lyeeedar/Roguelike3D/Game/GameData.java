@@ -142,10 +142,11 @@ public class GameData {
 		currentLevel = lc;
 		BiomeReader biome = new BiomeReader(lc.biome);
 		RoomReader rReader = new RoomReader(lc.biome, lc.depth);
-		game.loadLevel(biome, rReader, "InGame");
-
+		
 		lightManager = new LightManager(10, LightQuality.VERTEX);
 		lightManager.ambientLight.set(biome.getAmbientLight());
+		
+		game.loadLevel(biome, rReader, "InGame");
 	}
 	
 	public static void finishLoading(Level level, LevelGraphics graphics, Roguelike3DGame game, String nextScreen)
@@ -156,7 +157,7 @@ public class GameData {
 			
 			player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f);
 			PointLight pl = new PointLight(new Vector3(), Color.YELLOW, 0.01f, 4.0f);
-			player.boundLight = pl;
+			//player.boundLight = pl;
 			
 			level.addActor(player);
 		}
@@ -180,8 +181,8 @@ public class GameData {
 			}
 		}
 		
-		lightManager.removeLight(player.boundLight.UID);
-		lightManager.addLight(player.boundLight);
+		//lightManager.removeDynamicLight(player.boundLight.UID);
+		//lightManager.addDynamicLight(player.boundLight);
 		
 		GameData.level = level;
 		currentLevel.level = level;

@@ -22,6 +22,7 @@ import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.Enemy;
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
@@ -30,6 +31,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
@@ -115,17 +117,23 @@ public class LevelLoadingScreen extends AbstractScreen{
 		else if (loadingStage == 4)
 		{
 			message = "Coalescing Matter";
-			boolean done = graphics.createChunkRow();
+			boolean done = graphics.createChunkRow(GameData.lightManager, true);
 			percent += taskSteps;
 			
 			if (done) loadingStage++;
 		}
 		else if (loadingStage == 5)
 		{
-			message = "Cleaning Up";
-			boolean done = graphics.disposeTileRow();
-			
-			if (done) loadingStage++;
+			message = "Baking Lights";
+			for (LevelObject lo : level.levelObjects)
+			{
+				lo.vo.bakeLights(GameData.lightManager, false);
+			}
+			for (GameActor ga : level.actors)
+			{
+				ga.vo.bakeLights(GameData.lightManager, false);
+			}
+			loadingStage++;
 		}
 		else if (loadingStage == 6)
 		{

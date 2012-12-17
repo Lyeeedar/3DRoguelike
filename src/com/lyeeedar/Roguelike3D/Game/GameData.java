@@ -26,14 +26,14 @@ import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
-import com.lyeeedar.Roguelike3D.Game.Level.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
-import com.lyeeedar.Roguelike3D.Game.Level.RoomReader;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.PlayerPlacer;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Stair;
@@ -52,19 +52,23 @@ public class GameData {
 	/**
 	 * Cycle of elements:
 	 * 
-	 * Negation - 
+	 * Destruction - 
 	 * 		FIRE melts METAL
 	 * 		METAL cuts WOOD
 	 * 		WOOD funnels AIR
 	 * 		AIR evaporates WATER
 	 * 		WATER douses FIRE
 	 * 
-	 * Addition - 
+	 * 		VOID consumes ALL (except AETHER)
+	 * 
+	 * Creation - 
 	 * 		FIRE excites AIR
 	 * 		AIR polishes METAL
 	 * 		METAL carries WATER
 	 * 		WATER nourishes WOOD
 	 * 		WOOD feeds FIRE
+	 * 
+	 * 		AETHER creates ALL (except VOID)
 	 * 
 	 * @author Philip
 	 */
@@ -73,17 +77,21 @@ public class GameData {
 		METAL,
 		WOOD,
 		AIR,
-		WATER
+		WATER,
+		AETHER,
+		VOID
 	}
 	
 	/**
-	 * PIERCE = Armour piercing.
-	 * IMPACT = Launching
+	 * PIERCE = Armour piercing. (e.g. A Spear)
+	 * IMPACT = Launching (e.g. A Hammer)
+	 * TOUCH = Effect on touch (e.g. Elemental attacks)
 	 * @author Philip
 	 */
 	public enum Damage_Type {
 		PIERCE,
-		IMPACT
+		IMPACT,
+		TOUCH
 	}
 	
 	public enum Weapon_Type {
@@ -144,7 +152,11 @@ public class GameData {
 	{
 		if (player == null)
 		{
+			System.out.println("sdfs");
+			
 			player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f);
+			PointLight pl = new PointLight(new Vector3(), Color.YELLOW, 0.01f, 4.0f);
+			player.boundLight = pl;
 			
 			level.addActor(player);
 		}
@@ -167,6 +179,9 @@ public class GameData {
 				}
 			}
 		}
+		
+		lightManager.removeLight(player.boundLight.UID);
+		lightManager.addLight(player.boundLight);
 		
 		GameData.level = level;
 		currentLevel.level = level;

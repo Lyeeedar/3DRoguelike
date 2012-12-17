@@ -46,7 +46,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Screens.AbstractScreen;
 public class InGameScreen extends AbstractScreen {
 	
 	public static final int VIEW_DISTANCE = 1000;
-	public static final boolean SHOW_COLLISION_BOX = true;
+	public static final boolean SHOW_COLLISION_BOX = false;
 	public static final int MAP_WIDTH = 200;
 	public static final int MAP_HEIGHT = 200;
 	public static final int MAP_X = 10;

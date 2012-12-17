@@ -5,6 +5,7 @@ import java.util.Random;
 
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 
 public class StaticGenerator implements AbstractGenerator {
 	

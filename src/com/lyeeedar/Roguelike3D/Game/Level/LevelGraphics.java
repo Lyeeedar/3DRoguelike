@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillModel;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillModelAttributes;

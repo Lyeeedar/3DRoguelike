@@ -44,7 +44,6 @@ public class Player extends GameActor {
 		visible = false;
 		description = "This is you. Wave to yourself you!";
 		WEIGHT = 1;
-		SPEED = 1;
 	}
 	
 	float cooldown = 0;
@@ -53,8 +52,11 @@ public class Player extends GameActor {
 	float xR = 0;
 	float yR = 0;
 
+	float headBob = 0;
 	@Override
 	public void update(float delta) {	
+		
+		headBob += delta*15;
 		
 		cooldown -= delta;
 		
@@ -64,14 +66,20 @@ public class Player extends GameActor {
 
 		if (grounded)
 		{
-			if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A)) left_right(move*(SPEED+BOOST_SPEED));
-			if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D)) left_right(-move*(SPEED+BOOST_SPEED));
+			if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A)) left_right(move);
+			if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D)) left_right(-move);
 
-			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) forward_backward(move*(SPEED+BOOST_SPEED));
-			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) forward_backward(-move*((SPEED+BOOST_SPEED)/2));
+			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) forward_backward(move*2);
+			else headBob = 0;
+			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) forward_backward(-move/2);
 
 			if ( (grounded) && (Gdx.input.isKeyPressed(Keys.SPACE))) velocity.y += 0.4;
 		}
+		else
+		{
+			headBob = 0;
+		}
+		offsetPos.y = (float) Math.sin(headBob)/5;
 		
 		if (Gdx.input.isKeyPressed(Keys.B) && cooldown < 0)
 		{			

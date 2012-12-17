@@ -17,6 +17,7 @@ import java.util.Random;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.DelaunayTriangulation.*;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 
 /**
  * Dungeon generation inspired by: http://forums.tigsource.com/index.php?topic=5174.msg799973#msg799973

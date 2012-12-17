@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
@@ -43,14 +44,15 @@ public abstract class GameActor extends GameObject{
 	
 	public int HEALTH;
 	public int BOOST_HEALTH;
-	public HashMap<Element, Integer> DEFENSES;
-	public HashMap<Element, Integer> BOOST_DEFENSES;
+	public HashMap<Element, Integer> ELE_DEFENSES;
+	public HashMap<Element, Integer> BOOST_ELE_DEFENSES;
+	
+	public HashMap<Damage_Type, Integer> DEFENSES;
+	public HashMap<Damage_Type, Integer> BOOST_DEFENSES;
 	
 	public int WEIGHT;
 	public int BOOST_WEIGHT;
 	
-	public float SPEED;
-	public float BOOST_SPEED;
 	public int STRENGTH;
 	public int BOOST_STRENGTH;
 	public int IQ;
@@ -93,36 +95,59 @@ public abstract class GameActor extends GameObject{
 	
 	public void setupDefenses()
 	{
-		DEFENSES = new HashMap<Element, Integer>();
+		DEFENSES = new HashMap<Damage_Type, Integer>();
 		
-		DEFENSES.put(Element.FIRE, 0);
-		DEFENSES.put(Element.AIR, 0);
-		DEFENSES.put(Element.WATER, 0);
-		DEFENSES.put(Element.WOOD, 0);
-		DEFENSES.put(Element.METAL, 0);
+		DEFENSES.put(Damage_Type.PIERCE, 0);
+		DEFENSES.put(Damage_Type.IMPACT, 0);
+		DEFENSES.put(Damage_Type.TOUCH, 0);
 		
-		BOOST_DEFENSES = new HashMap<Element, Integer>();
+		BOOST_DEFENSES = new HashMap<Damage_Type, Integer>();
 		
-		BOOST_DEFENSES.put(Element.FIRE, 0);
-		BOOST_DEFENSES.put(Element.AIR, 0);
-		BOOST_DEFENSES.put(Element.WATER, 0);
-		BOOST_DEFENSES.put(Element.WOOD, 0);
-		BOOST_DEFENSES.put(Element.METAL, 0);
+		BOOST_DEFENSES.put(Damage_Type.PIERCE, 0);
+		BOOST_DEFENSES.put(Damage_Type.IMPACT, 0);
+		BOOST_DEFENSES.put(Damage_Type.TOUCH, 0);
+		
+		ELE_DEFENSES = new HashMap<Element, Integer>();
+		
+		ELE_DEFENSES.put(Element.FIRE, 0);
+		ELE_DEFENSES.put(Element.AIR, 0);
+		ELE_DEFENSES.put(Element.WATER, 0);
+		ELE_DEFENSES.put(Element.WOOD, 0);
+		ELE_DEFENSES.put(Element.METAL, 0);
+		ELE_DEFENSES.put(Element.AETHER, 0);
+		ELE_DEFENSES.put(Element.VOID, 0);
+		
+		BOOST_ELE_DEFENSES = new HashMap<Element, Integer>();
+		
+		BOOST_ELE_DEFENSES.put(Element.FIRE, 0);
+		BOOST_ELE_DEFENSES.put(Element.AIR, 0);
+		BOOST_ELE_DEFENSES.put(Element.WATER, 0);
+		BOOST_ELE_DEFENSES.put(Element.WOOD, 0);
+		BOOST_ELE_DEFENSES.put(Element.METAL, 0);
+		BOOST_ELE_DEFENSES.put(Element.AETHER, 0);
+		BOOST_ELE_DEFENSES.put(Element.VOID, 0);
 	}
 	
 	public void calculateBoost()
 	{
-		BOOST_DEFENSES = new HashMap<Element, Integer>();
+		BOOST_DEFENSES = new HashMap<Damage_Type, Integer>();
 		
-		BOOST_DEFENSES.put(Element.FIRE, 0);
-		BOOST_DEFENSES.put(Element.AIR, 0);
-		BOOST_DEFENSES.put(Element.WATER, 0);
-		BOOST_DEFENSES.put(Element.WOOD, 0);
-		BOOST_DEFENSES.put(Element.METAL, 0);
+		BOOST_DEFENSES.put(Damage_Type.PIERCE, 0);
+		BOOST_DEFENSES.put(Damage_Type.IMPACT, 0);
+		BOOST_DEFENSES.put(Damage_Type.TOUCH, 0);
+		
+		BOOST_ELE_DEFENSES = new HashMap<Element, Integer>();
+		
+		BOOST_ELE_DEFENSES.put(Element.FIRE, 0);
+		BOOST_ELE_DEFENSES.put(Element.AIR, 0);
+		BOOST_ELE_DEFENSES.put(Element.WATER, 0);
+		BOOST_ELE_DEFENSES.put(Element.WOOD, 0);
+		BOOST_ELE_DEFENSES.put(Element.METAL, 0);
+		BOOST_ELE_DEFENSES.put(Element.AETHER, 0);
+		BOOST_ELE_DEFENSES.put(Element.VOID, 0);
 		
 		BOOST_HEALTH = 0;
 		BOOST_WEIGHT = 0;
-		BOOST_SPEED = 0;
 		BOOST_STRENGTH = 0;
 		BOOST_IQ = 0;
 		BOOST_SIGHT = 0;
@@ -174,7 +199,14 @@ public abstract class GameActor extends GameObject{
 	private void addBoost(Equippable e)
 	{
 		BOOST_HEALTH += e.HEALTH;
-		for (Map.Entry<Element, Integer> entry : e.DEFENSES.entrySet())
+		for (Map.Entry<Element, Integer> entry : e.ELE_DEFENSES.entrySet())
+		{
+			int temp = BOOST_ELE_DEFENSES.get(entry.getKey());
+			temp += entry.getValue();
+			BOOST_ELE_DEFENSES.remove(entry.getKey());
+			BOOST_ELE_DEFENSES.put(entry.getKey(), temp);
+		}
+		for (Map.Entry<Damage_Type, Integer> entry : e.DEFENSES.entrySet())
 		{
 			int temp = BOOST_DEFENSES.get(entry.getKey());
 			temp += entry.getValue();
@@ -183,7 +215,6 @@ public abstract class GameActor extends GameObject{
 		}
 		
 		BOOST_WEIGHT += e.WEIGHT;
-		BOOST_SPEED += e.SPEED;
 		BOOST_STRENGTH += e.STRENGTH;
 		BOOST_IQ += e.IQ;
 		BOOST_SIGHT += e.SIGHT;
@@ -205,12 +236,14 @@ public abstract class GameActor extends GameObject{
 		//GameData.level.moveActor(oldX, oldZ, newX, newZ, UID);
 	}
 	
-	public void damage(Element type, float amount)
+	public void damage(Damage_Type dam_type, Element ele_type, float amount)
 	{
 		if (!alive || IMMORTAL) return;
 		
-		int eleDefense = DEFENSES.get(type) + BOOST_DEFENSES.get(type);
+		int damDefense = DEFENSES.get(dam_type) + BOOST_DEFENSES.get(dam_type);
+		int eleDefense = ELE_DEFENSES.get(ele_type) + BOOST_ELE_DEFENSES.get(ele_type);
 		
+		if (damDefense != 0) amount *= (100-damDefense)/100;
 		if (eleDefense != 0) amount *= (100-eleDefense)/100;
 		
 		HEALTH -= amount;

@@ -59,7 +59,7 @@ public class LightManager {
 	
 	public void removeLight(String UID)
 	{
-		for (int i = 0; i < maxLights; i++)
+		for (int i = 0; i < pointLights.size; i++)
 		{
 			if (pointLights.get(i).UID.equals(UID))
 			{

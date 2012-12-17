@@ -8,7 +8,7 @@
  * Contributors:
  *     Philip Collin - initial API and implementation
  ******************************************************************************/
-package com.lyeeedar.Roguelike3D.Game.Level;
+package com.lyeeedar.Roguelike3D.Game.Level.XML;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,12 +25,15 @@ import org.xml.sax.SAXException;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
+import com.lyeeedar.Roguelike3D.Game.Level.AbstractRoom;
+import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
-public class RoomReader {
+public class RoomReader extends XMLReader {
 	
-	public static final String ROOM_DEFINITIONS = "ROOM_DEFINITIONS";
+	public static final String ROOM_DEFINITIONS = "room_definitions";
 	public static final String GLOBAL = "GLOBAL";
 	public static final String WIDTH = "width";
 	public static final String HEIGHT = "height";
@@ -67,23 +70,17 @@ public class RoomReader {
 	public static final String NAME = "name";
 	public static final String CONTENTS = "contents";
 	
-	Document doc;
 	Node biome;
 	
 	int depth;
 	
 	public RoomReader(String biome, int depth)
 	{
+		super("data/xml/"+biome+".data");
+		
 		this.depth = depth;
 
-		DOMParser parser = new DOMParser();
-		try {
-			parser.parse(new InputSource(Gdx.files.internal("data/xml/"+biome+".data").read()));
-			doc = parser.getDocument();
-			this.biome = getNode(ROOM_DEFINITIONS, doc.getChildNodes());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		this.biome = getNode(ROOM_DEFINITIONS, root_node.getChildNodes());
 	}
 	
 	public AbstractRoom getRoom(RoomType rtype, int width, int height)
@@ -331,102 +328,5 @@ public class RoomReader {
 		
 		return getNode(rname, biome.getChildNodes());
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	protected Node getNode(String tagName, NodeList nodes) {
-        for ( int x = 0; x < nodes.getLength(); x++ ) {
-            Node node = nodes.item(x);
-            if (node.getNodeName().equalsIgnoreCase(tagName)) {
-                return node;
-            }
-        }
 
-        return null;
-    }
-
-    protected String getNodeValue( Node node ) {
-        NodeList childNodes = node.getChildNodes();
-        for (int x = 0; x < childNodes.getLength(); x++ ) {
-            Node data = childNodes.item(x);
-            if ( data.getNodeType() == Node.TEXT_NODE )
-                return data.getNodeValue();
-        }
-        return "";
-    }
-
-    protected String getNodeValue(String tagName, NodeList nodes ) {
-        for ( int x = 0; x < nodes.getLength(); x++ ) {
-            Node node = nodes.item(x);
-            if (node.getNodeName().equalsIgnoreCase(tagName)) {
-                NodeList childNodes = node.getChildNodes();
-                for (int y = 0; y < childNodes.getLength(); y++ ) {
-                    Node data = childNodes.item(y);
-                    if ( data.getNodeType() == Node.TEXT_NODE )
-                        return data.getNodeValue();
-                }
-            }
-        }
-        return "";
-    }
-
-    protected String getNodeAttr(String attrName, Node node ) {
-        NamedNodeMap attrs = node.getAttributes();
-        for (int y = 0; y < attrs.getLength(); y++ ) {
-            Node attr = attrs.item(y);
-            if (attr.getNodeName().equalsIgnoreCase(attrName)) {
-                return attr.getNodeValue();
-            }
-        }
-        return "";
-    }
-
-    protected String getNodeAttr(String tagName, String attrName, NodeList nodes ) {
-        for ( int x = 0; x < nodes.getLength(); x++ ) {
-            Node node = nodes.item(x);
-            if (node.getNodeName().equalsIgnoreCase(tagName)) {
-                NodeList childNodes = node.getChildNodes();
-                for (int y = 0; y < childNodes.getLength(); y++ ) {
-                    Node data = childNodes.item(y);
-                    if ( data.getNodeType() == Node.ATTRIBUTE_NODE ) {
-                        if ( data.getNodeName().equalsIgnoreCase(attrName) )
-                            return data.getNodeValue();
-                    }
-                }
-            }
-        }
-
-        return "";
-    }
 }

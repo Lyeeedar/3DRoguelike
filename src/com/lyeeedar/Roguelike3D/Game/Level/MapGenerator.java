@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 
 public class MapGenerator {
 	

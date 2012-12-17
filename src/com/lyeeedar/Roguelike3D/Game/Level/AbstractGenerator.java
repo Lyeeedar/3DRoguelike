@@ -12,6 +12,8 @@ package com.lyeeedar.Roguelike3D.Game.Level;
 
 import java.util.ArrayList;
 
+import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
+
 /**
  * This interface models a level generator that accepts an array of tiles and returns a sorted ArrayList of DungeonRooms
  * @author Philip

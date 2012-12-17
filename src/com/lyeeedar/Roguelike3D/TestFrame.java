@@ -23,10 +23,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
-import com.lyeeedar.Roguelike3D.Game.Level.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.SerkGenerator;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 

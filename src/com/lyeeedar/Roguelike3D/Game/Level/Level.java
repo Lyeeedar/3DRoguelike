@@ -26,6 +26,8 @@ import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Static;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;

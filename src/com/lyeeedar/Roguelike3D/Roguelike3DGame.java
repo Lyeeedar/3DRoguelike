@@ -15,10 +15,10 @@ import java.util.Map;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.lyeeedar.Roguelike3D.Game.Level.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
-import com.lyeeedar.Roguelike3D.Game.Level.RoomReader;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Graphics.Screens.*;
 
 

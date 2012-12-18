@@ -28,6 +28,8 @@ import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.GlowAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.CircularTrail;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.Particle;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
@@ -53,6 +55,8 @@ public class Player extends GameActor {
 	float yR = 0;
 
 	float headBob = 0;
+	
+	boolean jumpCD = false;
 	@Override
 	public void update(float delta) {	
 		
@@ -73,7 +77,16 @@ public class Player extends GameActor {
 			else headBob = 0;
 			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) forward_backward(-move/2);
 
-			if ( (grounded) && (Gdx.input.isKeyPressed(Keys.SPACE))) velocity.y += 0.4;
+			if ((grounded) && (Gdx.input.isKeyPressed(Keys.SPACE) && !jumpCD)) 
+			{
+				jumpCD = true;
+				grounded = false;
+				velocity.y += 0.4;
+			}
+			else if (!Gdx.input.isKeyPressed(Keys.SPACE))
+			{
+				jumpCD = false;
+			}
 		}
 		else
 		{
@@ -83,10 +96,8 @@ public class Player extends GameActor {
 		
 		if (Gdx.input.isKeyPressed(Keys.B) && cooldown < 0)
 		{			
-			ParticleEmitter p = new ParticleEmitter(position.x, position.y-5, position.z, 5, 5, 5, 0.75f, 100);
-			
-			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1, true);
-			GameData.particleEmitters.add(p);
+			MotionTrail trail = new CircularTrail(new Vector3(0, -4, 0), new Vector3(180, -180, 0), new Vector3(0, 0, 180), 10, 15, this, 60, 0.5f);
+			motionTrails.add(trail);
 			
 			cooldown = 1;
 		}

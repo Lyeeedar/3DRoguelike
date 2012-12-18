@@ -308,7 +308,7 @@ public class Shapes {
 		return newMesh;
 	}
 	
-	public static Mesh insertLight(Mesh mesh, LightManager lights, boolean bakeStatics, Vector3 meshPosition, Matrix4 meshRotation)
+	public static Mesh insertLight(Mesh mesh, LightManager lights, boolean bakeStatics, Vector3 meshPosition, Matrix4 meshRotation, boolean lit)
 	{
 		VertexAttributes attributes = mesh.getVertexAttributes();
 		final int vertCount = mesh.getNumVertices();
@@ -346,7 +346,9 @@ public class Shapes {
 			Vector3 normal = new Vector3(verts[(i*vertexSize)+normalOffset], verts[(i*vertexSize)+normalOffset+1], verts[(i*vertexSize)+normalOffset+2]);
 			normal.mul(meshRotation);
 			
-			Vector3 light_colour = lights.calculateLightAtPoint(position, normal.nor(), bakeStatics);
+			Vector3 light_colour = new Vector3(1.0f, 1.0f, 1.0f);
+			
+			if (lit) light_colour = lights.calculateLightAtPoint(position, normal.nor(), bakeStatics);
 			
 			newVerts[ (i*newVertexSize) + j ] = light_colour.x;
 			newVerts[ (i*newVertexSize) + j + 1 ] = light_colour.y;

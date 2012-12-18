@@ -11,12 +11,16 @@
 package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -28,6 +32,7 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.lyeeedar.Roguelike3D.CircularArrayRing;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.*;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
@@ -37,8 +42,10 @@ import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
+import com.lyeeedar.Roguelike3D.Graphics.Models.StillModel;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillModelAttributes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 import com.lyeeedar.Roguelike3D.Graphics.Screens.AbstractScreen;
@@ -50,8 +57,8 @@ public class InGameScreen extends AbstractScreen {
 	
 	public static final int VIEW_DISTANCE = 1000;
 	public static final boolean SHOW_COLLISION_BOX = false;
-	public static final int MAP_WIDTH = 200;
-	public static final int MAP_HEIGHT = 200;
+	public static final int MAP_WIDTH = 100;
+	public static final int MAP_HEIGHT = 100;
 	public static final int MAP_X = 10;
 	public static final int MAP_Y = 10;
 
@@ -79,6 +86,11 @@ public class InGameScreen extends AbstractScreen {
 				protoRenderer.draw(lo.collisionMesh, sma);
 			}
 			
+			for (MotionTrail trail : lo.motionTrails)
+			{
+				trail.draw(cam);
+			}
+			
 			if (!lo.visible) continue;
 			lo.vo.render(protoRenderer);
 		}
@@ -90,6 +102,11 @@ public class InGameScreen extends AbstractScreen {
 				StillModelAttributes sma = ga.collisionAttributes;
 				sma.getTransform().setToTranslation(ga.collisionBox.position);
 				protoRenderer.draw(ga.collisionMesh, sma);
+			}
+			
+			for (MotionTrail trail : ga.motionTrails)
+			{
+				trail.draw(cam);
 			}
 			
 			if (!ga.visible) continue;
@@ -105,10 +122,14 @@ public class InGameScreen extends AbstractScreen {
 				protoRenderer.draw(vi.collisionMesh, sma);
 			}
 			
+			for (MotionTrail trail : vi.motionTrails)
+			{
+				trail.draw(cam);
+			}
+			
 			if (!vi.visible) continue;
 			vi.vo.render(protoRenderer);
 		}
-
 	}
 	
 	float time = 0;
@@ -128,43 +149,43 @@ public class InGameScreen extends AbstractScreen {
 			System.out.println("Visible Particles: "+particleNum);
 			time = 1;
 		}
+		
 	}
 
 	@Override
 	public void drawOrthogonals(float delta) {
 		
-		spriteBatch.draw(crosshairs, screen_width/2f, screen_height/2f);
-		
 		if (paused)
 		{
-			spriteBatch.draw(pausedTint, 0, 0, screen_width, screen_height);
-		}
-		
-		int x = (int)( ( (GameData.player.getPosition().x / 10f) + 0.5f) * LevelGraphics.STEP );
-		int y = (int)( ( (GameData.player.getPosition().z / 10f) + 0.5f) * LevelGraphics.STEP );
-		
-		spriteBatch.draw(GameData.levelGraphics.map, MAP_X, MAP_Y, MAP_WIDTH*2, MAP_HEIGHT*2,
-				x-MAP_WIDTH, y-MAP_HEIGHT, MAP_WIDTH*2, MAP_HEIGHT*2,
-				false, false);
-		
-		//System.out.println((GameData.player.getPosition().x / 10f)+0.5f);
-		//System.out.println(x);
-		
-		// Work out angle
-		float angle = 90 * GameData.player.getRotation().x;
-		
-		if (GameData.player.getRotation().z > 0)
-		{
-			angle = 180+angle;
+			spriteBatch.draw(pausedTint, 0, 0, screen_width, screen_height);	
+			
+			int x = (int)( ( (GameData.player.getPosition().x / 10f) + 0.5f) * LevelGraphics.STEP );
+			int y = (int)( ( (GameData.player.getPosition().z / 10f) + 0.5f) * LevelGraphics.STEP );
+			
+			spriteBatch.draw(GameData.levelGraphics.map, MAP_X, MAP_Y, MAP_WIDTH*2, MAP_HEIGHT*2,
+					x-MAP_WIDTH, y-MAP_HEIGHT, MAP_WIDTH*2, MAP_HEIGHT*2,
+					false, false);
+			
+			// Work out angle
+			float angle = 90 * GameData.player.getRotation().x;
+			
+			if (GameData.player.getRotation().z > 0)
+			{
+				angle = 180+angle;
+			}
+			else
+			{
+				angle = 0-angle;
+			}
+			
+			arrow.setRotation(angle);
+			arrow.setPosition(MAP_WIDTH+MAP_X, MAP_HEIGHT+MAP_Y);
+			arrow.draw(spriteBatch);
 		}
 		else
-		{
-			angle = 0-angle;
+		{			
+			spriteBatch.draw(crosshairs, screen_width/2f, screen_height/2f);
 		}
-		
-		arrow.setRotation(angle);
-		arrow.setPosition(MAP_WIDTH+MAP_X, MAP_HEIGHT+MAP_Y);
-		arrow.draw(spriteBatch);
 		
 		font.draw(spriteBatch, desc, 300, 20);
 	}
@@ -184,16 +205,31 @@ public class InGameScreen extends AbstractScreen {
 			for (LevelObject lo : GameData.level.levelObjects)
 			{
 				lo.update(delta);
+				
+				for (MotionTrail trail : lo.motionTrails)
+				{
+					trail.update(delta);
+				}
 			}
 			
 			for (GameActor ga : GameData.level.actors)
 			{
 				ga.update(delta);
+				
+				for (MotionTrail trail : ga.motionTrails)
+				{
+					trail.update(delta);
+				}
 			}
 			
 			for (VisibleItem vi : GameData.level.items)
 			{
 				vi.update(delta);
+				
+				for (MotionTrail trail : vi.motionTrails)
+				{
+					trail.update(delta);
+				}
 			}
 			
 			for (ParticleEmitter pe : GameData.particleEmitters)
@@ -220,6 +256,7 @@ public class InGameScreen extends AbstractScreen {
 			{
 				paused = true;
 				Gdx.input.setCursorCatched(false);
+				Gdx.input.setCursorPosition(screen_width/2, screen_height/2);
 				tabCD = true;
 			}
 		}
@@ -296,6 +333,7 @@ public class InGameScreen extends AbstractScreen {
 		arrow = new Sprite(new Texture(Gdx.files.internal("data/textures/arrow.png")));
 		
 		pausedTint = new Texture(Gdx.files.internal("data/textures/pausedScreenTint.png"));
+		
 	}
 
 	@Override

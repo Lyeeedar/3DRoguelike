@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
@@ -37,6 +38,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.StillModelAttributes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public class GameObject {
 	
@@ -75,6 +77,8 @@ public class GameObject {
 	public boolean visible = true;
 	
 	public String description = "";
+	
+	public ArrayList<MotionTrail> motionTrails = new ArrayList<MotionTrail>();
 
 	public GameObject(VisibleObject vo, float x, float y, float z, float scale)
 	{

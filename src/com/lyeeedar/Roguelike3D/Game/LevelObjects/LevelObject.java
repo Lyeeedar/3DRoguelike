@@ -67,7 +67,12 @@ public abstract class LevelObject extends GameObject{
 			lo = new EmitterObject(Shapes.genCuboid(5, 5, 5), x, y, z, ao, p, false);
 			lo.description = ao.description;
 			
-			PointLight pl = new PointLight(new Vector3(x, 5, z), Color.ORANGE, 0.01f, 2.0f);
+			Color start = Color.YELLOW;
+			Color end = Color.RED;
+			
+			Color lightCol = new Color((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
+			
+			PointLight pl = new PointLight(new Vector3(x, 5, z), lightCol, 0.01f, 2.0f);
 			
 			GameData.lightManager.addStaticLight(pl);
 		}
@@ -79,7 +84,12 @@ public abstract class LevelObject extends GameObject{
 			lo = new EmitterObject(Shapes.genCuboid(0.5f, 3, 0.5f), new Color(0.8f, 0.6f, 0.4f, 1.0f), "texw", x, y, z, ao, p, true);
 			lo.description = ao.description;
 			
-			PointLight pl = new PointLight(new Vector3(x, y, z), Color.ORANGE, 0.1f, 1.0f);
+			Color start = Color.YELLOW;
+			Color end = Color.RED;
+			
+			Color lightCol = new Color((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
+			
+			PointLight pl = new PointLight(new Vector3(x, 5, z), lightCol, 0.01f, 2.0f);
 			
 			GameData.lightManager.addStaticLight(pl);
 		}

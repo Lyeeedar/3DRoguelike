@@ -85,7 +85,7 @@ public class VisibleObject {
 		
 		Mesh oldMesh = model.subMeshes[0].mesh;
 		
-		Mesh newMesh = Shapes.insertLight(oldMesh, lights, bakeStatics, attributes.getSortCenter(), attributes.getRotation());
+		Mesh newMesh = Shapes.insertLight(oldMesh, lights, bakeStatics, attributes.getSortCenter(), attributes.getRotation(), attributes.getMaterial().affectedByLighting);
 		
 		model.dispose();
 		

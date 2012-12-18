@@ -101,13 +101,10 @@ public abstract class AbstractScreen implements Screen{
 		protoRenderer.end();
 		
 		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
-//		Gdx.graphics.getGL20().glEnable(GL20.GL_POLYGON_OFFSET_FILL);
-//		Gdx.graphics.getGL20().glPolygonOffset(0.9f,0.9f);
 		
 		drawDecals(delta);
 		decalBatch.flush();
 		
-		//Gdx.graphics.getGL20().glDisable(GL20.GL_POLYGON_OFFSET_FILL);
 		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
 		
 		postProcessor.end();

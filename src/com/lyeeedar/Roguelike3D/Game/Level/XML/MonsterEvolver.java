@@ -40,7 +40,6 @@ public class MonsterEvolver extends XMLReader {
 	
 	public static final int EVOLVER_CREATURE_NUM = 20;
 	
-	public static final String ATTRIBUTES = "attributes";
 	public static final String MONSTERS = "monsters";
 	public static final String DEPTH_MIN = "depth_min";
 	public static final String DEPTH_MAX = "depth_max";
@@ -93,16 +92,23 @@ public class MonsterEvolver extends XMLReader {
 	public static final String CREATURE = "creature";
 	public static final String CALORIE_USAGE = "calorie_usage";
 	
+	public static final String ATTRIBUTES = "attributes";
+	
+	public static final String CALORIES = "calories";
+	
 	final Random ran = new Random();
 	
 	final String monster;
-	final Node root;
+	final Node selected_monster;
+	final Node attribute_root;
 	
 	final HashMap<String, AbstractCreature_Evolver> creatures = new HashMap<String, AbstractCreature_Evolver>();
 
 	public MonsterEvolver(String monster_type, int depth) {
 		
 		super("data/xml/monsters.data");
+		
+		attribute_root = getNode(ATTRIBUTES, root_node.getChildNodes());
 		
 		SortedMap<Integer, ArrayList<Node>> valid = new TreeMap<Integer, ArrayList<Node>>();
 		
@@ -155,17 +161,17 @@ public class MonsterEvolver extends XMLReader {
 		
 		if (valid.size() == 0)
 		{
-			root = null;
+			selected_monster = null;
 			monster = null;
 			return;
 		}
 		
 		ArrayList<Node> ns = valid.get(valid.firstKey());
 		
-		root = ns.get(ran.nextInt(ns.size()));
-		monster = root.getNodeName();
+		selected_monster = ns.get(ran.nextInt(ns.size()));
+		monster = selected_monster.getNodeName();
 		
-		Node creatures = getNode(CREATURES, root.getChildNodes());
+		Node creatures = getNode(CREATURES, selected_monster.getChildNodes());
 		
 		for (int i = 0; i < creatures.getChildNodes().getLength(); i++)
 		{
@@ -306,15 +312,176 @@ public class MonsterEvolver extends XMLReader {
 	
 	public void Evolve_Creature()
 	{
-		Node abstractList = getNode(ABSTRACT, root.getChildNodes());
+		Node abstractList = getNode(ABSTRACT, selected_monster.getChildNodes());
 		AbstractCreature_Evolver creature = creatures.get(getNodeValue(CREATURE, abstractList.getChildNodes()));
 		int calorie_usage = Integer.parseInt(getNodeValue(CALORIE_USAGE, abstractList.getChildNodes()));
+		
+		Node mind = getNode(creature.mind_type, getNode(MIND, attribute_root.getChildNodes()).getChildNodes());
+		Node skin = getNode(creature.skin_type, getNode(SKIN, attribute_root.getChildNodes()).getChildNodes());
+		Node bones = getNode(creature.bones_type, getNode(BONES, attribute_root.getChildNodes()).getChildNodes());
+		Node muscles = getNode(creature.muscles_type, getNode(MUSCLES, attribute_root.getChildNodes()).getChildNodes());
+		Node attack = getNode(creature.attack_type, getNode(ATTACK, attribute_root.getChildNodes()).getChildNodes());
 		
 		for (int i = 0; i < EVOLVER_CREATURE_NUM; i++)
 		{
 			Creature_Evolver c_e = new Creature_Evolver(creature, calorie_usage);
+			c_e.addAttributes(getMind(mind), getSkin(skin), getBones(bones), getMuscles(muscles), getAttack(attack));
 			grid[ran.nextInt(EVOLVER_WIDTH)][ran.nextInt(EVOLVER_HEIGHT)].creature = c_e;
 		}
+	}
+	
+	public Mind_Evolver getMind(Node mind)
+	{
+		ArrayList<Node> valid = new ArrayList<Node>();
+		for (int i = 0; i < mind.getChildNodes().getLength(); i++)
+		{
+			Node n = mind.getChildNodes().item(i);
+			
+			if (n.getNodeType() == Node.TEXT_NODE) continue;
+			
+			valid.add(n);
+		}
+		
+		Node selected = valid.get(ran.nextInt(valid.size()));
+		
+		Mind_Evolver m_e = new Mind_Evolver();
+		
+		
+		
+		
+		
+		return m_e;
+	}
+	
+	public Skin_Evolver getSkin(Node skin)
+	{
+		ArrayList<Node> valid = new ArrayList<Node>();
+		for (int i = 0; i < skin.getChildNodes().getLength(); i++)
+		{
+			Node n = skin.getChildNodes().item(i);
+			
+			if (n.getNodeType() == Node.TEXT_NODE) continue;
+			
+			valid.add(n);
+		}
+		
+		Node selected = valid.get(ran.nextInt(valid.size()));
+		
+		Skin_Evolver s_e = new Skin_Evolver();
+		
+		s_e.addDescription(getNodeValue(DESCRIPTION, selected.getChildNodes()));
+		
+		s_e.addStats(
+				getNodeValue(CALORIES, selected.getChildNodes()),
+				getNodeValue(WEIGHT, selected.getChildNodes()),
+				getNodeValue(HEALTH, selected.getChildNodes()),
+				getNodeValue(STRENGTH, selected.getChildNodes())
+				);
+		
+		Node ele_def = getNode(ELE_DEFENSES, selected.getChildNodes());
+		s_e.addEleDef(
+				getNodeValue(FIRE, ele_def.getChildNodes()), 
+				getNodeValue(WATER, ele_def.getChildNodes()), 
+				getNodeValue(AIR, ele_def.getChildNodes()),
+				getNodeValue(WOOD, ele_def.getChildNodes()), 
+				getNodeValue(METAL, ele_def.getChildNodes()), 
+				getNodeValue(AETHER, ele_def.getChildNodes()), 
+				getNodeValue(VOID, ele_def.getChildNodes())
+				);
+		
+		Node dam_def = getNode(DEFENSES, selected.getChildNodes());
+		s_e.addDamDef(
+				getNodeValue(PIERCE, dam_def.getChildNodes()), 
+				getNodeValue(IMPACT, dam_def.getChildNodes()), 
+				getNodeValue(TOUCH, dam_def.getChildNodes())
+				);
+		
+		return s_e;
+	}
+	
+	public Bones_Evolver getBones(Node bones)
+	{
+		ArrayList<Node> valid = new ArrayList<Node>();
+		for (int i = 0; i < bones.getChildNodes().getLength(); i++)
+		{
+			Node n = bones.getChildNodes().item(i);
+			
+			if (n.getNodeType() == Node.TEXT_NODE) continue;
+			
+			valid.add(n);
+		}
+		
+		Node selected = valid.get(ran.nextInt(valid.size()));
+		
+		Bones_Evolver b_e = new Bones_Evolver();
+		
+		b_e.addStats(
+				getNodeValue(CALORIES, selected.getChildNodes()),
+				getNodeValue(WEIGHT, selected.getChildNodes()),
+				getNodeValue(HEALTH, selected.getChildNodes())
+				);
+		
+		Node dam_def = getNode(DEFENSES, selected.getChildNodes());
+		b_e.addDamDef(
+				getNodeValue(PIERCE, dam_def.getChildNodes()), 
+				getNodeValue(IMPACT, dam_def.getChildNodes()), 
+				getNodeValue(TOUCH, dam_def.getChildNodes())
+				);
+		
+		return b_e;
+	}
+	
+	public Muscles_Evolver getMuscles(Node muscles)
+	{
+		ArrayList<Node> valid = new ArrayList<Node>();
+		for (int i = 0; i < muscles.getChildNodes().getLength(); i++)
+		{
+			Node n = muscles.getChildNodes().item(i);
+			
+			if (n.getNodeType() == Node.TEXT_NODE) continue;
+			
+			valid.add(n);
+		}
+		
+		Node selected = valid.get(ran.nextInt(valid.size()));
+		
+		Muscles_Evolver m_e = new Muscles_Evolver();
+		
+		m_e.addStats(
+				getNodeValue(CALORIES, selected.getChildNodes()),
+				getNodeValue(WEIGHT, selected.getChildNodes()),
+				getNodeValue(STRENGTH, selected.getChildNodes())
+				);
+		
+		return m_e;
+	}
+	
+	public Attack_Evolver getAttack(Node attack)
+	{
+		ArrayList<Node> valid = new ArrayList<Node>();
+		for (int i = 0; i < attack.getChildNodes().getLength(); i++)
+		{
+			Node n = attack.getChildNodes().item(i);
+			
+			if (n.getNodeType() == Node.TEXT_NODE) continue;
+			
+			valid.add(n);
+		}
+		
+		Node selected = valid.get(ran.nextInt(valid.size()));
+		
+		Attack_Evolver a_e = new Attack_Evolver();
+		
+		a_e.addDescription(getNodeValue(DESCRIPTION, selected.getChildNodes()));
+		
+		a_e.addStats(
+				getNodeValue(CALORIES, selected.getChildNodes()),
+				getNodeValue(WEIGHT, selected.getChildNodes()),
+				getNodeValue(STRENGTH, selected.getChildNodes()),
+				getNodeValue(TYPE, selected.getChildNodes())
+				);
+		
+		return a_e;
 	}
 }
 
@@ -333,9 +500,9 @@ class Creature_Evolver
 	public Muscles_Evolver muscles;
 	public Attack_Evolver attack;
 	
-	public AbstractCreature_Evolver creature;
+	public final AbstractCreature_Evolver creature;
 	
-	public int calorie_usage;
+	public final int calorie_usage;
 	public int consumed_calories = 100;
 	public int points = 0;
 	
@@ -343,6 +510,15 @@ class Creature_Evolver
 	{
 		this.calorie_usage = calorie_usage;
 		this.creature = creature;
+	}
+	
+	public void addAttributes(Mind_Evolver mind, Skin_Evolver skin, Bones_Evolver bones, Muscles_Evolver muscles, Attack_Evolver attack)
+	{
+		this.mind = mind;
+		this.skin = skin;
+		this.bones = bones;
+		this.muscles = muscles;
+		this.attack = attack;
 	}
 }
 

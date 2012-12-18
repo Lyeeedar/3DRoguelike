@@ -44,7 +44,8 @@ public class AbstractObject {
 	public final char character;
 	public final ObjectType type;
 	public final boolean visible;
-	public final String description;
+	public final String shortDesc;
+	public final String longDesc;
 	
 	public String modelType;
 	public String modelName;
@@ -59,21 +60,23 @@ public class AbstractObject {
 	
 	public HashMap<String, String> meta = new HashMap<String, String>();
 	
-	public AbstractObject(char character, String type, boolean visible, String description)
+	public AbstractObject(char character, String type, boolean visible, String shortDesc, String longDesc)
 	{
 		this.character = character;
 		this.type = stringToObjectType(type);
 		this.visible = visible;
-		this.description = description;
+		this.shortDesc = shortDesc;
+		this.longDesc = longDesc;
 	}
 	
 	public float x; public float y; public float z;
-	public AbstractObject(char character, ObjectType type, boolean visible, String description, float x, float y, float z)
+	public AbstractObject(char character, ObjectType type, boolean visible, String shortDesc, String longDesc, float x, float y, float z)
 	{
 		this.character = character;
 		this.type = type;
 		this.visible = visible;
-		this.description = description;
+		this.shortDesc = shortDesc;
+		this.longDesc = longDesc;
 		
 		this.x = x;
 		this.y = y;
@@ -189,12 +192,13 @@ public class AbstractObject {
 		return otype;
 	}
 	
-	public AbstractObject(char character, ObjectType type, boolean visible, String description)
+	public AbstractObject(char character, ObjectType type, boolean visible, String shortDesc, String longDesc)
 	{
 		this.character = character;
 		this.type = type;
 		this.visible = visible;
-		this.description = description;
+		this.shortDesc = shortDesc;
+		this.longDesc = longDesc;
 	}
 	
 	public void setModel(String modelType, String modelName, float modelScale, String texture, Color colour, float[] modelDimensions)
@@ -209,7 +213,7 @@ public class AbstractObject {
 	
 	public AbstractObject cpy()
 	{
-		AbstractObject ao = new AbstractObject(character, type, visible, description);
+		AbstractObject ao = new AbstractObject(character, type, visible, shortDesc, longDesc);
 		ao.setModel(modelType, modelName, modelScale, texture, colour, modelDimensions);
 		
 		return ao;

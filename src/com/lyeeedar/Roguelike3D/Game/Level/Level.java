@@ -21,7 +21,6 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
-import com.lyeeedar.Roguelike3D.Game.Actor.CollisionBox;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
@@ -38,7 +37,9 @@ public class Level {
 	
 	Tile[][] levelArray;
 	
-	HashMap<Character, String> descriptions = new HashMap<Character, String>();
+	HashMap<Character, String> shortDescs = new HashMap<Character, String>();
+	HashMap<Character, String> longDescs = new HashMap<Character, String>();
+	
 	HashMap<Character, Color> colours = new HashMap<Character, Color>();
 	ArrayList<Character> opaques = new ArrayList<Character>();
 	ArrayList<Character> solids = new ArrayList<Character>();
@@ -67,9 +68,12 @@ public class Level {
 		colours.put('.', biome.getFloorColour());
 		colours.put(' ', biome.getWallColour());
 		
-		descriptions.put('#', biome.getDescription('#'));
-		descriptions.put('.', biome.getDescription('.'));
-		descriptions.put('R', biome.getDescription('R'));
+		shortDescs.put('#', biome.getShortDescription('#'));
+		longDescs.put('#', biome.getLongDescription('#'));
+		shortDescs.put('.', biome.getShortDescription('.'));
+		longDescs.put('.', biome.getLongDescription('.'));
+		shortDescs.put('R', biome.getShortDescription('R'));
+		longDescs.put('R', biome.getLongDescription('R'));
 		
 		MapGenerator generator = new MapGenerator(width, height, solids, opaques, colours, gtype, biome);
 		levelArray = generator.getLevel();
@@ -155,7 +159,8 @@ public class Level {
 						
 					}
 					
-					lo.description = ao.description;
+					lo.shortDesc = ao.shortDesc;
+					lo.longDesc = ao.longDesc;
 					levelObjects.add(lo);
 					
 					levelArray[room.x+i][room.y+j].lo = lo;
@@ -169,7 +174,7 @@ public class Level {
 	}
 	
 	public static final int VIEW_STEP = 10;
-	public float getDescription(Ray ray, float view, StringBuilder sB)
+	public float getDescription(Ray ray, float view, StringBuilder sB, boolean longDesc)
 	{
 		Vector3 pos = ray.origin.cpy();
 		Vector3 step = ray.direction.cpy().mul(VIEW_STEP);
@@ -192,13 +197,27 @@ public class Level {
 			if (pos.y < t.height)
 			{
 				sB.delete(0, sB.length());
-				sB.append(descriptions.get(t.character));
+				if (longDesc)
+				{
+					sB.append(longDescs.get(t.character));
+				}
+				else
+				{
+					sB.append(shortDescs.get(t.character));
+				}
 				break;
 			}
 			else if (pos.y > t.roof)
 			{
 				sB.delete(0, sB.length());
-				sB.append(descriptions.get('R'));
+				if (longDesc)
+				{
+					sB.append(longDescs.get('R'));
+				}
+				else
+				{
+					sB.append(shortDescs.get('R'));
+				}
 				break;
 			}
 		}
@@ -263,29 +282,6 @@ public class Level {
 		return null;
 	}
 	
-	
-	public boolean checkCollision(CollisionBox box, String UID)
-	{
-		//if (checkBoxToLevelCollision(box)) return true;
-		
-		return checkEntities(box, UID) != null;
-	}
-	
-	public boolean checkBoxToLevelCollision(CollisionBox box)
-	{
-		if (checkLevelCollision(box.position.x, 						box.position.y, 					box.position.z				)) return true;		
-		if (checkLevelCollision(box.position.x, 						box.position.y+box.dimensions.y, 	box.position.z					)) return true;
-		if (checkLevelCollision(box.position.x, 						box.position.y, 					box.position.z+box.dimensions.z	)) return true;
-		if (checkLevelCollision(box.position.x, 						box.position.y+box.dimensions.y, 	box.position.z+box.dimensions.z	)) return true;
-		
-		if (checkLevelCollision(box.position.x+box.dimensions.x, 	box.position.y, 					box.position.z				)) return true;
-		if (checkLevelCollision(box.position.x+box.dimensions.x, 	box.position.y+box.dimensions.y, 	box.position.z					)) return true;
-		if (checkLevelCollision(box.position.x+box.dimensions.x, 	box.position.y, 					box.position.z+box.dimensions.z	)) return true;
-		if (checkLevelCollision(box.position.x+box.dimensions.x, 	box.position.y+box.dimensions.y, 	box.position.z+box.dimensions.z	)) return true;
-		
-		return false;
-	}
-	
 	public boolean checkLevelCollision(float x, float y, float z)
 	{					
 		int ix = (int)((x/10f));
@@ -318,21 +314,6 @@ public class Level {
 			}
 		}
 		return false;
-	}
-	
-	public GameActor checkEntities(CollisionBox box, String UID)
-	{
-		for (GameActor ga : actors)
-		{
-			if (ga.UID.equals(UID)) continue;
-			
-			if (box.intersectBoxes(ga.getCollisionBox()))
-			{
-				return ga;
-			}
-		}
-		
-		return null;
 	}
 	
 	public void removeItem(String UID)
@@ -407,14 +388,6 @@ public class Level {
 
 	public void setLevelArray(Tile[][] levelArray) {
 		this.levelArray = levelArray;
-	}
-
-	public HashMap<Character, String> getDescriptions() {
-		return descriptions;
-	}
-
-	public void setDescriptions(HashMap<Character, String> descriptions) {
-		this.descriptions = descriptions;
 	}
 	
 	public void dispose()

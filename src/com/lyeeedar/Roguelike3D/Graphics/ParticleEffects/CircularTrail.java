@@ -18,10 +18,14 @@ public class CircularTrail extends MotionTrail{
 	final GameObject center;
 	
 	final Vector3 rotationStep;
+	
+	Vector3 tmpVec = new Vector3();
+	Vector3 tmpVec2 = new Vector3();
+	Vector3 tmpVec3 = new Vector3();
 
-	public CircularTrail(Vector3 offset, Vector3 startRot, Vector3 endRot, float nearDist, float farDist, GameObject center, int vertsNum, float timeToComplete) 
+	public CircularTrail(Vector3 offset, Vector3 startRot, Vector3 endRot, float nearDist, float farDist, GameObject center, int vertsNum) 
 	{
-		super(vertsNum, timeToComplete);
+		super(vertsNum);
 		
 		this.offset = offset;
 		this.startRotation = startRot;
@@ -32,7 +36,6 @@ public class CircularTrail extends MotionTrail{
 		
 		rotationStep = endRotation.cpy();
 		rotationStep.sub(startRotation);
-		rotationStep.div(timeToComplete);
 		
 		currentRotation = startRotation.cpy();
 		
@@ -43,17 +46,18 @@ public class CircularTrail extends MotionTrail{
 			tmpVec2.set(tmpVec).mul(nearDist).add(center.getPosition()).add(offset);
 			addVert(tmpVec2);
 			
-			tmpVec2.set(tmpVec).mul(farDist).add(center.getPosition()).add(offset);
-			addVert(tmpVec2);
+			tmpVec3.set(tmpVec).mul(farDist).add(center.getPosition()).add(offset);
+			addVert(tmpVec3);
 		}
 		
 		updateVerts();
 	}
 
-	protected void updatePositions(float delta)
+	@Override
+	public void update(Vector3 a, Vector3 b)
 	{		
 		tmpVec.set(rotationStep);
-		tmpVec.mul(delta);
+		tmpVec.mul(0.1f);
 		
 		currentRotation.add(tmpVec);
 		

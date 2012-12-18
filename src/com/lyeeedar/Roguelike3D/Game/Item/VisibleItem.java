@@ -34,7 +34,7 @@ public class VisibleItem extends GameObject {
 		GameActor actor = null;
 		
 		Vector3 cpos = this.getCPosition();
-		actor = GameData.level.checkEntities(getCollisionBox(), UID);
+		actor = GameData.level.checkEntities(cpos, vo.attributes.radius, UID);
 		if (actor != null) {
 			System.out.println("Pickup!");
 			actor.INVENTORY.put(item.NAME, item);

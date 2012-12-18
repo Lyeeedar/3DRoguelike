@@ -12,6 +12,7 @@ package com.lyeeedar.Roguelike3D.Game.Actor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
@@ -26,6 +27,8 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
+import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon;
+import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Weapon_Style;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.GlowAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.CircularTrail;
@@ -43,9 +46,12 @@ public class Player extends GameActor {
 	public Player(String model, Color colour, String texture, float x, float y, float z, float scale)
 	{
 		super(model, colour, texture, x, y, z, scale);
-		visible = false;
-		description = "This is you. Wave to yourself you!";
+		//visible = false;
+		//description = "This is you. Wave to yourself you!";
 		WEIGHT = 1;
+		
+		L_HAND = new MeleeWeapon(this, Weapon_Style.SWING);
+		L_HAND.use();
 	}
 	
 	float cooldown = 0;
@@ -96,10 +102,10 @@ public class Player extends GameActor {
 		
 		if (Gdx.input.isKeyPressed(Keys.B) && cooldown < 0)
 		{			
-			MotionTrail trail = new CircularTrail(new Vector3(0, -4, 0), new Vector3(180, -180, 0), new Vector3(0, 0, 180), 10, 15, this, 60, 0.5f);
-			motionTrails.add(trail);
+			//trail = new CircularTrail(new Vector3(0, -4, 0), new Vector3(180, 0, 0), new Vector3(0, 180, 180), 10, 15, this, 60);
 			
-			cooldown = 1;
+			cooldown = 0.1f;
+			L_HAND.use();
 		}
 		
 		applyMovement();
@@ -117,8 +123,18 @@ public class Player extends GameActor {
 
 		Xrotate(xR);
 		
+		if (L_HAND != null) L_HAND.update(delta);
+		
+		if (trail != null) trail.update(null, null);
+		
 	}
 	
-	
+	MotionTrail trail;
+	@Override
+	public void draw(Camera cam)
+	{
+		super.draw(cam);
+		if (trail != null) trail.draw(cam);
+	}
 
 }

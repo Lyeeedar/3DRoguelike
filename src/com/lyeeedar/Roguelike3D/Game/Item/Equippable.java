@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 
-public class Equippable extends Item {
+public abstract class Equippable extends Item {
 	
 	public int HEALTH = 0;
 	public HashMap<Element, Integer> ELE_DEFENSES;
@@ -17,14 +17,12 @@ public class Equippable extends Item {
 	public int STRENGTH = 0;
 	public int IQ = 0;
 	
-	public int SIGHT = 0;
 	public float ATTACK_SPEED = 0;
 	public float CAST_SPEED = 0;
 
 	public Equippable() {
 		setupDefenses();
 	}
-
 	
 	public void setupDefenses()
 	{
@@ -44,4 +42,6 @@ public class Equippable extends Item {
 		ELE_DEFENSES.put(Element.AETHER, 0);
 		ELE_DEFENSES.put(Element.VOID, 0);
 	}
+	
+	public abstract void use();
 }

@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -78,57 +79,24 @@ public class InGameScreen extends AbstractScreen {
 		}
 		
 		for (LevelObject lo : GameData.level.levelObjects)
-		{
-			
-			if (SHOW_COLLISION_BOX) {
-				StillModelAttributes sma = lo.collisionAttributes;
-				sma.getTransform().setToTranslation(lo.collisionBox.position);
-				protoRenderer.draw(lo.collisionMesh, sma);
-			}
-			
-			for (MotionTrail trail : lo.motionTrails)
-			{
-				trail.draw(cam);
-			}
-			
+		{			
 			if (!lo.visible) continue;
 			lo.vo.render(protoRenderer);
+			lo.draw(cam);
 		}
 		
 		for (GameActor ga : GameData.level.actors)
 		{
-			
-			if (SHOW_COLLISION_BOX) {
-				StillModelAttributes sma = ga.collisionAttributes;
-				sma.getTransform().setToTranslation(ga.collisionBox.position);
-				protoRenderer.draw(ga.collisionMesh, sma);
-			}
-			
-			for (MotionTrail trail : ga.motionTrails)
-			{
-				trail.draw(cam);
-			}
-			
 			if (!ga.visible) continue;
 			ga.vo.render(protoRenderer);
+			ga.draw(cam);
 		}
 		
 		for (VisibleItem vi : GameData.level.items)
-		{
-			
-			if (SHOW_COLLISION_BOX) {
-				StillModelAttributes sma = vi.collisionAttributes;
-				sma.getTransform().setToTranslation(vi.collisionBox.position);
-				protoRenderer.draw(vi.collisionMesh, sma);
-			}
-			
-			for (MotionTrail trail : vi.motionTrails)
-			{
-				trail.draw(cam);
-			}
-			
+		{			
 			if (!vi.visible) continue;
 			vi.vo.render(protoRenderer);
+			vi.draw(cam);
 		}
 	}
 	
@@ -196,6 +164,7 @@ public class InGameScreen extends AbstractScreen {
 	//GameObject lookedAtObject = null;
 	StringBuilder desc = new StringBuilder();
 	
+	Ray ray = new Ray(new Vector3(), new Vector3());
 	boolean tabCD = false;
 	@Override
 	public void update(float delta) {
@@ -205,31 +174,16 @@ public class InGameScreen extends AbstractScreen {
 			for (LevelObject lo : GameData.level.levelObjects)
 			{
 				lo.update(delta);
-				
-				for (MotionTrail trail : lo.motionTrails)
-				{
-					trail.update(delta);
-				}
 			}
 			
 			for (GameActor ga : GameData.level.actors)
 			{
 				ga.update(delta);
-				
-				for (MotionTrail trail : ga.motionTrails)
-				{
-					trail.update(delta);
-				}
 			}
 			
 			for (VisibleItem vi : GameData.level.items)
 			{
 				vi.update(delta);
-				
-				for (MotionTrail trail : vi.motionTrails)
-				{
-					trail.update(delta);
-				}
 			}
 			
 			for (ParticleEmitter pe : GameData.particleEmitters)
@@ -265,23 +219,23 @@ public class InGameScreen extends AbstractScreen {
 			tabCD = false;
 		}
 		
-		Ray ray = null;
-		
 		if (paused)
 		{
-			ray = cam.getPickRay(Gdx.input.getX(), Gdx.input.getY());
+			Ray ray2 = cam.getPickRay(Gdx.input.getX(), Gdx.input.getY());
 			dist = cam.far*cam.far;
+			ray.set(ray2);
 		}
 		else
 		{	
-			ray = new Ray(GameData.player.getPosition(), GameData.player.getRotation());
+			ray.origin.set(GameData.player.getPosition());
+			ray.direction.set(GameData.player.getRotation());
 			dist = VIEW_DISTANCE;
 		}
 		
-		getDescription(dist, ray);
+		getDescription(dist, ray, paused);
 	}
 	
-	public void getDescription(float dist, Ray ray)
+	public void getDescription(float dist, Ray ray, boolean longDesc)
 	{
 		desc.delete(0, desc.length());
 		desc.append("There is nothing there but empty space.");
@@ -291,34 +245,52 @@ public class InGameScreen extends AbstractScreen {
 			if (go.UID.equals(GameData.player.UID)) continue;
 			tempdist = cam.position.dst2(go.getPosition());
 			if (tempdist > dist) continue;
-			else if (!go.collisionBox.intersectRay(ray)) continue;
+			else if (!Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), null)) continue;
 			
 			dist = tempdist;
 			desc.delete(0, desc.length());
-			desc.append(go.description);
+			if (longDesc) {
+				desc.append(go.longDesc);
+			}
+			else
+			{
+				desc.append(go.shortDesc);
+			}
 		}
 		for (GameObject go : GameData.level.levelObjects)
 		{
 			tempdist = cam.position.dst2(go.getPosition());
 			if (tempdist > dist) continue;
-			else if (!go.collisionBox.intersectRay(ray)) continue;
+			else if (!Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), null)) continue;
 			
 			dist = tempdist;
 			desc.delete(0, desc.length());
-			desc.append(go.description);
+			if (longDesc) {
+				desc.append(go.longDesc);
+			}
+			else
+			{
+				desc.append(go.shortDesc);
+			}
 		}
 		for (GameObject go : GameData.level.items)
 		{
 			tempdist = cam.position.dst2(go.getPosition());
 			if (tempdist > dist) continue;
-			else if (!go.collisionBox.intersectRay(ray)) continue;
+			else if (!Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), null)) continue;
 			
 			dist = tempdist;
 			desc.delete(0, desc.length());
-			desc.append(go.description);
+			if (longDesc) {
+				desc.append(go.longDesc);
+			}
+			else
+			{
+				desc.append(go.shortDesc);
+			}
 		}
 		
-		dist = GameData.level.getDescription(ray, dist, desc);
+		dist = GameData.level.getDescription(ray, dist, desc, paused);
 	}
 
 	@Override

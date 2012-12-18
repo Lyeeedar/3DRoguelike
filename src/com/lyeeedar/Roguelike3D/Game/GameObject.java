@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -23,7 +24,6 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
-import com.lyeeedar.Roguelike3D.Game.Actor.CollisionBox;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Graphics.*;
@@ -60,13 +60,8 @@ public class GameObject {
 
 	protected final Vector3 tmpVec = new Vector3();
 	protected final Matrix4 tmpMat = new Matrix4();
-	
-	public CollisionBox collisionBox;
 
 	public VisibleObject vo;
-	
-	public StillModel collisionMesh;
-	public StillModelAttributes collisionAttributes;
 	
 	public boolean grounded = true;
 	
@@ -76,9 +71,8 @@ public class GameObject {
 	
 	public boolean visible = true;
 	
-	public String description = "";
-	
-	public ArrayList<MotionTrail> motionTrails = new ArrayList<MotionTrail>();
+	public String shortDesc = "";
+	public String longDesc = "";
 
 	public GameObject(VisibleObject vo, float x, float y, float z, float scale)
 	{
@@ -107,7 +101,7 @@ public class GameObject {
 		BoundingBox box = new BoundingBox();
 		if (vo == null)
 		{
-			box = new BoundingBox(new Vector3(0, 0, 0), new Vector3(5, 5, 5));
+			box = new BoundingBox(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
 		}
 		else
 		{
@@ -116,7 +110,7 @@ public class GameObject {
 
 		Vector3 dimensions = box.getDimensions().mul(scale);
 		
-		float dist = 0;
+		float dist = 1;
 		
 		if (Math.abs(dimensions.x) > Math.abs(dimensions.z))
 		{
@@ -129,18 +123,12 @@ public class GameObject {
 			dist = dimensions.x;
 		}
 		
-		vo.attributes.radius = dist/2;
+		float radius = dist/2;
 		
-		Mesh mesh = Shapes.genCuboid(dimensions.cpy());
-		StillModel model = new StillModel(new SubMesh[]{new StillSubMesh("Collision Box", mesh, GL20.GL_LINE_LOOP)});
-		MaterialAttribute c = new ColorAttribute(Color.RED, ColorAttribute.diffuse);
-		MaterialAttribute t = new TextureAttribute(new Texture(Gdx.files.internal("data/textures/blank.png")), 0, TextureAttribute.diffuseTexture);
-		Material material = new Material("basic", c, t);	
-		collisionAttributes = new StillModelAttributes(material, 1, scale);
-
-		collisionMesh = model;
-		collisionBox = new CollisionBox(dimensions);
-		collisionBox.position.add(x, y, z);
+		if (Float.isNaN(radius)) radius = 1;
+		else System.out.println(radius);
+		
+		vo.attributes.radius = radius;
 		
 		translate(0, 0, 0);
 	}
@@ -271,7 +259,6 @@ public class GameObject {
 	public void translate(Vector3 vec)
 	{
 		position.add(vec);
-		collisionBox.position.set(position);
 		vo.attributes.getTransform().setToTranslation(position);
 		if (boundLight != null) boundLight.position.set(position);
 	}
@@ -279,7 +266,6 @@ public class GameObject {
 	public void positionAbsolutely(Vector3 position)
 	{
 		this.position.set(position);
-		collisionBox.position.set(position);
 		vo.attributes.getTransform().setToTranslation(this.position);
 		if (boundLight != null) boundLight.position.set(position);
 	}
@@ -313,6 +299,11 @@ public class GameObject {
 		return nvec;
 	}
 	
+	public float getRadius()
+	{
+		return vo.attributes.radius;
+	}
+	
 	public Vector3 getPosition() {
 		return position;
 	}
@@ -342,20 +333,13 @@ public class GameObject {
 	public String getUID() {
 		return UID;
 	}
-
-	public CollisionBox getCollisionBox() {
-		return collisionBox;
-	}
-
-	public void setCollisionBox(CollisionBox collisionBox) {
-		this.collisionBox = collisionBox;
-	}
-
-	public StillModel getCollisionMesh() {
-		return collisionMesh;
-	}
 	
 	public void update(float delta)
+	{
+		
+	}
+	
+	public void draw(Camera cam)
 	{
 		
 	}

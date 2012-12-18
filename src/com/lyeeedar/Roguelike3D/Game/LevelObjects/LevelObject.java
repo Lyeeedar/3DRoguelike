@@ -64,8 +64,9 @@ public abstract class LevelObject extends GameObject{
 			ParticleEmitter p = new ParticleEmitter(x-2.5f, y-2, z-2.5f, 5, 5, 5, 0.75f, 100);
 			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1, false);
 
-			lo = new EmitterObject(Shapes.genCuboid(5, 5, 5), x, y, z, ao, p, false);
-			lo.description = ao.description;
+			lo = new EmitterObject(Shapes.genCuboid(1, 1, 1), x, y, z, ao, p, false);
+			lo.shortDesc = ao.shortDesc;
+			lo.longDesc = ao.longDesc;
 			
 			Color start = Color.YELLOW;
 			Color end = Color.RED;
@@ -82,7 +83,8 @@ public abstract class LevelObject extends GameObject{
 			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, Color.YELLOW, Color.RED, 1, 1, false);
 
 			lo = new EmitterObject(Shapes.genCuboid(0.5f, 3, 0.5f), new Color(0.8f, 0.6f, 0.4f, 1.0f), "texw", x, y, z, ao, p, true);
-			lo.description = ao.description;
+			lo.shortDesc = ao.shortDesc;
+			lo.longDesc = ao.longDesc;
 			
 			Color start = Color.YELLOW;
 			Color end = Color.RED;

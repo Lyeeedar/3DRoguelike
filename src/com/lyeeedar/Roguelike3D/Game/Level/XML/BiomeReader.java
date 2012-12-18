@@ -34,6 +34,8 @@ public class BiomeReader extends XMLReader {
 	public static final String NAME = "name";
 	public static final String GENERATOR = "generator";
 	public static final String DESCRIPTION = "description";
+	public static final String SHORT_DESCRIPTION = "short_description";
+	public static final String LONG_DESCRIPTION = "long_description";
 	public static final String CHAR = "char";
 	public static final String HEIGHT = "height";
 	public static final String WIDTH = "width";
@@ -94,7 +96,7 @@ public class BiomeReader extends XMLReader {
 		return gtype;
 	}
 	
-	public String getDescription(char c) 
+	public String getShortDescription(char c) 
 	{
 		Node desc = getNode(DESCRIPTION, biome.getChildNodes());
 		
@@ -106,7 +108,26 @@ public class BiomeReader extends XMLReader {
 			
 			if (getNodeValue(CHAR, n.getChildNodes()).charAt(0) == c)
 			{
-				return getNodeValue(DESCRIPTION, n.getChildNodes());
+				return getNodeValue(SHORT_DESCRIPTION, n.getChildNodes());
+			}
+		}
+		
+		return "";
+	}
+	
+	public String getLongDescription(char c) 
+	{
+		Node desc = getNode(DESCRIPTION, biome.getChildNodes());
+		
+		for (int i = 0; i < desc.getChildNodes().getLength(); i++)
+		{
+			Node n = desc.getChildNodes().item(i);
+			
+			if (!n.getNodeName().equalsIgnoreCase(CHAR)) continue;
+			
+			if (getNodeValue(CHAR, n.getChildNodes()).charAt(0) == c)
+			{
+				return getNodeValue(LONG_DESCRIPTION, n.getChildNodes());
 			}
 		}
 		

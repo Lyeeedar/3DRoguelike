@@ -55,7 +55,8 @@ public class Door extends LevelObject {
 		
 		Color colour = Color.WHITE;
 		Door door = new Door(Shapes.genCuboid(lx, ly, lz), colour, "tex+", x, y+ly, z, ao, hingex, hingez);
-		door.description = ao.description;
+		door.shortDesc = ao.shortDesc;
+		door.longDesc = ao.longDesc;
 		
 		Matrix4 hinge = new Matrix4();
 		hinge.setToRotation(0, 1, 0, 90);

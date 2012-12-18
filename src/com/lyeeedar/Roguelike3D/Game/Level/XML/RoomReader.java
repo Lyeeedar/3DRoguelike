@@ -49,7 +49,8 @@ public class RoomReader extends XMLReader {
 	public static final String CHAR = "char";
 	public static final String TYPE = "type";
 	public static final String VISIBLE = "visible";
-	public static final String DESCRIPTION = "description";
+	public static final String SHORT_DESCRIPTION = "short_description";
+	public static final String LONG_DESCRIPTION = "long_description";
 	public static final String MODEL = "model";
 	public static final String MODEL_TYPE = "type";
 	public static final String MODEL_NAME = "name";
@@ -201,9 +202,10 @@ public class RoomReader extends XMLReader {
 				char character = getNodeValue(CHAR, symbol.getChildNodes()).charAt(0);
 				String type = getNodeValue(TYPE, symbol.getChildNodes());
 				boolean visible = Boolean.parseBoolean(getNodeValue(VISIBLE, symbol.getChildNodes()));
-				String description = getNodeValue(DESCRIPTION, symbol.getChildNodes());
+				String shortDesc = getNodeValue(SHORT_DESCRIPTION, symbol.getChildNodes());
+				String longDesc = getNodeValue(LONG_DESCRIPTION, symbol.getChildNodes());
 
-				AbstractObject ao = new AbstractObject(character, type, visible, description);
+				AbstractObject ao = new AbstractObject(character, type, visible, shortDesc, longDesc);
 				
 				Node meta = getNode(META, symbol.getChildNodes());
 				
@@ -263,9 +265,10 @@ public class RoomReader extends XMLReader {
 			char character = getNodeValue(CHAR, symbol.getChildNodes()).charAt(0);
 			String type = getNodeValue(TYPE, symbol.getChildNodes());
 			boolean visible = Boolean.parseBoolean(getNodeValue(VISIBLE, symbol.getChildNodes()));
-			String description = getNodeValue(DESCRIPTION, symbol.getChildNodes());
-			
-			AbstractObject ao = new AbstractObject(character, type, visible, description);
+			String shortDesc = getNodeValue(SHORT_DESCRIPTION, symbol.getChildNodes());
+			String longDesc = getNodeValue(LONG_DESCRIPTION, symbol.getChildNodes());
+
+			AbstractObject ao = new AbstractObject(character, type, visible, shortDesc, longDesc);
 			
 			if (visible)
 			{

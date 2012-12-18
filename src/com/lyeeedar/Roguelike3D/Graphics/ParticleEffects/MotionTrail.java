@@ -10,22 +10,17 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.CircularArrayRing;
 
-public abstract class MotionTrail {
+public class MotionTrail {
 	
 	CircularArrayRing<Vector3> trailRing;
 	final int vertNum;
-	
-	float elapsedTime;
-	final float timeToComplete;
 	
 	final Mesh mesh;
 	
 	final ShaderProgram shader;
 
-	public MotionTrail(int vertsNum, float timeToComplete) 
-	{
-
-		this.timeToComplete = timeToComplete;		
+	public MotionTrail(int vertsNum) 
+	{		
 		this.vertNum = vertsNum * 2;
 		
 		trailRing = new CircularArrayRing<Vector3>(this.vertNum);
@@ -49,13 +44,22 @@ public abstract class MotionTrail {
 		}
 	}
 	
-	public void addVert(Vector3 vert)
+	public void intialiseVerts(Vector3 bottom, Vector3 top)
+	{
+		for (int i = 0; i < vertNum/2; i++)
+		{
+			addVert(bottom);
+			addVert(top);
+		}
+	}
+	
+	protected void addVert(Vector3 vert)
 	{
 		trailRing.peek().set(vert);
 	}
 	
 	final float[] vertices;
-	public void updateVerts()
+	protected void updateVerts()
 	{
 		for (int i = 0; i < vertNum; i++)
 		{
@@ -67,9 +71,6 @@ public abstract class MotionTrail {
 		
 		mesh.setVertices(vertices);
 	}
-	
-	final Vector3 tmpVec = new Vector3();
-	final Vector3 tmpVec2 = new Vector3();
 	
 	public void draw(Camera cam)
 	{
@@ -86,12 +87,17 @@ public abstract class MotionTrail {
 		Gdx.graphics.getGL20().glEnable(GL20.GL_CULL_FACE);
 	}
 	
-	public void update(float delta)
+	public void update(Vector3 bottom, Vector3 top)
 	{
-		elapsedTime += delta;
+		addVert(bottom);
+		addVert(top);
 		
-		updatePositions(delta);
+		updateVerts();
+	}
+	
+	public void dispose()
+	{
+		mesh.dispose();
 	}
 
-	protected abstract void updatePositions(float delta);
 }

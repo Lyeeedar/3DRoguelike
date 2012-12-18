@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
@@ -21,6 +22,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
@@ -38,9 +40,8 @@ public abstract class GameActor extends GameObject{
 	public Equippable BOOTS;
 	public Equippable GLOVES;
 	
-	public Equippable L_HAND;
-	public Equippable R_HAND;
-	public Equippable BOTH_HANDS;
+	public Equipment_HAND L_HAND;
+	public Equipment_HAND R_HAND;
 	
 	public int HEALTH;
 	public int BOOST_HEALTH;
@@ -58,8 +59,6 @@ public abstract class GameActor extends GameObject{
 	public int IQ;
 	public int BOOST_IQ;
 	
-	public int SIGHT;
-	public int BOOST_SIGHT;
 	public float ATTACK_SPEED;
 	public float BOOST_ATTACK_SPEED;
 	public float CAST_SPEED;
@@ -91,6 +90,36 @@ public abstract class GameActor extends GameObject{
 		super(mesh, colour, texture, x, y, z, scale);
 		
 		setupDefenses();
+	}
+	
+	public void equipL_HAND(Equipment_HAND equip)
+	{
+		if (equip.two_handed)
+		{
+			L_HAND = equip;
+			R_HAND = null;
+		}
+		else
+		{
+			L_HAND = equip;
+		}
+		
+		calculateBoost();
+	}
+	
+	public void equipR_HAND(Equipment_HAND equip)
+	{
+		if (equip.two_handed)
+		{
+			R_HAND = equip;
+			L_HAND = null;
+		}
+		else
+		{
+			R_HAND = equip;
+		}
+		
+		calculateBoost();
 	}
 	
 	public void setupDefenses()
@@ -150,7 +179,6 @@ public abstract class GameActor extends GameObject{
 		BOOST_WEIGHT = 0;
 		BOOST_STRENGTH = 0;
 		BOOST_IQ = 0;
-		BOOST_SIGHT = 0;
 		BOOST_ATTACK_SPEED = 0;
 		BOOST_CAST_SPEED = 0;
 		
@@ -179,23 +207,18 @@ public abstract class GameActor extends GameObject{
 			addBoost(GLOVES);
 		}
 		
-		if (BOTH_HANDS != null)
+		if (L_HAND != null)
 		{
-			addBoost(BOTH_HANDS);
+			addBoost(L_HAND);
 		}
-		else
+		
+		if (R_HAND != null)
 		{
-			if (L_HAND != null)
-			{
-				addBoost(L_HAND);
-			}
-			
-			if (R_HAND != null)
-			{
-				addBoost(R_HAND);
-			}
+			addBoost(R_HAND);
 		}
 	}
+	
+	
 	private void addBoost(Equippable e)
 	{
 		BOOST_HEALTH += e.HEALTH;
@@ -217,7 +240,6 @@ public abstract class GameActor extends GameObject{
 		BOOST_WEIGHT += e.WEIGHT;
 		BOOST_STRENGTH += e.STRENGTH;
 		BOOST_IQ += e.IQ;
-		BOOST_SIGHT += e.SIGHT;
 		BOOST_ATTACK_SPEED += e.ATTACK_SPEED;
 		BOOST_CAST_SPEED += e.CAST_SPEED;
 	}
@@ -255,5 +277,12 @@ public abstract class GameActor extends GameObject{
 	public void death()
 	{
 		alive = false;
+	}
+	
+	@Override
+	public void draw(Camera cam)
+	{
+		if (L_HAND != null) L_HAND.draw(cam);
+		if (R_HAND != null) R_HAND.draw(cam);
 	}
 }

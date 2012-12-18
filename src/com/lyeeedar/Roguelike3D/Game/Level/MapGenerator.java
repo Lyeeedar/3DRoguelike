@@ -71,7 +71,7 @@ public class MapGenerator {
 				else if (tiles[x][y].tileType == TileType.DOOR)
 				{
 					levelArray[x][y] = new Tile('.', 0, ceiling, 0);
-					objects.add(new AbstractObject('+', ObjectType.DOOR_UNLOCKED, true, biome.getDescription('+'), (float)x, 0.0f, (float)y));
+					objects.add(new AbstractObject('+', ObjectType.DOOR_UNLOCKED, true, biome.getShortDescription('+'), biome.getLongDescription('+'), (float)x, 0.0f, (float)y));
 				}
 				else
 				{

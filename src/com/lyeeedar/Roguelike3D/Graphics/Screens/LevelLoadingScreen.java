@@ -32,6 +32,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.Static;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
@@ -196,7 +197,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		
 		VisibleObject vo = VisibleObject.createCuboid(2, 2, 2, GL20.GL_TRIANGLES, Color.WHITE, "icon", 0.5f);
 		vo.attributes.material.affectedByLighting = false;
-		GameObject go = new GameObject(vo, 0, 0, -4, 0.5f);
+		GameObject go = new Enemy(vo, 0, 0, -4, 0.5f);
 		
 		objects.add(go);
 		

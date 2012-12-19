@@ -12,6 +12,7 @@ package com.lyeeedar.Roguelike3D.Game.Actor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector3;
@@ -86,6 +87,14 @@ public class Enemy extends GameActor {
 		}
 		
 		applyMovement();
+	}
+
+	@Override
+	public void activate() {
+	}
+
+	@Override
+	public void draw(Camera cam) {
 	}
 
 }

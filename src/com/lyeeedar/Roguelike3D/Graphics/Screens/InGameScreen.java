@@ -10,46 +10,24 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.VertexAttribute;
-import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Matrix3;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.lyeeedar.Roguelike3D.CircularArrayRing;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
-import com.lyeeedar.Roguelike3D.Game.*;
+import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
-import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
-import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
-import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillModel;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillModelAttributes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
-import com.lyeeedar.Roguelike3D.Graphics.Screens.AbstractScreen;
 
 public class InGameScreen extends AbstractScreen {
 	
@@ -90,13 +68,6 @@ public class InGameScreen extends AbstractScreen {
 			if (!ga.visible) continue;
 			ga.vo.render(protoRenderer);
 			ga.draw(cam);
-		}
-		
-		for (VisibleItem vi : GameData.level.items)
-		{			
-			if (!vi.visible) continue;
-			vi.vo.render(protoRenderer);
-			vi.draw(cam);
 		}
 	}
 	
@@ -181,11 +152,6 @@ public class InGameScreen extends AbstractScreen {
 				ga.update(delta);
 			}
 			
-			for (VisibleItem vi : GameData.level.items)
-			{
-				vi.update(delta);
-			}
-			
 			for (ParticleEmitter pe : GameData.particleEmitters)
 			{
 				if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
@@ -258,22 +224,6 @@ public class InGameScreen extends AbstractScreen {
 			}
 		}
 		for (GameObject go : GameData.level.levelObjects)
-		{
-			tempdist = cam.position.dst2(go.getPosition());
-			if (tempdist > dist) continue;
-			else if (!Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), null)) continue;
-			
-			dist = tempdist;
-			desc.delete(0, desc.length());
-			if (longDesc) {
-				desc.append(go.longDesc);
-			}
-			else
-			{
-				desc.append(go.shortDesc);
-			}
-		}
-		for (GameObject go : GameData.level.items)
 		{
 			tempdist = cam.position.dst2(go.getPosition());
 			if (tempdist > dist) continue;

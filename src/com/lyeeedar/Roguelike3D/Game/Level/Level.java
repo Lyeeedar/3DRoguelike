@@ -22,7 +22,6 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
-import com.lyeeedar.Roguelike3D.Game.Item.VisibleItem;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
@@ -45,7 +44,6 @@ public class Level {
 	ArrayList<Character> solids = new ArrayList<Character>();
 	
 	public ArrayList<GameActor> actors = new ArrayList<GameActor>();
-	public ArrayList<VisibleItem> items = new ArrayList<VisibleItem>();
 	public ArrayList<LevelObject> levelObjects = new ArrayList<LevelObject>();
 	
 	public ArrayList<DungeonRoom> rooms;
@@ -316,22 +314,6 @@ public class Level {
 		return false;
 	}
 	
-	public void removeItem(String UID)
-	{
-		int i = 0;
-		for (VisibleItem ga : items)
-		{
-			if (ga.UID.equals(UID)) 
-			{
-				if (ga.boundLight!= null) GameData.lightManager.removeDynamicLight(ga.boundLight.UID);
-				items.remove(i);
-				return;
-			}
-			i++;
-		}
-		System.err.println("Failed to remove item!");
-	}
-	
 	public void removeActor(String UID)
 	{
 		int i = 0;
@@ -346,11 +328,6 @@ public class Level {
 			i++;
 		}
 		System.err.println("Failed to remove actor!");
-	}
-
-	public void addItem(VisibleItem item)
-	{
-		items.add(item);
 	}
 	
 	public void addActor(GameActor actor)
@@ -396,9 +373,9 @@ public class Level {
 		{
 			ga.dispose();
 		}
-		for (VisibleItem vi : items)
+		for (LevelObject lo : levelObjects)
 		{
-			vi.dispose();
+			lo.dispose();
 		}
 	}
 

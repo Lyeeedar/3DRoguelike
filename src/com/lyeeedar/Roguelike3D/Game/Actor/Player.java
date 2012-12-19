@@ -11,32 +11,21 @@
 package com.lyeeedar.Roguelike3D.Game.Actor;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.VertexAttribute;
-import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g3d.decals.Decal;
-import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Roguelike3D.Game.GameData;
-import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Weapon_Style;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.GlowAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.CircularTrail;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.Particle;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public class Player extends GameActor {
+	
+	public static final float WHIPLASHCD = 0.4f;
+	public static final float WHIPLASHAMOUNT = 0.3f;
 	
 	public GameObject lookedAtObject;
 
@@ -50,17 +39,23 @@ public class Player extends GameActor {
 		//description = "This is you. Wave to yourself you!";
 		WEIGHT = 1;
 		
-		L_HAND = new MeleeWeapon(this, Weapon_Style.SWING);
-		L_HAND.use();
+		R_HAND = new MeleeWeapon(this, Weapon_Style.SWING, 2);
+		//R_HAND.use();
+		
+		L_HAND = new MeleeWeapon(this, Weapon_Style.SWING, 1);
+		//L_HAND.use();
 	}
 	
-	float cooldown = 0;
+	float left_cooldown = 0;
+	float right_cooldown = 0;
 
 	float move = 0;
 	float xR = 0;
 	float yR = 0;
 
 	float headBob = 0;
+	float whiplashCD = 0;
+	float whiplashSTEP = 0;
 	
 	boolean jumpCD = false;
 	@Override
@@ -68,7 +63,34 @@ public class Player extends GameActor {
 		
 		headBob += delta*15;
 		
-		cooldown -= delta;
+		if (whiplashCD > 0)
+		{
+			whiplashCD -= delta;
+			offsetRot.y += whiplashSTEP*delta;
+			
+			if (whiplashCD <= 0)
+			{
+				offsetRot.y = 0;
+				collidedVertically = false;
+				collidedHorizontally = false;
+			}
+		}
+		
+		if (collidedHorizontally && whiplashCD <= 0)
+		{
+			whiplashSTEP = -1;
+			offsetRot.y = WHIPLASHAMOUNT;
+			whiplashCD = WHIPLASHCD;
+		}
+		else if (collidedVertically && whiplashCD <= 0)
+		{
+			whiplashSTEP = 1;
+			offsetRot.y = -WHIPLASHAMOUNT;
+			whiplashCD = WHIPLASHCD;
+		}
+		
+		left_cooldown -= delta;
+		right_cooldown -= delta;
 		
 		move = delta * 10;
 		
@@ -100,12 +122,23 @@ public class Player extends GameActor {
 		}
 		offsetPos.y = (float) Math.sin(headBob)/5;
 		
-		if (Gdx.input.isKeyPressed(Keys.B) && cooldown < 0)
+		if (Gdx.input.isKeyPressed(Keys.B))
 		{			
-			//trail = new CircularTrail(new Vector3(0, -4, 0), new Vector3(180, 0, 0), new Vector3(0, 180, 180), 10, 15, this, 60);
+			this.getVelocity().set(0, 2, 2);
+		}
+		
+		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && left_cooldown < 0)
+		{
+			left_cooldown = 0.5f;
 			
-			cooldown = 0.1f;
-			L_HAND.use();
+			if (L_HAND != null) L_HAND.use();
+		}
+		
+		if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && right_cooldown < 0)
+		{
+			right_cooldown = 0.5f;
+
+			if (R_HAND != null) R_HAND.use();
 		}
 		
 		applyMovement();
@@ -124,17 +157,18 @@ public class Player extends GameActor {
 		Xrotate(xR);
 		
 		if (L_HAND != null) L_HAND.update(delta);
-		
-		if (trail != null) trail.update(null, null);
-		
+		if (R_HAND != null) R_HAND.update(delta);
+
 	}
 	
-	MotionTrail trail;
 	@Override
 	public void draw(Camera cam)
 	{
-		super.draw(cam);
-		if (trail != null) trail.draw(cam);
+		if (L_HAND != null) L_HAND.draw(cam);
+		if (R_HAND != null) R_HAND.draw(cam);
+	}
+	@Override
+	public void activate() {
 	}
 
 }

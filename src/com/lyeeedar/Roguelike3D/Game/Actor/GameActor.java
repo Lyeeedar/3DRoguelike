@@ -278,11 +278,4 @@ public abstract class GameActor extends GameObject{
 	{
 		alive = false;
 	}
-	
-	@Override
-	public void draw(Camera cam)
-	{
-		if (L_HAND != null) L_HAND.draw(cam);
-		if (R_HAND != null) R_HAND.draw(cam);
-	}
 }

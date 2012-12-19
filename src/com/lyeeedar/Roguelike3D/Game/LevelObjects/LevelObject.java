@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector3;
@@ -129,5 +130,17 @@ public abstract class LevelObject extends GameObject{
 		}
 		
 		return lo;
+	}
+
+	@Override
+	public void update(float delta) {
+	}
+
+	@Override
+	public void draw(Camera cam) {
+	}
+
+	@Override
+	public void activate() {
 	}
 }

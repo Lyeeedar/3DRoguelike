@@ -24,6 +24,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
+import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Graphics.*;
@@ -40,9 +41,9 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
-public class GameObject {
+public abstract class GameObject {
 	
-	public static final float PHYSICS_DAMAGE_THRESHHOLD = 2.0f;
+	public static final float PHYSICS_DAMAGE_THRESHHOLD = 1.0f;
 	
 	public final String UID;
 	
@@ -132,16 +133,22 @@ public class GameObject {
 		
 		translate(0, 0, 0);
 	}
+	
+	protected boolean collidedVertically = false;
+	protected boolean collidedHorizontally = false;
 
-	float startVelocity = 0;
-	float endVelocity = 0;
+	float startVelocityHori = 0;
+	float endVelocityHori = 0;
+	float startVelocityVert = 0;
+	float endVelocityVert = 0;
 	float negatedVelocity = 0;
 	final Ray ray = new Ray(new Vector3(), new Vector3());
 	public void applyMovement()
 	{
 		if (velocity.len2() == 0) return;
 		
-		startVelocity = Math.abs(velocity.x)+Math.abs(velocity.y)+Math.abs(velocity.z);
+		startVelocityHori = Math.abs(velocity.x)+Math.abs(velocity.z);
+		startVelocityVert = Math.abs(velocity.y);
 		
 		if (velocity.x < -2) velocity.x = -2;
 		if (velocity.x > 2) velocity.x = 2;
@@ -207,13 +214,24 @@ public class GameObject {
 			}
 		}
 		
-		endVelocity = Math.abs(velocity.x)+Math.abs(velocity.y)+Math.abs(velocity.z);
+		endVelocityHori = Math.abs(velocity.x)+Math.abs(velocity.z);
 
-		negatedVelocity = startVelocity-endVelocity;
+		negatedVelocity = startVelocityHori-endVelocityHori;
 		
 		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
 		{
-			System.out.println("ouch! "+negatedVelocity);
+			collidedHorizontally = true;
+			System.out.println("ouch! Hori!"+negatedVelocity);
+		}
+		
+		endVelocityVert = Math.abs(velocity.y);
+
+		negatedVelocity = startVelocityVert-endVelocityVert;
+		
+		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
+		{
+			collidedVertically = true;
+			System.out.println("ouch! Vert!"+negatedVelocity);
 		}
 	}
 	
@@ -334,14 +352,10 @@ public class GameObject {
 		return UID;
 	}
 	
-	public void update(float delta)
-	{
-		
-	}
+	public abstract void update(float delta);
 	
-	public void draw(Camera cam)
-	{
-		
-	}
+	public abstract void draw(Camera cam);
+	
+	public abstract void activate();
 
 }

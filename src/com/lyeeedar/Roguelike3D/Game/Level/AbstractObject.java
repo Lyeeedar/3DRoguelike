@@ -93,7 +93,6 @@ public class AbstractObject {
 	public void addMeta(String name, String contents)
 	{
 		meta.put(name, contents);
-		System.out.println(name + "   " + contents + "    " + type + "    " + meta.size() + "     " + UID);
 	}
 	
 	public void addMeta(String[]... data)

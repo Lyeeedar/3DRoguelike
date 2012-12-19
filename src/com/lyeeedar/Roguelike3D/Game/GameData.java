@@ -136,7 +136,7 @@ public class GameData {
 	
 	public static void finishLoading(Level level, LevelGraphics graphics, String nextScreen)
 	{
-		System.out.println("finish loading");
+		System.out.println("Finishing loading.");
 		
 		if (player == null)
 		{
@@ -197,7 +197,6 @@ public class GameData {
 	
 	public static String createLevelDOWN(String biome)
 	{
-		System.out.println(biome);
 		if (currentLevel.down_levels.size() > 0 && currentLevel.down_index == 0)
 		{
 			currentLevel.down_index++;

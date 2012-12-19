@@ -65,8 +65,6 @@ public class LevelGraphics {
 		width = levelArray.length;
 		height = levelArray[0].length;
 		
-		System.out.println(width + "   " + height);
-		
 		tempVOs = new TempVO[width][height];
 		tempRoofs = new TempVO[width][height];
 		
@@ -82,8 +80,6 @@ public class LevelGraphics {
 		BitmapFont font = new BitmapFont();
 		SpriteBatch sB = new SpriteBatch();
 		FrameBuffer fB = new FrameBuffer(Format.RGBA4444, width*STEP, height*STEP, false);
-		
-		System.out.println(width*STEP + "    " + height*STEP);
 		
 		fB.begin();
 		sB.begin();
@@ -102,8 +98,6 @@ public class LevelGraphics {
 		fB.end();
 		
 		map = fB.getColorBufferTexture();
-		
-		System.out.println(map.getWidth() + "    " + map.getHeight());
 	}
 	
 	int tileX = 0;

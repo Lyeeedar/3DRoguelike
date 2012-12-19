@@ -37,7 +37,7 @@ public class MeleeWeapon extends Equipment_HAND {
 		
 		if (style == Weapon_Style.SWING)
 		{
-			atk_style = new Circular_Attack(new Vector3(0, -4, 0), 5, 10, holder);
+			atk_style = new Circular_Attack(new Vector3(0, -2, 0), 5, 6, holder);
 		}
 		else atk_style = null;
 	}
@@ -62,11 +62,11 @@ public class MeleeWeapon extends Equipment_HAND {
 		{
 			float height = holder.getPosition().y;
 			
-			float startH = 1 + (ran.nextFloat()*height);
+			float startH = 0.2f + height + (ran.nextFloat()*2);
 			
 			Vector3 base = new Vector3(holder.getRotation().x, 0, holder.getRotation().z);
 			Vector3 up = new Vector3(0, 1, 0);
-			Vector3 start = base.crs(up);
+			Vector3 start = base.crs(up).mul(2).add(ran.nextFloat()-ran.nextFloat(), 0, ran.nextFloat()-ran.nextFloat());
 			
 			if (side == 1) start.mul(-1);
 			
@@ -78,8 +78,6 @@ public class MeleeWeapon extends Equipment_HAND {
 			
 			
 			beginSwingCircular(start, rot);
-			
-			System.out.println("Beginning swing");
 		}
 	}
 	
@@ -112,7 +110,6 @@ public class MeleeWeapon extends Equipment_HAND {
 		GameActor ga = checkCollisionEntity(atk_style.positionA, atk_style.positionB);
 		if (ga != null)
 		{
-			System.out.println("Hit on entity");
 			damage(ga);
 			collided = true;
 			return;
@@ -120,7 +117,6 @@ public class MeleeWeapon extends Equipment_HAND {
 
 		if (checkCollisionLevel(atk_style.positionA, atk_style.positionB))
 		{
-			System.out.println("Hit on level");
 			collided = true;
 			return;
 		}
@@ -177,7 +173,7 @@ public class MeleeWeapon extends Equipment_HAND {
 
 abstract class Attack_Style
 {
-	public static final int TRAIL_STEPS = 60;
+	public static final int TRAIL_STEPS = 45;
 	
 	Weapon_Style style;
 	

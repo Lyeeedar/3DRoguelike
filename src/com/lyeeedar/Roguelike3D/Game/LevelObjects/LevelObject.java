@@ -60,10 +60,32 @@ public abstract class LevelObject extends GameObject{
 	public static LevelObject checkObject(AbstractObject ao, float x, float y, float z, Level level)
 	{
 		LevelObject lo = null;
-		if (ao.type == ObjectType.DOOR_UNLOCKED)
+		
+		if (ao.type == ObjectType.STATIC)
+		{
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Color colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Static(ao.modelName, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
+					lo = new Static(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
+				}
+			}
+			else
+			{
+				lo = new Static(false, (ao.x)*10, 0, (ao.z)*10, ao);
+				
+			}
+		}
+		else if (ao.type == ObjectType.DOOR_UNLOCKED)
 		{
 			lo = Door.create(ao, level, x, y, z);
-			System.out.println(lo);
 		}
 		else if (ao.type == ObjectType.FIRE_CAMP)
 		{
@@ -128,7 +150,6 @@ public abstract class LevelObject extends GameObject{
 				Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
 				lo = new Stair(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao, GameData.createLevelDOWN(ao.meta.get(LEVEL)));
 			}
-			System.out.println("creating for "+ao.UID);
 		}
 		else if (ao.type == ObjectType.PLAYER_PLACER)
 		{

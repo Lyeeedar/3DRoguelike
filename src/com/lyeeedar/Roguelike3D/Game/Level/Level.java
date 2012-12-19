@@ -104,10 +104,10 @@ public class Level {
 		
 		if (aroom == null) {
 			fillRoomIndex++;
-			System.out.println("Failed to place "+room.roomtype);
+			System.err.println("Failed to place "+room.roomtype);
 			return false;
 		}
-		System.out.println("Placed "+room.roomtype);
+		System.out.println("Placed room "+room.roomtype);
 		
 		
 		ArrayList<AbstractObject> abstractObjects = new ArrayList<AbstractObject>();
@@ -131,7 +131,7 @@ public class Level {
 					
 					if (ao == null) continue;
 					
-					System.out.println("placing object "+ao.type);
+					System.out.println("Placed object "+ao.type);
 					
 					ao = ao.cpy();
 					
@@ -153,35 +153,16 @@ public class Level {
 			
 			if (lo != null)
 			{
+				lo.shortDesc = ao.shortDesc;
+				lo.longDesc = ao.longDesc;
+				levelObjects.add(lo);
 				
-			}
-			else if (ao.visible)
-			{
-				System.out.println("creating static for "+ao.UID);
-				
-				String texture = ao.texture;
-				Color colour = ao.colour;
-				if (ao.modelType.equalsIgnoreCase("model"))
-				{
-					lo = new Static(ao.modelName, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
-				}
-				else if (ao.modelType.equalsIgnoreCase("cube"))
-				{
-					Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
-					lo = new Static(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
-				}
+				levelArray[(int) ao.x][(int) ao.z].lo = lo;
 			}
 			else
 			{
-				lo = new Static(false, (ao.x)*10, 0, (ao.z)*10, ao);
-				
+				System.err.println("Failed at creating Object! Char=" + ao.character + " Type=" + ao.type);
 			}
-			
-			lo.shortDesc = ao.shortDesc;
-			lo.longDesc = ao.longDesc;
-			levelObjects.add(lo);
-			
-			levelArray[(int) ao.x][(int) ao.z].lo = lo;
 		}
 		
 		fillRoomIndex++;

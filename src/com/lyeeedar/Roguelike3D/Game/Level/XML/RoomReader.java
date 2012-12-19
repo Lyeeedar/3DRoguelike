@@ -203,7 +203,10 @@ public class RoomReader extends XMLReader {
 				String type = getNodeValue(TYPE, symbol.getChildNodes());
 				boolean visible = Boolean.parseBoolean(getNodeValue(VISIBLE, symbol.getChildNodes()));
 				String shortDesc = getNodeValue(SHORT_DESCRIPTION, symbol.getChildNodes());
-				if (shortDesc == null) shortDesc = " ";
+				if (shortDesc == null) {
+					System.out.println(character + "   " + type);
+					shortDesc = " ";
+				}
 				String longDesc = getNodeValue(LONG_DESCRIPTION, symbol.getChildNodes());
 				if (longDesc == null) longDesc = " ";
 

@@ -86,7 +86,7 @@ public class InGameScreen extends AbstractScreen {
 		time -= delta;
 		if (time < 0)
 		{
-			System.out.println("Player position = " + GameData.player.getPosition());
+			//System.out.println("Player position = " + GameData.player.getPosition());
 			System.out.println("Visible Particles: "+particleNum);
 			time = 1;
 		}
@@ -206,8 +206,6 @@ public class InGameScreen extends AbstractScreen {
 		
 		if (!paused && Gdx.input.isKeyPressed(Keys.E) && activateCD < 0)
 		{
-			System.out.println("attempt to activate");
-			
 			ray.origin.set(GameData.player.getPosition());
 			ray.direction.set(GameData.player.getRotation());
 			dist = ACTIVATE_DISTANCE;
@@ -224,7 +222,6 @@ public class InGameScreen extends AbstractScreen {
 			
 			if (go != null) 
 			{
-				System.out.println("something to activate!   " + go.UID);
 				go.activate();
 			}
 			

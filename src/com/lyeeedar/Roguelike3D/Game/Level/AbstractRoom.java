@@ -25,7 +25,7 @@ public class AbstractRoom {
 	
 	HashMap<Character, AbstractObject> objects;
 	
-	public AbstractRoom(int width, int height, boolean rotate)
+	public AbstractRoom(int width, int height, boolean rotate, boolean flippable)
 	{
 		
 		if (width == height)
@@ -49,7 +49,7 @@ public class AbstractRoom {
 		
 		objects = new HashMap<Character, AbstractObject>();
 		
-		if (new Random().nextInt(100) < 50) flip = true;
+		if (flippable && new Random().nextInt(100) < 50) flip = true;
 	}
 	
 	public void addObject(AbstractObject ao)

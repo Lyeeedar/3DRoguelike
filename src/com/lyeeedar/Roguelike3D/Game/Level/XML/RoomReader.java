@@ -84,7 +84,7 @@ public class RoomReader extends XMLReader {
 		this.biome = getNode(ROOM_DEFINITIONS, root_node.getChildNodes());
 	}
 	
-	public AbstractRoom getRoom(RoomType rtype, int width, int height)
+	public AbstractRoom getRoom(RoomType rtype, int width, int height, boolean flippable)
 	{
 		Node roomType = getRoomNode(rtype);
 
@@ -97,7 +97,7 @@ public class RoomReader extends XMLReader {
 
 			int w = Integer.parseInt(getNodeValue(WIDTH, n.getChildNodes()));
 			int h = Integer.parseInt(getNodeValue(HEIGHT, n.getChildNodes()));
-			
+
 			if (w <= width)
 			{
 				if (h <= height)
@@ -171,12 +171,12 @@ public class RoomReader extends XMLReader {
 		
 		Node chosen = ns.get(ran.nextInt(ns.size()));
 		
-		int rwidth = Integer.parseInt(getNodeValue(WIDTH, chosen.getChildNodes()));
-		int rheight = Integer.parseInt(getNodeValue(HEIGHT, chosen.getChildNodes()));
+		int rheight = Integer.parseInt(getNodeValue(WIDTH, chosen.getChildNodes()));
+		int rwidth = Integer.parseInt(getNodeValue(HEIGHT, chosen.getChildNodes()));
 		
 		AbstractRoom room = null; 
-		if (rwidth <= width && rheight <= height) room = new AbstractRoom(rheight, rwidth, false);
-		else room = new AbstractRoom(rheight, rwidth, true);
+		if (rwidth <= width && rheight <= height) room = new AbstractRoom(rwidth, rheight, false, flippable);
+		else room = new AbstractRoom(rwidth, rheight, true, flippable);
 		
 		Node roomGraphics = getNode(ROOM, chosen.getChildNodes());
 		int roomIndex = 0;
@@ -203,7 +203,9 @@ public class RoomReader extends XMLReader {
 				String type = getNodeValue(TYPE, symbol.getChildNodes());
 				boolean visible = Boolean.parseBoolean(getNodeValue(VISIBLE, symbol.getChildNodes()));
 				String shortDesc = getNodeValue(SHORT_DESCRIPTION, symbol.getChildNodes());
+				if (shortDesc == null) shortDesc = " ";
 				String longDesc = getNodeValue(LONG_DESCRIPTION, symbol.getChildNodes());
+				if (longDesc == null) longDesc = " ";
 
 				AbstractObject ao = new AbstractObject(character, type, visible, shortDesc, longDesc);
 				
@@ -213,12 +215,11 @@ public class RoomReader extends XMLReader {
 				{
 					for (int j = 0; j < meta.getChildNodes().getLength(); j++)
 					{
-						Node n = meta.getChildNodes().item(i);
+						Node n = meta.getChildNodes().item(j);
+
+						if (!n.getNodeName().equalsIgnoreCase(DATA)) continue;
 						
-						if (n.getNodeName().equalsIgnoreCase(DATA))
-						{
-							ao.addMeta(getNodeValue(NAME, n.getChildNodes()), getNodeValue(CONTENTS, n.getChildNodes()));
-						}
+						ao.addMeta(getNodeValue(NAME, n.getChildNodes()), getNodeValue(CONTENTS, n.getChildNodes()));
 					}
 				}
 
@@ -269,6 +270,20 @@ public class RoomReader extends XMLReader {
 			String longDesc = getNodeValue(LONG_DESCRIPTION, symbol.getChildNodes());
 
 			AbstractObject ao = new AbstractObject(character, type, visible, shortDesc, longDesc);
+			
+			Node meta = getNode(META, symbol.getChildNodes());
+			
+			if (meta != null)
+			{
+				for (int j = 0; j < meta.getChildNodes().getLength(); j++)
+				{
+					Node n = meta.getChildNodes().item(j);
+
+					if (!n.getNodeName().equalsIgnoreCase(DATA)) continue;
+					
+					ao.addMeta(getNodeValue(NAME, n.getChildNodes()), getNodeValue(CONTENTS, n.getChildNodes()));
+				}
+			}
 			
 			if (visible)
 			{

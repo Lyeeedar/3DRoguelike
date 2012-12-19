@@ -28,6 +28,10 @@ import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 public abstract class LevelObject extends GameObject{
 	
 	public static final String LEVEL = "level";
+	
+	boolean opaque = true;
+	boolean solid = true;
+	
 
 	public final AbstractObject ao;
 	
@@ -59,6 +63,7 @@ public abstract class LevelObject extends GameObject{
 		if (ao.type == ObjectType.DOOR_UNLOCKED)
 		{
 			lo = Door.create(ao, level, x, y, z);
+			System.out.println(lo);
 		}
 		else if (ao.type == ObjectType.FIRE_CAMP)
 		{
@@ -123,6 +128,7 @@ public abstract class LevelObject extends GameObject{
 				Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
 				lo = new Stair(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao, GameData.createLevelDOWN(ao.meta.get(LEVEL)));
 			}
+			System.out.println("creating for "+ao.UID);
 		}
 		else if (ao.type == ObjectType.PLAYER_PLACER)
 		{
@@ -138,9 +144,5 @@ public abstract class LevelObject extends GameObject{
 
 	@Override
 	public void draw(Camera cam) {
-	}
-
-	@Override
-	public void activate() {
 	}
 }

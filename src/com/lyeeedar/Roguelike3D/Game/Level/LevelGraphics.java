@@ -65,11 +65,13 @@ public class LevelGraphics {
 		width = levelArray.length;
 		height = levelArray[0].length;
 		
+		System.out.println(width + "   " + height);
+		
 		tempVOs = new TempVO[width][height];
 		tempRoofs = new TempVO[width][height];
 		
-		wBlocks = width/CHUNK_WIDTH;
-		hBlocks = height/CHUNK_HEIGHT;
+		wBlocks = (width/CHUNK_WIDTH)+1;
+		hBlocks = (height/CHUNK_HEIGHT)+1;
 		
 		createMap(levelArray);
 	}
@@ -143,22 +145,25 @@ public class LevelGraphics {
 			
 			for (int ix = 0; ix < CHUNK_WIDTH; ix++)
 			{
+				if (startx+ix == width) break;
 				for (int iy = 0; iy < CHUNK_HEIGHT; iy++)
 				{
+					if (starty+iy == height) break;
 					chunk.addVO(tempVOs[startx+ix][starty+iy], levelArray[startx+ix][starty+iy].character);
 					chunk.addVO(tempRoofs[startx+ix][starty+iy], '#');
 				}
 			}
 			
-			if (chunk.isEmpty()) return false;
-			
-			ArrayList<VisibleObject> chunkGraphics = chunk.merge();
-			
-			for (VisibleObject vo : chunkGraphics)
-			{
-				vo.bakeLights(lights, bakeStatics);
+			if (!chunk.isEmpty()) {
 				
-				graphics.add(vo);
+				ArrayList<VisibleObject> chunkGraphics = chunk.merge();
+				
+				for (VisibleObject vo : chunkGraphics)
+				{
+					vo.bakeLights(lights, bakeStatics);
+					
+					graphics.add(vo);
+				}
 			}
 		}
 		

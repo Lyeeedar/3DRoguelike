@@ -47,12 +47,15 @@ public class Level {
 	public ArrayList<LevelObject> levelObjects = new ArrayList<LevelObject>();
 	
 	public ArrayList<DungeonRoom> rooms;
-	
+
 	public int width;
 	public int height;
 	
+	public GeneratorType gtype;
+	
 	public Level(int width, int height, GeneratorType gtype, BiomeReader biome)
 	{
+		this.gtype = gtype;
 		this.width = width;
 		this.height = height;
 		
@@ -97,7 +100,7 @@ public class Level {
 		}
 		
 		DungeonRoom room = rooms.get(fillRoomIndex);
-		AbstractRoom aroom = rReader.getRoom(room.roomtype, room.width, room.height);
+		AbstractRoom aroom = rReader.getRoom(room.roomtype, room.width, room.height, (gtype != GeneratorType.STATIC));
 		
 		if (aroom == null) {
 			fillRoomIndex++;
@@ -105,6 +108,10 @@ public class Level {
 			return false;
 		}
 		System.out.println("Placed "+room.roomtype);
+		
+		
+		ArrayList<AbstractObject> abstractObjects = new ArrayList<AbstractObject>();
+		
 		
 		for (int i = 0; i < aroom.width; i++)
 		{
@@ -124,51 +131,122 @@ public class Level {
 					
 					if (ao == null) continue;
 					
+					System.out.println("placing object "+ao.type);
+					
 					ao = ao.cpy();
 					
 					ao.x = room.x+i;
 					ao.z = room.y+j;
 					ao.y = levelArray[room.x+i][room.y+j].floor;
 					
-					LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this);
+					abstractObjects.add(ao);
 					
-					if (lo != null)
-					{
-						
-					}
-					else if (ao.visible)
-					{
-						String texture = ao.texture;
-						Color colour = ao.colour;
-						if (ao.modelType.equalsIgnoreCase("model"))
-						{
-							lo = new Static(ao.modelName, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
-						}
-						else if (ao.modelType.equalsIgnoreCase("cube"))
-						{
-							Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
-							lo = new Static(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
-						}
-					}
-					
-					if (lo == null)
-					{
-						lo = new Static(false, (ao.x)*10, 0, (ao.z)*10, ao);
-						
-					}
-					
-					lo.shortDesc = ao.shortDesc;
-					lo.longDesc = ao.longDesc;
-					levelObjects.add(lo);
-					
-					levelArray[room.x+i][room.y+j].lo = lo;
 				}
 				
 			}
 		}
 		
+		for (AbstractObject ao : abstractObjects)
+		{
+
+			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this);
+			
+			if (lo != null)
+			{
+				
+			}
+			else if (ao.visible)
+			{
+				System.out.println("creating static for "+ao.UID);
+				
+				String texture = ao.texture;
+				Color colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("model"))
+				{
+					lo = new Static(ao.modelName, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					Mesh mesh = Shapes.genCuboid(ao.modelDimensions[0], ao.modelDimensions[1], ao.modelDimensions[2]);
+					lo = new Static(mesh, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao);
+				}
+			}
+			else
+			{
+				lo = new Static(false, (ao.x)*10, 0, (ao.z)*10, ao);
+				
+			}
+			
+			lo.shortDesc = ao.shortDesc;
+			lo.longDesc = ao.longDesc;
+			levelObjects.add(lo);
+			
+			levelArray[(int) ao.x][(int) ao.z].lo = lo;
+		}
+		
 		fillRoomIndex++;
 		return false;
+	}
+	
+	
+	float tempdist2;
+	/**
+	 * 
+	 * @param ray - The ray to be used for Intersecting
+	 * @param dist2 - The square of the maximum distance (to remove square root operations)
+	 * @param ignoreUID - The UID of the object to ignore
+	 * @return
+	 */
+	public GameActor getClosestActor(Ray ray, float dist2, String ignoreUID, Vector3 collisionPoint)
+	{
+		GameActor chosen = null;
+		for (GameActor go : GameData.level.actors)
+		{
+			if (go.UID.equals(ignoreUID)) continue;
+
+			if (Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), tmpVec)) 
+			{
+				tempdist2 = tmpVec.dst2(ray.origin);
+				if (tempdist2 > dist2) continue;
+				else
+				{
+					if (collisionPoint != null) collisionPoint.set(tmpVec);
+					dist2 = tempdist2;
+					chosen = go;
+				}
+			}
+
+		}
+		return chosen;
+	}
+	/**
+	 * 
+	 * @param ray - The ray to be used for Intersecting
+	 * @param dist2 - The square of the maximum distance (to remove square root operations)
+	 * @param ignoreUID - The UID of the object to ignore
+	 * @return
+	 */
+	public LevelObject getClosestLevelObject(Ray ray, float dist2, String ignoreUID, Vector3 collisionPoint)
+	{
+		LevelObject chosen = null;
+		for (LevelObject go : GameData.level.levelObjects)
+		{
+			if (go.UID.equals(ignoreUID)) continue;
+
+			if (Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), tmpVec)) 
+			{
+				tempdist2 = tmpVec.dst2(ray.origin);
+				if (tempdist2 > dist2) continue;
+				else
+				{
+					if (collisionPoint != null) collisionPoint.set(tmpVec);
+					dist2 = tempdist2;
+					chosen = go;
+				}
+			}
+		}
+
+		return chosen;
 	}
 	
 	public static final int VIEW_STEP = 10;

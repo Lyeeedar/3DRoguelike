@@ -2,6 +2,7 @@ package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
@@ -29,6 +30,12 @@ public class Stair extends LevelObject {
 			float z, AbstractObject ao, String level_UID) {
 		super(model, colour, texture, x, y, z, ao);
 		this.level_UID = level_UID;
+	}
+
+	@Override
+	public void activate() {
+		System.out.println("Change level");
+		GameData.changeLevel(GameData.getLevel(level_UID));
 	}
 
 }

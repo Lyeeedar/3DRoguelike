@@ -34,18 +34,18 @@ public class Door extends LevelObject {
 		
 		float hingex = 0;
 		float hingez = 0;
-		
+
 		if (level.checkSolid((int)(x/10f), (int)(z/10f)-1) && level.checkSolid((int)(x/10f), (int)(z/10f)+1))
 		{
 			lx = 1;
-			lz = 5;
+			lz = 10;
 			
 			hingex = 5;
 			hingez = 0.1f;
 		}
 		else if (level.checkSolid((int)(x/10f)-1, (int)(z/10f)) && level.checkSolid((int)(x/10f)+1, (int)(z/10f)))
 		{
-			lx = 5;
+			lx = 10;
 			lz = 1;
 			
 			hingex = 0.1f;
@@ -54,16 +54,34 @@ public class Door extends LevelObject {
 		else return null;
 		
 		Color colour = Color.WHITE;
-		Door door = new Door(Shapes.genCuboid(lx, ly, lz), colour, "tex+", x, y+ly, z, ao, hingex, hingez);
+		Door door = new Door(Shapes.genCuboid(lx, ly, lz), colour, "tex+", x, y+(ly/2), z, ao, hingex, hingez);
 		door.shortDesc = ao.shortDesc;
 		door.longDesc = ao.longDesc;
 		
-		Matrix4 hinge = new Matrix4();
-		hinge.setToRotation(0, 1, 0, 90);
-		hinge.mul(new Matrix4().setToTranslation(hingex, 0, hingez));
-		door.vo.attributes.getTransform().mul(hinge);
-		
 		return door;
+	}
+
+	@Override
+	public void activate() {
+		
+		System.out.println("door activate");
+		
+		if (solid)
+		{
+			Matrix4 hinge = new Matrix4();
+			hinge.setToRotation(0, 1, 0, 90);
+			hinge.mul(new Matrix4().setToTranslation(hingex, 0, hingez));
+			vo.attributes.getRotation().mul(hinge);
+			solid = false;
+		}
+		else
+		{
+			Matrix4 hinge = new Matrix4();
+			hinge.setToRotation(0, 1, 0, 0);
+			hinge.mul(new Matrix4().setToTranslation(hingex, 0, hingez));
+			vo.attributes.getRotation().idt();
+			solid = true;
+		}
 	}
 
 }

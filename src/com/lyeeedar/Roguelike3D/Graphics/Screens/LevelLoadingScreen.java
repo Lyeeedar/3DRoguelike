@@ -81,6 +81,8 @@ public class LevelLoadingScreen extends AbstractScreen{
 		
 		percent = 0;
 		message = "";
+		
+		loadingStage = 0;
 	}
 	
 	int loadingStage = 0;
@@ -138,7 +140,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		}
 		else if (loadingStage == 6)
 		{
-			GameData.finishLoading(level, graphics, game, "InGame");
+			GameData.finishLoading(level, graphics, "InGame");
 			loadingStage++;
 		}
 		

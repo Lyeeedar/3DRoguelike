@@ -34,7 +34,8 @@ public class InGameScreen extends AbstractScreen {
 	public boolean paused = false;
 	Texture pausedTint;
 	
-	public static final int VIEW_DISTANCE = 1000;
+	public static final int VIEW_DISTANCE = 500;
+	public static final int ACTIVATE_DISTANCE = 500;
 	public static final boolean SHOW_COLLISION_BOX = false;
 	public static final int MAP_WIDTH = 100;
 	public static final int MAP_HEIGHT = 100;
@@ -85,6 +86,7 @@ public class InGameScreen extends AbstractScreen {
 		time -= delta;
 		if (time < 0)
 		{
+			System.out.println("Player position = " + GameData.player.getPosition());
 			System.out.println("Visible Particles: "+particleNum);
 			time = 1;
 		}
@@ -137,9 +139,10 @@ public class InGameScreen extends AbstractScreen {
 	
 	Ray ray = new Ray(new Vector3(), new Vector3());
 	boolean tabCD = false;
+	float activateCD = 0;
 	@Override
 	public void update(float delta) {
-		
+		activateCD -= delta;
 		if (!paused)
 		{
 			for (LevelObject lo : GameData.level.levelObjects)
@@ -197,23 +200,49 @@ public class InGameScreen extends AbstractScreen {
 			ray.direction.set(GameData.player.getRotation());
 			dist = VIEW_DISTANCE;
 		}
-		
+
 		getDescription(dist, ray, paused);
+		
+		
+		if (!paused && Gdx.input.isKeyPressed(Keys.E) && activateCD < 0)
+		{
+			System.out.println("attempt to activate");
+			
+			ray.origin.set(GameData.player.getPosition());
+			ray.direction.set(GameData.player.getRotation());
+			dist = ACTIVATE_DISTANCE;
+			
+			GameObject go = GameData.level.getClosestActor(ray, dist, GameData.player.UID, tmpVec);
+			
+			if (go != null)
+			{			
+				System.out.println("actor collision");
+				dist = tmpVec.dst2(ray.origin);
+			}
+
+			go = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
+			
+			if (go != null) 
+			{
+				System.out.println("something to activate!   " + go.UID);
+				go.activate();
+			}
+			
+			activateCD = 1;
+		}
+		
 	}
 	
+	final Vector3 tmpVec = new Vector3();
 	public void getDescription(float dist, Ray ray, boolean longDesc)
 	{
 		desc.delete(0, desc.length());
 		desc.append("There is nothing there but empty space.");
-	
-		for (GameObject go : GameData.level.actors)
+		
+		GameObject go = GameData.level.getClosestActor(ray, dist, GameData.player.UID, tmpVec);
+		
+		if (go != null)
 		{
-			if (go.UID.equals(GameData.player.UID)) continue;
-			tempdist = cam.position.dst2(go.getPosition());
-			if (tempdist > dist) continue;
-			else if (!Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), null)) continue;
-			
-			dist = tempdist;
 			desc.delete(0, desc.length());
 			if (longDesc) {
 				desc.append(go.longDesc);
@@ -222,14 +251,14 @@ public class InGameScreen extends AbstractScreen {
 			{
 				desc.append(go.shortDesc);
 			}
+			
+			dist = tmpVec.dst2(ray.origin);
 		}
-		for (GameObject go : GameData.level.levelObjects)
+
+		go = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
+		
+		if (go != null)
 		{
-			tempdist = cam.position.dst2(go.getPosition());
-			if (tempdist > dist) continue;
-			else if (!Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), null)) continue;
-			
-			dist = tempdist;
 			desc.delete(0, desc.length());
 			if (longDesc) {
 				desc.append(go.longDesc);
@@ -238,6 +267,8 @@ public class InGameScreen extends AbstractScreen {
 			{
 				desc.append(go.shortDesc);
 			}
+			
+			dist = tmpVec.dst2(ray.origin);
 		}
 		
 		dist = GameData.level.getDescription(ray, dist, desc, paused);
@@ -266,15 +297,7 @@ public class InGameScreen extends AbstractScreen {
 	@Override
 	public void show()
 	{
-		Gdx.input.setCursorCatched(true);
-		
-		
-		Player p = GameData.player;
-		ParticleEmitter pe = new ParticleEmitter(p.getPosition().x, p.getPosition().y+15, p.getPosition().z, 35, 0, 35, 0.75f, 1000);
-		
-		Color rain = new Color(0f, 0.345098f, 0.345098f, 1.0f);
-		pe.setDecal("data/textures/texr.png", new Vector3(0.0f, -21.0f, 0.0f), 5, rain, rain, 1, 1, false);
-		GameData.particleEmitters.add(pe);
+		Gdx.input.setCursorCatched(true);	
 	}
 
 	@Override

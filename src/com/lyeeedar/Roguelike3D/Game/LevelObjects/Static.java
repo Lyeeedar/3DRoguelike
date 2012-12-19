@@ -26,4 +26,8 @@ public class Static extends LevelObject {
 		super(model, colour, texture, x, y, z, ao);
 	}
 
+	@Override
+	public void activate() {
+	}
+
 }

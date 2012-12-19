@@ -106,18 +106,22 @@ public class GameData {
 	public static ArrayList<LevelContainer> dungeon = new ArrayList<LevelContainer>();
 	public static LevelContainer currentLevel;
 	
+	public static Roguelike3DGame game;
+	
 	public static void init(final Roguelike3DGame game)
 	{	
+		GameData.game = game;
+		
 		LevelContainer lc = new LevelContainer("start_town", 1);
 		
 		currentLevel = lc;
 
-		createNewLevel(game, lc);
+		changeLevel(lc);
 		
 	}
 	
 	static String prevLevel;
-	public static void createNewLevel(final Roguelike3DGame game, LevelContainer lc)
+	public static void changeLevel(LevelContainer lc)
 	{
 		prevLevel = currentLevel.UID;
 		currentLevel = lc;
@@ -130,13 +134,13 @@ public class GameData {
 		game.loadLevel(biome, rReader, "InGame");
 	}
 	
-	public static void finishLoading(Level level, LevelGraphics graphics, Roguelike3DGame game, String nextScreen)
+	public static void finishLoading(Level level, LevelGraphics graphics, String nextScreen)
 	{
+		System.out.println("finish loading");
+		
 		if (player == null)
 		{
 			player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f);
-			
-			level.addActor(player);
 		}
 		
 		for (LevelObject lo : level.levelObjects)
@@ -152,7 +156,7 @@ public class GameData {
 				
 				if (s.level_UID.equals(prevLevel))
 				{
-					player.positionAbsolutely(s.position.cpy());
+					player.positionAbsolutely(s.position.cpy().add(0, 4, 0));
 					break;
 				}
 			}
@@ -161,6 +165,9 @@ public class GameData {
 		GameData.level = level;
 		currentLevel.level = level;
 		levelGraphics = graphics;
+		
+		level.addActor(player);
+		
 		game.switchScreen(nextScreen);
 	}
 
@@ -176,7 +183,7 @@ public class GameData {
 	
 	public static String createLevelUP(String biome)
 	{
-		if (currentLevel.up_index == 0)
+		if (currentLevel.up_levels.size() > 0 && currentLevel.up_index == 0)
 		{
 			currentLevel.up_index++;
 			return currentLevel.up_levels.get(0).UID;
@@ -190,7 +197,8 @@ public class GameData {
 	
 	public static String createLevelDOWN(String biome)
 	{
-		if (currentLevel.down_index == 0)
+		System.out.println(biome);
+		if (currentLevel.down_levels.size() > 0 && currentLevel.down_index == 0)
 		{
 			currentLevel.down_index++;
 			return currentLevel.down_levels.get(0).UID;

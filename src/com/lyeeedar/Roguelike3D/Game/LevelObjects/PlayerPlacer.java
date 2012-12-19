@@ -12,4 +12,8 @@ public class PlayerPlacer extends LevelObject {
 		super(visible, x, y, z, ao);
 	}
 
+	@Override
+	public void activate() {
+	}
+
 }

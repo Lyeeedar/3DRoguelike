@@ -11,6 +11,7 @@
 package com.lyeeedar.Roguelike3D.Game.Level;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -41,6 +42,8 @@ public class AbstractObject {
 		ALTAR
 	}
 	
+	public final String UID;
+	
 	public final char character;
 	public final ObjectType type;
 	public final boolean visible;
@@ -67,6 +70,8 @@ public class AbstractObject {
 		this.visible = visible;
 		this.shortDesc = shortDesc;
 		this.longDesc = longDesc;
+		
+		UID = character+"   "+type+System.currentTimeMillis()+toString();
 	}
 	
 	public float x; public float y; public float z;
@@ -81,11 +86,14 @@ public class AbstractObject {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		
+		UID = character+"   "+type+System.currentTimeMillis()+toString();
 	}
 	
 	public void addMeta(String name, String contents)
 	{
-		meta.put(name,  contents);
+		meta.put(name, contents);
+		System.out.println(name + "   " + contents + "    " + type + "    " + meta.size() + "     " + UID);
 	}
 	
 	public void addMeta(String[]... data)
@@ -199,6 +207,8 @@ public class AbstractObject {
 		this.visible = visible;
 		this.shortDesc = shortDesc;
 		this.longDesc = longDesc;
+		
+		UID = character+"   "+type+System.currentTimeMillis()+toString();
 	}
 	
 	public void setModel(String modelType, String modelName, float modelScale, String texture, Color colour, float[] modelDimensions)
@@ -215,6 +225,11 @@ public class AbstractObject {
 	{
 		AbstractObject ao = new AbstractObject(character, type, visible, shortDesc, longDesc);
 		ao.setModel(modelType, modelName, modelScale, texture, colour, modelDimensions);
+		
+		for (Map.Entry<String, String> entry : meta.entrySet())
+		{
+			ao.addMeta(entry.getKey(), entry.getValue());
+		}
 		
 		return ao;
 	}

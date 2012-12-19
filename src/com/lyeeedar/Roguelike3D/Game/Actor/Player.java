@@ -24,8 +24,8 @@ import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public class Player extends GameActor {
 	
-	public static final float WHIPLASHCD = 0.4f;
-	public static final float WHIPLASHAMOUNT = 0.3f;
+	public static final float WHIPLASHCD = 0.1f;
+	public static final float WHIPLASHAMOUNT = 0.1f;
 	
 	public GameObject lookedAtObject;
 

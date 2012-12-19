@@ -51,5 +51,9 @@ public class EmitterObject extends LevelObject {
 		}
 	}
 
+	@Override
+	public void activate() {
+	}
+
 
 }

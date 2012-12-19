@@ -12,6 +12,7 @@ import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Weapon_Style;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public class MeleeWeapon extends Equipment_HAND {
@@ -99,51 +100,30 @@ public class MeleeWeapon extends Equipment_HAND {
 	
 	final Vector3 tmpVec = new Vector3();
 	final Vector3 tmpVec2 = new Vector3();
-	
-	final Vector3 tmpPosA = new Vector3();
-	final Vector3 tmpPosB = new Vector3();
+
 	public void update(float delta)
 	{
 		if (!swinging) return;
-		
-		tmpPosA.set(atk_style.positionA);
-		tmpPosB.set(atk_style.positionB);
 		
 		atk_style.update(delta, collided);
 		
 		if (collided) return;
 		
-		GameActor ga = checkCollisionEntity(tmpPosA, atk_style.positionA);
+		GameActor ga = checkCollisionEntity(atk_style.positionA, atk_style.positionB);
 		if (ga != null)
 		{
-			System.out.println("Hit on entity. A");
+			System.out.println("Hit on entity");
 			damage(ga);
-			collided = true;
-			return;
-		}
-		ga = checkCollisionEntity(tmpPosB, atk_style.positionB);
-		if (ga != null)
-		{
-			System.out.println("Hit on entity. B");
-			damage(ga);
-			collided = true;
-			return;
-		}
-		
-		if (checkCollisionLevel(tmpPosA, atk_style.positionA))
-		{
-			System.out.println("Hit on level. A");
 			collided = true;
 			return;
 		}
 
-		if (checkCollisionLevel(tmpPosB, atk_style.positionB))
+		if (checkCollisionLevel(atk_style.positionA, atk_style.positionB))
 		{
-			System.out.println("Hit on level. B");
+			System.out.println("Hit on level");
 			collided = true;
 			return;
 		}
-		
 	}
 	
 	public void draw(Camera cam)
@@ -173,16 +153,9 @@ public class MeleeWeapon extends Equipment_HAND {
 		ray.direction.set(end);
 		ray.direction.sub(start);
 		
-		for (GameObject go : level.levelObjects)
-		{
-			if (Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), tmpVec))
-			{
-				if (start.dst2(tmpVec) > start.dst2(end)) continue;
-				return true;
-			}
-		}
+		LevelObject lo = level.getClosestLevelObject(ray, start.dst2(end), holder.UID, null);
 		
-		return false;
+		return (lo != null);
 	}
 	
 	public GameActor checkCollisionEntity(Vector3 start, Vector3 end)
@@ -193,19 +166,7 @@ public class MeleeWeapon extends Equipment_HAND {
 		ray.direction.set(end);
 		ray.direction.sub(start);
 		
-		for (GameActor go : level.actors)
-		{
-			if (go.UID.equals(holder.UID)) continue;
-			
-			if (Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), tmpVec))
-			{
-				if (start.dst2(tmpVec) > start.dst2(end)) continue;
-				
-				return go;
-			}
-		}
-		
-		return null;
+		return level.getClosestActor(ray, start.dst2(end), holder.UID, null);
 	}
 	
 	public void dispose()

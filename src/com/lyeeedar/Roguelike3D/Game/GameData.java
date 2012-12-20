@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.Color;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
@@ -18,6 +19,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.PlayerPlacer;
@@ -74,24 +76,6 @@ public class GameData {
 		TOUCH
 	}
 	
-	public enum Weapon_Type {
-		CLAW(0.5f, 0.5f, 0.0f),
-		FIST(0.1f, 0.5f, 0.1f),
-		CLUB(0.0f, 0.9f, 0.1f),
-		TEETH(0.7f, 0.1f, 0.1f);
-		
-		public final float PIERCE;
-		public final float IMPACT;
-		public final float TOUCH;
-		
-		private Weapon_Type(float PIERCE, float IMPACT, float TOUCH)
-		{
-			this.PIERCE = PIERCE;
-			this.IMPACT = IMPACT;
-			this.TOUCH = TOUCH;
-		}
-	}
-	
 	public static LightManager lightManager;
 	
 	public static Level level;
@@ -118,6 +102,9 @@ public class GameData {
 
 		changeLevel(lc);
 		
+		MonsterEvolver me = new MonsterEvolver("group", 1);
+		me.createMap();
+		me.Evolve_Creature();
 	}
 	
 	static String prevLevel;
@@ -266,28 +253,30 @@ public class GameData {
 		return damType;
 	}
 	
-	public static Weapon_Type getWeaponType(String type)
+	public static int calculateDamage(int strength, 
+			HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam, 
+			HashMap<Element, Integer> ele_def, HashMap<Damage_Type, Integer> dam_def)
 	{
-		Weapon_Type wepType = null;
+		int damage = 
+				(((strength/100)*dam_dam.get(Damage_Type.PIERCE)) * ((100-dam_def.get(Damage_Type.PIERCE))/100)) +
+				(((strength/100)*dam_dam.get(Damage_Type.IMPACT)) * ((100-dam_def.get(Damage_Type.IMPACT))/100)) +
+				(((strength/100)*dam_dam.get(Damage_Type.TOUCH)) * ((100-dam_def.get(Damage_Type.TOUCH))/100));
 		
-		if (type.equalsIgnoreCase("CLAW"))
-		{
-			wepType = Weapon_Type.CLAW;
-		}
-		else if (type.equalsIgnoreCase("FIST"))
-		{
-			wepType = Weapon_Type.FIST;
-		}
-		else if (type.equalsIgnoreCase("CLUB"))
-		{
-			wepType = Weapon_Type.CLUB;
-		}
-		else if (type.equalsIgnoreCase("TEETH"))
-		{
-			wepType = Weapon_Type.TEETH;
-		}
-		
-		return wepType;
+		int ele_damage = 
+				(((damage/100)*ele_dam.get(Element.FIRE)) * ((100-ele_def.get(Element.FIRE))/100)) +
+				(((damage/100)*ele_dam.get(Element.WATER)) * ((100-ele_def.get(Element.WATER))/100)) +
+				(((damage/100)*ele_dam.get(Element.AIR)) * ((100-ele_def.get(Element.AIR))/100)) +
+				(((damage/100)*ele_dam.get(Element.WOOD)) * ((100-ele_def.get(Element.WOOD))/100)) +
+				(((damage/100)*ele_dam.get(Element.METAL)) * ((100-ele_def.get(Element.METAL))/100)) +
+				(((damage/100)*ele_dam.get(Element.AETHER)) * ((100-ele_def.get(Element.AETHER))/100)) +
+				(((damage/100)*ele_dam.get(Element.VOID)) * ((100-ele_def.get(Element.VOID))/100));
+
+		return ele_damage;
+	}
+	
+	public static int calculateSpeed(int weight, int strength)
+	{
+		return weight / strength;
 	}
 
 }

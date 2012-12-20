@@ -18,7 +18,6 @@ public abstract class Equippable extends Item {
 	public int IQ = 0;
 	
 	public float ATTACK_SPEED = 0;
-	public float CAST_SPEED = 0;
 
 	public Equippable() {
 		setupDefenses();

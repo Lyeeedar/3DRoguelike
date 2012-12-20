@@ -29,44 +29,31 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 
 public abstract class GameActor extends GameObject{
+	
+	public static final float WHIPLASHCD = 0.1f;
+	public static final float WHIPLASHAMOUNT = 0.1f;
+
+	public final Vector3 offsetPos = new Vector3();
+	public final Vector3 offsetRot = new Vector3();
+	
 
 	// ----- Actor Statistics START ----- //
 	
 	public HashMap<String, Item> INVENTORY = new HashMap<String, Item>();
 	
-	public Equippable HELMET;
-	public Equippable SHIRT;
-	public Equippable TROUSERS;
-	public Equippable BOOTS;
-	public Equippable GLOVES;
+	public int HEALTH;
+	public int WEIGHT;
+	public int STRENGTH;
+	
+	public HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
+	public HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
+	
+	public String FACTION;
+	public boolean IMMORTAL;
+	public AI_Package ai;
 	
 	public Equipment_HAND L_HAND;
 	public Equipment_HAND R_HAND;
-	
-	public int HEALTH;
-	public int BOOST_HEALTH;
-	public HashMap<Element, Integer> ELE_DEFENSES;
-	public HashMap<Element, Integer> BOOST_ELE_DEFENSES;
-	
-	public HashMap<Damage_Type, Integer> DEFENSES;
-	public HashMap<Damage_Type, Integer> BOOST_DEFENSES;
-	
-	public int WEIGHT;
-	public int BOOST_WEIGHT;
-	
-	public int STRENGTH;
-	public int BOOST_STRENGTH;
-	public int IQ;
-	public int BOOST_IQ;
-	
-	public float ATTACK_SPEED;
-	public float BOOST_ATTACK_SPEED;
-	public float CAST_SPEED;
-	public float BOOST_CAST_SPEED;
-	
-	public String FACTION;
-	
-	public boolean IMMORTAL;
 	
 	// ----- Actor Statistics END ----- //
 	
@@ -103,8 +90,6 @@ public abstract class GameActor extends GameObject{
 		{
 			L_HAND = equip;
 		}
-		
-		calculateBoost();
 	}
 	
 	public void equipR_HAND(Equipment_HAND equip)
@@ -118,164 +103,47 @@ public abstract class GameActor extends GameObject{
 		{
 			R_HAND = equip;
 		}
-		
-		calculateBoost();
 	}
 	
 	public void setupDefenses()
 	{
-		DEFENSES = new HashMap<Damage_Type, Integer>();
+		DAM_DEF = new HashMap<Damage_Type, Integer>();
 		
-		DEFENSES.put(Damage_Type.PIERCE, 0);
-		DEFENSES.put(Damage_Type.IMPACT, 0);
-		DEFENSES.put(Damage_Type.TOUCH, 0);
+		DAM_DEF.put(Damage_Type.PIERCE, 0);
+		DAM_DEF.put(Damage_Type.IMPACT, 0);
+		DAM_DEF.put(Damage_Type.TOUCH, 0);
+
+		ELE_DEF = new HashMap<Element, Integer>();
 		
-		BOOST_DEFENSES = new HashMap<Damage_Type, Integer>();
-		
-		BOOST_DEFENSES.put(Damage_Type.PIERCE, 0);
-		BOOST_DEFENSES.put(Damage_Type.IMPACT, 0);
-		BOOST_DEFENSES.put(Damage_Type.TOUCH, 0);
-		
-		ELE_DEFENSES = new HashMap<Element, Integer>();
-		
-		ELE_DEFENSES.put(Element.FIRE, 0);
-		ELE_DEFENSES.put(Element.AIR, 0);
-		ELE_DEFENSES.put(Element.WATER, 0);
-		ELE_DEFENSES.put(Element.WOOD, 0);
-		ELE_DEFENSES.put(Element.METAL, 0);
-		ELE_DEFENSES.put(Element.AETHER, 0);
-		ELE_DEFENSES.put(Element.VOID, 0);
-		
-		BOOST_ELE_DEFENSES = new HashMap<Element, Integer>();
-		
-		BOOST_ELE_DEFENSES.put(Element.FIRE, 0);
-		BOOST_ELE_DEFENSES.put(Element.AIR, 0);
-		BOOST_ELE_DEFENSES.put(Element.WATER, 0);
-		BOOST_ELE_DEFENSES.put(Element.WOOD, 0);
-		BOOST_ELE_DEFENSES.put(Element.METAL, 0);
-		BOOST_ELE_DEFENSES.put(Element.AETHER, 0);
-		BOOST_ELE_DEFENSES.put(Element.VOID, 0);
+		ELE_DEF.put(Element.FIRE, 0);
+		ELE_DEF.put(Element.AIR, 0);
+		ELE_DEF.put(Element.WATER, 0);
+		ELE_DEF.put(Element.WOOD, 0);
+		ELE_DEF.put(Element.METAL, 0);
+		ELE_DEF.put(Element.AETHER, 0);
+		ELE_DEF.put(Element.VOID, 0);
 	}
 	
-	public void calculateBoost()
-	{
-		BOOST_DEFENSES = new HashMap<Damage_Type, Integer>();
-		
-		BOOST_DEFENSES.put(Damage_Type.PIERCE, 0);
-		BOOST_DEFENSES.put(Damage_Type.IMPACT, 0);
-		BOOST_DEFENSES.put(Damage_Type.TOUCH, 0);
-		
-		BOOST_ELE_DEFENSES = new HashMap<Element, Integer>();
-		
-		BOOST_ELE_DEFENSES.put(Element.FIRE, 0);
-		BOOST_ELE_DEFENSES.put(Element.AIR, 0);
-		BOOST_ELE_DEFENSES.put(Element.WATER, 0);
-		BOOST_ELE_DEFENSES.put(Element.WOOD, 0);
-		BOOST_ELE_DEFENSES.put(Element.METAL, 0);
-		BOOST_ELE_DEFENSES.put(Element.AETHER, 0);
-		BOOST_ELE_DEFENSES.put(Element.VOID, 0);
-		
-		BOOST_HEALTH = 0;
-		BOOST_WEIGHT = 0;
-		BOOST_STRENGTH = 0;
-		BOOST_IQ = 0;
-		BOOST_ATTACK_SPEED = 0;
-		BOOST_CAST_SPEED = 0;
-		
-		if (HELMET != null)
-		{
-			addBoost(HELMET);
-		}
-		
-		if (SHIRT != null)
-		{
-			addBoost(SHIRT);
-		}
-		
-		if (TROUSERS != null)
-		{
-			addBoost(TROUSERS);
-		}
-		
-		if (BOOTS != null)
-		{
-			addBoost(BOOTS);
-		}
-		
-		if (GLOVES != null)
-		{
-			addBoost(GLOVES);
-		}
-		
-		if (L_HAND != null)
-		{
-			addBoost(L_HAND);
-		}
-		
-		if (R_HAND != null)
-		{
-			addBoost(R_HAND);
-		}
-	}
-	
-	
-	private void addBoost(Equippable e)
-	{
-		BOOST_HEALTH += e.HEALTH;
-		for (Map.Entry<Element, Integer> entry : e.ELE_DEFENSES.entrySet())
-		{
-			int temp = BOOST_ELE_DEFENSES.get(entry.getKey());
-			temp += entry.getValue();
-			BOOST_ELE_DEFENSES.remove(entry.getKey());
-			BOOST_ELE_DEFENSES.put(entry.getKey(), temp);
-		}
-		for (Map.Entry<Damage_Type, Integer> entry : e.DEFENSES.entrySet())
-		{
-			int temp = BOOST_DEFENSES.get(entry.getKey());
-			temp += entry.getValue();
-			BOOST_DEFENSES.remove(entry.getKey());
-			BOOST_DEFENSES.put(entry.getKey(), temp);
-		}
-		
-		BOOST_WEIGHT += e.WEIGHT;
-		BOOST_STRENGTH += e.STRENGTH;
-		BOOST_IQ += e.IQ;
-		BOOST_ATTACK_SPEED += e.ATTACK_SPEED;
-		BOOST_CAST_SPEED += e.CAST_SPEED;
-	}
-	
-	@Override
-	public void applyMovement()
-	{
-		float oldX = position.x/10;
-		float oldZ = position.z/10;
-		
-		super.applyMovement();
-		
-		float newX = position.x/10;
-		float newZ = position.z/10;
-		
-		//GameData.level.moveActor(oldX, oldZ, newX, newZ, UID);
-	}
-	
-	public void damage(Damage_Type dam_type, Element ele_type, float amount)
+	public void damage(int strength, 
+			HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam, 
+			HashMap<Element, Integer> ele_def, HashMap<Damage_Type, Integer> dam_def)
 	{
 		if (!alive || IMMORTAL) return;
 		
-		int damDefense = DEFENSES.get(dam_type) + BOOST_DEFENSES.get(dam_type);
-		int eleDefense = ELE_DEFENSES.get(ele_type) + BOOST_ELE_DEFENSES.get(ele_type);
-		
-		if (damDefense != 0) amount *= (100-damDefense)/100;
-		if (eleDefense != 0) amount *= (100-eleDefense)/100;
-		
-		HEALTH -= amount;
+		HEALTH -= GameData.calculateDamage(strength, ele_dam, dam_dam, ele_def, dam_def);
 
-		if (HEALTH+BOOST_HEALTH <= 0) death();
+		if (HEALTH <= 0) death();
 
 	}
 	
 	public void death()
 	{
 		alive = false;
+	}
+	
+	@Override
+	public void update(float delta)
+	{
+		ai.evaluateAI(delta);
 	}
 }

@@ -49,13 +49,13 @@ public abstract class GameObject {
 	
 	protected final Random ran = new Random();
 	
-	protected final static float xrotate = -800f/720f;
-	protected final static float yrotate = -600f/720f;
+	public final static float xrotate = -800f/720f;
+	public final static float yrotate = -600f/720f;
 
 	// x y z
 	protected final Vector3 position = new Vector3();
 	protected final Vector3 rotation = new Vector3(1, 0, 1);
-	protected final Vector3 velocity = new Vector3();
+	public final Vector3 velocity = new Vector3();
 	
 	public final Vector3 up = new Vector3(0, 1, 0);
 
@@ -134,8 +134,8 @@ public abstract class GameObject {
 		translate(0, 0, 0);
 	}
 	
-	protected boolean collidedVertically = false;
-	protected boolean collidedHorizontally = false;
+	public boolean collidedVertically = false;
+	public boolean collidedHorizontally = false;
 
 	float startVelocityHori = 0;
 	float endVelocityHori = 0;

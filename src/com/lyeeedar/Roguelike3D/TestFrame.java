@@ -27,6 +27,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 import com.lyeeedar.Roguelike3D.Game.Level.SerkGenerator;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 
@@ -34,21 +35,20 @@ public class TestFrame extends JFrame
 {
 	public static void main(String[] args)
 	{
-		BiomeReader biome = new BiomeReader("generic");
-		Level level = new Level(80, 80, GeneratorType.SERK, biome);
+		MonsterEvolver me = new MonsterEvolver("group", 1);
 		
-		new TestFrame(level);
+		new TestFrame(me);
 	}
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7985050102337369937L;
 
-	public TestFrame(Level level)
+	public TestFrame(MonsterEvolver me)
 	{
 		this.setFocusable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.add(new DrawingCanvas(level));
+		this.add(new DrawingCanvas(me));
 		
 		this.setSize(640, 480);
 		this.setVisible(true);
@@ -57,28 +57,16 @@ public class TestFrame extends JFrame
 
 class DrawingCanvas extends JPanel implements KeyListener
 {
-	AbstractTile[][] tiles = new AbstractTile[50][50];
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1409207916893116457L;
 	BufferedImage im = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
-	Level level;
+	MonsterEvolver me;
 	
 	int posx = 25;
 	int posy = 25;
 	
-	public DrawingCanvas(Level level)
+	public DrawingCanvas(MonsterEvolver me)
 	{
-		for (int x = 0; x < 50; x++)
-		{
-			for (int y = 0; y < 50; y++)
-			{
-				tiles[x][y] = new AbstractTile(x, y, TileType.WALL);
-			}
-		}
-		
-		this.level = level;
+		this.me = me;
 		this.setFocusable(true);
 		this.requestFocusInWindow();
 		this.addKeyListener(this);
@@ -93,28 +81,13 @@ class DrawingCanvas extends JPanel implements KeyListener
 		Graphics g2 = im.createGraphics();
 		g2.setColor(Color.WHITE);
 		
-		for (int x = 0; x < tiles.length; x++)
+		char[][] grid = me.getVisualGrid();
+		
+		for (int x = 0; x < grid.length; x++)
 		{
-			for (int y = 0; y < tiles[0].length; y++)
+			for (int y = 0; y < grid[0].length; y++)
 			{
-				if (tiles[x][y].tileType == TileType.FLOOR)
-				{
-					g2.setColor(Color.GREEN);
-				}
-				else if (tiles[x][y].tileType == TileType.DOOR)
-				{
-					g2.setColor(Color.RED);
-				}
-				else if (tiles[x][y].room)
-				{
-					g2.setColor(Color.BLUE);
-				}
-				else if (tiles[x][y].tileType == TileType.WALL)
-				{
-					g2.setColor(Color.WHITE);
-				}
-				
-				g2.fillRect(x*20, y*20, 15, 15);
+				g2.drawString(""+grid[x][y], x*20, y*20);
 			}
 		}
 	}
@@ -128,23 +101,7 @@ class DrawingCanvas extends JPanel implements KeyListener
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_UP)
-		{
-			posy -= 5;
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_DOWN)
-		{
-			posy += 5;
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_LEFT)
-		{
-			posx -= 5;
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_RIGHT)
-		{
-			posx += 5;
-		}
-		
+
 		repaint();
 	}
 

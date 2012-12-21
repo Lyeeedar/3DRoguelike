@@ -85,11 +85,13 @@ public class LevelLoadingScreen extends AbstractScreen{
 		loadingStage = 0;
 	}
 	
+	long time;
 	int loadingStage = 0;
 	public void loadingTask()
 	{
 		if (loadingStage == 0)
 		{
+			time = System.nanoTime();
 			message = "Planning Everything";
 			level = new Level(width, height, biome.getGenerator(), biome);
 			loadingStage++;
@@ -140,6 +142,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		}
 		else if (loadingStage == 6)
 		{
+			System.out.println("Level loading done in "+((float)(System.nanoTime()-time)/1000000000f)+"seconds");
 			GameData.finishLoading(level, graphics, "InGame");
 			loadingStage++;
 		}

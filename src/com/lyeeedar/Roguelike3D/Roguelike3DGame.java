@@ -63,6 +63,7 @@ public class Roguelike3DGame extends Game {
 	
 	public void ANNIHALATE()
 	{
-		System.exit(0);
+		//System.exit(0);
+		Gdx.app.exit();
 	}
 }

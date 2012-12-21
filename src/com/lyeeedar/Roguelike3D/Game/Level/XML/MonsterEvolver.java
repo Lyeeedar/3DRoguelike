@@ -400,7 +400,7 @@ public class MonsterEvolver extends XMLReader {
 			}
 
 			EVOLVED_CREATURES[j] = best;
-			System.out.println("Creature!");
+			System.out.println("Creature Evolved for Difficulty "+j);
 			System.out.println(best);
 
 		}

@@ -319,6 +319,19 @@ public class RoomReader extends XMLReader {
 			room.addObject(ao);
 		}
 		
+		Node meta = getNode(META, chosen.getChildNodes());
+		if (meta != null)
+		{
+			for (int j = 0; j < meta.getChildNodes().getLength(); j++)
+			{
+				Node n = meta.getChildNodes().item(j);
+
+				if (!n.getNodeName().equalsIgnoreCase(DATA)) continue;
+				
+				room.addMeta(getNodeValue(NAME, n.getChildNodes()), getNodeValue(CONTENTS, n.getChildNodes()));
+			}
+		}
+		
 		return room;
 	}
 

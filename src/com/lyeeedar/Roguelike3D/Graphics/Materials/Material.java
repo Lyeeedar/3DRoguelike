@@ -22,6 +22,7 @@ public class Material {
 
 	/** This flag is true if material contain blendingAttribute */
 	protected boolean needBlending;
+	protected boolean needGlow;
 
 	protected ShaderProgram shader;
 
@@ -39,11 +40,14 @@ public class Material {
 
 		// this way we foresee if blending is needed with this material and rendering can deferred more easily
 		this.needBlending = false;
+		this.needGlow = false;
 		for (int i = 0; i < this.attributes.size; i++) {
 			if (this.attributes.get(i) instanceof BlendingAttribute) {
 				this.needBlending = true;
-				break;
 			}
+			else if (this.attributes.get(i) instanceof GlowAttribute) {
+				this.needGlow = true;
+			} 
 		}
 	}
 
@@ -53,11 +57,14 @@ public class Material {
 
 		// this way we foresee if blending is needed with this material and rendering can deferred more easily
 		this.needBlending = false;
+		this.needGlow = false;
 		for (int i = 0; i < this.attributes.size; i++) {
 			if (this.attributes.get(i) instanceof BlendingAttribute) {
 				this.needBlending = true;
-				break;
 			}
+			else if (this.attributes.get(i) instanceof GlowAttribute) {
+				this.needGlow = true;
+			} 
 		}
 	}
 	
@@ -150,6 +157,10 @@ public class Material {
 
 	public boolean isNeedBlending () {
 		return needBlending;
+	}
+	
+	public boolean isNeedGlow() {
+		return needGlow;
 	}
 
 	public void resetShader () {

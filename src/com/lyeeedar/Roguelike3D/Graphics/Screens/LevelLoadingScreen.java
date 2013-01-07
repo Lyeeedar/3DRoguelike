@@ -21,7 +21,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
-import com.lyeeedar.Roguelike3D.Game.Actor.Enemy;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
@@ -93,13 +92,13 @@ public class LevelLoadingScreen extends AbstractScreen{
 		{
 			time = System.nanoTime();
 			message = "Planning Everything";
-			level = new Level(width, height, biome.getGenerator(), biome);
+			level = new Level(width, height, biome.getGenerator(), biome, GameData.currentLevel);
 			loadingStage++;
 		}
 		else if (loadingStage == 1)
 		{
 			message = "Filling Rooms";
-			boolean done = level.fillRoom(rReader);
+			boolean done = level.fillRoom(rReader, GameData.currentLevel);
 			percent += taskSteps;
 			
 			if (done) loadingStage++;
@@ -174,6 +173,8 @@ public class LevelLoadingScreen extends AbstractScreen{
 		font.drawMultiLine(spriteBatch, message, 250, 175);
 		
 		spriteBatch.end();
+		
+		protoRenderer.glowRequired = true;
 
 	}
 
@@ -202,7 +203,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		
 		VisibleObject vo = VisibleObject.createCuboid(2, 2, 2, GL20.GL_TRIANGLES, Color.WHITE, "icon", 0.5f);
 		vo.attributes.material.affectedByLighting = false;
-		GameObject go = new Enemy(vo, 0, 0, -4, 0.5f);
+		GameObject go = new GameActor(vo, 0, 0, -4, 0.5f);
 		
 		objects.add(go);
 		

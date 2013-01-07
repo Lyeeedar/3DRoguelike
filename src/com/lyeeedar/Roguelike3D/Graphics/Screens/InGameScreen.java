@@ -82,6 +82,8 @@ public class InGameScreen extends AbstractScreen {
 			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
 			pe.render(decalBatch, cam);
 			particleNum += pe.particles;
+			
+			protoRenderer.glowRequired = true;
 		}
 		time -= delta;
 		if (time < 0)

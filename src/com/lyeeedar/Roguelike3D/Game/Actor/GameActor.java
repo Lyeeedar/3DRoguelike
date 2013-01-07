@@ -28,7 +28,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 
-public abstract class GameActor extends GameObject{
+public class GameActor extends GameObject{
 	
 	public static final float WHIPLASHCD = 0.1f;
 	public static final float WHIPLASHAMOUNT = 0.1f;
@@ -41,6 +41,8 @@ public abstract class GameActor extends GameObject{
 	
 	public HashMap<String, Item> INVENTORY = new HashMap<String, Item>();
 	
+	public int MAX_HEALTH;
+	
 	public int HEALTH;
 	public int WEIGHT;
 	public int STRENGTH;
@@ -49,7 +51,7 @@ public abstract class GameActor extends GameObject{
 	public HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
 	
 	public String FACTION;
-	public boolean IMMORTAL;
+	public boolean IMMORTAL = false;
 	public AI_Package ai;
 	
 	public Equipment_HAND L_HAND;
@@ -77,6 +79,17 @@ public abstract class GameActor extends GameObject{
 		super(mesh, colour, texture, x, y, z, scale);
 		
 		setupDefenses();
+	}
+	
+	public void setStats(int health, int weight, int strength, HashMap<Element, Integer> ele_def, HashMap<Damage_Type, Integer> dam_def, String faction)
+	{
+		this.MAX_HEALTH = health;
+		this.HEALTH = health;
+		this.WEIGHT = weight;
+		this.STRENGTH = strength;
+		this.ELE_DEF = ele_def;
+		this.DAM_DEF = dam_def;
+		this.FACTION = faction;
 	}
 	
 	public void equipL_HAND(Equipment_HAND equip)
@@ -144,6 +157,19 @@ public abstract class GameActor extends GameObject{
 	@Override
 	public void update(float delta)
 	{
+		if (ai == null) return;
 		ai.evaluateAI(delta);
 	}
+	
+
+	@Override
+	public void draw(Camera cam)
+	{
+		if (L_HAND != null) L_HAND.draw(cam);
+		if (R_HAND != null) R_HAND.draw(cam);
+	}
+	@Override
+	public void activate() {
+	}
+
 }

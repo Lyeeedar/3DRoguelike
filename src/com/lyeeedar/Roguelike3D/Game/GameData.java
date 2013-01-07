@@ -101,10 +101,6 @@ public class GameData {
 		currentLevel = lc;
 
 		changeLevel(lc);
-		
-		MonsterEvolver me = new MonsterEvolver("group", 1);
-		me.createMap();
-		me.Evolve_Creature();
 	}
 	
 	static String prevLevel;

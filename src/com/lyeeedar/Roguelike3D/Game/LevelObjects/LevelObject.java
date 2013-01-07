@@ -16,10 +16,13 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
+import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
@@ -27,6 +30,7 @@ import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public abstract class LevelObject extends GameObject{
 	
+	public static final String MONSTER_TYPE = "monster_type";
 	public static final String LEVEL = "level";
 	
 	boolean opaque = true;
@@ -57,7 +61,7 @@ public abstract class LevelObject extends GameObject{
 		this.ao = ao;
 	}
 	
-	public static LevelObject checkObject(AbstractObject ao, float x, float y, float z, Level level)
+	public static LevelObject checkObject(AbstractObject ao, float x, float y, float z, Level level, LevelContainer lc, AbstractRoom aroom)
 	{
 		LevelObject lo = null;
 		
@@ -154,6 +158,76 @@ public abstract class LevelObject extends GameObject{
 		else if (ao.type == ObjectType.PLAYER_PLACER)
 		{
 			lo = new PlayerPlacer(false, (ao.x)*10, 0, (ao.z)*10, ao);
+		}
+		else if (ao.type == ObjectType.SPAWNER_0)
+		{
+			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			GameActor monster = evolver.getMonster(0);
+			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
+			level.actors.add(monster);
+		}
+		else if (ao.type == ObjectType.SPAWNER_1)
+		{
+			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			GameActor monster = evolver.getMonster(1);
+			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
+			level.actors.add(monster);
+		}
+		else if (ao.type == ObjectType.SPAWNER_2)
+		{
+			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			GameActor monster = evolver.getMonster(2);
+			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
+			level.actors.add(monster);
+		}
+		else if (ao.type == ObjectType.SPAWNER_3)
+		{
+			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			GameActor monster = evolver.getMonster(3);
+			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
+			level.actors.add(monster);
+		}
+		else if (ao.type == ObjectType.SPAWNER_4)
+		{
+			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			GameActor monster = evolver.getMonster(4);
+			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
+			level.actors.add(monster);
+		}
+		else if (ao.type == ObjectType.SPAWNER_5)
+		{
+			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			GameActor monster = evolver.getMonster(5);
+			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
+			level.actors.add(monster);
+		}
+		else if (ao.type == ObjectType.SPAWNER_6)
+		{
+			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			GameActor monster = evolver.getMonster(6);
+			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
+			level.actors.add(monster);
+		}
+		else if (ao.type == ObjectType.SPAWNER_7)
+		{
+			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			GameActor monster = evolver.getMonster(7);
+			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
+			level.actors.add(monster);
+		}
+		else if (ao.type == ObjectType.SPAWNER_8)
+		{
+			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			GameActor monster = evolver.getMonster(8);
+			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
+			level.actors.add(monster);
+		}
+		else if (ao.type == ObjectType.SPAWNER_9)
+		{
+			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			GameActor monster = evolver.getMonster(9);
+			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
+			level.actors.add(monster);
 		}
 		
 		return lo;

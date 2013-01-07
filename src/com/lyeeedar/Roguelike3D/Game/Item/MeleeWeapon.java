@@ -25,6 +25,16 @@ public class MeleeWeapon extends Equipment_HAND {
 		SWING,
 		STAB
 	}
+
+	public static Weapon_Style convertWeaponStyle(String wep_style)
+	{
+		Weapon_Style style = null;
+
+		if (wep_style.equalsIgnoreCase("swing")) style = Weapon_Style.SWING;
+		else if (wep_style.equalsIgnoreCase("stab")) style = Weapon_Style.STAB;
+
+		return style;
+	}
 	
 	final Attack_Style atk_style;
 	boolean swinging = false;

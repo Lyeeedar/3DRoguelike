@@ -46,6 +46,8 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 	private LightManager lightManager;
 	private boolean drawing;
 	public Camera cam;
+	
+	public boolean glowRequired = false;
 
 	DrawableManager drawableManager = new DrawableManager();
 
@@ -57,6 +59,7 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 
 	@Override
 	public void begin () {
+		glowRequired = false;
 		drawing = true;
 		// all setting has to be done before this
 		// example: camera updating or updating lights positions
@@ -84,6 +87,8 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 		for (int i = drawableManager.drawables.size; --i >= 0;) {
 
 			final Drawable drawable = drawableManager.drawables.get(i);
+			
+			if (drawable.glow) glowRequired = true;
 
 			final Vector3 center = drawable.sortCenter;
 			long light_hash = lightManager.getDynamicLightsHash();
@@ -313,6 +318,7 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			float animationTime;
 			boolean isLooping;
 			boolean blending;
+			boolean glow;
 			int distance;
 			int firstShaderHash;
 			int modelHash;
@@ -346,10 +352,14 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 					System.err.println("Error! Attributes has no Material!");
 				}
 				blending = false;
+				glow = false;
 				for (Material mat : materials) {
 					if (mat.isNeedBlending()) {
 						blending = true;
-						break;
+					}
+					if (mat.isNeedGlow())
+					{
+						glow = true;
 					}
 				}
 				if (materials.size > 0) firstShaderHash = materials.get(0).getShader().hashCode();

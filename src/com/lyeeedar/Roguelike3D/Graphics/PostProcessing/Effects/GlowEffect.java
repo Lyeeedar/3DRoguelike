@@ -12,6 +12,7 @@ package com.lyeeedar.Roguelike3D.Graphics.PostProcessing.Effects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public class GlowEffect extends PostProcessingEffect {
 	

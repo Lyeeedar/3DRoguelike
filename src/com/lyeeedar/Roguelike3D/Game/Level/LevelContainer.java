@@ -2,8 +2,13 @@ package com.lyeeedar.Roguelike3D.Game.Level;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
+
+import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 
 public class LevelContainer {
+	
+	Random ran = new Random();
 	
 	public String UID;
 	
@@ -16,6 +21,8 @@ public class LevelContainer {
 	public ArrayList<LevelContainer> up_levels = new ArrayList<LevelContainer>();
 	public ArrayList<LevelContainer> down_levels = new ArrayList<LevelContainer>();
 	public ArrayList<LevelContainer> other_levels = new ArrayList<LevelContainer>();
+	
+	public HashMap<String, ArrayList<MonsterEvolver>> monsters = new HashMap<String, ArrayList<MonsterEvolver>>();
 
 	public LevelContainer(String biome, int depth) {
 		this.biome = biome;
@@ -73,5 +80,40 @@ public class LevelContainer {
 		}
 		
 		return null;
+	}
+	
+	public MonsterEvolver getMonsterEvolver(String type)
+	{
+		if (!monsters.containsKey(type))
+		{
+			ArrayList<MonsterEvolver> monsterType = new ArrayList<MonsterEvolver>();
+			
+			MonsterEvolver evolver = new MonsterEvolver(type, depth);
+			evolver.createMap();
+			evolver.Evolve_Creature();
+			monsterType.add(evolver);
+			
+			monsters.put(type, monsterType);
+			
+			return evolver;
+		}
+		
+		ArrayList<MonsterEvolver> monsterType = monsters.get(type);
+		
+		int pos = ran.nextInt(monsterType.size()+1);
+		
+		if (pos < monsterType.size())
+		{
+			return monsterType.get(pos);
+		}
+		else
+		{
+			MonsterEvolver evolver = new MonsterEvolver(type, depth);
+			evolver.createMap();
+			evolver.Evolve_Creature();
+			monsterType.add(evolver);
+			
+			return evolver;
+		}
 	}
 }

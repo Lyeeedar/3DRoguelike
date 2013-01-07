@@ -36,15 +36,4 @@ public class Player extends GameActor {
 		ai = new AI_Player_Controlled(this);
 
 	}
-
-	@Override
-	public void draw(Camera cam)
-	{
-		if (L_HAND != null) L_HAND.draw(cam);
-		if (R_HAND != null) R_HAND.draw(cam);
-	}
-	@Override
-	public void activate() {
-	}
-
 }

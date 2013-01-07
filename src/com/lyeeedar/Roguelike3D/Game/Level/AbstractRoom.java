@@ -25,6 +25,8 @@ public class AbstractRoom {
 	
 	HashMap<Character, AbstractObject> objects;
 	
+	public HashMap<String, String> meta = new HashMap<String, String>();
+	
 	public AbstractRoom(int width, int height, boolean rotate, boolean flippable)
 	{
 		
@@ -50,6 +52,12 @@ public class AbstractRoom {
 		objects = new HashMap<Character, AbstractObject>();
 		
 		if (flippable && new Random().nextInt(100) < 50) flip = true;
+	}
+	
+	public void addMeta(String name, String contents)
+	{
+		System.out.println("name: "+name+" contents: "+contents);
+		meta.put(name,  contents);
 	}
 	
 	public void addObject(AbstractObject ao)

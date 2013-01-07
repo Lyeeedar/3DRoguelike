@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.Effects.GlowEffect;
 import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.Effects.PostProcessingEffect;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public class PostProcessor {
 	

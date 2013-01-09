@@ -25,6 +25,7 @@ import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Static;
@@ -33,6 +34,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 
 public class Level {
+	
+	public static final String MONSTER_TYPE = "monster_type";
 	
 	Tile[][] levelArray;
 	
@@ -111,7 +114,12 @@ public class Level {
 		
 		
 		ArrayList<AbstractObject> abstractObjects = new ArrayList<AbstractObject>();
+		MonsterEvolver evolver = null;
 		
+		if (aroom.meta.containsKey(MONSTER_TYPE))
+		{
+			evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+		}
 		
 		for (int i = 0; i < aroom.width; i++)
 		{
@@ -148,7 +156,7 @@ public class Level {
 		
 		for (AbstractObject ao : abstractObjects)
 		{
-			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this, lc, aroom);
+			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this, lc, evolver);
 			
 			if (lo != null)
 			{
@@ -292,32 +300,37 @@ public class Level {
 	public boolean checkCollision(Vector3 position, float radius, String UID)
 	{
 		if (checkLevelCollision(position, radius)) return true;
+		if (checkLevelObjects(position, radius) != null) return true;
 		return checkEntities(position, radius, UID) != null;
 	}
 	
 	public boolean checkLevelCollision(Vector3 position, float radius)
 	{
-		if (checkCollisionTile(position.x+radius, position.z)) return true;
-		if (checkCollisionTile(position.x-radius, position.z)) return true;
-		if (checkCollisionTile(position.x, position.z+radius)) return true;
-		if (checkCollisionTile(position.x, position.z-radius)) return true;
+		if (checkCollisionTile(position.x+radius, position.y, position.z, radius)) return true;
+		if (checkCollisionTile(position.x-radius, position.y, position.z, radius)) return true;
+		if (checkCollisionTile(position.x, position.y, position.z+radius, radius)) return true;
+		if (checkCollisionTile(position.x, position.y, position.z-radius, radius)) return true;
 		
-		if (checkCollisionTile(position.x+radius, position.z+radius)) return true;
-		if (checkCollisionTile(position.x-radius, position.z+radius)) return true;
-		if (checkCollisionTile(position.x-radius, position.z-radius)) return true;
-		if (checkCollisionTile(position.x+radius, position.z-radius)) return true;
+		if (checkCollisionTile(position.x+radius, position.y, position.z+radius, radius)) return true;
+		if (checkCollisionTile(position.x-radius, position.y, position.z+radius, radius)) return true;
+		if (checkCollisionTile(position.x-radius, position.y, position.z-radius, radius)) return true;
+		if (checkCollisionTile(position.x+radius, position.y, position.z-radius, radius)) return true;
 
 		
 		return false;
 	}
 	
-	private boolean checkCollisionTile(float fx, float fz)
+	private boolean checkCollisionTile(float fx, float fy, float fz, float radius)
 	{
 		int x = (int)((fx/10)+0.5f);
 		int z = (int)((fz/10)+0.5f);
 		
 		if (x < 0 || x > width) return true;
 		if (z < 0 || z > height) return true;
+		
+		Tile t = getLevelArray()[x][z];
+		
+		if ((fy-radius < t.floor) || (fy+radius > t.roof)) return true;
 
 		return checkSolid(x, z);
 	}
@@ -328,6 +341,21 @@ public class Level {
 		for (GameActor ga : actors)
 		{
 			if (ga.UID.equals(UID)) continue;
+			
+			if (position.dst2(ga.getPosition()) < (radius+ga.vo.attributes.radius)*(radius+ga.vo.attributes.radius))
+			{
+				return ga;
+			}
+		}
+		
+		return null;
+	}
+	
+	public LevelObject checkLevelObjects(Vector3 position, float radius)
+	{
+		for (LevelObject ga : levelObjects)
+		{
+			if (!ga.isSolid()) continue;
 			
 			if (position.dst2(ga.getPosition()) < (radius+ga.vo.attributes.radius)*(radius+ga.vo.attributes.radius))
 			{

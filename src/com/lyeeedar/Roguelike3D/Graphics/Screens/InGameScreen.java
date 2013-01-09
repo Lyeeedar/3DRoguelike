@@ -15,9 +15,20 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
@@ -93,11 +104,20 @@ public class InGameScreen extends AbstractScreen {
 			time = 1;
 		}
 		
+		for (GameActor ga : GameData.level.actors)
+		{
+			for (Decal gd : ga.textures)
+			{
+				gd.setPosition(ga.getPosition().x, ga.getPosition().y+6, ga.getPosition().z);
+				decalBatch.add(gd);
+			}
+		}
+		
 	}
 
 	@Override
 	public void drawOrthogonals(float delta) {
-		
+		Table.drawDebug(stage);
 		if (paused)
 		{
 			spriteBatch.draw(pausedTint, 0, 0, screen_width, screen_height);	
@@ -273,6 +293,7 @@ public class InGameScreen extends AbstractScreen {
 		dist = GameData.level.getDescription(ray, dist, desc, paused);
 	}
 
+	Table table;
 	@Override
 	public void create() {
 		
@@ -286,6 +307,37 @@ public class InGameScreen extends AbstractScreen {
 		
 		pausedTint = new Texture(Gdx.files.internal("data/textures/pausedScreenTint.png"));
 		
+		Skin skin = new Skin(Gdx.files.internal("data/skins/uiskin.json"));
+		
+		Label nameLabel = new Label("Name:", skin);
+		TextField nameText = new TextField(" name ", skin);
+		Label addressLabel = new Label("Address:", skin);
+		TextField addressText = new TextField(" address ", skin);
+
+		table = new Table();
+		table.debug();
+		table.add(nameLabel);
+		table.add(nameText).width(100);
+		table.row();
+		table.add(addressLabel);
+		table.add(addressText).width(100);
+		TextButton button1 = new TextButton("Button 1", skin);
+		table.add(button1);
+		button1.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				System.out.println("touchDown 2");
+				return false;
+				}
+				});
+
+
+		table.setFillParent(true);
+
+		
+		stage.addActor(table);
+		
+		Gdx.input.setInputProcessor(stage);
+
 	}
 
 	@Override

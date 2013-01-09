@@ -9,6 +9,7 @@
  *     Philip Collin - initial API and implementation
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Actor;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
@@ -25,6 +30,7 @@ import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
+import com.lyeeedar.Roguelike3D.Graphics.TextureDrawer;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 
@@ -61,8 +67,16 @@ public class GameActor extends GameObject{
 	
 	boolean alive = true;
 
+	public ArrayList<Decal> textures = new ArrayList<Decal>();
+	
 	public GameActor(VisibleObject vo, float x, float y, float z, float scale) {
 		super(vo, x, y, z, scale);
+		
+		Texture t = TextureDrawer.drawText(new BitmapFont(Gdx.files.internal("data/skins/default.fnt"), false), 1, 1, "woooooo some test text!");
+		Texture i = new Texture(Gdx.files.internal("data/textures/icon.png"));
+		Decal d = Decal.newDecal(new TextureRegion(i));
+		
+		textures.add(d);
 		
 		setupDefenses();
 	}

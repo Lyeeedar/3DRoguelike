@@ -3,6 +3,7 @@ package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Matrix4;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
@@ -58,6 +59,9 @@ public class Door extends LevelObject {
 		door.shortDesc = ao.shortDesc;
 		door.longDesc = ao.longDesc;
 		
+		door.solid = true;
+		door.vo.attributes.radius /= 2;
+		
 		return door;
 	}
 
@@ -76,6 +80,8 @@ public class Door extends LevelObject {
 		}
 		else
 		{
+			if (GameData.level.checkEntities(position, vo.attributes.radius, UID) != null) return;
+			
 			Matrix4 hinge = new Matrix4();
 			hinge.setToRotation(0, 1, 0, 0);
 			hinge.mul(new Matrix4().setToTranslation(hingex, 0, hingez));

@@ -84,6 +84,7 @@ public abstract class AbstractScreen implements Screen{
 	public void render(float delta) {
 		
 		update(delta);
+		stage.act(delta);
 	
 		postProcessor.begin();
 		

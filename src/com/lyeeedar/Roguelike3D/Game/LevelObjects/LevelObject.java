@@ -34,7 +34,7 @@ public abstract class LevelObject extends GameObject{
 	public static final String LEVEL = "level";
 	
 	boolean opaque = true;
-	boolean solid = true;
+	boolean solid = false;
 	
 
 	public final AbstractObject ao;
@@ -61,7 +61,7 @@ public abstract class LevelObject extends GameObject{
 		this.ao = ao;
 	}
 	
-	public static LevelObject checkObject(AbstractObject ao, float x, float y, float z, Level level, LevelContainer lc, AbstractRoom aroom)
+	public static LevelObject checkObject(AbstractObject ao, float x, float y, float z, Level level, LevelContainer lc, MonsterEvolver evolver)
 	{
 		LevelObject lo = null;
 		
@@ -161,70 +161,70 @@ public abstract class LevelObject extends GameObject{
 		}
 		else if (ao.type == ObjectType.SPAWNER_0)
 		{
-			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			
 			GameActor monster = evolver.getMonster(0);
 			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
 			level.actors.add(monster);
 		}
 		else if (ao.type == ObjectType.SPAWNER_1)
 		{
-			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			
 			GameActor monster = evolver.getMonster(1);
 			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
 			level.actors.add(monster);
 		}
 		else if (ao.type == ObjectType.SPAWNER_2)
 		{
-			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			
 			GameActor monster = evolver.getMonster(2);
 			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
 			level.actors.add(monster);
 		}
 		else if (ao.type == ObjectType.SPAWNER_3)
 		{
-			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			
 			GameActor monster = evolver.getMonster(3);
 			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
 			level.actors.add(monster);
 		}
 		else if (ao.type == ObjectType.SPAWNER_4)
 		{
-			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			
 			GameActor monster = evolver.getMonster(4);
 			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
 			level.actors.add(monster);
 		}
 		else if (ao.type == ObjectType.SPAWNER_5)
 		{
-			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			
 			GameActor monster = evolver.getMonster(5);
 			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
 			level.actors.add(monster);
 		}
 		else if (ao.type == ObjectType.SPAWNER_6)
 		{
-			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			
 			GameActor monster = evolver.getMonster(6);
 			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
 			level.actors.add(monster);
 		}
 		else if (ao.type == ObjectType.SPAWNER_7)
 		{
-			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			
 			GameActor monster = evolver.getMonster(7);
 			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
 			level.actors.add(monster);
 		}
 		else if (ao.type == ObjectType.SPAWNER_8)
 		{
-			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			
 			GameActor monster = evolver.getMonster(8);
 			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
 			level.actors.add(monster);
 		}
 		else if (ao.type == ObjectType.SPAWNER_9)
 		{
-			MonsterEvolver evolver = lc.getMonsterEvolver(aroom.meta.get(MONSTER_TYPE));
+			
 			GameActor monster = evolver.getMonster(9);
 			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
 			level.actors.add(monster);
@@ -239,5 +239,33 @@ public abstract class LevelObject extends GameObject{
 
 	@Override
 	public void draw(Camera cam) {
+	}
+
+	/**
+	 * @return the opaque
+	 */
+	public boolean isOpaque() {
+		return opaque;
+	}
+
+	/**
+	 * @param opaque the opaque to set
+	 */
+	public void setOpaque(boolean opaque) {
+		this.opaque = opaque;
+	}
+
+	/**
+	 * @return the solid
+	 */
+	public boolean isSolid() {
+		return solid;
+	}
+
+	/**
+	 * @param solid the solid to set
+	 */
+	public void setSolid(boolean solid) {
+		this.solid = solid;
 	}
 }

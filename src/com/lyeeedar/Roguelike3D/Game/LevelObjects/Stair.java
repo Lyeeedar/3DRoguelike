@@ -13,23 +13,27 @@ public class Stair extends LevelObject {
 	public Stair(boolean visible, float x, float y, float z, AbstractObject ao, String level_UID) {
 		super(visible, x, y, z, ao);
 		this.level_UID = level_UID;
+		this.solid = true;
 	}
 
 	public Stair(VisibleObject vo, float x, float y, float z, AbstractObject ao, String level_UID) {
 		super(vo, x, y, z, ao);
 		this.level_UID = level_UID;
+		this.solid = true;
 	}
 
 	public Stair(Mesh mesh, Color colour, String texture, float x, float y,
 			float z, AbstractObject ao, String level_UID) {
 		super(mesh, colour, texture, x, y, z, ao);
 		this.level_UID = level_UID;
+		this.solid = true;
 	}
 
 	public Stair(String model, Color colour, String texture, float x, float y,
 			float z, AbstractObject ao, String level_UID) {
 		super(model, colour, texture, x, y, z, ao);
 		this.level_UID = level_UID;
+		this.solid = true;
 	}
 
 	@Override

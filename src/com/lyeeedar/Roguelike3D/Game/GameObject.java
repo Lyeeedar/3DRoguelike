@@ -74,6 +74,8 @@ public abstract class GameObject {
 	
 	public String shortDesc = "";
 	public String longDesc = "";
+	
+	public float scale;
 
 	public GameObject(VisibleObject vo, float x, float y, float z, float scale)
 	{
@@ -94,6 +96,8 @@ public abstract class GameObject {
 	
 	public void create(VisibleObject vo, float x, float y, float z, float scale)
 	{
+		this.scale = scale;
+		
 		this.vo = vo;
 		position.x = x;
 		position.y = y;
@@ -163,43 +167,76 @@ public abstract class GameObject {
 		
 		Tile below = lvl.getTile(position.x/10, position.z/10) ;
 		
-		// below
-		if (position.y+velocity.y-vo.attributes.radius < below.floor) {
-			velocity.y = 0;
-			this.positionYAbsolutely(below.floor+vo.attributes.radius);
-			grounded = true;
-		}
-		// above
-		else if (position.y+velocity.y+vo.attributes.radius > below.roof) {
-			tmpVec.set(position);
-			this.positionYAbsolutely(below.roof-vo.attributes.radius);
+		// Check for collision
+		if (lvl.checkCollision(position.tmp().add(velocity), vo.attributes.radius, UID))
+		{
+			// Collision! Now time to find which axis the collision was on. (Vertical or Horizontal)
 			
-			if (lvl.checkCollision(position.tmp(), vo.attributes.radius, UID))
+			// ----- Check Vertical START ----- //
+			
+			if ((lvl.checkEntities(position.tmp().add(0, velocity.y, 0), vo.attributes.radius, UID) != null) || 
+					(lvl.checkLevelObjects(position.tmp().add(0, velocity.y, 0), vo.attributes.radius) != null))
 			{
-				this.positionAbsolutely(tmpVec);
+				velocity.y = 0;
+				grounded = true;
+			}
+			// below
+			else if (position.y+velocity.y-vo.attributes.radius < below.floor) {
+				velocity.y = 0;
+				tmpVec.set(position);
+				this.positionYAbsolutely(below.floor+vo.attributes.radius);
+				
+				if (lvl.checkCollision(position.tmp(), vo.attributes.radius, UID))
+				{
+					this.positionAbsolutely(tmpVec);
+				}
+				grounded = true;
+			}
+			// above
+			else if (position.y+velocity.y+vo.attributes.radius > below.roof) {
+				velocity.y = 0;
+				tmpVec.set(position);
+				this.positionYAbsolutely(below.roof-vo.attributes.radius);
+				
+				if (lvl.checkCollision(position.tmp(), vo.attributes.radius, UID))
+				{
+					this.positionAbsolutely(tmpVec);
+				}
+				grounded = false;
+			}
+			// No y collision
+			else
+			{
+				this.translate(0, velocity.y, 0);
+				grounded = false;
 			}
 			
-			velocity.y = 0;
-			grounded = false;
+			// ----- Check Vertical END ----- //
+			
+			
+			// ----- Check Horizontal START ----- //
+			
+			if (lvl.checkCollision(position.tmp().add(velocity.x, 0, velocity.z), vo.attributes.radius, UID)) {
+
+				if (lvl.checkCollision(position.tmp().add(velocity.x, 0, 0), vo.attributes.radius, UID)) {
+					getVelocity().x = 0;
+				}
+
+				if (lvl.checkCollision(position.tmp().add(velocity.x, 0, velocity.z), vo.attributes.radius, UID)) {
+					getVelocity().z = 0;
+				}
+			}
+			
+			this.translate(getVelocity().x, 0, getVelocity().z);
+			
+			// ----- Check Horizontal END ----- //
 		}
+		// No collision! So move normally
 		else
 		{
-			this.translate(0, velocity.y, 0);
+			this.translate(velocity);
 			grounded = false;
 		}
-		
-		if (lvl.checkCollision(position.tmp().add(velocity.x, 0, velocity.z), vo.attributes.radius, UID)) {
-
-			if (lvl.checkCollision(position.tmp().add(velocity.x, 0, 0), vo.attributes.radius, UID)) {
-				getVelocity().x = 0;
-			}
-
-			if (lvl.checkCollision(position.tmp().add(velocity.x, 0, velocity.z), vo.attributes.radius, UID)) {
-				getVelocity().z = 0;
-			}
-		}
-		
-		this.translate(getVelocity().x, 0, getVelocity().z);
 		
 		if (grounded)
 		{
@@ -214,8 +251,8 @@ public abstract class GameObject {
 			}
 		}
 		
+		// Work our negated velocity from collision
 		endVelocityHori = Math.abs(velocity.x)+Math.abs(velocity.z);
-
 		negatedVelocity = startVelocityHori-endVelocityHori;
 		
 		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
@@ -230,7 +267,7 @@ public abstract class GameObject {
 		
 		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
 		{
-			collidedVertically = true;
+			//collidedVertically = true;
 			System.out.println("ouch! Vert!"+negatedVelocity);
 		}
 	}
@@ -284,7 +321,7 @@ public abstract class GameObject {
 	public void positionAbsolutely(Vector3 position)
 	{
 		this.position.set(position);
-		vo.attributes.getTransform().setToTranslation(this.position);
+		vo.attributes.getTransform().setToTranslation(position);
 		if (boundLight != null) boundLight.position.set(position);
 	}
 

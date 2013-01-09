@@ -10,20 +10,24 @@ public class Static extends LevelObject {
 
 	public Static(boolean visible, float x, float y, float z, AbstractObject ao) {
 		super(visible, x, y, z, ao);
+		this.solid = true;
 	}
 
 	public Static(VisibleObject vo, float x, float y, float z, AbstractObject ao) {
 		super(vo, x, y, z, ao);
+		this.solid = true;
 	}
 
 	public Static(Mesh mesh, Color colour, String texture, float x, float y,
 			float z, AbstractObject ao) {
 		super(mesh, colour, texture, x, y, z, ao);
+		this.solid = true;
 	}
 
 	public Static(String model, Color colour, String texture, float x, float y,
 			float z, AbstractObject ao) {
 		super(model, colour, texture, x, y, z, ao);
+		this.solid = true;
 	}
 
 	@Override

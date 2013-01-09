@@ -1,6 +1,9 @@
 package com.lyeeedar.Roguelike3D.Graphics;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -25,18 +28,26 @@ public class TextureDrawer {
 		}
 		
 		FrameBuffer fB = new FrameBuffer(format, width, height, false);
+		fB.begin();
+		
 		SpriteBatch sB = new SpriteBatch();
+		
+		Gdx.graphics.getGL20().glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		font.setColor(Color.BLACK);
 		
 		sB.begin();
 		for (int line = 0; line < text.length; line++)
 		{
 			for (int c = 0; c < text[line].length(); c++)
 			{
-				font.draw(sB, ""+text[line].charAt(c), c*xSpacing, line*ySpacing);
+				font.draw(sB, ""+text[line].charAt(c), c*xSpacing, (line-1)*ySpacing);
 			}
 		}
 		sB.end();
 	
+		fB.end();
 		return fB.getColorBufferTexture();
 	}
 

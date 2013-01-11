@@ -21,7 +21,7 @@ public class LightManager {
 	public static final int maxLights = 16;
 
 	public enum LightQuality {
-		VERTEX, FRAGMENT
+		VERTEX, FRAGMENT, NORMALMAP
 	};
 
 	public LightQuality quality;
@@ -153,7 +153,7 @@ public class LightManager {
 		
 		if (!material.affectedByLighting) return;
 		
-		shader.setUniformf("u_ambient", ambientLight);
+		//shader.setUniformf("u_ambient", ambientLight);
 	}
 	
 	public Vector3 calculateLightAtPoint(Vector3 position, Vector3 normal, boolean bakeStatics)

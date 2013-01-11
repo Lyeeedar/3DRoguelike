@@ -13,7 +13,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Materials;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 public abstract class MaterialAttribute {
-	private static final String FLAG = "Flag";
+	protected static final String FLAG = "Flag";
 	public String name;
 	protected final boolean isPooled;
 

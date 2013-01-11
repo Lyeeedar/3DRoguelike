@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
@@ -71,12 +72,6 @@ public class GameActor extends GameObject{
 	
 	public GameActor(VisibleObject vo, float x, float y, float z, float scale) {
 		super(vo, x, y, z, scale);
-		
-		Texture t = TextureDrawer.drawText(new BitmapFont(Gdx.files.internal("data/skins/default.fnt"), false), 1, 1, "woooooo some test text!");
-		Texture i = new Texture(Gdx.files.internal("data/textures/icon.png"));
-		Decal d = Decal.newDecal(new TextureRegion(i));
-		
-		textures.add(d);
 		
 		setupDefenses();
 	}
@@ -152,12 +147,12 @@ public class GameActor extends GameObject{
 	}
 	
 	public void damage(int strength, 
-			HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam, 
-			HashMap<Element, Integer> ele_def, HashMap<Damage_Type, Integer> dam_def)
+			HashMap<Element, Integer> ele_dam,
+			HashMap<Damage_Type, Integer> dam_dam)
 	{
 		if (!alive || IMMORTAL) return;
 		
-		HEALTH -= GameData.calculateDamage(strength, ele_dam, dam_dam, ele_def, dam_def);
+		HEALTH -= GameData.calculateDamage(strength, ele_dam, dam_dam, ELE_DEF, DAM_DEF);
 
 		if (HEALTH <= 0) death();
 
@@ -165,7 +160,13 @@ public class GameActor extends GameObject{
 	
 	public void death()
 	{
+		System.out.println(UID+" Died!!!!");
 		alive = false;
+		
+		Matrix4 hinge = new Matrix4();
+		hinge.setToRotation(0, 1, 1, 90);
+		//hinge.mul(new Matrix4().setToTranslation(0, -1, 0));
+		vo.attributes.getRotation().mul(hinge);
 	}
 	
 	@Override

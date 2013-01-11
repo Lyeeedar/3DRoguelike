@@ -1,14 +1,18 @@
 package com.lyeeedar.Roguelike3D.Game.Item;
 
+import java.util.HashMap;
 import java.util.Random;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
+import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
+import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Weapon_Style;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
@@ -41,7 +45,8 @@ public class MeleeWeapon extends Equipment_HAND {
 	boolean collided = false;
 	final int side;
 
-	public MeleeWeapon(GameActor holder, Weapon_Style style, int side) {
+	public MeleeWeapon(GameActor holder, Weapon_Style style, int side, 
+			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam, int attack_speed) {
 		this.side = side;
 		this.holder = holder;
 		
@@ -50,11 +55,26 @@ public class MeleeWeapon extends Equipment_HAND {
 			atk_style = new Circular_Attack(new Vector3(0, -2, 0), 5, 6, holder);
 		}
 		else atk_style = null;
+		
+		this.strength = strength;
+		this.ele_dam = ele_dam;
+		this.dam_dam = dam_dam;
+		this.attack_speed = attack_speed;
 	}
+	
+	
+	// ----- Damage stats ----- //
+	public int strength;
+	public HashMap<Element, Integer> ele_dam;
+	public HashMap<Damage_Type, Integer> dam_dam;
+	public int attack_speed;
+	
+	public int attack_cd = 0;
 	
 	public void damage(GameActor ga)
 	{
 		System.out.println("HIT on "+ga.UID);
+		ga.damage(strength, ele_dam, dam_dam);
 	}
 
 	
@@ -68,6 +88,10 @@ public class MeleeWeapon extends Equipment_HAND {
 	// ----- Begin Visual Stuff ----- //
 	public void beginSwing()
 	{
+		if (attack_cd > 0) return;
+		
+		attack_cd = attack_speed;
+		
 		if (atk_style.style == Weapon_Style.SWING)
 		{
 			float height = holder.getPosition().y;
@@ -76,7 +100,7 @@ public class MeleeWeapon extends Equipment_HAND {
 			
 			Vector3 base = new Vector3(holder.getRotation().x, 0, holder.getRotation().z);
 			Vector3 up = new Vector3(0, 1, 0);
-			Vector3 start = base.crs(up).mul(2).add(ran.nextFloat()-ran.nextFloat(), 0, ran.nextFloat()-ran.nextFloat());
+			Vector3 start = base.crs(up).mul(2);//.add(ran.nextFloat()-ran.nextFloat(), 0, ran.nextFloat()-ran.nextFloat());
 			
 			if (side == 1) start.mul(-1);
 			
@@ -111,6 +135,8 @@ public class MeleeWeapon extends Equipment_HAND {
 
 	public void update(float delta)
 	{
+		attack_cd -= delta;
+		
 		if (!swinging) return;
 		
 		atk_style.update(delta, collided);
@@ -183,7 +209,7 @@ public class MeleeWeapon extends Equipment_HAND {
 
 abstract class Attack_Style
 {
-	public static final int TRAIL_STEPS = 45;
+	public static final int TRAIL_STEPS = 245;
 	
 	Weapon_Style style;
 	
@@ -198,7 +224,7 @@ abstract class Attack_Style
 	
 	public Attack_Style()
 	{
-		trail = new MotionTrail(TRAIL_STEPS);
+		trail = new MotionTrail(TRAIL_STEPS, Color.LIGHT_GRAY, "data/textures/gradient.png");
 	}
 	
 	public void update(float delta, boolean collided)

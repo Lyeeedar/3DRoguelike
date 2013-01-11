@@ -26,6 +26,7 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.PlayerPlacer;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Stair;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 
@@ -111,7 +112,7 @@ public class GameData {
 		BiomeReader biome = new BiomeReader(lc.biome);
 		RoomReader rReader = new RoomReader(lc.biome, lc.depth);
 		
-		lightManager = new LightManager(10, LightQuality.VERTEX);
+		lightManager = new LightManager(10, LightQuality.NORMALMAP);
 		lightManager.ambientLight.set(biome.getAmbientLight());
 		
 		game.loadLevel(biome, rReader, "InGame");
@@ -152,6 +153,10 @@ public class GameData {
 		level.addActor(player);
 		
 		game.switchScreen(nextScreen);
+		
+		PointLight l = new PointLight(player.position.cpy(), Color.WHITE, 0.02f, 1.8f);
+		player.boundLight = l;
+		lightManager.addDynamicLight(l);
 	}
 
 	public static LevelContainer getLevel(String UID)

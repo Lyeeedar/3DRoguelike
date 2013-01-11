@@ -37,26 +37,30 @@ public class VisibleObject {
 
 	public VisibleObject(Mesh mesh, int primitive_type, Color colour, String textureName, float scale)
 	{
-		Texture texture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"), true);
-		texture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
-		texture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
+		Texture diffuseTexture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"), true);
+		diffuseTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
+		diffuseTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
+		
+		Texture normalTexture = null;
+		if (Gdx.files.internal("data/textures/"+textureName+".map.png").exists())
+		{
+			normalTexture = new Texture(Gdx.files.internal("data/textures/"+textureName+".map.png"), true);
+			normalTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
+			normalTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
+			System.out.println("Normal map found for "+textureName);
+		}
 
-		create(mesh, primitive_type, colour, texture, scale);
+		create(mesh, primitive_type, colour, diffuseTexture, normalTexture, scale);
 	}
 
-	public VisibleObject(Mesh mesh, int primitive_type, Color colour, Texture texture, float scale)
-	{
-		create(mesh, primitive_type, colour, texture, scale);
-	}
-
-	public void create(Mesh mesh, int primitive_type, Color colour, Texture texture, float scale)
+	private void create(Mesh mesh, int primitive_type, Color colour, Texture diffuseTexture, Texture normalTexture, float scale)
 	{
 		mesh = Shapes.insertColour(mesh, colour);
 		
 		SubMesh[] meshes = {new StillSubMesh("SubMesh1", mesh, primitive_type)};
 		model = new StillModel(meshes);
+		MaterialAttribute t = new TextureAttribute(diffuseTexture, normalTexture, null, 0);
 		
-		MaterialAttribute t = new TextureAttribute(texture, 0, TextureAttribute.diffuseTexture);
 		Material material = new Material("basic", t);
 		
 		BoundingBox box = mesh.calculateBoundingBox();

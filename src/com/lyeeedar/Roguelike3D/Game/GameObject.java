@@ -43,7 +43,7 @@ import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public abstract class GameObject {
 	
-	public static final float PHYSICS_DAMAGE_THRESHHOLD = 1.0f;
+	public static final float PHYSICS_DAMAGE_THRESHHOLD = 2.0f;
 	
 	public final String UID;
 	
@@ -154,14 +154,14 @@ public abstract class GameObject {
 		startVelocityHori = Math.abs(velocity.x)+Math.abs(velocity.z);
 		startVelocityVert = Math.abs(velocity.y);
 		
-		if (velocity.x < -2) velocity.x = -2;
-		if (velocity.x > 2) velocity.x = 2;
+		if (velocity.x < -2) velocity.x = -4;
+		if (velocity.x > 2) velocity.x = 4;
 		
-		if (velocity.y < -2) velocity.y = -2;
-		if (velocity.y > 2) velocity.y = 2;
+		if (velocity.y < -2) velocity.y = -4;
+		if (velocity.y > 2) velocity.y = 4;
 		
-		if (velocity.z < -2) velocity.z = -2;
-		if (velocity.z > 2) velocity.z = 2;
+		if (velocity.z < -2) velocity.z = -4;
+		if (velocity.z > 2) velocity.z = 4;
 		
 		Level lvl = GameData.level;
 		

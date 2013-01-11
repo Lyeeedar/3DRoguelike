@@ -117,7 +117,7 @@ public class InGameScreen extends AbstractScreen {
 
 	@Override
 	public void drawOrthogonals(float delta) {
-		Table.drawDebug(stage);
+		//Table.drawDebug(stage);
 		if (paused)
 		{
 			spriteBatch.draw(pausedTint, 0, 0, screen_width, screen_height);	
@@ -334,9 +334,9 @@ public class InGameScreen extends AbstractScreen {
 		table.setFillParent(true);
 
 		
-		stage.addActor(table);
+		//stage.addActor(table);
 		
-		Gdx.input.setInputProcessor(stage);
+		//Gdx.input.setInputProcessor(stage);
 
 	}
 

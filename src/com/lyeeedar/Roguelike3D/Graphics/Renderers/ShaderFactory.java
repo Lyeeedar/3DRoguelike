@@ -41,11 +41,17 @@ public class ShaderFactory {
 			}
 		}
 		// TODO FIX light chose method
-		String fileName;
+		String fileName = "";
 		if (lights.quality == LightQuality.FRAGMENT)
 			fileName = "pixel_lighting";
-		else {
+		else if (lights.quality == LightQuality.NORMALMAP)
+			fileName = "normal_mapping";
+		else if (lights.quality == LightQuality.VERTEX){
 			fileName = "vertex_lighting";
+		}
+		else
+		{
+			System.err.println("Error! Light Quality invalid!");
 		}
 		final String vertexShader = flags + Gdx.files.internal("data/shaders/model/" + fileName + ".vertex.glsl").readString();
 		final String fragmentShader = flags + Gdx.files.internal("data/shaders/model/" + fileName + ".fragment.glsl").readString();
@@ -55,6 +61,7 @@ public class ShaderFactory {
 		if (!shader.isCompiled())
 		{
 			Gdx.app.log("Problem loading shader:", shader.getLog());
+			System.out.println(fragmentShader);
 		}
 		
 		return shader;

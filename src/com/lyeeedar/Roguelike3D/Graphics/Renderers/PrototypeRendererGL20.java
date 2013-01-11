@@ -118,19 +118,20 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 				for (int k = 0, len = material.attributes.size; k < len; k++) {
 					final MaterialAttribute atrib = material.attributes.get(k);
 
-					// special case for textures. really important to batch these
-					if (atrib instanceof TextureAttribute) {
-						final TextureAttribute texAtrib = (TextureAttribute)atrib;
-						if (!texAtrib.texturePortionEquals(lastTexture[texAtrib.unit])) {
-							lastTexture[texAtrib.unit] = texAtrib;
-							texAtrib.bind(currentShader);
-						} else {
-							// need to be done, shader textureAtribute name could be changed.
-							currentShader.setUniformi(texAtrib.name, texAtrib.unit);
-						}
-					} else {
+//					// special case for textures. really important to batch these
+//					if (atrib instanceof TextureAttribute) {
+//						final TextureAttribute texAtrib = (TextureAttribute)atrib;
+////						if (!texAtrib.texturePortionEquals(lastTexture[texAtrib.unit])) {
+////							lastTexture[texAtrib.unit] = texAtrib;
+////							texAtrib.bind(currentShader);
+////						} else {
+////							// need to be done, shader textureAtribute name could be changed.
+////							texAtrib.bind(currentShader);
+////						}
+//						texAtrib.bind(currentShader);
+//					} else {
 						atrib.bind(currentShader);
-					}
+//					}
 				}
 
 				// finally render current submesh
@@ -229,17 +230,20 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 							lastSrcBlend = blending.blendSrcFunc;
 							lastDstBlend = blending.blendDstFunc;
 						}
-					} else if (atrib instanceof TextureAttribute) {
-						// special case for textures. really important to batch these
-						final TextureAttribute texAtrib = (TextureAttribute)atrib;
-						if (!texAtrib.texturePortionEquals(lastTexture[texAtrib.unit])) {
-							lastTexture[texAtrib.unit] = texAtrib;
-							texAtrib.bind(currentShader);
-						} else {
-							// need to be done, shader textureAtribute name could be changed.
-							currentShader.setUniformi(texAtrib.name, texAtrib.unit);
-						}
-					} else {
+					} 
+//					else if (atrib instanceof TextureAttribute) {
+//						// special case for textures. really important to batch these
+//						final TextureAttribute texAtrib = (TextureAttribute)atrib;
+////						if (!texAtrib.texturePortionEquals(lastTexture[texAtrib.unit])) {
+////							lastTexture[texAtrib.unit] = texAtrib;
+////							texAtrib.bind(currentShader);
+////						} else {
+////							// need to be done, shader textureAtribute name could be changed.
+////							currentShader.setUniformi(texAtrib.name, texAtrib.unit);
+////						}
+//						texAtrib.bind(currentShader);
+//					} 
+					else {
 						atrib.bind(currentShader);
 					}
 				}

@@ -2,9 +2,13 @@ package com.lyeeedar.Roguelike3D.Graphics.ParticleEffects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
@@ -18,9 +22,20 @@ public class MotionTrail {
 	final Mesh mesh;
 	
 	final ShaderProgram shader;
+	
+	Color colour;
+	
+	Texture texture;
+	
+	final float[] vertices;
 
-	public MotionTrail(int vertsNum) 
+	public MotionTrail(int vertsNum, Color colour, String texture) 
 	{		
+		this.colour = colour;
+		this.texture = new Texture(Gdx.files.internal(texture));
+		this.texture.setWrap( TextureWrap.ClampToEdge, TextureWrap.ClampToEdge );
+		this.texture.setFilter( TextureFilter.Nearest, TextureFilter.Nearest);
+		
 		this.vertNum = vertsNum * 2;
 		
 		trailRing = new CircularArrayRing<Vector3>(this.vertNum);
@@ -30,12 +45,14 @@ public class MotionTrail {
 			trailRing.add(new Vector3());
 		}
 		
-		mesh = new Mesh(false, this.vertNum, 0, new VertexAttribute(Usage.Position, 3, "a_position"));
-		vertices = new float[this.vertNum * 3];
+		mesh = new Mesh(false, this.vertNum, 0, 
+				new VertexAttribute(Usage.Position, 3, "a_position"),
+				new VertexAttribute(Usage.Generic, 1, "a_texCoord"));
+		vertices = new float[this.vertNum * 4];
 		
 		shader = new ShaderProgram(
-				Gdx.files.internal("data/shaders/model/basic_movement.vertex.glsl"),
-				Gdx.files.internal("data/shaders/model/basic_movement.fragment.glsl")
+				Gdx.files.internal("data/shaders/model/motion_trail.vertex.glsl"),
+				Gdx.files.internal("data/shaders/model/motion_trail.fragment.glsl")
 				);
 		
 		if (!shader.isCompiled())
@@ -57,16 +74,20 @@ public class MotionTrail {
 	{
 		trailRing.peek().set(vert);
 	}
-	
-	final float[] vertices;
+
+	private boolean up = false;
 	protected void updateVerts()
 	{
 		for (int i = 0; i < vertNum; i++)
 		{
 			Vector3 vert = trailRing.get(i);
-			vertices[i*3] = vert.x;
-			vertices[(i*3)+1] = vert.y;
-			vertices[(i*3)+2] = vert.z;
+			vertices[i*4] = vert.x;
+			vertices[(i*4)+1] = vert.y;
+			vertices[(i*4)+2] = vert.z;
+			if (up) vertices[(i*4)+3] = 1.0f;
+			else vertices[(i*4)+3] = 0.0f;
+			
+			up = (!up);
 		}
 		
 		mesh.setVertices(vertices);
@@ -78,7 +99,10 @@ public class MotionTrail {
 		
 		shader.begin();
 		
+		texture.bind();
+		
 		shader.setUniformMatrix("u_mv", cam.combined);
+		shader.setUniformf("u_colour", colour);
 		
 		mesh.render(shader, GL20.GL_TRIANGLE_STRIP);
 		

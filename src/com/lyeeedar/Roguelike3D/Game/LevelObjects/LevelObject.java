@@ -107,7 +107,7 @@ public abstract class LevelObject extends GameObject{
 			
 			PointLight pl = new PointLight(new Vector3(x, 5, z), lightCol, 0.01f, 2.0f);
 			
-			GameData.lightManager.addStaticLight(pl);
+			GameData.lightManager.addDynamicLight(pl);
 		}
 		else if (ao.type == ObjectType.FIRE_TORCH)
 		{

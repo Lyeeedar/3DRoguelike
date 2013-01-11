@@ -209,7 +209,7 @@ public class MeleeWeapon extends Equipment_HAND {
 
 abstract class Attack_Style
 {
-	public static final int TRAIL_STEPS = 245;
+	public static final int TRAIL_STEPS = 345;
 	
 	Weapon_Style style;
 	

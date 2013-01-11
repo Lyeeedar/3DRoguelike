@@ -23,25 +23,28 @@ import com.lyeeedar.Roguelike3D.Graphics.Screens.*;
 
 
 public class Roguelike3DGame extends Game {
+	
+	public static final String INGAME = "InGame";
+	public static final String LEVELLOADING = "LevelLoading";
+	public static final String MAINMENU = "MainMenu";
+	public static final String CREDITS = "Credits";
 
 	public HashMap<String, AbstractScreen> screens = new HashMap<String, AbstractScreen>();
 	
 	String currentScreen;
 	
-	LevelLoadingScreen loading_screen;
-	
 	@Override
 	public void create() {
 		loadScreens();
-		//setScreen(screens.get("LoadingScreen"));
-		//setScreen(screens.get("InGame"));
+		switchScreen(MAINMENU);
 	}
 	
 	private void loadScreens()
 	{
-		loading_screen = new LevelLoadingScreen(this);
-		loading_screen.create();
-		screens.put("InGame", new InGameScreen(this));
+		screens.put(LEVELLOADING, new LevelLoadingScreen(this));	
+		screens.put(INGAME, new InGameScreen(this));
+		screens.put(MAINMENU, new MainMenuScreen(this));
+		screens.put(CREDITS, new CreditsScreen(this));
 		
 		for (Map.Entry<String, AbstractScreen> entry : screens.entrySet())
 		{
@@ -51,8 +54,9 @@ public class Roguelike3DGame extends Game {
 	
 	public void loadLevel(BiomeReader biome, RoomReader rReader, String nextScreen)
 	{
-		loading_screen.setSettings(biome, rReader, nextScreen);
-		setScreen(loading_screen);
+		LevelLoadingScreen screen = (LevelLoadingScreen) screens.get(LEVELLOADING);
+		screen.setSettings(biome, rReader, nextScreen);
+		setScreen(screen);
 	}
 
 	public void switchScreen(String screen)
@@ -63,7 +67,6 @@ public class Roguelike3DGame extends Game {
 	
 	public void ANNIHALATE()
 	{
-		//System.exit(0);
 		Gdx.app.exit();
 	}
 }

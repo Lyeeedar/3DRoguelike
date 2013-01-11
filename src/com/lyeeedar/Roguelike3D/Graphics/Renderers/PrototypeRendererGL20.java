@@ -43,7 +43,7 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 	static final int SIZE = 256;
 
 	final ShaderHandler shaderHandler;
-	private LightManager lightManager;
+	public LightManager lightManager;
 	private boolean drawing;
 	public Camera cam;
 	

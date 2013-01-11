@@ -77,6 +77,8 @@ public class GameData {
 		TOUCH
 	}
 	
+	public static LightQuality lightQuality = LightQuality.NORMALMAP;
+	
 	public static LightManager lightManager;
 	
 	public static Level level;
@@ -112,10 +114,10 @@ public class GameData {
 		BiomeReader biome = new BiomeReader(lc.biome);
 		RoomReader rReader = new RoomReader(lc.biome, lc.depth);
 		
-		lightManager = new LightManager(10, LightQuality.NORMALMAP);
+		lightManager = new LightManager(10, lightQuality);
 		lightManager.ambientLight.set(biome.getAmbientLight());
 		
-		game.loadLevel(biome, rReader, "InGame");
+		game.loadLevel(biome, rReader, Roguelike3DGame.INGAME);
 	}
 	
 	public static void finishLoading(Level level, LevelGraphics graphics, String nextScreen)
@@ -154,7 +156,7 @@ public class GameData {
 		
 		game.switchScreen(nextScreen);
 		
-		PointLight l = new PointLight(player.position.cpy(), Color.WHITE, 0.02f, 1.8f);
+		PointLight l = new PointLight(player.position.cpy(), Color.WHITE, 0.06f, 1.4f);
 		player.boundLight = l;
 		lightManager.addDynamicLight(l);
 	}

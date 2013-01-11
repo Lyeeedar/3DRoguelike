@@ -307,37 +307,6 @@ public class InGameScreen extends AbstractScreen {
 		
 		pausedTint = new Texture(Gdx.files.internal("data/textures/pausedScreenTint.png"));
 		
-		Skin skin = new Skin(Gdx.files.internal("data/skins/uiskin.json"));
-		
-		Label nameLabel = new Label("Name:", skin);
-		TextField nameText = new TextField(" name ", skin);
-		Label addressLabel = new Label("Address:", skin);
-		TextField addressText = new TextField(" address ", skin);
-
-		table = new Table();
-		table.debug();
-		table.add(nameLabel);
-		table.add(nameText).width(100);
-		table.row();
-		table.add(addressLabel);
-		table.add(addressText).width(100);
-		TextButton button1 = new TextButton("Button 1", skin);
-		table.add(button1);
-		button1.addListener(new InputListener() {
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				System.out.println("touchDown 2");
-				return false;
-				}
-				});
-
-
-		table.setFillParent(true);
-
-		
-		//stage.addActor(table);
-		
-		//Gdx.input.setInputProcessor(stage);
-
 	}
 
 	@Override
@@ -348,7 +317,8 @@ public class InGameScreen extends AbstractScreen {
 	@Override
 	public void show()
 	{
-		Gdx.input.setCursorCatched(true);	
+		Gdx.input.setCursorCatched(true);
+		protoRenderer.lightManager = GameData.lightManager;
 	}
 
 	@Override

@@ -36,6 +36,7 @@ import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
@@ -191,19 +192,22 @@ public class InGameScreen extends AbstractScreen {
 		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) game.ANNIHALATE();
 		if (Gdx.input.isKeyPressed(Keys.TAB) && !tabCD) 
 		{
+			TextureAttribute.NORMAL_MAP = !TextureAttribute.NORMAL_MAP;
 			if (paused)
 			{
-				paused = false;
-				Gdx.input.setCursorCatched(true);
+				//paused = false;
+				//Gdx.input.setCursorCatched(true);
 				tabCD = true;
 			}
 			else
 			{
-				paused = true;
-				Gdx.input.setCursorCatched(false);
-				Gdx.input.setCursorPosition(screen_width/2, screen_height/2);
+				//paused = true;
+				//Gdx.input.setCursorCatched(false);
+				//Gdx.input.setCursorPosition(screen_width/2, screen_height/2);
 				tabCD = true;
 			}
+			
+			System.out.println(TextureAttribute.NORMAL_MAP);
 		}
 		else if (!Gdx.input.isKeyPressed(Keys.TAB))
 		{

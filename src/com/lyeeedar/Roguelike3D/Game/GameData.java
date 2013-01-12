@@ -156,7 +156,7 @@ public class GameData {
 		
 		game.switchScreen(nextScreen);
 		
-		PointLight l = new PointLight(player.position.cpy(), Color.WHITE, 0.06f, 1.4f);
+		PointLight l = new PointLight(player.position.cpy(), Color.WHITE, 0.02f, 2.0f);
 		player.boundLight = l;
 		lightManager.addDynamicLight(l);
 	}

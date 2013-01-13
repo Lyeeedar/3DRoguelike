@@ -86,7 +86,7 @@ public abstract class AbstractScreen implements Screen{
 		update(delta);
 		stage.act(delta);
 	
-		postProcessor.begin();
+		if (PostProcessor.ON) postProcessor.begin();
 		
 		Gdx.graphics.getGL20().glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -108,7 +108,7 @@ public abstract class AbstractScreen implements Screen{
 		
 		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
 		
-		postProcessor.end();
+		if (PostProcessor.ON) postProcessor.end();
 		
 		spriteBatch.begin();
 		drawOrthogonals(delta);

@@ -31,6 +31,8 @@ public class PostProcessor {
 		GLOW
 	}
 	
+	public static boolean ON = true;
+	
 	private Format format;
 	private int width;
 	private int height;

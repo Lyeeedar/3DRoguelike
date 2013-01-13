@@ -39,6 +39,7 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
+import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public class InGameScreen extends AbstractScreen {
@@ -152,6 +153,8 @@ public class InGameScreen extends AbstractScreen {
 		}
 		
 		font.draw(spriteBatch, desc, 300, 20);
+		font.draw(spriteBatch, "1: Normal Maps: "+TextureAttribute.NORMAL_MAP, 20, screen_height-20);
+		font.draw(spriteBatch, "2: PostProcessor: "+PostProcessor.ON, 20, screen_height-40);
 	}
 	
 	int count = 1;
@@ -162,6 +165,8 @@ public class InGameScreen extends AbstractScreen {
 	
 	Ray ray = new Ray(new Vector3(), new Vector3());
 	boolean tabCD = false;
+	boolean cd1 = false;
+	boolean cd2 = false;
 	float activateCD = 0;
 	@Override
 	public void update(float delta) {
@@ -189,29 +194,47 @@ public class InGameScreen extends AbstractScreen {
 			cam.update();
 		}
 		
-		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) game.ANNIHALATE();
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) game.switchScreen(Roguelike3DGame.MAINMENU);
 		if (Gdx.input.isKeyPressed(Keys.TAB) && !tabCD) 
 		{
-			TextureAttribute.NORMAL_MAP = !TextureAttribute.NORMAL_MAP;
 			if (paused)
 			{
-				//paused = false;
-				//Gdx.input.setCursorCatched(true);
+				paused = false;
+				Gdx.input.setCursorCatched(true);
 				tabCD = true;
 			}
 			else
 			{
-				//paused = true;
-				//Gdx.input.setCursorCatched(false);
-				//Gdx.input.setCursorPosition(screen_width/2, screen_height/2);
+				paused = true;
+				Gdx.input.setCursorCatched(false);
+				Gdx.input.setCursorPosition(screen_width/2, screen_height/2);
 				tabCD = true;
 			}
 			
-			System.out.println(TextureAttribute.NORMAL_MAP);
 		}
 		else if (!Gdx.input.isKeyPressed(Keys.TAB))
 		{
 			tabCD = false;
+		}
+		
+		if (Gdx.input.isKeyPressed(Keys.NUM_1) && !cd1) 
+		{
+			TextureAttribute.NORMAL_MAP = !TextureAttribute.NORMAL_MAP;
+			cd1 = true;
+		}
+		else if (!Gdx.input.isKeyPressed(Keys.NUM_1))
+		{
+			cd1 = false;
+		}
+		
+		if (Gdx.input.isKeyPressed(Keys.NUM_2) && !cd2) 
+		{
+			PostProcessor.ON = !PostProcessor.ON;
+			cd2 = true;
+		}
+		else if (!Gdx.input.isKeyPressed(Keys.NUM_2))
+		{
+			cd2 = false;
 		}
 		
 		if (paused)

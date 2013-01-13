@@ -21,10 +21,12 @@ public class MainMenuScreen extends AbstractScreen {
 
 	@Override
 	public void show() {
+		Gdx.input.setInputProcessor(stage);
 	}
 
 	@Override
 	public void hide() {
+		Gdx.input.setInputProcessor(null);
 	}
 
 	@Override
@@ -90,7 +92,6 @@ public class MainMenuScreen extends AbstractScreen {
 
 		table.setFillParent(true);
 		stage.addActor(table);	
-		Gdx.input.setInputProcessor(stage);
 	}
 
 	@Override

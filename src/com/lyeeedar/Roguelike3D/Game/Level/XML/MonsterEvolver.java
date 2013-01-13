@@ -1703,6 +1703,7 @@ class AI_Evolver_VFFG extends AI_Evolver_Package
 
 class Evolver_Combat
 {
+	public static final int COMBAT_STEPS = 50;
 	final Random ran = new Random();
 	public static final float STAGE_LENGTH = 50;
 	public static final float TIME_STEP = 0.5f;
@@ -1721,7 +1722,7 @@ class Evolver_Combat
 
 	public boolean didC1WIN()
 	{
-		while(true)
+		for(int i = 0; i < COMBAT_STEPS; i++)
 		{
 			c1.atk_cooldown_left -= TIME_STEP;
 			c2.atk_cooldown_right -= TIME_STEP;
@@ -1749,8 +1750,9 @@ class Evolver_Combat
 				return true;
 			}
 
-			//System.out.println("Combat! \n C1="+c1.current_health+"  C2="+c2.current_health + "\n C1X="+c1X+" C2X="+c2X);
 		}
+		
+		return (c1.points > c2.points) ? true : false;
 	}
 
 	int v;

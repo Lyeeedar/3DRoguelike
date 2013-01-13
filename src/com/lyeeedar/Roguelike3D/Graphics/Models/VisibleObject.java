@@ -56,6 +56,7 @@ public class VisibleObject {
 	private void create(Mesh mesh, int primitive_type, Color colour, Texture diffuseTexture, Texture normalTexture, float scale)
 	{
 		mesh = Shapes.insertColour(mesh, colour);
+		//mesh = Shapes.insertTangents(mesh);
 		
 		SubMesh[] meshes = {new StillSubMesh("SubMesh1", mesh, primitive_type)};
 		model = new StillModel(meshes);

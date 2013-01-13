@@ -361,4 +361,128 @@ public class Shapes {
 		
 		return newMesh;
 	}
+	
+	public static Mesh insertTangents(Mesh mesh)
+	{
+		VertexAttributes attributes = mesh.getVertexAttributes();
+		final int vertCount = mesh.getNumVertices();
+		final int vertexSize = attributes.vertexSize / 4;
+		
+		VertexAttribute[] newAttributes = new VertexAttribute[attributes.size()+1];
+		for (int i = 0; i < attributes.size(); i++)
+		{
+			newAttributes[i] = attributes.get(i);
+		}
+		newAttributes[attributes.size()] = new VertexAttribute(Usage.Generic, 4, "a_tangent");
+		
+		final int newVertexSize = vertexSize + 4;
+		
+		float[] verts = new float[vertexSize * vertCount]; 
+		mesh.getVertices(verts);
+		short[] indices = new short[mesh.getNumIndices()];
+		mesh.getIndices(indices);
+		float[] newVerts = new float[newVertexSize * vertCount];
+		
+		int positionOffset = attributes.getOffset(Usage.Position);
+		int normalOffset = attributes.getOffset(Usage.Normal);
+		int textureOffset = attributes.getOffset(Usage.TextureCoordinates);
+		
+		int tangentOffset = 0;
+		for (int i = 0; i < vertCount; i += 3)
+		{
+			int j = 0;
+			for (; j < vertexSize; j++)
+			{
+				newVerts[ (i*newVertexSize) + j ] = verts[ (i*vertexSize) + j ];
+				newVerts[ ((i+1)*newVertexSize) + j ] = verts[ ((i+1)*vertexSize) + j ];
+				newVerts[ ((i+2)*newVertexSize) + j ] = verts[ ((i+2)*vertexSize) + j ];
+			}
+			tangentOffset = j;
+		}
+		for (int i = 0; i < mesh.getNumIndices(); i += 3)
+		{
+			int i1 = indices[i];
+			int i2 = indices[i+1];
+			int i3 = indices[i+2];
+			
+			Vector3 v1 = new Vector3(verts[(i1*vertexSize)+positionOffset], verts[(i1*vertexSize)+positionOffset]+1, verts[(i1*vertexSize)+positionOffset]+2);
+			Vector3 v2 = new Vector3(verts[(i2*vertexSize)+positionOffset], verts[(i2*vertexSize)+positionOffset]+1, verts[(i2*vertexSize)+positionOffset]+2);
+			Vector3 v3 = new Vector3(verts[(i3*vertexSize)+positionOffset], verts[(i3*vertexSize)+positionOffset]+1, verts[(i3*vertexSize)+positionOffset]+2);
+
+			float[] w1 = {verts[(i1*vertexSize)+textureOffset], verts[(i1*vertexSize)+textureOffset]+1};
+			float[] w2 = {verts[(i2*vertexSize)+textureOffset], verts[(i2*vertexSize)+textureOffset]+1};
+			float[] w3 = {verts[(i3*vertexSize)+textureOffset], verts[(i3*vertexSize)+textureOffset]+1};
+			
+	        float x1 = v2.x - v1.x;
+	        float x2 = v3.x - v1.x;
+	        float y1 = v2.y - v1.y;
+	        float y2 = v3.y - v1.y;
+	        float z1 = v2.z - v1.z;
+	        float z2 = v3.z - v1.z;
+	        
+	        float s1 = w2[0] - w1[0];
+	        float s2 = w3[0] - w1[0];
+	        float t1 = w2[1] - w1[1];
+	        float t2 = w3[1] - w1[1];
+	        
+	        float div = s1 * t2 - s2 * t1;
+	        float r = div == 0.0f ? 0.0f : 1.0f / div;
+	        
+	        Vector3 t = new Vector3((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r,
+	                (t2 * z1 - t1 * z2) * r);
+	        Vector3 n = new Vector3(verts[(i1*vertexSize)+normalOffset], verts[(i1*vertexSize)+normalOffset]+1, verts[(i1*vertexSize)+normalOffset]+2);
+	        
+	        //Vector3 tangent = t.cpy().sub(n).mul(n.tmp().dot(t)).nor();
+	        Vector3 tangent = orthoNormalize(n, t);
+	        
+	        System.out.println(t2);
+	        
+            Vector3 tan2 = new Vector3((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
+            float handedness = ( n.tmp().crs(t).dot(tan2) < 0.0f ) ? -1.0f : 1.0f;
+            
+            Vector3 c1 = n.cpy().crs(0.0f, 0.0f, 1.0f); 
+            Vector3 c2 = n.cpy().crs(0.0f, 1.0f, 0.0f); 
+
+            if( c1.len2()>c2.len2() )
+            {
+            	tangent = c1;	
+            }
+            else
+            {
+            	tangent = c2;	
+            }
+			
+			newVerts[ (i1*newVertexSize) + tangentOffset ] = tangent.x;
+			newVerts[ (i1*newVertexSize) + tangentOffset + 1 ] = tangent.y;
+			newVerts[ (i1*newVertexSize) + tangentOffset + 2 ] = tangent.z;
+			newVerts[ (i1*newVertexSize) + tangentOffset + 3 ] = handedness;
+			
+			newVerts[ (i2*newVertexSize) + tangentOffset ] = tangent.x;
+			newVerts[ (i2*newVertexSize) + tangentOffset + 1 ] = tangent.y;
+			newVerts[ (i2*newVertexSize) + tangentOffset + 2 ] = tangent.z;
+			newVerts[ (i2*newVertexSize) + tangentOffset + 3 ] = handedness;
+			
+			newVerts[ (i3*newVertexSize) + tangentOffset ] = tangent.x;
+			newVerts[ (i3*newVertexSize) + tangentOffset + 1 ] = tangent.y;
+			newVerts[ (i3*newVertexSize) + tangentOffset + 2 ] = tangent.z;
+			newVerts[ (i3*newVertexSize) + tangentOffset + 3 ] = handedness;
+		}
+		
+		Mesh newMesh = new Mesh(true, mesh.getNumVertices(), mesh.getNumIndices(), newAttributes);
+		newMesh.setVertices(newVerts);
+		newMesh.setIndices(indices);
+		
+		return newMesh;
+	}
+	
+	public static Vector3 orthoNormalize(Vector3 vec1, Vector3 vec2)
+	{
+		vec1.nor();
+		vec1.mul(vec2.dot(vec1));
+		
+		vec2.sub(vec1);
+		
+		vec2.nor();
+		return vec2;
+	}
 }

@@ -120,6 +120,7 @@ public class MonsterEvolver extends XMLReader {
 	public static final String FLEXIBLE_BRITTLE = "flexible_brittle";
 	public static final String NAME = "name";
 	public static final String AMOUNT = "amount";
+	public static final String RARITY = "rarity";
 	
 
 	final Random ran = new Random();
@@ -357,6 +358,9 @@ public class MonsterEvolver extends XMLReader {
 		
 		String name = getNodeValue(NAME, dropNode.getChildNodes());
 		
+		String rarityString = getNodeValue(RARITY, dropNode.getChildNodes());
+		int rarity = Integer.parseInt(rarityString);
+		
 		String chanceString = getNodeValue(CHANCE, dropNode.getChildNodes());
 		int chance = Integer.parseInt(chanceString);
 		
@@ -391,7 +395,7 @@ public class MonsterEvolver extends XMLReader {
 		element.put(Element.AETHER, Integer.parseInt(ae));
 		element.put(Element.VOID, Integer.parseInt(v));
 		
-		Component drop = new Component(type, name, chance, description, weight_per_amount, amount, soft_hard, flexible_brittle, element);
+		Component drop = new Component(type, name, rarity, chance, description, weight_per_amount, amount, soft_hard, flexible_brittle, element);
 		
 		return drop;
 	}

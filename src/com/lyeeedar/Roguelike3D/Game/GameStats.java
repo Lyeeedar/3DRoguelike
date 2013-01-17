@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
+import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_BODY;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_BOOTS;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
@@ -17,8 +18,6 @@ import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Game.Item.Recipe;
 
 public class GameStats {
-	
-	public static HashMap<String, Item> INVENTORY = new HashMap<String, Item>();
 	
 	public static int MAX_HEALTH;
 	public static int HEALTH;
@@ -36,9 +35,15 @@ public class GameStats {
 	public static Equipment_HAND r_hand;
 	
 	public static TreeMultimap<Integer, Recipe> recipes = TreeMultimap.create();
+	public static TreeMultimap<Integer, Component> components = TreeMultimap.create();
 	
 	public static void addRecipe(Recipe recipe)
 	{
 		recipes.put(recipe.rarity, recipe);
+	}
+	
+	public static void addComponent(Component c)
+	{
+		components.put(c.rarity, c);
 	}
 }

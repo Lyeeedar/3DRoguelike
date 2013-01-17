@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 
-public class Component extends Item {
+public class Component extends Item implements Comparable<Component>{
 	
 	public enum Component_Type
 	{
@@ -33,13 +33,16 @@ public class Component extends Item {
 	public HashMap<Element, Integer> element;
 	
 	public Component_Type type;
+	
+	public int rarity;
 
-	public Component(Component_Type type, String name, int drop_chance,
+	public Component(Component_Type type, String name, int rarity, int drop_chance,
 			String description, int weight_per_amount, int amount, int soft_hard,
 			int flexible_brittle, HashMap<Element, Integer> element) {
 		
 		this.type = type;
 		this.name = name;
+		this.rarity = rarity;
 		this.drop_chance = drop_chance;
 		this.description = description;
 		this.weight_per_amount = weight_per_amount;
@@ -85,6 +88,7 @@ public class Component extends Item {
 		return "--------------------" + "\n" +
 				"Name: " +name+"\n" +
 				"Type: "+type+"\n" +
+				"Rarity: "+rarity+"\n" +
 				"Chance: "+drop_chance+"\n"+
 				"Description: "+description+"\n"+
 				"WpA: "+weight_per_amount+"\n"+
@@ -102,6 +106,13 @@ public class Component extends Item {
 				"	VOID: "+element.get(Element.VOID)+"\n"+
 				"--------------------"
 				;
+	}
+
+	@Override
+	public int compareTo(Component o) {
+		if (o.hashCode() < this.hashCode()) return -1;
+		else if (o.hashCode() > this.hashCode()) return 1;
+		return 0;
 	}
 
 }

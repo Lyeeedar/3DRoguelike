@@ -76,8 +76,8 @@ public abstract class AbstractScreen implements Screen{
 		
 		protoRenderer = new PrototypeRendererGL20(GameData.lightManager);
 		
-		postProcessor = new PostProcessor(Format.RGBA4444, 1200, 860);
-		postProcessor.addEffect(Effect.GLOW);
+		postProcessor = new PostProcessor(Format.RGBA4444, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		postProcessor.addEffect(Effect.BLOOM);
 	}
 
 	@Override

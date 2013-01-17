@@ -19,7 +19,7 @@ public class BufferChain {
 	
 	public static final int NUM_BUFFERS = 2;
 	
-	final FrameBuffer[] buffers = new FrameBuffer[NUM_BUFFERS];;
+	final FrameBuffer[] buffers = new FrameBuffer[NUM_BUFFERS];
 
 	int currentBuffer;
 	
@@ -48,9 +48,7 @@ public class BufferChain {
 	public void applyEffect(PostProcessingEffect effect)
 	{
 		nextBuffer();
-		buffers[currentBuffer].begin();
-		effect.render(texture);
-		buffers[currentBuffer].end();
+		effect.render(texture, buffers[currentBuffer]);
 		texture = buffers[currentBuffer].getColorBufferTexture();
 	}
 	

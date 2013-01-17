@@ -11,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameStats;
+import com.lyeeedar.Roguelike3D.Game.Item.Component;
+import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Recipe;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RecipeReader;
 
@@ -80,23 +82,24 @@ public class MainMenuScreen extends AbstractScreen {
 		btnTest.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				RecipeReader reader = new RecipeReader("sword");
-				Recipe recipe = new Recipe(reader);
+				Recipe recipe;
 				
-				GameStats.addRecipe(recipe);
-				recipe = new Recipe(reader);
-				GameStats.addRecipe(recipe);
-				recipe = new Recipe(reader);
-				GameStats.addRecipe(recipe);
-				recipe = new Recipe(reader);
-				GameStats.addRecipe(recipe);
-				recipe = new Recipe(reader);
-				GameStats.addRecipe(recipe);
-				recipe = new Recipe(reader);
-				GameStats.addRecipe(recipe);
-				recipe = new Recipe(reader);
-				GameStats.addRecipe(recipe);
-				recipe = new Recipe(reader);
-				GameStats.addRecipe(recipe);
+				for (int i = 0; i < 10; i++)
+				{
+					recipe = new Recipe(reader);
+					recipe.rarity += i;
+					GameStats.addRecipe(recipe);
+				}
+				
+				for (int i = 1; i < 11; i++)
+				{
+					Component c = new Component(Component_Type.CLAW, "Claw thingy", i, i, null, i, 20, i, i, null);
+					GameStats.addComponent(c);
+					c = new Component(Component_Type.CLAW, "Claw thingy", i, i, null, i, 20, i, i, null);
+					GameStats.addComponent(c);
+					c = new Component(Component_Type.CLAW, "Claw thingy", i, i, null, i, 20, i, i, null);
+					GameStats.addComponent(c);
+				}
 				
 				game.switchScreen(Roguelike3DGame.RECIPES);
 				return false;

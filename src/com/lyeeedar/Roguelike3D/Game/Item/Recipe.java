@@ -33,10 +33,37 @@ public class Recipe implements Comparable<Recipe>
 		type = reader.getItemType();
 		rarity = reader.getRecipeRarity();
 		visualGrid = reader.getVisual();
+		
+		components = new HashMap<Character, Recipe_Component>();
+		
+		for (int x = 0; x < visualGrid.length; x++)
+		{
+			for (int y = 0; y < visualGrid[0].length; y++)
+			{
+				char c = visualGrid[x][y];
+				if (c == ' ') continue;
+				
+				components.put(c, new Recipe_Component(c, reader.getComponentName(c), reader.getComponentAmount(c), reader.getComponentConstraints(c)));
+			}
+		}
+	}
+	
+	public boolean checkAll(Component c)
+	{
+		for (int x = 0; x < visualGrid.length; x++)
+		{
+			for (int y = 0; y < visualGrid[0].length; y++)
+			{
+				if (checkComponent(c, visualGrid[x][y])) return true;
+			}
+		}
+		return false;
 	}
 	
 	public boolean checkComponent(Component c, char slot)
 	{
+		if (slot == ' ') return false;
+		
 		if (!components.get(slot).check(c.type)) return false;
 		
 		return (c.amount >= components.get(slot).amount);
@@ -56,13 +83,21 @@ class Recipe_Component
 	String name;
 	int amount;
 	// If components is size 0 it will take any type of material, otherwise only those in this list
-	ArrayList<Component_Type> components = new ArrayList<Component_Type>();
+	ArrayList<Component_Type> constraints = new ArrayList<Component_Type>();
+	
+	public Recipe_Component(char tag, String name, int amount, ArrayList<Component_Type> constraints)
+	{
+		this.tag = tag;
+		this.name = name;
+		this.amount = amount;
+		this.constraints = constraints;
+	}
 	
 	public boolean check(Component_Type type)
 	{
-		if (components.size() == 0) return true;
+		if (constraints.size() == 0) return true;
 		
-		for (Component_Type ct : components)
+		for (Component_Type ct : constraints)
 		{
 			if (ct == type) return true;
 		}

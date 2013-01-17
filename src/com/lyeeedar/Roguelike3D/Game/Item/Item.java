@@ -36,8 +36,4 @@ public class Item {
 
 		return type;
 	}
-	
-	public String NAME;
-	public String DESCRIPTION;
-	public int QUALITY;
 }

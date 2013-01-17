@@ -21,14 +21,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.Effects.GlowEffect;
+import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.Effects.BloomEffect;
+import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.Effects.BlurEffect;
 import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.Effects.PostProcessingEffect;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public class PostProcessor {
 	
 	public enum Effect {
-		GLOW
+		BLUR,
+		BLOOM
 	}
 	
 	public static boolean ON = true;
@@ -49,6 +51,8 @@ public class PostProcessor {
 	private final ShaderProgram shader;
 
 	public PostProcessor(Format format, int width, int height) {
+		width += 50;
+		height += 50;
 		this.format = format;
 		this.width = width;
 		this.height = height;
@@ -83,7 +87,8 @@ public class PostProcessor {
 	public void setupEffects()
 	{
 		effects.clear();
-		effects.put(Effect.GLOW, new GlowEffect());
+		effects.put(Effect.BLUR, new BlurEffect());
+		effects.put(Effect.BLOOM, new BloomEffect());
 	}
 	
 	public void updateBufferSettings(Format format, int f, int g) {

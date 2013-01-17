@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 import org.w3c.dom.Node;
 
+import com.lyeeedar.Roguelike3D.Game.Item.Component;
+import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon;
 import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
@@ -39,6 +41,7 @@ public class RecipeReader extends XMLReader
 	public static final String META = "meta";
 	public static final String RARITY = "rarity";
 	public static final String RECIPES = "recipes";
+	public static final String CONSTRAINTS = "constraints";
 
 
 	Node recipe;
@@ -49,6 +52,50 @@ public class RecipeReader extends XMLReader
 		this.recipe = getNode(recipeName, getNode(RECIPES, root_node.getChildNodes()).getChildNodes());
 	}
 	
+	public String getComponentName(char tag)
+	{
+		Node components = getNode(COMPONENTS, recipe.getChildNodes());
+		
+		Node c = getNode(""+tag, components.getChildNodes());
+		
+		return getNodeValue(NAME, c.getChildNodes());
+	}
+	
+	public int getComponentAmount(char tag)
+	{
+		Node components = getNode(COMPONENTS, recipe.getChildNodes());
+		
+		Node c = getNode(""+tag, components.getChildNodes());
+		
+		return Integer.parseInt(getNodeValue(AMOUNT, c.getChildNodes()));
+	}
+	
+	public ArrayList<Component_Type> getComponentConstraints(char tag)
+	{
+		Node components = getNode(COMPONENTS, recipe.getChildNodes());
+		
+		Node c = getNode(""+tag, components.getChildNodes());
+		
+		Node constraints = getNode(CONSTRAINTS, c.getChildNodes());
+		
+		ArrayList<Component_Type> list = new ArrayList<Component_Type>();
+		
+		if (constraints == null) return list;
+		
+		for (int i = 0; i < constraints.getChildNodes().getLength(); i++)
+		{
+			Node n = constraints.getChildNodes().item(i);
+			
+			if (n.getNodeName().equalsIgnoreCase(TYPE))
+			{
+				Component_Type ct = Component.convertComponentType(getNodeValue(n));
+				list.add(ct);
+			}
+		}
+		
+		return list;
+	}
+	
 	public char[][] getVisual()
 	{
 		Node visual = getNode(VISUAL, recipe.getChildNodes());
@@ -57,17 +104,19 @@ public class RecipeReader extends XMLReader
 		
 		char[][] visualGrid = new char[height][width];
 		
+		int h = 0;
 		Node grid = getNode(GRID, visual.getChildNodes());
 		for (int i = 0; i < grid.getChildNodes().getLength(); i++)
 		{
 			Node n = grid.getChildNodes().item(i);
 			if (n.getNodeName().equalsIgnoreCase(ROW))
 			{
-				String row = n.getNodeValue();
+				String row = getNodeValue(n);
 				for (int j = 0; j < row.length(); j++)
 				{
-					visualGrid[i][j] = row.charAt(j);
+					visualGrid[h][j] = row.charAt(j);
 				}
+				h++;
 			}
 		}
 		

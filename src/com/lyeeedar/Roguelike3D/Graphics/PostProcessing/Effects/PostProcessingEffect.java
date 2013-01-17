@@ -14,6 +14,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
@@ -34,28 +35,7 @@ public abstract class PostProcessingEffect {
 		create();
 	}
 	
-	public void render(Texture texture)
-	{		
-		Gdx.graphics.getGL20().glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
-		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);		
-		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
-
-		batch.setShader(shader);
-		
-		batch.begin();
-		
-		bindUniforms();
-		
-		batch.draw(texture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
-				0, 0, texture.getWidth(), texture.getHeight(),
-				false, true);
-		
-		batch.end();
-		
-		batch.setShader(null);
-	}
+	abstract public void render(Texture texture, FrameBuffer buffer);
 	
 	public void dispose()
 	{
@@ -64,6 +44,6 @@ public abstract class PostProcessingEffect {
 	
 	public abstract void create();
 	
-	public abstract void bindUniforms();
+	public abstract void bindUniforms(ShaderProgram shader);
 
 }

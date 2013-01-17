@@ -55,5 +55,10 @@ public class EmitterObject extends LevelObject {
 	public void activate() {
 	}
 
+	@Override
+	public String getActivatePrompt() {
+		return "";
+	}
+
 
 }

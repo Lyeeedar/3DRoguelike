@@ -394,5 +394,7 @@ public abstract class GameObject {
 	public abstract void draw(Camera cam);
 	
 	public abstract void activate();
+	
+	public abstract String getActivatePrompt();
 
 }

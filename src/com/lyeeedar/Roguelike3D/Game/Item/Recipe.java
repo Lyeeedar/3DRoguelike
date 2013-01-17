@@ -9,16 +9,45 @@ import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Weapon_Style;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RecipeReader;
 
-public class Recipe
+public class Recipe implements Comparable<Recipe>
 {
+	// The recipe rarity
+	public int rarity;
 	// The type of the resulting item (armour, weapon etc)
-	Item_Type type;
+	public Item_Type type;
 	// The components required to create the item
-	HashMap<Character, Recipe_Component> components;
+	public HashMap<Character, Recipe_Component> components;
 	// The layout of the visual recipe (will be converted by the UI into a usuable grid)
-	char[][] visualGrid;
+	public char[][] visualGrid;
 	// The actual recipe
-	Recipe_Type recipe;
+	public Recipe_Type recipe;
+	
+	public String recipeName;
+	
+	RecipeReader reader;
+	public Recipe(RecipeReader reader)
+	{
+		this.reader = reader;
+		
+		recipeName = reader.getRecipeName();
+		type = reader.getItemType();
+		rarity = reader.getRecipeRarity();
+		visualGrid = reader.getVisual();
+	}
+	
+	public boolean checkComponent(Component c, char slot)
+	{
+		if (!components.get(slot).check(c.type)) return false;
+		
+		return (c.amount >= components.get(slot).amount);
+	}
+
+	@Override
+	public int compareTo(Recipe r) {
+		if (r.hashCode() < this.hashCode()) return -1;
+		else if (r.hashCode() > this.hashCode()) return 1;
+		return 0;
+	}
 }
 
 class Recipe_Component
@@ -28,20 +57,31 @@ class Recipe_Component
 	int amount;
 	// If components is size 0 it will take any type of material, otherwise only those in this list
 	ArrayList<Component_Type> components = new ArrayList<Component_Type>();
+	
+	public boolean check(Component_Type type)
+	{
+		if (components.size() == 0) return true;
+		
+		for (Component_Type ct : components)
+		{
+			if (ct == type) return true;
+		}
+		
+		return false;
+	}
 }
 
 abstract class Recipe_Type
 {
-	HashMap<Character, Component> components;
 	RecipeReader reader;
+	
 	public Recipe_Type(RecipeReader reader)
 	{
-		components = new HashMap<Character, Component>();
 		this.reader = reader;
 		read();
 	}
 
-	public int calculate(ArrayList<ArrayList<String>> eqn, float scale)
+	public int calculate(ArrayList<ArrayList<String>> eqn, float scale, HashMap<String, Component> components)
 	{
 		float value = 0;
 
@@ -72,22 +112,22 @@ abstract class Recipe_Type
 		return (int) (value * scale);
 	}
 
-	public HashMap<Element, Integer> calculateElemental(ArrayList<ArrayList<String>> eqn, float scale)
+	public HashMap<Element, Integer> calculateElemental(ArrayList<ArrayList<String>> eqn, float scale, HashMap<String, Component> components)
 	{
 		HashMap<Element, Integer> elemental = new HashMap<Element, Integer>();
 
-		elemental.put(Element.FIRE, calcEle(eqn, scale, Element.FIRE));
-		elemental.put(Element.WATER, calcEle(eqn, scale, Element.WATER));
-		elemental.put(Element.AIR, calcEle(eqn, scale, Element.AIR));
-		elemental.put(Element.WOOD, calcEle(eqn, scale, Element.WOOD));
-		elemental.put(Element.METAL, calcEle(eqn, scale, Element.METAL));
-		elemental.put(Element.AETHER, calcEle(eqn, scale, Element.AETHER));
-		elemental.put(Element.VOID, calcEle(eqn, scale, Element.VOID));
+		elemental.put(Element.FIRE, calcEle(eqn, scale, Element.FIRE, components));
+		elemental.put(Element.WATER, calcEle(eqn, scale, Element.WATER, components));
+		elemental.put(Element.AIR, calcEle(eqn, scale, Element.AIR, components));
+		elemental.put(Element.WOOD, calcEle(eqn, scale, Element.WOOD, components));
+		elemental.put(Element.METAL, calcEle(eqn, scale, Element.METAL, components));
+		elemental.put(Element.AETHER, calcEle(eqn, scale, Element.AETHER, components));
+		elemental.put(Element.VOID, calcEle(eqn, scale, Element.VOID, components));
 
 		return elemental;
 	}
 
-	private int calcEle(ArrayList<ArrayList<String>> eqn, float scale, Element element)
+	private int calcEle(ArrayList<ArrayList<String>> eqn, float scale, Element element, HashMap<String, Component> components)
 	{
 		float value = 0;
 
@@ -114,8 +154,8 @@ abstract class Recipe_Type
 		return (int) (value * scale);
 	}
 
-	abstract void read();
-	public abstract void finalise();
+	protected abstract void read();
+	public abstract void finalise(HashMap<String, Component> components);
 }
 
 /**
@@ -156,7 +196,7 @@ class Recipe_Weapon extends Recipe_Type
 		super(reader);
 	}
 
-	void read()
+	protected void read()
 	{
 		this.style = reader.getWeaponStyle();
 		this.styleMeta = reader.getWeaponStyleMeta();
@@ -180,20 +220,14 @@ class Recipe_Weapon extends Recipe_Type
 		this.attackSpeedEqn = reader.getEqn(RecipeReader.ATTACK_SPEED);
 	}
 
-	public void addComponent(Component component, char character)
+	public void finalise(HashMap<String, Component> components)
 	{
-		components.remove(character);
-		components.put(character, component);
-	}
+		this.strength = calculate(strengthEqn, strengthScale, components);
+		this.pierce = calculate(pierceEqn, pierceScale, components);
+		this.impact = calculate(impactEqn, impactScale, components);
+		this.touch = calculate(touchEqn, touchScale, components);
+		this.attackSpeed = calculate(attackSpeedEqn, attackSpeedScale, components);
 
-	public void finalise()
-	{
-		this.strength = calculate(strengthEqn, strengthScale);
-		this.pierce = calculate(pierceEqn, pierceScale);
-		this.impact = calculate(impactEqn, impactScale);
-		this.touch = calculate(touchEqn, touchScale);
-		this.attackSpeed = calculate(attackSpeedEqn, attackSpeedScale);
-
-		this.elemental = calculateElemental(elementalEqn, elementalScale);
+		this.elemental = calculateElemental(elementalEqn, elementalScale, components);
 	}
 }

@@ -10,6 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.GameStats;
+import com.lyeeedar.Roguelike3D.Game.Item.Recipe;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.RecipeReader;
 
 public class MainMenuScreen extends AbstractScreen {
 	
@@ -42,7 +45,7 @@ public class MainMenuScreen extends AbstractScreen {
 		
 		Skin skin = new Skin(Gdx.files.internal("data/skins/uiskin.json"));
 		
-		Label lblTitle = new Label("E.D.A.R", skin);
+		Label lblTitle = new Label("Askey", skin);
 		
 		TextButton btnContinue = new TextButton("Continue", skin);
 		
@@ -72,6 +75,33 @@ public class MainMenuScreen extends AbstractScreen {
 				return false;
 			}
 		});
+		
+		TextButton btnTest = new TextButton("Test", skin);
+		btnTest.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				RecipeReader reader = new RecipeReader("sword");
+				Recipe recipe = new Recipe(reader);
+				
+				GameStats.addRecipe(recipe);
+				recipe = new Recipe(reader);
+				GameStats.addRecipe(recipe);
+				recipe = new Recipe(reader);
+				GameStats.addRecipe(recipe);
+				recipe = new Recipe(reader);
+				GameStats.addRecipe(recipe);
+				recipe = new Recipe(reader);
+				GameStats.addRecipe(recipe);
+				recipe = new Recipe(reader);
+				GameStats.addRecipe(recipe);
+				recipe = new Recipe(reader);
+				GameStats.addRecipe(recipe);
+				recipe = new Recipe(reader);
+				GameStats.addRecipe(recipe);
+				
+				game.switchScreen(Roguelike3DGame.RECIPES);
+				return false;
+			}
+		});
 
 		table = new Table();
 		table.debug();
@@ -88,6 +118,8 @@ public class MainMenuScreen extends AbstractScreen {
 		table.add(btnCredits).width(300).height(50).padBottom(25);
 		table.row();
 		table.add(btnExit).width(300).height(50).padBottom(25);
+		table.row();
+		table.add(btnTest).width(300).height(50).padBottom(25);
 
 
 		table.setFillParent(true);

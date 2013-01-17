@@ -31,9 +31,77 @@ public class Component extends Item {
 	public int flexible_brittle;
 	
 	public HashMap<Element, Integer> element;
+	
+	public Component_Type type;
 
-	public Component() {
-		// TODO Auto-generated constructor stub
+	public Component(Component_Type type, String name, int drop_chance,
+			String description, int weight_per_amount, int amount, int soft_hard,
+			int flexible_brittle, HashMap<Element, Integer> element) {
+		
+		this.type = type;
+		this.name = name;
+		this.drop_chance = drop_chance;
+		this.description = description;
+		this.weight_per_amount = weight_per_amount;
+		this.amount = amount;
+		this.weight = weight_per_amount * amount;
+		this.soft_hard = soft_hard;
+		this.flexible_brittle = flexible_brittle;
+		this.element = element;
+
+	}
+	
+	public static Component_Type convertComponentType(String typeName)
+	{
+		Component_Type type = null;
+		
+		if (typeName.equalsIgnoreCase("tooth"))
+		{
+			type = Component_Type.TOOTH;
+		}
+		else if (typeName.equalsIgnoreCase("claw"))
+		{
+			type = Component_Type.CLAW;
+		}
+		else if (typeName.equalsIgnoreCase("fur"))
+		{
+			type = Component_Type.FUR;
+		}
+		else if (typeName.equalsIgnoreCase("leather"))
+		{
+			type = Component_Type.LEATHER;
+		}
+		else if (typeName.equalsIgnoreCase("feather"))
+		{
+			type = Component_Type.FEATHER;
+		}
+		
+		return type;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "--------------------" + "\n" +
+				"Name: " +name+"\n" +
+				"Type: "+type+"\n" +
+				"Chance: "+drop_chance+"\n"+
+				"Description: "+description+"\n"+
+				"WpA: "+weight_per_amount+"\n"+
+				"Amount: "+amount+"\n"+
+				"Weight: "+weight+"\n"+
+				"Soft_Hard: "+soft_hard+"\n"+
+				"Flexible_Brittle: "+flexible_brittle+"\n"+
+				"Element: "+"\n"+
+				"	FIRE: "+element.get(Element.FIRE)+"\n"+
+				"	WATER: "+element.get(Element.WATER)+"\n"+
+				"	AIR: "+element.get(Element.AIR)+"\n"+
+				"	WOOD: "+element.get(Element.WOOD)+"\n"+
+				"	METAL: "+element.get(Element.METAL)+"\n"+
+				"	AETHER: "+element.get(Element.AETHER)+"\n"+
+				"	VOID: "+element.get(Element.VOID)+"\n"+
+				"--------------------"
+				;
 	}
 
 }

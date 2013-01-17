@@ -60,7 +60,7 @@ public class AI_Player_Controlled extends AI_Package {
 		left_cooldown -= delta;
 		right_cooldown -= delta;
 		
-		move = delta * 10;
+		move = delta * 10f;
 		
 		actor.velocity.y -= GameData.gravity*move*actor.WEIGHT;
 

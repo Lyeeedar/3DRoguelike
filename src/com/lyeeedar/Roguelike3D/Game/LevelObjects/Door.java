@@ -90,4 +90,16 @@ public class Door extends LevelObject {
 		}
 	}
 
+	@Override
+	public String getActivatePrompt() {
+		if (solid)
+		{
+			return "[E] Open Door";
+		}
+		else
+		{
+			return "[E] Close Door";
+		}
+	}
+
 }

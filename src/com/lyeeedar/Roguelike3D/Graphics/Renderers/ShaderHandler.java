@@ -36,6 +36,13 @@ public class ShaderHandler {
 		materialsWithShader.add(material);
 		return ShaderFactory.createShader(material, lightManager);
 	}
+	
+	public void updateShader(LightManager lightManager)
+	{
+		this.lightManager = lightManager;
+		
+		materialsWithShader.clear();
+	}
 
 	public void dispose () {
 		for (int i = 0; i < materialsWithShader.size; i++) {

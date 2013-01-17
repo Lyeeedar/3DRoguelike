@@ -17,6 +17,9 @@ import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 
 public class ShaderFactory {
+	
+	static final String VERTEX_FILE = "vertex_lighting";
+	static final String NORMALMAP_FILE = "normal_mapping";
 
 	static final String define = "#define ";
 	static final String lightsNum = define + "LIGHTS_NUM ";
@@ -45,23 +48,29 @@ public class ShaderFactory {
 		if (lights.quality == LightQuality.FRAGMENT)
 			fileName = "pixel_lighting";
 		else if (lights.quality == LightQuality.NORMALMAP)
-			fileName = "normal_mapping";
+			fileName = NORMALMAP_FILE;
 		else if (lights.quality == LightQuality.VERTEX){
-			fileName = "vertex_lighting";
+			fileName = VERTEX_FILE;
 		}
 		else
 		{
 			System.err.println("Error! Light Quality invalid!");
 		}
+		
 		final String vertexShader = flags + Gdx.files.internal("data/shaders/model/" + fileName + ".vertex.glsl").readString();
 		final String fragmentShader = flags + Gdx.files.internal("data/shaders/model/" + fileName + ".fragment.glsl").readString();
 		
 		ShaderProgram.pedantic = false;
-		final ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
+		ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
 		if (!shader.isCompiled())
 		{
-			Gdx.app.log("Problem loading shader:", shader.getLog());
+			Gdx.app.error("Problem loading shader:", shader.getLog());
 			System.out.println(fragmentShader);
+			
+			final String vertexShader2 = flags + Gdx.files.internal("data/shaders/model/" + VERTEX_FILE + ".vertex.glsl").readString();
+			final String fragmentShader2 = flags + Gdx.files.internal("data/shaders/model/" + VERTEX_FILE + ".fragment.glsl").readString();
+			
+			shader = new ShaderProgram(vertexShader2, fragmentShader2);
 		}
 		
 		return shader;

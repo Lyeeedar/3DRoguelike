@@ -20,8 +20,6 @@ import com.badlogic.gdx.utils.Pool;
 
 public class TextureAttribute extends MaterialAttribute {
 	
-	public static boolean NORMAL_MAP = true;
-	
 	public final static int MAX_TEXTURE_UNITS = 16;
 	static final public String diffuseTexture = "u_diffuse_texture";
 	static final public String lightmapTexture = "u_lightmap_texture";
@@ -100,9 +98,6 @@ public class TextureAttribute extends MaterialAttribute {
 		program.setUniformi(diffuseTexture, 0);
 		program.setUniformi(normalmapTexture, 3);
 		program.setUniformi(lightmapTexture, 2);
-		
-		
-		program.setUniformi("u_nm", (NORMAL_MAP) ? 1 : 0);
 	}
 
 	@Override

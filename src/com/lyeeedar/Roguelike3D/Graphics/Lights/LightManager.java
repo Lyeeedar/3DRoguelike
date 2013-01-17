@@ -28,12 +28,12 @@ public class LightManager {
 
 	final public Array<PointLight> dynamicPointLights = new Array<PointLight>(false, maxLights);
 	final public Array<PointLight> staticPointLights = new Array<PointLight>(false, maxLights);
-	final private float[] positions;
-	final private float[] colors;
-	final private float[] attenuations;
-	final private float[] intensities;
+	private float[] positions;
+	private float[] colors;
+	private float[] attenuations;
+	private float[] intensities;
 
-	public final int maxLightsPerModel;
+	public int maxLightsPerModel;
 
 	final public Color ambientLight = new Color();
 
@@ -78,6 +78,18 @@ public class LightManager {
 	public void clearAllLights () {
 		dynamicPointLights.clear();
 		staticPointLights.clear();
+	}
+	
+	public void updateLightNum(int val)
+	{
+		if (val < 0) val = 0;
+		
+		maxLightsPerModel = val;
+		
+		colors = new float[3 * maxLightsPerModel];
+		positions = new float[3 * maxLightsPerModel];
+		attenuations = new float[maxLightsPerModel];
+		intensities = new float[maxLightsPerModel];
 	}
 
 	// TODO make it better if it slow

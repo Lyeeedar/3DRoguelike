@@ -34,4 +34,9 @@ public class Static extends LevelObject {
 	public void activate() {
 	}
 
+	@Override
+	public String getActivatePrompt() {
+		return "";
+	}
+
 }

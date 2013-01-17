@@ -46,6 +46,7 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 	public LightManager lightManager;
 	private boolean drawing;
 	public Camera cam;
+	private boolean remakeShaders = false;
 	
 	public boolean glowRequired = false;
 
@@ -55,6 +56,14 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 	public PrototypeRendererGL20 (LightManager lightManager) {
 		this.lightManager = lightManager;
 		shaderHandler = new ShaderHandler(lightManager);
+	}
+	
+	public void updateShader(LightManager lightManager)
+	{
+		this.lightManager = lightManager;
+		shaderHandler.updateShader(lightManager);
+		
+		remakeShaders = true;
 	}
 
 	@Override
@@ -68,11 +77,16 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 	@Override
 	public void draw (StillModel model, StillModelAttributes attributes) {
 		if (cam != null) if (!cam.frustum.sphereInFrustum(attributes.getSortCenter(), attributes.getBoundingSphereRadius())) return;
+		
+		if (remakeShaders) attributes.material.generateShader(shaderHandler);	
 		drawableManager.add(model, attributes);
 	}
 
 	@Override
 	public void end () {
+		
+		if (remakeShaders) remakeShaders = false;
+		
 		flush();
 	}
 
@@ -234,13 +248,13 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 //					else if (atrib instanceof TextureAttribute) {
 //						// special case for textures. really important to batch these
 //						final TextureAttribute texAtrib = (TextureAttribute)atrib;
-////						if (!texAtrib.texturePortionEquals(lastTexture[texAtrib.unit])) {
-////							lastTexture[texAtrib.unit] = texAtrib;
-////							texAtrib.bind(currentShader);
-////						} else {
-////							// need to be done, shader textureAtribute name could be changed.
-////							currentShader.setUniformi(texAtrib.name, texAtrib.unit);
-////						}
+//						if (!texAtrib.texturePortionEquals(lastTexture[texAtrib.unit])) {
+//							lastTexture[texAtrib.unit] = texAtrib;
+//							texAtrib.bind(currentShader);
+//						} else {
+//							// need to be done, shader textureAtribute name could be changed.
+//							currentShader.setUniformi(texAtrib.name, texAtrib.unit);
+//						}
 //						texAtrib.bind(currentShader);
 //					} 
 					else {

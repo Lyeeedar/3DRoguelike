@@ -37,14 +37,53 @@ public class RecipeReader extends XMLReader
 	public static final String ELEMENTAL = "elemental";
 	public static final String ATTACK_SPEED = "attack_speed";
 	public static final String META = "meta";
+	public static final String RARITY = "rarity";
+	public static final String RECIPES = "recipes";
 
 
 	Node recipe;
-	public RecipeReader(String recipe)
+	public RecipeReader(String recipeName)
 	{		
 		super("data/xml/recipes.data");
 		
-		this.recipe = getNode(recipe, root_node.getChildNodes());
+		this.recipe = getNode(recipeName, getNode(RECIPES, root_node.getChildNodes()).getChildNodes());
+	}
+	
+	public char[][] getVisual()
+	{
+		Node visual = getNode(VISUAL, recipe.getChildNodes());
+		int width = Integer.parseInt(getNodeValue(WIDTH, visual.getChildNodes()));
+		int height = Integer.parseInt(getNodeValue(HEIGHT, visual.getChildNodes()));
+		
+		char[][] visualGrid = new char[height][width];
+		
+		Node grid = getNode(GRID, visual.getChildNodes());
+		for (int i = 0; i < grid.getChildNodes().getLength(); i++)
+		{
+			Node n = grid.getChildNodes().item(i);
+			if (n.getNodeName().equalsIgnoreCase(ROW))
+			{
+				String row = n.getNodeValue();
+				for (int j = 0; j < row.length(); j++)
+				{
+					visualGrid[i][j] = row.charAt(j);
+				}
+			}
+		}
+		
+		return visualGrid;
+	}
+	
+	public int getRecipeRarity()
+	{
+		String r = getNodeValue(RARITY, recipe.getChildNodes());
+		
+		return Integer.parseInt(r);
+	}
+	
+	public String getRecipeName()
+	{
+		return recipe.getNodeName();
 	}
 
 	public Item_Type getItemType()

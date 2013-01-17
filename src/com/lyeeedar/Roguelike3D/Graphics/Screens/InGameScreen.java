@@ -12,30 +12,19 @@ package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
-import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
@@ -150,11 +139,13 @@ public class InGameScreen extends AbstractScreen {
 		else
 		{			
 			spriteBatch.draw(crosshairs, screen_width/2f, screen_height/2f);
+			if (activatePrompt != null) font.draw(spriteBatch, activatePrompt, screen_width/2f, (screen_height/2f)-40);
 		}
 		
 		font.draw(spriteBatch, desc, 300, 20);
-		font.draw(spriteBatch, "1: Normal Maps: "+TextureAttribute.NORMAL_MAP, 20, screen_height-20);
-		font.draw(spriteBatch, "2: PostProcessor: "+PostProcessor.ON, 20, screen_height-40);
+		font.draw(spriteBatch, "Lights per Model: " + GameData.lightManager.maxLightsPerModel, 20, screen_height-20);
+		font.draw(spriteBatch, "1: Normal Maps: "+(GameData.lightManager.quality==LightQuality.NORMALMAP), 20, screen_height-40);
+		font.draw(spriteBatch, "2: PostProcessor: "+PostProcessor.ON, 20, screen_height-60);
 	}
 	
 	int count = 1;
@@ -162,11 +153,15 @@ public class InGameScreen extends AbstractScreen {
 	float tempdist = 0;
 	//GameObject lookedAtObject = null;
 	StringBuilder desc = new StringBuilder();
+	String activatePrompt = null;
 	
 	Ray ray = new Ray(new Vector3(), new Vector3());
 	boolean tabCD = false;
 	boolean cd1 = false;
 	boolean cd2 = false;
+	boolean cdPlus = false;
+	boolean cdMinus = false;
+	
 	float activateCD = 0;
 	@Override
 	public void update(float delta) {
@@ -219,7 +214,16 @@ public class InGameScreen extends AbstractScreen {
 		
 		if (Gdx.input.isKeyPressed(Keys.NUM_1) && !cd1) 
 		{
-			TextureAttribute.NORMAL_MAP = !TextureAttribute.NORMAL_MAP;
+			if (GameData.lightManager.quality == LightQuality.NORMALMAP)
+			{
+				GameData.lightManager.quality = LightQuality.VERTEX;
+			}
+			else
+			{
+				GameData.lightManager.quality = LightQuality.NORMALMAP;
+			}
+			protoRenderer.updateShader(GameData.lightManager);
+			
 			cd1 = true;
 		}
 		else if (!Gdx.input.isKeyPressed(Keys.NUM_1))
@@ -237,21 +241,49 @@ public class InGameScreen extends AbstractScreen {
 			cd2 = false;
 		}
 		
+		if (Gdx.input.isKeyPressed(Keys.EQUALS) && !cdPlus) 
+		{
+			GameData.lightManager.updateLightNum(GameData.lightManager.maxLightsPerModel+1);
+			protoRenderer.updateShader(GameData.lightManager);
+			
+			cdPlus = true;
+		}
+		else if (!Gdx.input.isKeyPressed(Keys.EQUALS))
+		{
+			cdPlus = false;
+		}
+		
+		if (Gdx.input.isKeyPressed(Keys.MINUS) && !cdMinus) 
+		{
+			GameData.lightManager.updateLightNum(GameData.lightManager.maxLightsPerModel-1);
+
+			protoRenderer.updateShader(GameData.lightManager);
+			
+			cdMinus = true;
+		}
+		else if (!Gdx.input.isKeyPressed(Keys.MINUS))
+		{
+			cdMinus = false;
+		}
+		
 		if (paused)
 		{
 			Ray ray2 = cam.getPickRay(Gdx.input.getX(), Gdx.input.getY());
 			dist = cam.far*cam.far;
 			ray.set(ray2);
+			
+			activatePrompt = null;
 		}
 		else
 		{	
 			ray.origin.set(GameData.player.getPosition());
 			ray.direction.set(GameData.player.getRotation());
 			dist = VIEW_DISTANCE;
+			
+			activatePrompt = getActivatePrompt(dist, ray);
 		}
-
-		getDescription(dist, ray, paused);
 		
+		getDescription(dist, ray, paused);
 		
 		if (!paused && Gdx.input.isKeyPressed(Keys.E) && activateCD < 0)
 		{
@@ -267,11 +299,16 @@ public class InGameScreen extends AbstractScreen {
 				dist = tmpVec.dst2(ray.origin);
 			}
 
-			go = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
+			GameObject go2 = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
 			
-			if (go != null) 
+			if (go2 != null) 
 			{
-				go.activate();
+				if (go != null)	go.activate();
+				else go2.activate();
+			}
+			else
+			{
+				if (go != null)	go.activate();
 			}
 			
 			activateCD = 1;
@@ -318,6 +355,32 @@ public class InGameScreen extends AbstractScreen {
 		}
 		
 		dist = GameData.level.getDescription(ray, dist, desc, paused);
+	}
+	
+	public String getActivatePrompt(float dist, Ray ray)
+	{
+		String desc = null;
+		
+		GameObject go = GameData.level.getClosestActor(ray, dist, GameData.player.UID, tmpVec);
+		
+		if (go != null)
+		{
+
+			desc = go.getActivatePrompt();
+			
+			dist = tmpVec.dst2(ray.origin);
+		}
+
+		go = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
+		
+		if (go != null)
+		{
+			desc = go.getActivatePrompt();
+			
+			dist = tmpVec.dst2(ray.origin);
+		}
+		
+		return desc;
 	}
 
 	Table table;

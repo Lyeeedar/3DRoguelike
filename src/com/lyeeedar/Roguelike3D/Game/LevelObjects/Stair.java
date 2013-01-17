@@ -42,4 +42,9 @@ public class Stair extends LevelObject {
 		GameData.changeLevel(GameData.getLevel(level_UID));
 	}
 
+	@Override
+	public String getActivatePrompt() {
+		return "[E] Change Level";
+	}
+
 }

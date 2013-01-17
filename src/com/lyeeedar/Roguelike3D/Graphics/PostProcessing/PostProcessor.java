@@ -58,6 +58,7 @@ public class PostProcessor {
 		
 		setupEffects();
 		
+		ShaderProgram.pedantic = false;
 		shader = new ShaderProgram(
 				Gdx.files.internal("data/shaders/postprocessing/default.vertex.glsl"),
 				Gdx.files.internal("data/shaders/postprocessing/default.fragment.glsl")

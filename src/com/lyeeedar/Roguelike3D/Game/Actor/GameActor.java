@@ -28,6 +28,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
+import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
@@ -67,6 +68,7 @@ public class GameActor extends GameObject{
 	// ----- Actor Statistics END ----- //
 	
 	boolean alive = true;
+	boolean loot = false;
 
 	public ArrayList<Decal> textures = new ArrayList<Decal>();
 	
@@ -163,10 +165,7 @@ public class GameActor extends GameObject{
 		System.out.println(UID+" Died!!!!");
 		alive = false;
 		
-		Matrix4 hinge = new Matrix4();
-		hinge.setToRotation(0, 1, 1, 90);
-		//hinge.mul(new Matrix4().setToTranslation(0, -1, 0));
-		vo.attributes.getRotation().mul(hinge);
+		this.Yrotate(90);
 	}
 	
 	@Override
@@ -185,6 +184,24 @@ public class GameActor extends GameObject{
 	}
 	@Override
 	public void activate() {
+		if (!alive && !loot)
+		{
+			for (Map.Entry<String, Item> entry : INVENTORY.entrySet())
+			{
+				System.out.println(entry.getValue());
+			}
+			loot = true;
+		}
+	}
+
+	@Override
+	public String getActivatePrompt() {
+		
+		if (!alive && !loot)
+		{
+			return "[E] Loot";
+		}
+		return "";
 	}
 
 }

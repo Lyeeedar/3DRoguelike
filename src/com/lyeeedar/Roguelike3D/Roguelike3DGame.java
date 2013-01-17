@@ -28,6 +28,7 @@ public class Roguelike3DGame extends Game {
 	public static final String LEVELLOADING = "LevelLoading";
 	public static final String MAINMENU = "MainMenu";
 	public static final String CREDITS = "Credits";
+	public static final String RECIPES = "Recipes";
 
 	public HashMap<String, AbstractScreen> screens = new HashMap<String, AbstractScreen>();
 	
@@ -45,6 +46,7 @@ public class Roguelike3DGame extends Game {
 		screens.put(INGAME, new InGameScreen(this));
 		screens.put(MAINMENU, new MainMenuScreen(this));
 		screens.put(CREDITS, new CreditsScreen(this));
+		screens.put(RECIPES, new RecipeScreen(this));
 		
 		for (Map.Entry<String, AbstractScreen> entry : screens.entrySet())
 		{

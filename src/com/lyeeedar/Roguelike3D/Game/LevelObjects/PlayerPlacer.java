@@ -16,4 +16,9 @@ public class PlayerPlacer extends LevelObject {
 	public void activate() {
 	}
 
+	@Override
+	public String getActivatePrompt() {
+		return "";
+	}
+
 }

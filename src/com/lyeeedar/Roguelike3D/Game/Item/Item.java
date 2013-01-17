@@ -16,8 +16,9 @@ public class Item {
 		WEAPON,
 		ARMOUR_HEAD,
 		ARMOUR_BODY,
-		ARMOUR_LEG,
+		ARMOUR_LEGS,
 		ARMOUR_HAND,
+		ARMOUR_BOOTS,
 		COMPONENT
 	}
 
@@ -28,8 +29,9 @@ public class Item {
 		if (item_type.equalsIgnoreCase("weapon")) type = Item_Type.WEAPON;
 		else if (item_type.equalsIgnoreCase("armour_head")) type = Item_Type.ARMOUR_HEAD;
 		else if (item_type.equalsIgnoreCase("armour_body")) type = Item_Type.ARMOUR_BODY;
-		else if (item_type.equalsIgnoreCase("armour_leg")) type = Item_Type.ARMOUR_LEG;
+		else if (item_type.equalsIgnoreCase("armour_legs")) type = Item_Type.ARMOUR_LEGS;
 		else if (item_type.equalsIgnoreCase("armour_hand")) type = Item_Type.ARMOUR_HAND;
+		else if (item_type.equalsIgnoreCase("armour_boots")) type = Item_Type.ARMOUR_BOOTS;
 		else if (item_type.equalsIgnoreCase("component")) type = Item_Type.COMPONENT;
 
 		return type;
@@ -37,6 +39,5 @@ public class Item {
 	
 	public String NAME;
 	public String DESCRIPTION;
-	public int RARITY;
-
+	public int QUALITY;
 }

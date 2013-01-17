@@ -21,7 +21,7 @@ import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public class MeleeWeapon extends Equipment_HAND {
 	
-	final Random ran = new Random();
+	//final Random ran = new Random();
 	
 	final GameActor holder;
 	
@@ -96,7 +96,7 @@ public class MeleeWeapon extends Equipment_HAND {
 		{
 			float height = holder.getPosition().y;
 			
-			float startH = 0.2f + height + (ran.nextFloat()*2);
+			float startH = 0.2f + height;// + (ran.nextFloat()*2);
 			
 			Vector3 base = new Vector3(holder.getRotation().x, 0, holder.getRotation().z);
 			Vector3 up = new Vector3(0, 1, 0);

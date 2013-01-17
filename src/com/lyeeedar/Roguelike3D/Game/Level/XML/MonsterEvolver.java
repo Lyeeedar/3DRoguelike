@@ -26,6 +26,8 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
+import com.lyeeedar.Roguelike3D.Game.Item.Component;
+import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
@@ -109,6 +111,16 @@ public class MonsterEvolver extends XMLReader {
 	public static final String CALORIES = "calories";
 
 	public static final String DIFFICULTY = "difficulty_";
+	
+	public static final String DROP_LIST = "drop_list";
+	public static final String DROP = "drop";
+	public static final String CHANCE = "chance";
+	public static final String WEIGHT_PER_AMOUNT = "weight_per_amount";
+	public static final String SOFT_HARD = "soft_hard";
+	public static final String FLEXIBLE_BRITTLE = "flexible_brittle";
+	public static final String NAME = "name";
+	public static final String AMOUNT = "amount";
+	
 
 	final Random ran = new Random();
 
@@ -267,8 +279,9 @@ public class MonsterEvolver extends XMLReader {
 
 			String skin_scale = getNodeValue(SCALING, skin.getChildNodes());
 			String skin_type = getNodeValue(TYPE, skin.getChildNodes());
+			ArrayList<Component> skinDrops = getDrops(getNode(DROP_LIST, skin.getChildNodes()));
 
-			ac_e.addSkin(skin_scale, skin_type);
+			ac_e.addSkin(skin_scale, skin_type, skinDrops);
 
 			// Add Bones info
 
@@ -276,8 +289,9 @@ public class MonsterEvolver extends XMLReader {
 
 			String bones_scale = getNodeValue(SCALING, bones.getChildNodes());
 			String bones_type = getNodeValue(TYPE, bones.getChildNodes());
+			ArrayList<Component> boneDrops = getDrops(getNode(DROP_LIST, bones.getChildNodes()));
 
-			ac_e.addBones(bones_scale, bones_type);
+			ac_e.addBones(bones_scale, bones_type, boneDrops);
 
 			// Add Muscles info
 
@@ -296,8 +310,9 @@ public class MonsterEvolver extends XMLReader {
 			{
 				String attack_scale = getNodeValue(SCALING, attack_right.getChildNodes());
 				String attack_type = getNodeValue(TYPE, attack_right.getChildNodes());
+				ArrayList<Component> attRDrops = getDrops(getNode(DROP_LIST, attack_right.getChildNodes()));
 
-				ac_e.addAttack_Right(attack_scale, attack_type);
+				ac_e.addAttack_Right(attack_scale, attack_type, attRDrops);
 			}
 
 			Node attack_left = getNode(ATTACK_LEFT, stats.getChildNodes());
@@ -306,16 +321,81 @@ public class MonsterEvolver extends XMLReader {
 			{
 				String attack_scale = getNodeValue(SCALING, attack_left.getChildNodes());
 				String attack_type = getNodeValue(TYPE, attack_left.getChildNodes());
+				ArrayList<Component> attLDrops = getDrops(getNode(DROP_LIST, attack_left.getChildNodes()));
 
-				ac_e.addAttack_Left(attack_scale, attack_type);
+				ac_e.addAttack_Left(attack_scale, attack_type, attLDrops);
 			}
 
 			this.creatures.put(ac_e.name, ac_e);
 
 		}
 	}
-
 	
+	public ArrayList<Component> getDrops(Node dropList)
+	{
+		ArrayList<Component> drops = new ArrayList<Component>();
+		
+		if (dropList == null) return drops;
+		
+		for (int i = 0; i < dropList.getChildNodes().getLength(); i++)
+		{
+			Node n = dropList.getChildNodes().item(i);
+			
+			if (n.getNodeName().equalsIgnoreCase(DROP))
+			{
+				drops.add(getComponent(n));
+			}
+		}
+		
+		return drops;
+	}
+	
+	public Component getComponent(Node dropNode)
+	{
+		String typeString = getNodeValue(TYPE, dropNode.getChildNodes());
+		Component_Type type = Component.convertComponentType(typeString);
+		
+		String name = getNodeValue(NAME, dropNode.getChildNodes());
+		
+		String chanceString = getNodeValue(CHANCE, dropNode.getChildNodes());
+		int chance = Integer.parseInt(chanceString);
+		
+		String description = getNodeValue(DESCRIPTION, dropNode.getChildNodes());
+		
+		String weightString = getNodeValue(WEIGHT_PER_AMOUNT, dropNode.getChildNodes());
+		int weight_per_amount = Integer.parseInt(weightString);
+		
+		String amountString = getNodeValue(AMOUNT, dropNode.getChildNodes());
+		int amount = Integer.parseInt(amountString);
+		
+		String softString = getNodeValue(SOFT_HARD, dropNode.getChildNodes());
+		int soft_hard = Integer.parseInt(softString);
+		
+		String flexibleString = getNodeValue(FLEXIBLE_BRITTLE, dropNode.getChildNodes());
+		int flexible_brittle = Integer.parseInt(flexibleString);
+		
+		Node ele = getNode(ELEMENT, dropNode.getChildNodes());
+		String f = getNodeValue(FIRE, ele.getChildNodes());
+		String wa = getNodeValue(WATER, ele.getChildNodes());
+		String ai = getNodeValue(AIR, ele.getChildNodes());
+		String wo = getNodeValue(WOOD, ele.getChildNodes());
+		String m = getNodeValue(METAL, ele.getChildNodes());
+		String ae = getNodeValue(AETHER, ele.getChildNodes());
+		String v = getNodeValue(VOID, ele.getChildNodes());
+		HashMap<Element, Integer> element = new HashMap<Element, Integer>();
+		element.put(Element.FIRE, Integer.parseInt(f));
+		element.put(Element.WATER, Integer.parseInt(wa));
+		element.put(Element.AIR, Integer.parseInt(ai));
+		element.put(Element.WOOD, Integer.parseInt(wo));
+		element.put(Element.METAL, Integer.parseInt(m));
+		element.put(Element.AETHER, Integer.parseInt(ae));
+		element.put(Element.VOID, Integer.parseInt(v));
+		
+		Component drop = new Component(type, name, chance, description, weight_per_amount, amount, soft_hard, flexible_brittle, element);
+		
+		return drop;
+	}
+
 	public GameActor getMonster(int difficulty)
 	{
 		Creature_Evolver ce = EVOLVED_CREATURES[difficulty];
@@ -334,7 +414,29 @@ public class MonsterEvolver extends XMLReader {
 		}
 		
 		GameActor ga = new GameActor(vo, 0, 0, 0, scale);
-		
+		for (Component c : ce.creature.skinDrops)
+		{
+			ga.INVENTORY.put(c.name, c);
+		}
+		for (Component c : ce.creature.boneDrops)
+		{
+			ga.INVENTORY.put(c.name, c);
+		}
+		if (ce.attack_right != null)
+		{
+			for (Component c : ce.creature.attRDrops)
+			{
+				ga.INVENTORY.put(c.name, c);
+			}
+		}
+		if (ce.attack_left != null)
+		{
+			for (Component c : ce.creature.attLDrops)
+			{
+				ga.INVENTORY.put(c.name, c);
+			}
+		}
+
 		return ga;
 	}
 	
@@ -1166,18 +1268,20 @@ class AbstractCreature_Evolver
 		this.mind_type = type;
 	}
 
-	float skin_scale; String skin_type;
-	public void addSkin(String scale, String type)
+	float skin_scale; String skin_type; ArrayList<Component> skinDrops;
+	public void addSkin(String scale, String type, ArrayList<Component> drops)
 	{
 		this.skin_scale = Float.parseFloat(scale);
 		this.skin_type = type;
+		this.skinDrops = drops;
 	}
 
-	float bones_scale; String bones_type;
-	public void addBones(String scale, String type)
+	float bones_scale; String bones_type; ArrayList<Component> boneDrops;
+	public void addBones(String scale, String type, ArrayList<Component> drops)
 	{
 		this.bones_scale = Float.parseFloat(scale);
 		this.bones_type = type;
+		this.boneDrops = drops;
 	}
 
 	float muscles_scale; String muscles_type;
@@ -1187,20 +1291,22 @@ class AbstractCreature_Evolver
 		this.muscles_type = type;
 	}
 
-	float attack_right_scale; String attack_right_type; boolean right_equipped = false;
-	public void addAttack_Right(String scale, String type)
+	float attack_right_scale; String attack_right_type; boolean right_equipped = false; ArrayList<Component> attRDrops;
+	public void addAttack_Right(String scale, String type, ArrayList<Component> drops)
 	{
 		this.right_equipped = true;
 		this.attack_right_scale = Float.parseFloat(scale);
 		this.attack_right_type = type;
+		this.attRDrops = drops;
 	}
 
-	float attack_left_scale; String attack_left_type; boolean left_equipped = false;
-	public void addAttack_Left(String scale, String type)
+	float attack_left_scale; String attack_left_type; boolean left_equipped = false; ArrayList<Component> attLDrops;
+	public void addAttack_Left(String scale, String type, ArrayList<Component> drops)
 	{
 		this.left_equipped = true;
 		this.attack_left_scale = Float.parseFloat(scale);
 		this.attack_left_type = type;
+		this.attLDrops = drops;
 	}
 }
 

@@ -77,6 +77,43 @@ public class GameData {
 		TOUCH
 	}
 	
+	public enum Rarity {
+		COMMON(1, 139, 79, 2),
+		UNCOMMON(2, 208, 14, 9),
+		FABULOUS(3, 255, 138, 0),
+		RARE(4, 250, 250, 0),
+		UNIQUE(5, 88, 221, 23),
+		MYSTICAL(6, 3, 247, 192),
+		LEGENDARY(7, 20, 11, 209),
+		GODLIKE(8, 127, 11, 209),
+		DIVINE(9, 250, 0, 250),
+		TRUE(10, 255, 255, 255)
+		;
+		
+		private final int val;
+		private final Color colour;
+		Rarity(int val, int r, int g, int b) { this.val = val; this.colour = new Color(r/255f, g/255f, b/255f, 1.0f); }
+		public int getVal() { return val; }
+		public Color getColour() { return colour; }
+	}
+	
+	public static Rarity getRarity(int i)
+	{
+		Rarity rarity = null;
+		if (i == 1) rarity = Rarity.COMMON;
+		else if (i == 2) rarity = Rarity.UNCOMMON;
+		else if (i == 3) rarity = Rarity.FABULOUS;
+		else if (i == 4) rarity = Rarity.RARE;	
+		else if (i == 5) rarity = Rarity.UNIQUE;
+		else if (i == 6) rarity = Rarity.MYSTICAL;
+		else if (i == 7) rarity = Rarity.LEGENDARY;
+		else if (i == 8) rarity = Rarity.GODLIKE;
+		else if (i == 9) rarity = Rarity.DIVINE;
+		else if (i == 10) rarity = Rarity.TRUE;
+		
+		return rarity;
+	}
+	
 	public static LightQuality lightQuality = LightQuality.NORMALMAP;
 	
 	public static LightManager lightManager;
@@ -114,7 +151,7 @@ public class GameData {
 		BiomeReader biome = new BiomeReader(lc.biome);
 		RoomReader rReader = new RoomReader(lc.biome, lc.depth);
 		
-		lightManager = new LightManager(10, lightQuality);
+		lightManager = new LightManager(7, lightQuality);
 		lightManager.ambientLight.set(biome.getAmbientLight());
 		
 		game.loadLevel(biome, rReader, Roguelike3DGame.INGAME);

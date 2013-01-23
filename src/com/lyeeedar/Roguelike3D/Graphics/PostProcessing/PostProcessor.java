@@ -87,7 +87,7 @@ public class PostProcessor {
 	public void setupEffects()
 	{
 		effects.clear();
-		effects.put(Effect.BLUR, new BlurEffect());
+		effects.put(Effect.BLUR, new BlurEffect(1.0f, 2.0f));
 		effects.put(Effect.BLOOM, new BloomEffect());
 	}
 	

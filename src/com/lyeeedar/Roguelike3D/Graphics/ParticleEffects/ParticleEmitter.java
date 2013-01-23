@@ -133,6 +133,7 @@ public class ParticleEmitter {
 		
 		time -= delta;
 		if (time > 0 || inactive.size() == 0) return;
+		time = speed;
 		
 		Particle p = inactive.pop();
 		p.set(texture, velocity.cpy(), atime, start, end, width, height, x+(vx*ran.nextFloat()), y+(vy*ran.nextFloat()), z+(vz*ran.nextFloat()));

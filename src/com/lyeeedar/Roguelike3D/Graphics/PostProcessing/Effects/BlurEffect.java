@@ -12,15 +12,16 @@ public class BlurEffect extends PostProcessingEffect {
 	public static final int BUFFER_WIDTH = 800;
 	public static final int BUFFER_HEIGHT = 600;
 	
-	public static final float factor = 1.0f;
-	public static final float radius = 2.0f;
+	public final float factor;
+	public final float radius;
 	
 	FrameBuffer downsampleBuffer1 = new FrameBuffer(Format.RGBA4444, BUFFER_WIDTH, BUFFER_HEIGHT, false);
 	FrameBuffer downsampleBuffer2 = new FrameBuffer(Format.RGBA4444, BUFFER_WIDTH, BUFFER_HEIGHT, false);
 
 
-	public BlurEffect() {
-		
+	public BlurEffect(float factor, float radius) {
+		this.factor = factor;
+		this.radius = radius;
 	}
 	
 	@Override

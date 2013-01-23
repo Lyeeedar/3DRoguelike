@@ -1,5 +1,6 @@
 package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.lyeeedar.Roguelike3D.Game.GameData;
@@ -45,6 +46,14 @@ public class Stair extends LevelObject {
 	@Override
 	public String getActivatePrompt() {
 		return "[E] Change Level";
+	}
+
+	@Override
+	public void update(float delta) {
+	}
+
+	@Override
+	public void draw(Camera cam) {
 	}
 
 }

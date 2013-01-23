@@ -22,7 +22,7 @@ public class StillModelAttributes implements StillModelInstance {
 	final public Vector3 transformedPosition = new Vector3();
 
 	final public Matrix4 position = new Matrix4();
-	final public Matrix4 rotation = new Matrix4();
+	final public Matrix4 rotation = new Matrix4().idt();
 	public Material material;
 	public float radius;
 	

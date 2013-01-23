@@ -44,6 +44,11 @@ public class GameStats {
 	
 	public static void addComponent(Component c)
 	{
-		components.put(c.rarity, c);
+		if (components.containsEntry(c.rarity, c)) {
+			System.out.println("Component already added!");
+			Component cc = components.get(c.rarity).floor(c);
+			cc.amount += c.amount;
+		}
+		else components.put(c.rarity, c);
 	}
 }

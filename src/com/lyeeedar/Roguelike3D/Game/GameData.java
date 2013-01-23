@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
@@ -65,6 +68,21 @@ public class GameData {
 		VOID
 	}
 	
+	public static HashMap<Element, Integer> getElementMap()
+	{
+		HashMap<Element, Integer> map = new HashMap<Element, Integer>();
+		
+		map.put(Element.FIRE, 0);
+		map.put(Element.METAL, 0);
+		map.put(Element.WOOD, 0);
+		map.put(Element.AIR, 0);
+		map.put(Element.WATER, 0);
+		map.put(Element.AETHER, 0);
+		map.put(Element.VOID, 0);
+		
+		return map;
+	}
+	
 	/**
 	 * PIERCE = Armour piercing. (e.g. A Spear)
 	 * IMPACT = Launching (e.g. A Hammer)
@@ -75,6 +93,17 @@ public class GameData {
 		PIERCE,
 		IMPACT,
 		TOUCH
+	}
+	
+	public static HashMap<Damage_Type, Integer> getDamageMap()
+	{
+		HashMap<Damage_Type, Integer> map = new HashMap<Damage_Type, Integer>();
+		
+		map.put(Damage_Type.PIERCE, 0);
+		map.put(Damage_Type.IMPACT, 0);
+		map.put(Damage_Type.TOUCH, 0);
+		
+		return map;
 	}
 	
 	public enum Rarity {
@@ -112,6 +141,23 @@ public class GameData {
 		else if (i == 10) rarity = Rarity.TRUE;
 		
 		return rarity;
+	}
+	
+	public static Label getRarityLabel(int i, Skin skin)
+	{
+		Rarity r = getRarity(i);
+		
+		Label l = new Label(""+r, skin);
+		
+		LabelStyle ls = l.getStyle();
+		LabelStyle nls = new LabelStyle();
+		nls.fontColor = r.getColour();
+		nls.background = ls.background;
+		nls.font = ls.font;
+		
+		l.setStyle(nls);
+		
+		return l;
 	}
 	
 	public static LightQuality lightQuality = LightQuality.NORMALMAP;
@@ -193,7 +239,7 @@ public class GameData {
 		
 		game.switchScreen(nextScreen);
 		
-		PointLight l = new PointLight(player.position.cpy(), Color.WHITE, 0.02f, 2.0f);
+		PointLight l = new PointLight(player.position.cpy(), Color.WHITE, 0.02f, 1.3f);
 		player.boundLight = l;
 		lightManager.addDynamicLight(l);
 	}

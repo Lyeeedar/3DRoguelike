@@ -93,7 +93,7 @@ public abstract class LevelObject extends GameObject{
 		}
 		else if (ao.type == ObjectType.FIRE_CAMP)
 		{
-			ParticleEmitter p = new ParticleEmitter(x-2.5f, y-2, z-2.5f, 3, 3, 3, 0.75f, 100);
+			ParticleEmitter p = new ParticleEmitter(x-2.5f, y-2, z-2.5f, 3, 3, 3, 0.01f, 100);
 			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 2, Color.YELLOW, Color.RED, 1, 1, false);
 
 			lo = new EmitterObject(Shapes.genCuboid(1, 1, 1), x, y, z, ao, p, false);
@@ -111,7 +111,7 @@ public abstract class LevelObject extends GameObject{
 		}
 		else if (ao.type == ObjectType.FIRE_TORCH)
 		{
-			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.75f, 10);
+			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.01f, 10);
 			p.setDecal("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, Color.YELLOW, Color.RED, 1, 1, false);
 
 			lo = new EmitterObject(Shapes.genCuboid(0.5f, 3, 0.5f), new Color(0.8f, 0.6f, 0.4f, 1.0f), "texw", x, y, z, ao, p, true);
@@ -231,14 +231,6 @@ public abstract class LevelObject extends GameObject{
 		}
 		
 		return lo;
-	}
-
-	@Override
-	public void update(float delta) {
-	}
-
-	@Override
-	public void draw(Camera cam) {
 	}
 
 	/**

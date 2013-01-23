@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 public class BloomEffect extends PostProcessingEffect {
 
-	BlurEffect blur = new BlurEffect();
+	BlurEffect blur = new BlurEffect(0.9f, 1.0f);
 	
 	public static final int BUFFER_WIDTH = 800;
 	public static final int BUFFER_HEIGHT = 600;
@@ -33,7 +33,7 @@ public class BloomEffect extends PostProcessingEffect {
 		
 		batch.begin();
 		
-		shader.setUniformf("u_threshold", 0.8f);
+		shader.setUniformf("u_threshold", 0.0f);
 		
 		batch.draw(texture, 0, 0, BUFFER_WIDTH, BUFFER_HEIGHT,
 				0, 0, texture.getWidth(), texture.getHeight(),

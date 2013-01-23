@@ -89,11 +89,7 @@ public class Component extends Item implements Comparable<Component>{
 				"Name: " +name+"\n" +
 				"Type: "+type+"\n" +
 				"Rarity: "+rarity+"\n" +
-				"Chance: "+drop_chance+"\n"+
 				"Description: "+description+"\n"+
-				"WpA: "+weight_per_amount+"\n"+
-				"Amount: "+amount+"\n"+
-				"Weight: "+weight+"\n"+
 				"Soft_Hard: "+soft_hard+"\n"+
 				"Flexible_Brittle: "+flexible_brittle+"\n"+
 				"Element: "+"\n"+
@@ -110,7 +106,8 @@ public class Component extends Item implements Comparable<Component>{
 
 	@Override
 	public int compareTo(Component o) {
-		if (o.hashCode() < this.hashCode()) return -1;
+		if (o.toString().equals(this.toString())) return 0;
+		else if (o.hashCode() < this.hashCode()) return -1;
 		else if (o.hashCode() > this.hashCode()) return 1;
 		return 0;
 	}

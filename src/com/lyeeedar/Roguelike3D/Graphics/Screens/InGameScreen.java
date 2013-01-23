@@ -36,8 +36,8 @@ public class InGameScreen extends AbstractScreen {
 	public boolean paused = false;
 	Texture pausedTint;
 	
-	public static final int VIEW_DISTANCE = 500;
-	public static final int ACTIVATE_DISTANCE = 500;
+	public static final int VIEW_DISTANCE = 100;
+	public static final int ACTIVATE_DISTANCE = 100;
 	public static final boolean SHOW_COLLISION_BOX = false;
 	public static final int MAP_WIDTH = 100;
 	public static final int MAP_HEIGHT = 100;

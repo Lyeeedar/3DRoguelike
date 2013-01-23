@@ -89,15 +89,28 @@ public class MainMenuScreen extends AbstractScreen {
 					recipe = new Recipe(reader);
 					recipe.rarity += i;
 					GameStats.addRecipe(recipe);
+					recipe = new Recipe(reader);
+					recipe.rarity += i;
+					GameStats.addRecipe(recipe);
+					recipe = new Recipe(reader);
+					recipe.rarity += i;
+					GameStats.addRecipe(recipe);
+					recipe = new Recipe(reader);
+					recipe.rarity += i;
+					GameStats.addRecipe(recipe);
+					
+					recipe = new Recipe(reader);
+					recipe.rarity += i;
+					GameStats.addRecipe(recipe);
 				}
 				
 				for (int i = 1; i < 11; i++)
 				{
-					Component c = new Component(Component_Type.CLAW, "Claw thingy", i, i, null, i, 20, i, i, null);
+					Component c = new Component(Component_Type.CLAW, "Claw thingy 1"+i, i, i, "desc", i, 1, i, i, GameData.getElementMap());
 					GameStats.addComponent(c);
-					c = new Component(Component_Type.CLAW, "Claw thingy", i, i, null, i, 20, i, i, null);
+					c = new Component(Component_Type.CLAW, "Claw thingy 2"+i, i, i, "desc", i, 2, i, i, GameData.getElementMap());
 					GameStats.addComponent(c);
-					c = new Component(Component_Type.CLAW, "Claw thingy", i, i, null, i, 20, i, i, null);
+					c = new Component(Component_Type.CLAW, "Claw thingy 3"+i, i, i, "desc", i, 3, i, i, GameData.getElementMap());
 					GameStats.addComponent(c);
 				}
 				

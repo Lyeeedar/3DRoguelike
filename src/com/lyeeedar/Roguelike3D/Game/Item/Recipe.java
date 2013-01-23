@@ -3,6 +3,9 @@ package com.lyeeedar.Roguelike3D.Game.Item;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
@@ -20,7 +23,7 @@ public class Recipe implements Comparable<Recipe>
 	// The layout of the visual recipe (will be converted by the UI into a usuable grid)
 	public char[][] visualGrid;
 	// The actual recipe
-	public Recipe_Type recipe;
+	private Recipe_Type recipe;
 	
 	public String recipeName;
 	
@@ -75,6 +78,16 @@ public class Recipe implements Comparable<Recipe>
 		else if (r.hashCode() > this.hashCode()) return 1;
 		return 0;
 	}
+	
+	public Table getComponentDescription(char ref, Skin skin)
+	{
+		return components.get(ref).getUIDescription(skin);
+	}
+	
+	public int getComponentAmount(char ref)
+	{
+		return components.get(ref).amount;
+	}
 }
 
 class Recipe_Component
@@ -103,6 +116,36 @@ class Recipe_Component
 		}
 		
 		return false;
+	}
+	
+	public Table getUIDescription(Skin skin)
+	{
+		Table t = new Table();
+		
+		t.add(new Label("Recipe Ingredient", skin));
+		t.row();
+		t.add(new Label("Name: ", skin));
+		t.add(new Label(name, skin));
+		t.row();
+		t.add(new Label("Amount: ", skin));
+		t.add(new Label(""+amount, skin));
+		t.row();
+		t.add(new Label("Allowed Types: ", skin));
+		
+		Table types = new Table();
+		
+		if (constraints.size() == 0) types.add(new Label("Any", skin));
+		else {
+			for (Component_Type ct : constraints)
+			{
+				types.add(new Label(""+ct, skin));
+				types.row();
+			}
+		}
+		
+		t.add(types);
+		
+		return t;
 	}
 }
 

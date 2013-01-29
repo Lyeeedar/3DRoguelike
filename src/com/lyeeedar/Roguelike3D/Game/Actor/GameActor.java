@@ -58,7 +58,7 @@ public class GameActor extends GameObject{
 	public HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
 	public HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
 	
-	public String FACTION;
+	public ArrayList<String> FACTIONS;
 	public boolean IMMORTAL = false;
 	public AI_Package ai;
 	
@@ -92,7 +92,7 @@ public class GameActor extends GameObject{
 		setupDefenses();
 	}
 	
-	public void setStats(int health, int weight, int strength, HashMap<Element, Integer> ele_def, HashMap<Damage_Type, Integer> dam_def, String faction)
+	public void setStats(int health, int weight, int strength, HashMap<Element, Integer> ele_def, HashMap<Damage_Type, Integer> dam_def, ArrayList<String> factions)
 	{
 		this.MAX_HEALTH = health;
 		this.HEALTH = health;
@@ -100,7 +100,7 @@ public class GameActor extends GameObject{
 		this.STRENGTH = strength;
 		this.ELE_DEF = ele_def;
 		this.DAM_DEF = dam_def;
-		this.FACTION = faction;
+		this.FACTIONS = factions;
 	}
 	
 	public void equipL_HAND(Equipment_HAND equip)
@@ -131,21 +131,9 @@ public class GameActor extends GameObject{
 	
 	public void setupDefenses()
 	{
-		DAM_DEF = new HashMap<Damage_Type, Integer>();
-		
-		DAM_DEF.put(Damage_Type.PIERCE, 0);
-		DAM_DEF.put(Damage_Type.IMPACT, 0);
-		DAM_DEF.put(Damage_Type.TOUCH, 0);
+		DAM_DEF = GameData.getDamageMap();
 
-		ELE_DEF = new HashMap<Element, Integer>();
-		
-		ELE_DEF.put(Element.FIRE, 0);
-		ELE_DEF.put(Element.AIR, 0);
-		ELE_DEF.put(Element.WATER, 0);
-		ELE_DEF.put(Element.WOOD, 0);
-		ELE_DEF.put(Element.METAL, 0);
-		ELE_DEF.put(Element.AETHER, 0);
-		ELE_DEF.put(Element.VOID, 0);
+		ELE_DEF = GameData.getElementMap();
 	}
 	
 	public void damage(int strength, 
@@ -155,6 +143,8 @@ public class GameActor extends GameObject{
 		if (!alive || IMMORTAL) return;
 		
 		HEALTH -= GameData.calculateDamage(strength, ele_dam, dam_dam, ELE_DEF, DAM_DEF);
+		
+		System.out.println("Remaining Health: "+HEALTH);
 
 		if (HEALTH <= 0) death();
 
@@ -171,7 +161,11 @@ public class GameActor extends GameObject{
 	@Override
 	public void update(float delta)
 	{
+		if (L_HAND != null) L_HAND.update(delta);
+		if (R_HAND != null) R_HAND.update(delta);
+		
 		if (ai == null) return;
+		if (!alive) return;
 		ai.evaluateAI(delta);
 	}
 	
@@ -202,6 +196,19 @@ public class GameActor extends GameObject{
 			return "[E] Loot";
 		}
 		return "";
+	}
+	
+	public boolean checkFaction(ArrayList<String> factions)
+	{
+		for (String f : factions)
+		{
+			for (String f2 : FACTIONS)
+			{
+				if (f.equalsIgnoreCase(f2)) return true;
+			}
+		}
+		
+		return false;
 	}
 
 }

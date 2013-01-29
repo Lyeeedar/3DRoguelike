@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 
 public class BlurEffect extends PostProcessingEffect {
 	
@@ -42,7 +43,7 @@ public class BlurEffect extends PostProcessingEffect {
 		shader.setUniformf("u_radius", radius);
 		shader.setUniformf("u_factor", factor);
 		
-		batch.draw(texture, 0, 0, BUFFER_WIDTH, BUFFER_HEIGHT,
+		batch.draw(texture, 0, 0, GameData.resolution[0], GameData.resolution[1],
 				0, 0, texture.getWidth(), texture.getHeight(),
 				false, true);
 		
@@ -64,7 +65,7 @@ public class BlurEffect extends PostProcessingEffect {
 		shader.setUniformf("u_radius", radius);
 		shader.setUniformf("u_factor", factor);
 		
-		batch.draw(downsampleBuffer1.getColorBufferTexture(), 0, 0, BUFFER_WIDTH, BUFFER_HEIGHT,
+		batch.draw(downsampleBuffer1.getColorBufferTexture(), 0, 0, GameData.resolution[0], GameData.resolution[1],
 				0, 0, downsampleBuffer1.getColorBufferTexture().getWidth(), downsampleBuffer1.getColorBufferTexture().getHeight(),
 				false, true);
 		
@@ -84,7 +85,7 @@ public class BlurEffect extends PostProcessingEffect {
 		batch.setShader(null);
 		batch.begin();
 		
-		batch.draw(downsampleBuffer2.getColorBufferTexture(), 0, 0, buffer.getWidth(), buffer.getHeight(),
+		batch.draw(downsampleBuffer2.getColorBufferTexture(), 0, 0, GameData.resolution[0], GameData.resolution[1],
 				0, 0, downsampleBuffer2.getColorBufferTexture().getWidth(), downsampleBuffer2.getColorBufferTexture().getHeight(),
 				false, true);
 		

@@ -178,9 +178,12 @@ public class GameData {
 	
 	public static Roguelike3DGame game;
 	
+	public static int[] resolution = {800, 600};
+	
 	public static void init(final Roguelike3DGame game)
-	{	
+	{
 		GameData.game = game;
+		GameStats.init();
 		
 		LevelContainer lc = new LevelContainer("start_town", 1);
 		
@@ -197,7 +200,7 @@ public class GameData {
 		BiomeReader biome = new BiomeReader(lc.biome);
 		RoomReader rReader = new RoomReader(lc.biome, lc.depth);
 		
-		lightManager = new LightManager(7, lightQuality);
+		lightManager = new LightManager(10, lightQuality);
 		lightManager.ambientLight.set(biome.getAmbientLight());
 		
 		game.loadLevel(biome, rReader, Roguelike3DGame.INGAME);
@@ -210,6 +213,7 @@ public class GameData {
 		if (player == null)
 		{
 			player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f);
+			GameStats.setPlayerStats(player);
 		}
 		
 		for (LevelObject lo : level.levelObjects)
@@ -343,26 +347,26 @@ public class GameData {
 			HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam, 
 			HashMap<Element, Integer> ele_def, HashMap<Damage_Type, Integer> dam_def)
 	{
-		int damage = 
-				(((strength/100)*dam_dam.get(Damage_Type.PIERCE)) * ((100-dam_def.get(Damage_Type.PIERCE))/100)) +
-				(((strength/100)*dam_dam.get(Damage_Type.IMPACT)) * ((100-dam_def.get(Damage_Type.IMPACT))/100)) +
-				(((strength/100)*dam_dam.get(Damage_Type.TOUCH)) * ((100-dam_def.get(Damage_Type.TOUCH))/100));
+		float damage = 
+				(((strength/100f)*dam_dam.get(Damage_Type.PIERCE)) * ((100f-dam_def.get(Damage_Type.PIERCE))/100f)) +
+				(((strength/100f)*dam_dam.get(Damage_Type.IMPACT)) * ((100f-dam_def.get(Damage_Type.IMPACT))/100f)) +
+				(((strength/100f)*dam_dam.get(Damage_Type.TOUCH)) * ((100f-dam_def.get(Damage_Type.TOUCH))/100f));
 		
-		int ele_damage = 
-				(((damage/100)*ele_dam.get(Element.FIRE)) * ((100-ele_def.get(Element.FIRE))/100)) +
-				(((damage/100)*ele_dam.get(Element.WATER)) * ((100-ele_def.get(Element.WATER))/100)) +
-				(((damage/100)*ele_dam.get(Element.AIR)) * ((100-ele_def.get(Element.AIR))/100)) +
-				(((damage/100)*ele_dam.get(Element.WOOD)) * ((100-ele_def.get(Element.WOOD))/100)) +
-				(((damage/100)*ele_dam.get(Element.METAL)) * ((100-ele_def.get(Element.METAL))/100)) +
-				(((damage/100)*ele_dam.get(Element.AETHER)) * ((100-ele_def.get(Element.AETHER))/100)) +
-				(((damage/100)*ele_dam.get(Element.VOID)) * ((100-ele_def.get(Element.VOID))/100));
+		float ele_damage = 
+				(((damage/100f)*ele_dam.get(Element.FIRE)) * ((100f-ele_def.get(Element.FIRE))/100f)) +
+				(((damage/100f)*ele_dam.get(Element.WATER)) * ((100f-ele_def.get(Element.WATER))/100f)) +
+				(((damage/100f)*ele_dam.get(Element.AIR)) * ((100f-ele_def.get(Element.AIR))/100f)) +
+				(((damage/100f)*ele_dam.get(Element.WOOD)) * ((100f-ele_def.get(Element.WOOD))/100f)) +
+				(((damage/100f)*ele_dam.get(Element.METAL)) * ((100f-ele_def.get(Element.METAL))/100f)) +
+				(((damage/100f)*ele_dam.get(Element.AETHER)) * ((100f-ele_def.get(Element.AETHER))/100f)) +
+				(((damage/100f)*ele_dam.get(Element.VOID)) * ((100f-ele_def.get(Element.VOID))/100f));
 
-		return ele_damage;
+		return (int)ele_damage;
 	}
 	
 	public static int calculateSpeed(int weight, int strength)
 	{
-		return weight / strength;
+		return strength / weight;
 	}
 
 }

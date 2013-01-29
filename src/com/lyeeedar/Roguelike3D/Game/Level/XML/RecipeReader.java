@@ -10,7 +10,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon;
 import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
-import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Weapon_Style;
+import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
 
 public class RecipeReader extends XMLReader
 {
@@ -140,7 +140,7 @@ public class RecipeReader extends XMLReader
 		return Item.convertItemType(getNodeValue(TYPE, recipe.getChildNodes()));
 	}
 
-	public Weapon_Style getWeaponStyle()
+	public Melee_Weapon_Style getWeaponStyle()
 	{
 		Node item = getNode(ITEM, recipe.getChildNodes());
 
@@ -187,10 +187,13 @@ public class RecipeReader extends XMLReader
 
 		Node item = getNode(ITEM, recipe.getChildNodes());
 		Node attribute = getNode(att, item.getChildNodes());
+		Node eqnNode = getNode(EQN, attribute.getChildNodes());
 
 		for (int i = 0; i < attribute.getChildNodes().getLength(); i++)
 		{
-			Node block = attribute.getChildNodes().item(i);
+			Node block = eqnNode.getChildNodes().item(i);
+			
+			if (block == null) continue;
 			if (!block.getNodeName().equalsIgnoreCase(MULTIPLY)) continue;
 
 			// Valid block!
@@ -203,7 +206,7 @@ public class RecipeReader extends XMLReader
 
 				if (!n.getNodeName().equalsIgnoreCase(ELEMENT)) continue;
 
-				eqnBlock.add(n.getNodeValue());
+				eqnBlock.add(getNodeValue(n));
 			}
 
 			eqn.add(eqnBlock);

@@ -106,13 +106,16 @@ public class MainMenuScreen extends AbstractScreen {
 				
 				for (int i = 1; i < 11; i++)
 				{
-					Component c = new Component(Component_Type.CLAW, "Claw thingy 1"+i, i, i, "desc", i, 1, i, i, GameData.getElementMap());
+					Component c = new Component(Component_Type.CLAW, "Claw thingy 1"+i, i, i, "desc", i, 1, i, i, GameData.getElementMap(), "grasping-claws");
 					GameStats.addComponent(c);
-					c = new Component(Component_Type.CLAW, "Claw thingy 2"+i, i, i, "desc", i, 2, i, i, GameData.getElementMap());
+					c = new Component(Component_Type.CLAW, "Claw thingy 2"+i, i, i, "desc", i, 2, i, i, GameData.getElementMap(), "grasping-claws");
 					GameStats.addComponent(c);
-					c = new Component(Component_Type.CLAW, "Claw thingy 3"+i, i, i, "desc", i, 3, i, i, GameData.getElementMap());
+					c = new Component(Component_Type.CLAW, "Claw thingy 3"+i, i, i, "desc", i, 3, i, i, GameData.getElementMap(), "grasping-claws");
 					GameStats.addComponent(c);
 				}
+				
+				Component c = new Component(Component_Type.TOOTH, "Tooth thingy", 1, 1, "desc", 1, 50, 10, 10, GameData.getElementMap(), "grasping-claws");
+				GameStats.addComponent(c);
 				
 				game.switchScreen(Roguelike3DGame.RECIPES);
 				return false;

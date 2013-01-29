@@ -7,11 +7,9 @@ import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 
 public abstract class Equippable extends Item {
 
+	float WEIGHT;
 
-	public Equippable() {
-
+	public Equippable(float WEIGHT) {
+		this.WEIGHT = WEIGHT;
 	}
-
-	
-	public abstract void use();
 }

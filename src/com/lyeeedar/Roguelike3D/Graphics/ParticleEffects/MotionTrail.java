@@ -93,6 +93,15 @@ public class MotionTrail {
 		mesh.setVertices(vertices);
 	}
 	
+	public void offsetAll(Vector3 offset)
+	{
+		for (int i = 0; i < vertNum; i++)
+		{
+			Vector3 vert = trailRing.get(i);
+			vert.add(offset);
+		}
+	}
+	
 	public void draw(Camera cam)
 	{
 		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);

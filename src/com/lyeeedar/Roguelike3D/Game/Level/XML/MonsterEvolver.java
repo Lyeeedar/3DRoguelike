@@ -25,9 +25,13 @@ import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
+import com.lyeeedar.Roguelike3D.Game.Actor.AI_Enemy_VFFG;
+import com.lyeeedar.Roguelike3D.Game.Actor.AI_Player_Controlled;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND.WeaponType;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
@@ -89,6 +93,8 @@ public class MonsterEvolver extends XMLReader {
 	public static final String ATTACK_SPEED = "attack_speed";
 	public static final String ATTACK_DIST_MIN = "attack_dist_min";
 	public static final String ATTACK_DIST_MAX = "attack_dist_max";
+	public static final String WEAPON_STYLE = "weapon_style";
+	public static final String WEAPON_TYPE = "weapon_type";
 	public static final String AI = "AI";
 
 	public static final String MIND = "MIND";
@@ -122,7 +128,10 @@ public class MonsterEvolver extends XMLReader {
 	public static final String AMOUNT = "amount";
 	public static final String RARITY = "rarity";
 	
-
+	public static final String FACTIONS = "factions";
+	public static final String FACTION = "faction";
+	public static final String ICON = "icon";
+	
 	final Random ran = new Random();
 
 	final String monster;
@@ -200,6 +209,19 @@ public class MonsterEvolver extends XMLReader {
 
 		selected_monster = ns.get(ran.nextInt(ns.size()));
 		monster = selected_monster.getNodeName();
+		
+		ArrayList<String> factions = new ArrayList<String>();
+		
+		Node faction = getNode(FACTIONS, selected_monster.getChildNodes());
+		
+		for (int i = 0; i < faction.getChildNodes().getLength(); i++)
+		{
+			Node n = faction.getChildNodes().item(i);
+			
+			if (!n.getNodeName().equalsIgnoreCase(FACTION)) continue;
+			
+			factions.add(getNodeValue(n));
+		}
 
 		Node creatures = getNode(CREATURES, selected_monster.getChildNodes());
 
@@ -209,7 +231,7 @@ public class MonsterEvolver extends XMLReader {
 
 			if (n.getNodeType() == Node.TEXT_NODE) continue;
 
-			AbstractCreature_Evolver ac_e = new AbstractCreature_Evolver(n.getNodeName());
+			AbstractCreature_Evolver ac_e = new AbstractCreature_Evolver(n.getNodeName(), factions);
 
 			// Add visual
 
@@ -358,6 +380,8 @@ public class MonsterEvolver extends XMLReader {
 		
 		String name = getNodeValue(NAME, dropNode.getChildNodes());
 		
+		String icon = getNodeValue(ICON, dropNode.getChildNodes());
+		
 		String rarityString = getNodeValue(RARITY, dropNode.getChildNodes());
 		int rarity = Integer.parseInt(rarityString);
 		
@@ -395,7 +419,7 @@ public class MonsterEvolver extends XMLReader {
 		element.put(Element.AETHER, Integer.parseInt(ae));
 		element.put(Element.VOID, Integer.parseInt(v));
 		
-		Component drop = new Component(type, name, rarity, chance, description, weight_per_amount, amount, soft_hard, flexible_brittle, element);
+		Component drop = new Component(type, name, rarity, chance, description, weight_per_amount, amount, soft_hard, flexible_brittle, element, icon);
 		
 		return drop;
 	}
@@ -428,6 +452,16 @@ public class MonsterEvolver extends XMLReader {
 		}
 		if (ce.attack_right != null)
 		{
+			ga.R_HAND = Equipment_HAND.getWeapon(
+					ce.attack_right.wep_type,
+					ga,
+					ce.attack_right.wep_style,
+					2,
+					ce.attack_right.strength,
+					ce.attack_right.ele_amount,
+					ce.attack_right.dam_amount,
+					ce.attack_right.atk_speed,
+					ce.attack_right.weight);
 			for (Component c : ce.creature.attRDrops)
 			{
 				ga.INVENTORY.put(c.name, c);
@@ -435,11 +469,25 @@ public class MonsterEvolver extends XMLReader {
 		}
 		if (ce.attack_left != null)
 		{
+			ga.L_HAND = Equipment_HAND.getWeapon(
+					ce.attack_left.wep_type,
+					ga,
+					ce.attack_left.wep_style,
+					2,
+					ce.attack_left.strength,
+					ce.attack_left.ele_amount,
+					ce.attack_left.dam_amount,
+					ce.attack_left.atk_speed,
+					ce.attack_left.weight);
 			for (Component c : ce.creature.attLDrops)
 			{
 				ga.INVENTORY.put(c.name, c);
 			}
 		}
+		
+		ga.setStats(ce.health, ce.weight, ce.strength, ce.ele_defenses, ce.dam_defenses, ce.creature.factions);
+		
+		ga.ai = new AI_Enemy_VFFG(ga);
 
 		return ga;
 	}
@@ -749,7 +797,9 @@ public class MonsterEvolver extends XMLReader {
 				getNodeValue(STRENGTH, selected.getChildNodes()),
 				getNodeValue(ATTACK_SPEED, selected.getChildNodes()),
 				getNodeValue(ATTACK_DIST_MIN, selected.getChildNodes()),
-				getNodeValue(ATTACK_DIST_MAX, selected.getChildNodes())
+				getNodeValue(ATTACK_DIST_MAX, selected.getChildNodes()),
+				getNodeValue(WEAPON_TYPE, selected.getChildNodes()),
+				getNodeValue(WEAPON_STYLE, selected.getChildNodes())
 				);
 
 		Node element = getNode(ELEMENT, selected.getChildNodes());
@@ -799,7 +849,9 @@ public class MonsterEvolver extends XMLReader {
 				getNodeValue(STRENGTH, selected.getChildNodes()),
 				getNodeValue(ATTACK_SPEED, selected.getChildNodes()),
 				getNodeValue(ATTACK_DIST_MIN, selected.getChildNodes()),
-				getNodeValue(ATTACK_DIST_MAX, selected.getChildNodes())
+				getNodeValue(ATTACK_DIST_MAX, selected.getChildNodes()),
+				getNodeValue(WEAPON_TYPE, selected.getChildNodes()),
+				getNodeValue(WEAPON_STYLE, selected.getChildNodes())
 				);
 
 		Node element = getNode(ELEMENT, selected.getChildNodes());
@@ -1214,9 +1266,11 @@ class Creature_Evolver
 class AbstractCreature_Evolver
 {
 	public final String name;
+	public final ArrayList<String> factions;
 
-	public AbstractCreature_Evolver(String name)
+	public AbstractCreature_Evolver(String name, ArrayList<String> factions)
 	{
+		this.factions = factions;
 		this.name = name;
 	}
 
@@ -1478,8 +1532,8 @@ class Attack_Evolver
 		this.description = description;
 	}
 
-	int calories; int weight; int strength; float atk_speed; float atk_dst_min; float atk_dst_max;
-	public void addStats(String calories, String weight, String strength, String atk_speed, String atk_dst_min, String atk_dst_max)
+	int calories; int weight; int strength; float atk_speed; float atk_dst_min; float atk_dst_max; WeaponType wep_type; String wep_style;
+	public void addStats(String calories, String weight, String strength, String atk_speed, String atk_dst_min, String atk_dst_max, String wep_type, String wep_style)
 	{
 		this.calories = Integer.parseInt(calories);
 		this.weight = Integer.parseInt(weight);
@@ -1487,6 +1541,8 @@ class Attack_Evolver
 		this.atk_speed = Float.parseFloat(atk_speed);
 		this.atk_dst_min = Float.parseFloat(atk_dst_min);
 		this.atk_dst_max = Float.parseFloat(atk_dst_max);
+		this.wep_type = Equipment_HAND.convertStringtoWepType(wep_type);
+		this.wep_style = wep_style;
 	}
 
 	public HashMap<Element, Integer> ele_amount = new HashMap<Element, Integer>();

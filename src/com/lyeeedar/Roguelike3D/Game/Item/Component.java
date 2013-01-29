@@ -2,7 +2,12 @@ package com.lyeeedar.Roguelike3D.Game.Item;
 
 import java.util.HashMap;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
+import com.lyeeedar.Roguelike3D.Graphics.TextureDrawer;
 
 public class Component extends Item implements Comparable<Component>{
 	
@@ -24,7 +29,6 @@ public class Component extends Item implements Comparable<Component>{
 	public int drop_chance;
 	public String description;
 	public int weight_per_amount;
-	public int weight;
 	public int amount;
 	
 	public int soft_hard;
@@ -35,10 +39,12 @@ public class Component extends Item implements Comparable<Component>{
 	public Component_Type type;
 	
 	public int rarity;
+	
+	public Texture icon;
 
 	public Component(Component_Type type, String name, int rarity, int drop_chance,
 			String description, int weight_per_amount, int amount, int soft_hard,
-			int flexible_brittle, HashMap<Element, Integer> element) {
+			int flexible_brittle, HashMap<Element, Integer> element, String iconName) {
 		
 		this.type = type;
 		this.name = name;
@@ -47,11 +53,18 @@ public class Component extends Item implements Comparable<Component>{
 		this.description = description;
 		this.weight_per_amount = weight_per_amount;
 		this.amount = amount;
-		this.weight = weight_per_amount * amount;
 		this.soft_hard = soft_hard;
 		this.flexible_brittle = flexible_brittle;
 		this.element = element;
-
+		
+		Texture base = new Texture(Gdx.files.internal("data/skins/"+iconName+".png"));
+		Texture rareTint = new Texture(Gdx.files.internal("data/skins/icon-border.png"));
+		Color tint = GameData.getRarity(rarity).getColour();
+		icon = TextureDrawer.combineTextures(base, tint, rareTint, tint);
+		//icon = base;
+		
+		//base.dispose();
+		//rareTint.dispose();
 	}
 	
 	public static Component_Type convertComponentType(String typeName)

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 
 public class BloomEffect extends PostProcessingEffect {
 
@@ -33,9 +34,9 @@ public class BloomEffect extends PostProcessingEffect {
 		
 		batch.begin();
 		
-		shader.setUniformf("u_threshold", 0.0f);
+		shader.setUniformf("u_threshold", 1.0f);
 		
-		batch.draw(texture, 0, 0, BUFFER_WIDTH, BUFFER_HEIGHT,
+		batch.draw(texture, 0, 0, GameData.resolution[0], GameData.resolution[1],
 				0, 0, texture.getWidth(), texture.getHeight(),
 				false, true);
 		
@@ -58,10 +59,10 @@ public class BloomEffect extends PostProcessingEffect {
 		batch.begin();
 		batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE);
 		
-		batch.draw(texture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+		batch.draw(texture, 0, 0, GameData.resolution[0], GameData.resolution[1],
 				0, 0, texture.getWidth(), texture.getHeight(),
 				false, true);
-		batch.draw(downsampleBuffer.getColorBufferTexture(), 0, 0, buffer.getWidth(), buffer.getHeight(),
+		batch.draw(downsampleBuffer.getColorBufferTexture(), 0, 0, GameData.resolution[0], GameData.resolution[1],
 				0, 0, downsampleBuffer.getColorBufferTexture().getWidth(), downsampleBuffer.getColorBufferTexture().getHeight(),
 				false, true);
 		

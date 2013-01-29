@@ -44,7 +44,7 @@ public class Particle {
 	public Particle(String texture, Vector3 velocity, float time, Color start, Color end, float width, float height, float x, float y, float z)
 	{
 		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
-		this.velocity = velocity;
+		this.velocity.set(velocity);
 		this.remainingTime = time;
 		this.start = start;
 		
@@ -68,7 +68,14 @@ public class Particle {
 		decal.getPosition().set(x, y, z);
 	}
 	
-	public void set(String texture, Vector3 velocity, float time, Color start, Color end, float width, float height, float x, float y, float z)
+	public void setDecal(String texture, float width, float height)
+	{
+		TextureRegion tex = new TextureRegion(new Texture(Gdx.files.internal(texture)));
+
+		decal = Decal.newDecal(width, height, tex, true);
+	}
+	
+	public void set(Vector3 velocity, float time, Color start, Color end, float x, float y, float z)
 	{		
 		alive = true;
 		
@@ -87,10 +94,7 @@ public class Particle {
 		
 		float bdiff = end.b-start.b;
 		bstep = bdiff/time;
-		
-		TextureRegion tex = new TextureRegion(new Texture(Gdx.files.internal(texture)));
-		
-		decal = Decal.newDecal(width, height, tex, true);
+
 		decal.setColor(start.r, start.g, start.b, start.a);
 		
 		decal.getPosition().set(x, y, z);

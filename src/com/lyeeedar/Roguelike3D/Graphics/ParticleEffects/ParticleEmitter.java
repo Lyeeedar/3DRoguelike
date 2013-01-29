@@ -67,6 +67,8 @@ public class ParticleEmitter {
 	
 	String texture; Vector3 velocity; float atime; Color start; Color end; float width; float height;
 	
+	float intensity; float attenuation;
+	
 	public void setDecal(String texture, Vector3 velocity, float atime, Color start, Color end, float width, float height, boolean light)
 	{
 		this.texture = texture;
@@ -77,10 +79,19 @@ public class ParticleEmitter {
 		this.width = width;
 		this.height = height;
 		
+		for (Particle p : inactive)
+		{
+			p.setDecal(texture, width, height);
+		}
+		for (Particle p : active)
+		{
+			p.setDecal(texture, width, height);
+		}
+		
 		if (light)
 		{
-			float intensity = 1-(speed/10);
-			float attenuation = (vx+vy+vz)/1000;
+			intensity = particles/100;
+			attenuation = speed;
 			
 			Color lightCol = new Color((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
 			
@@ -117,6 +128,14 @@ public class ParticleEmitter {
 	
 	public void update(float delta)
 	{
+		if (boundLight != null)
+		{
+			boundLight.intensity = (float) (intensity * 
+					(1-((1-((float)active.size() / (float)inactive.size())))/2));
+			boundLight.attenuation = (float) (attenuation * 
+					(1-((1-((float)inactive.size() / (float)active.size())))/2));
+		}
+		
 		Iterator<Particle> pItr = active.iterator();
 		
 		while (pItr.hasNext())
@@ -136,7 +155,7 @@ public class ParticleEmitter {
 		time = speed;
 		
 		Particle p = inactive.pop();
-		p.set(texture, velocity.cpy(), atime, start, end, width, height, x+(vx*ran.nextFloat()), y+(vy*ran.nextFloat()), z+(vz*ran.nextFloat()));
+		p.set(velocity, atime*ran.nextFloat(), start, end, x+(vx*ran.nextFloat()), y+(vy*ran.nextFloat()), z+(vz*ran.nextFloat()));
 
 		active.add(p);
 	}

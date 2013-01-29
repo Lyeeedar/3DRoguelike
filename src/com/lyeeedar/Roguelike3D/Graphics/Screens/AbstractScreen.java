@@ -135,6 +135,7 @@ public abstract class AbstractScreen implements Screen{
         decalBatch.setGroupStrategy(new CameraGroupStrategy(cam));
 		
 		stage.setViewport( width, height, true);
+		
 	}
 
 	@Override

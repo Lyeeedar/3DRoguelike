@@ -23,7 +23,7 @@ import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon;
-import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Weapon_Style;
+import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public class Player extends GameActor {
@@ -36,8 +36,8 @@ public class Player extends GameActor {
 		
 		HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
 		
-		DAM_DEF.put(Damage_Type.PIERCE, 0);
-		DAM_DEF.put(Damage_Type.IMPACT, 0);
+		DAM_DEF.put(Damage_Type.PIERCE, 50);
+		DAM_DEF.put(Damage_Type.IMPACT, 50);
 		DAM_DEF.put(Damage_Type.TOUCH, 0);
 
 		HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
@@ -47,11 +47,11 @@ public class Player extends GameActor {
 		ELE_DEF.put(Element.WATER, 0);
 		ELE_DEF.put(Element.WOOD, 0);
 		ELE_DEF.put(Element.METAL, 0);
-		ELE_DEF.put(Element.AETHER, 0);
+		ELE_DEF.put(Element.AETHER, 100);
 		ELE_DEF.put(Element.VOID, 0);
 		
-		R_HAND = new MeleeWeapon(this, Weapon_Style.SWING, 2, 10, ELE_DEF, DAM_DEF, 100);
-		L_HAND = new MeleeWeapon(this, Weapon_Style.SWING, 1, 10, ELE_DEF, DAM_DEF, 100);
+		R_HAND = new MeleeWeapon(this, Melee_Weapon_Style.SWING, 2, 10, ELE_DEF, DAM_DEF, 1, 1);
+		L_HAND = new MeleeWeapon(this, Melee_Weapon_Style.SWING, 1, 10, ELE_DEF, DAM_DEF, 1, 1);
 		
 		ai = new AI_Player_Controlled(this);
 

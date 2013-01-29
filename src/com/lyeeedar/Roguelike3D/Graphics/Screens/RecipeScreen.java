@@ -2,6 +2,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -14,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -28,6 +30,7 @@ import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameStats;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
+import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Game.Item.Recipe;
 
 public class RecipeScreen extends UIScreen {
@@ -38,6 +41,7 @@ public class RecipeScreen extends UIScreen {
 	
 	Table table;
 	Table left;
+	Table leftBot;
 	Table mid;
 	Table right;
 	
@@ -89,7 +93,9 @@ public class RecipeScreen extends UIScreen {
 		}
 		else
 		{
-			left.add(createCraftingView());
+			left.add(createCraftingLeftView());
+			left.row();
+			left.add(leftBot);
 		}
 		
 	}
@@ -153,7 +159,7 @@ public class RecipeScreen extends UIScreen {
 	
 	ArrayList<CraftButton> craftButtons;
 	CraftButton selected = null;
-	private Table createCraftingView()
+	private Table createCraftingLeftView()
 	{
 		craftButtons = new ArrayList<CraftButton>();
 		Table view = new Table();
@@ -167,9 +173,11 @@ public class RecipeScreen extends UIScreen {
 					craftButtons.add(cb);
 					cb.addListener(new InputListener() {
 						public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+							if (selected != null) selected.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 							selected = cb;
+							selected.setColor(0.3f, 1.0f, 0.3f, 1.0f);
 							createCraftingCenterView();
-							createComponentView();
+							createCraftingRightView();
 							return false;
 						}
 					});
@@ -179,6 +187,34 @@ public class RecipeScreen extends UIScreen {
 			view.row();
 		}
 		return view;
+	}
+	
+	private void createCraftingLeftButton()
+	{
+		
+		leftBot.clear();
+		
+		for (CraftButton cb : craftButtons)
+		{
+			if (cb.component == null) return;
+		}
+		
+		TextButton tb = new TextButton("Craft Item", skin);
+		tb.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				HashMap<Character, Component> components = new HashMap<Character, Component>();
+				for (CraftButton cb : craftButtons)
+				{
+					components.put(cb.reference, cb.component);
+					GameStats.removeComponent(cb.component, chosenRecipe.getComponentAmount(cb.reference));
+				}
+				Item i = chosenRecipe.craft(components);
+				System.out.println(i);
+				return false;
+			}
+		});
+
+		leftBot.add(tb);
 	}
 	
 	private void createCraftingCenterView()
@@ -206,13 +242,13 @@ public class RecipeScreen extends UIScreen {
 		tc.row();
 		tc.add(new Label("Soft/Hard: "+c.soft_hard, skin));
 		tc.row();
-		tc.add(new Label("Flexible/Brittle"+c.flexible_brittle, skin));
+		tc.add(new Label("Flexible/Brittle: "+c.flexible_brittle, skin));
 		tc.row();
 		
 		mid.add(tc);
 	}
 	
-	private void createComponentView()
+	private void createCraftingRightView()
 	{
 		right.clear();
 		
@@ -272,6 +308,7 @@ public class RecipeScreen extends UIScreen {
 		table.setFillParent(true);
 		
 		left = new Table();
+		leftBot = new Table();
 		mid = new Table();
 		right = new Table();
 		
@@ -299,6 +336,14 @@ public class RecipeScreen extends UIScreen {
 		{
 			super(skin);
 			this.reference = reference;
+		}
+		
+		public void setComponent(Component c)
+		{
+			this.component = c;
+			this.clear();
+			
+			this.add(new Image(c.icon));
 		}
 	}
 
@@ -357,6 +402,7 @@ public class RecipeScreen extends UIScreen {
 			bg.add(cbox);
 			
 			add(cbox);
+			add(new Image(component.icon));
 			addListener(new InputListener() {
 				public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 					clicked = true;
@@ -367,8 +413,9 @@ public class RecipeScreen extends UIScreen {
 					if (clicked) {
 						clicked = false;
 						cbox.toggle();
-						selected.component = component;
+						selected.setComponent(component);
 						createCraftingCenterView();
+						createCraftingLeftButton();
 					}
 				}
 				

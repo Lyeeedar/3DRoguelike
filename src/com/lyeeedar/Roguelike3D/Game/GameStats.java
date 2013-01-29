@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
+import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_BODY;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_BOOTS;
@@ -25,7 +26,7 @@ public class GameStats {
 	public static int STRENGTH;
 	public static HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
 	public static HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
-	public static String FACTION;
+	public static ArrayList<String> FACTIONS;
 	
 	public static Equipment_HEAD head;
 	public static Equipment_BODY body;
@@ -36,6 +37,22 @@ public class GameStats {
 	
 	public static TreeMultimap<Integer, Recipe> recipes = TreeMultimap.create();
 	public static TreeMultimap<Integer, Component> components = TreeMultimap.create();
+	
+	public static void init()
+	{
+		MAX_HEALTH = HEALTH = 100;
+		WEIGHT = 1;
+		STRENGTH = 1;
+		ELE_DEF = GameData.getElementMap();
+		DAM_DEF = GameData.getDamageMap();
+		FACTIONS = new ArrayList<String>();
+		FACTIONS.add("PLAYER");
+	}
+	
+	public static void setPlayerStats(Player player)
+	{
+		player.setStats(HEALTH, WEIGHT, STRENGTH, ELE_DEF, DAM_DEF, FACTIONS);
+	}
 	
 	public static void addRecipe(Recipe recipe)
 	{
@@ -50,5 +67,15 @@ public class GameStats {
 			cc.amount += c.amount;
 		}
 		else components.put(c.rarity, c);
+	}
+	
+	public static void removeComponent(Component c, int amount)
+	{
+		c.amount -= amount;
+		
+		if (c.amount <= 0)
+		{
+			components.remove(c.rarity, c);
+		}
 	}
 }

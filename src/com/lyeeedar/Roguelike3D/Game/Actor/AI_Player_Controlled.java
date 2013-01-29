@@ -17,6 +17,7 @@ public class AI_Player_Controlled extends AI_Package {
 	float right_cooldown = 0;
 
 	float move = 0;
+	float speed = 0;
 	float xR = 0;
 	float yR = 0;
 
@@ -61,17 +62,18 @@ public class AI_Player_Controlled extends AI_Package {
 		right_cooldown -= delta;
 		
 		move = delta * 10f;
+		speed = GameData.calculateSpeed(actor.WEIGHT, actor.STRENGTH);
 		
 		actor.velocity.y -= GameData.gravity*move*actor.WEIGHT;
 
 		if (actor.grounded)
 		{
-			if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A)) actor.left_right(move);
-			if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D)) actor.left_right(-move);
+			if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A)) actor.left_right(move*speed);
+			if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D)) actor.left_right(-move*speed);
 
-			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) actor.forward_backward(move*2);
+			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) actor.forward_backward((move*2)*speed);
 			else headBob = 0;
-			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) actor.forward_backward(-move/2);
+			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) actor.forward_backward(-(move/2)*speed);
 
 			if ((actor.grounded) && (Gdx.input.isKeyPressed(Keys.SPACE) && !jumpCD)) 
 			{
@@ -95,18 +97,16 @@ public class AI_Player_Controlled extends AI_Package {
 			actor.getVelocity().set(0, 2, 2);
 		}
 		
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && left_cooldown < 0)
+		if (actor.L_HAND != null && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && left_cooldown < 0)
 		{
-			left_cooldown = 0.5f;
-			
-			if (actor.L_HAND != null) actor.L_HAND.use();
+			left_cooldown = actor.L_HAND.CD;
+			actor.L_HAND.use();
 		}
 		
-		if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && right_cooldown < 0)
+		if (actor.R_HAND != null && Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && right_cooldown < 0)
 		{
-			right_cooldown = 0.5f;
-
-			if (actor.R_HAND != null) actor.R_HAND.use();
+			right_cooldown = actor.R_HAND.CD;
+			actor.R_HAND.use();
 		}
 		
 		actor.applyMovement();
@@ -123,9 +123,6 @@ public class AI_Player_Controlled extends AI_Package {
 		actor.Yrotate(yR);
 
 		actor.Xrotate(xR);
-		
-		if (actor.L_HAND != null) actor.L_HAND.update(delta);
-		if (actor.R_HAND != null) actor.R_HAND.update(delta);
 
 	}
 

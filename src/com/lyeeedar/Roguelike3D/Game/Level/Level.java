@@ -178,6 +178,33 @@ public class Level {
 	
 	
 	float tempdist2;
+
+	public GameActor getClosestActor(Ray ray, float dist2, Vector3 p1, Vector3 p2, String ignoreUID, Vector3 collisionPoint)
+	{
+		GameActor chosen = null;
+		for (GameActor go : GameData.level.actors)
+		{
+			if (go.UID.equals(ignoreUID)) continue;
+			
+			if (p1.dst2(go.getPosition()) < go.vo.attributes.radius*go.vo.attributes.radius) return go;
+			if (p2.dst2(go.getPosition()) < go.vo.attributes.radius*go.vo.attributes.radius) return go;
+
+			if (Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), tmpVec)) 
+			{
+				tempdist2 = tmpVec.dst2(ray.origin);
+				if (tempdist2 > dist2) continue;
+				else
+				{
+					if (collisionPoint != null) collisionPoint.set(tmpVec);
+					dist2 = tempdist2;
+					chosen = go;
+				}
+			}
+
+		}
+		return chosen;
+	}
+	
 	/**
 	 * 
 	 * @param ray - The ray to be used for Intersecting
@@ -235,6 +262,39 @@ public class Level {
 		}
 
 		return chosen;
+	}
+	
+	public boolean checkLevelCollisionRay(Ray ray, float view)
+	{
+		Vector3 pos = ray.origin.tmp2();
+		Vector3 step = ray.direction.tmp2().mul(VIEW_STEP);
+		
+		float dist = 0;
+		
+		for (int i = 0; i < view; i += VIEW_STEP)
+		{
+			dist += VIEW_STEP;
+			
+			if (dist*dist > view) break;
+			
+			pos.add(step);
+			
+			if (pos.x < 0 || pos.x/10 > width) { dist=view; break; }
+			if (pos.z < 0 || pos.z/10 > height) { dist=view; break; }
+			
+			Tile t = getTile((pos.x/10f)+0.5f, (pos.z/10f)+0.5f);
+			
+			if (pos.y < t.height)
+			{
+				return true;
+			}
+			else if (pos.y > t.roof)
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public static final int VIEW_STEP = 10;

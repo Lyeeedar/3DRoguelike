@@ -146,6 +146,7 @@ public class InGameScreen extends AbstractScreen {
 		font.draw(spriteBatch, "Lights per Model: " + GameData.lightManager.maxLightsPerModel, 20, screen_height-20);
 		font.draw(spriteBatch, "1: Normal Maps: "+(GameData.lightManager.quality==LightQuality.NORMALMAP), 20, screen_height-40);
 		font.draw(spriteBatch, "2: PostProcessor: "+PostProcessor.ON, 20, screen_height-60);
+		font.draw(spriteBatch, "Player Pos: "+GameData.player.getPosition(), 20, screen_height-80);
 	}
 	
 	int count = 1;

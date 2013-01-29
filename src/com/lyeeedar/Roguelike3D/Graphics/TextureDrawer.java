@@ -8,10 +8,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 
 public class TextureDrawer {
 	
 	public static final Format format = Format.RGBA4444;
+	private static final SpriteBatch sB = new SpriteBatch();
 
 	public static Texture drawText(BitmapFont font, int xSpacing, int ySpacing, String... text)
 	{
@@ -30,8 +32,6 @@ public class TextureDrawer {
 		FrameBuffer fB = new FrameBuffer(format, width, height, false);
 		fB.begin();
 		
-		SpriteBatch sB = new SpriteBatch();
-		
 		Gdx.graphics.getGL20().glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
@@ -49,6 +49,36 @@ public class TextureDrawer {
 	
 		fB.end();
 		return fB.getColorBufferTexture();
+	}
+	
+	public static Texture combineTextures(Texture texture1, Color colour1, Texture texture2, Color colour2)
+	{
+		int width = texture1.getWidth();
+		int height = texture1.getHeight();
+		
+		FrameBuffer buffer = new FrameBuffer(format, width, height, false);
+		buffer.begin();
+		Gdx.graphics.getGL20().glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+		sB.begin();
+		sB.setColor(colour1);
+		sB.draw(texture1, 0, 0, GameData.resolution[0], GameData.resolution[1]);
+		sB.end();
+		
+		if (texture2 != null) {
+			sB.begin();
+			sB.setColor(colour2);
+			sB.draw(texture2, 0, 0, GameData.resolution[0], GameData.resolution[1]);
+			sB.end();
+		}
+		
+		buffer.end();
+		
+		Texture merged = buffer.getColorBufferTexture();
+		
+		return merged;
+
 	}
 
 }

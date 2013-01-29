@@ -13,7 +13,7 @@ import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
-import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Weapon_Style;
+import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
@@ -25,41 +25,63 @@ public class MeleeWeapon extends Equipment_HAND {
 	
 	final GameActor holder;
 	
-	public enum Weapon_Style {
+	public enum Melee_Weapon_Style {
 		SWING,
 		STAB
 	}
 
-	public static Weapon_Style convertWeaponStyle(String wep_style)
+	public static Melee_Weapon_Style convertWeaponStyle(String wep_style)
 	{
-		Weapon_Style style = null;
+		Melee_Weapon_Style style = null;
 
-		if (wep_style.equalsIgnoreCase("swing")) style = Weapon_Style.SWING;
-		else if (wep_style.equalsIgnoreCase("stab")) style = Weapon_Style.STAB;
+		if (wep_style.equalsIgnoreCase("swing")) style = Melee_Weapon_Style.SWING;
+		else if (wep_style.equalsIgnoreCase("stab")) style = Melee_Weapon_Style.STAB;
 
 		return style;
 	}
 	
+	@Override
+	public String toString()
+	{
+		String elements = "";
+		for (Element ele : Element.values())
+		{
+			elements += ele+": " + ele_dam.get(ele)  + "\n";
+		}
+		return 	"-----------------" +
+				"Melee Weapon" + "\n" +
+				"Strength: " + strength  + "\n" +
+				"Pierce: " + dam_dam.get(Damage_Type.PIERCE)  + "\n" +
+				"Impact: " + dam_dam.get(Damage_Type.IMPACT)  + "\n" +
+				"Touch: " + dam_dam.get(Damage_Type.TOUCH)  + "\n" +
+				elements +
+				"Attack CD: " + CD + "\n" +
+				"Weight: " + WEIGHT + "\n" +
+				"-----------------"
+				;
+	}
+	
 	final Attack_Style atk_style;
-	boolean swinging = false;
+	private boolean swinging = false;
 	boolean collided = false;
 	final int side;
 
-	public MeleeWeapon(GameActor holder, Weapon_Style style, int side, 
-			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam, int attack_speed) {
+	public MeleeWeapon(GameActor holder, Melee_Weapon_Style style, int side, 
+			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam, float attack_speed, float weight) {
+		super(weight);
 		this.side = side;
 		this.holder = holder;
 		
-		if (style == Weapon_Style.SWING)
+		if (style == Melee_Weapon_Style.SWING)
 		{
-			atk_style = new Circular_Attack(new Vector3(0, -2, 0), 5, 6, holder);
+			atk_style = new Circular_Attack(new Vector3(0, -2, 0), 5, 6, holder, 0.01f, new Vector3());
 		}
 		else atk_style = null;
 		
 		this.strength = strength;
 		this.ele_dam = ele_dam;
 		this.dam_dam = dam_dam;
-		this.attack_speed = attack_speed;
+		this.CD = attack_speed;
 	}
 	
 	
@@ -67,9 +89,8 @@ public class MeleeWeapon extends Equipment_HAND {
 	public int strength;
 	public HashMap<Element, Integer> ele_dam;
 	public HashMap<Damage_Type, Integer> dam_dam;
-	public int attack_speed;
 	
-	public int attack_cd = 0;
+	public float attack_cd = 0;
 	
 	public void damage(GameActor ga)
 	{
@@ -87,12 +108,8 @@ public class MeleeWeapon extends Equipment_HAND {
 	
 	// ----- Begin Visual Stuff ----- //
 	public void beginSwing()
-	{
-		if (attack_cd > 0) return;
-		
-		attack_cd = attack_speed;
-		
-		if (atk_style.style == Weapon_Style.SWING)
+	{	
+		if (atk_style.style == Melee_Weapon_Style.SWING)
 		{
 			float height = holder.getPosition().y;
 			
@@ -112,12 +129,14 @@ public class MeleeWeapon extends Equipment_HAND {
 			
 			
 			beginSwingCircular(start, rot);
+			
 		}
+		else System.err.println("Invalid wep type: "+atk_style.style);
 	}
 	
 	public void beginSwingCircular(Vector3 startRot, Vector3 rotPerSecond)
 	{
-		if (atk_style.style != Weapon_Style.SWING)
+		if (atk_style.style != Melee_Weapon_Style.SWING)
 		{
 			System.err.println("Wrong method for weapon attack style!");
 			return;
@@ -125,9 +144,11 @@ public class MeleeWeapon extends Equipment_HAND {
 		
 		Circular_Attack c_a = (Circular_Attack) atk_style;
 		c_a.reset(startRot, rotPerSecond);
-		
+		c_a.moveOffset.set(holder.getRotation().tmp().div(100f));
+
 		swinging = true;
 		collided = false;
+		
 	}
 	
 	final Vector3 tmpVec = new Vector3();
@@ -135,9 +156,9 @@ public class MeleeWeapon extends Equipment_HAND {
 
 	public void update(float delta)
 	{
-		attack_cd -= delta;
-		
 		if (!swinging) return;
+		if (atk_style.cd <= 0) swinging = false;
+		
 		
 		atk_style.update(delta, collided);
 		
@@ -162,6 +183,7 @@ public class MeleeWeapon extends Equipment_HAND {
 	{
 		if (!swinging) return;
 		
+		
 		atk_style.draw(cam);
 	}
 	
@@ -182,8 +204,7 @@ public class MeleeWeapon extends Equipment_HAND {
 		}
 		
 		ray.origin.set(start);
-		ray.direction.set(end);
-		ray.direction.sub(start);
+		ray.direction.set(end).sub(start).nor();
 		
 		LevelObject lo = level.getClosestLevelObject(ray, start.dst2(end), holder.UID, null);
 		
@@ -195,10 +216,9 @@ public class MeleeWeapon extends Equipment_HAND {
 		Level level = GameData.level;
 		
 		ray.origin.set(start);
-		ray.direction.set(end);
-		ray.direction.sub(start);
+		ray.direction.set(end).sub(start).nor();
 		
-		return level.getClosestActor(ray, start.dst2(end), holder.UID, null);
+		return level.getClosestActor(ray, start.dst2(end), start, end, holder.UID, null);
 	}
 	
 	public void dispose()
@@ -209,11 +229,11 @@ public class MeleeWeapon extends Equipment_HAND {
 
 abstract class Attack_Style
 {
-	public static final int TRAIL_STEPS = 345;
+	public static final int TRAIL_STEPS = 60;
 	
-	Weapon_Style style;
+	Melee_Weapon_Style style;
 	
-	final MotionTrail trail;
+	protected final MotionTrail trail;
 	
 	final Vector3 positionA = new Vector3();
 	final Vector3 positionB = new Vector3();
@@ -222,16 +242,30 @@ abstract class Attack_Style
 	final Vector3 tmpVec2 = new Vector3();
 	final Vector3 tmpVec3 = new Vector3();
 	
-	public Attack_Style()
+	final float step;
+	
+	public Attack_Style(float step)
 	{
+		this.step = step;
 		trail = new MotionTrail(TRAIL_STEPS, Color.LIGHT_GRAY, "data/textures/gradient.png");
 	}
 	
+	float cd = TRAIL_STEPS;
+	float updateCD = 0;
 	public void update(float delta, boolean collided)
 	{
-		if (!collided) updatePosition(delta);
+		if (collided) cd--;
+		updateCD -= delta;
+		if (updateCD > 0) return;
 		
-		trail.update(positionA, positionB);
+		while (updateCD < 0)
+		{
+			updateCD += step;
+			
+			updatePosition(delta, collided);
+			
+			trail.update(positionA, positionB);
+		}
 	}
 	
 	public void draw(Camera cam)
@@ -244,7 +278,7 @@ abstract class Attack_Style
 		trail.dispose();
 	}
 	
-	protected abstract void updatePosition(float delta);
+	protected abstract void updatePosition(float delta, boolean collided);
 }
 
 class Circular_Attack extends Attack_Style
@@ -257,12 +291,14 @@ class Circular_Attack extends Attack_Style
 	final float nearDist;
 	final float farDist;
 	final GameObject center;
+	Vector3 moveOffset;
 	
-	public Circular_Attack(Vector3 offset, float nearDist, float farDist, GameObject center) 
+	public Circular_Attack(Vector3 offset, float nearDist, float farDist, GameObject center, float step, Vector3 moveOffset) 
 	{
-		super();
+		super(step);
 		
-		this.style = Weapon_Style.SWING;
+		this.moveOffset = moveOffset;
+		this.style = Melee_Weapon_Style.SWING;
 		
 		this.offset = offset;
 		this.nearDist = nearDist;
@@ -279,10 +315,17 @@ class Circular_Attack extends Attack_Style
 		setPositions();
 		
 		trail.intialiseVerts(positionA, positionB);
+		
+		cd = TRAIL_STEPS;
 	}
 
-	protected void updatePosition(float delta)
-	{				
+	protected void updatePosition(float delta, boolean collided)
+	{
+		
+		trail.offsetAll(moveOffset);
+		
+		if (collided) return;
+		
 		tmpVec.set(rotPerSecond);
 		tmpVec.mul(delta);
 		

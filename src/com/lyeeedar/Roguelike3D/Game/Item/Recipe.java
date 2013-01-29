@@ -2,14 +2,17 @@ package com.lyeeedar.Roguelike3D.Game.Item;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND.WeaponType;
 import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
-import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Weapon_Style;
+import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RecipeReader;
 
 public class Recipe implements Comparable<Recipe>
@@ -49,6 +52,11 @@ public class Recipe implements Comparable<Recipe>
 				components.put(c, new Recipe_Component(c, reader.getComponentName(c), reader.getComponentAmount(c), reader.getComponentConstraints(c)));
 			}
 		}
+		
+		if (reader.getItemType() == Item_Type.WEAPON)
+		{
+			this.recipe = new Recipe_Melee_Weapon(reader);
+		}
 	}
 	
 	public boolean checkAll(Component c)
@@ -87,6 +95,11 @@ public class Recipe implements Comparable<Recipe>
 	public int getComponentAmount(char ref)
 	{
 		return components.get(ref).amount;
+	}
+	
+	public Item craft(HashMap<Character, Component> components)
+	{
+		return recipe.finalise(components, this);
 	}
 }
 
@@ -159,8 +172,11 @@ abstract class Recipe_Type
 		read();
 	}
 
-	public int calculate(ArrayList<ArrayList<String>> eqn, float scale, HashMap<String, Component> components)
+	public int calculate(ArrayList<ArrayList<String>> eqn, float scale, HashMap<Character, Component> components, Recipe recipe)
 	{
+		System.out.println("start calculating");
+		System.out.println("eqn size = "+eqn.size());
+		
 		float value = 0;
 
 		for (ArrayList<String> block : eqn)
@@ -168,6 +184,7 @@ abstract class Recipe_Type
 			float temp = 1;
 			for (String s : block)
 			{
+				System.out.println(s);
 				float temp2 = 0;
 				try {
 					temp2 = Float.parseFloat(s);
@@ -176,21 +193,24 @@ abstract class Recipe_Type
 				{
 					Component c = components.get(s.charAt(0));
 					char attribute = s.charAt(1);
-					if (attribute == 'w') temp2 = c.weight;
+					if (attribute == 'w') temp2 = c.weight_per_amount * recipe.getComponentAmount(s.charAt(0));
 					else if (attribute == 'h') temp2 = c.soft_hard;
 					else if (attribute == 'b') temp2 = c.flexible_brittle;
 					else System.err.println("Equation error! Invalid pseudonym: " + attribute);
 				}
 
 				if (temp2 != 0) temp *= temp2;
+				
+				System.out.println("temp2="+temp2);
 			}
 			if (temp != 1) value += temp;
+			System.out.println("temp="+temp);
 		}
 
 		return (int) (value * scale);
 	}
 
-	public HashMap<Element, Integer> calculateElemental(ArrayList<ArrayList<String>> eqn, float scale, HashMap<String, Component> components)
+	public HashMap<Element, Integer> calculateElemental(ArrayList<ArrayList<String>> eqn, float scale, HashMap<Character, Component> components)
 	{
 		HashMap<Element, Integer> elemental = new HashMap<Element, Integer>();
 
@@ -205,7 +225,7 @@ abstract class Recipe_Type
 		return elemental;
 	}
 
-	private int calcEle(ArrayList<ArrayList<String>> eqn, float scale, Element element, HashMap<String, Component> components)
+	private int calcEle(ArrayList<ArrayList<String>> eqn, float scale, Element element, HashMap<Character, Component> components)
 	{
 		float value = 0;
 
@@ -233,16 +253,16 @@ abstract class Recipe_Type
 	}
 
 	protected abstract void read();
-	public abstract void finalise(HashMap<String, Component> components);
+	public abstract Item finalise(HashMap<Character, Component> components, Recipe recipe);
 }
 
 /**
 * A recipe for a weapon. It has components for the weapon style, the strength bonus,
 * the Dam_type amounts, the elemental amounts and the attack speed
 **/
-class Recipe_Weapon extends Recipe_Type
+class Recipe_Melee_Weapon extends Recipe_Type
 {
-	Weapon_Style style;
+	Melee_Weapon_Style style;
 	HashMap<String, String> styleMeta;
 
 	int strength;
@@ -265,11 +285,13 @@ class Recipe_Weapon extends Recipe_Type
 	float elementalScale;
 	ArrayList<ArrayList<String>> elementalEqn;
 
-	int attackSpeed;
+	float attackSpeed;
 	float attackSpeedScale;
 	ArrayList<ArrayList<String>> attackSpeedEqn;
+	
+	float weight;
 
-	public Recipe_Weapon(RecipeReader reader)
+	public Recipe_Melee_Weapon(RecipeReader reader)
 	{
 		super(reader);
 	}
@@ -298,14 +320,29 @@ class Recipe_Weapon extends Recipe_Type
 		this.attackSpeedEqn = reader.getEqn(RecipeReader.ATTACK_SPEED);
 	}
 
-	public void finalise(HashMap<String, Component> components)
+	public Item finalise(HashMap<Character, Component> components, Recipe recipe)
 	{
-		this.strength = calculate(strengthEqn, strengthScale, components);
-		this.pierce = calculate(pierceEqn, pierceScale, components);
-		this.impact = calculate(impactEqn, impactScale, components);
-		this.touch = calculate(touchEqn, touchScale, components);
-		this.attackSpeed = calculate(attackSpeedEqn, attackSpeedScale, components);
+		System.out.println("Crafting item");
+		
+		this.strength = calculate(strengthEqn, strengthScale, components, recipe);
+		this.pierce = calculate(pierceEqn, pierceScale, components, recipe);
+		this.impact = calculate(impactEqn, impactScale, components, recipe);
+		this.touch = calculate(touchEqn, touchScale, components, recipe);
+		this.attackSpeed = calculate(attackSpeedEqn, attackSpeedScale, components, recipe);
 
 		this.elemental = calculateElemental(elementalEqn, elementalScale, components);
+		
+		HashMap<Damage_Type, Integer> damage = new HashMap<Damage_Type, Integer>();
+		damage.put(Damage_Type.PIERCE, pierce);
+		damage.put(Damage_Type.IMPACT, impact);
+		damage.put(Damage_Type.TOUCH, touch);
+		
+		float weight = 0;
+		for (Map.Entry<Character, Component> entry : components.entrySet())
+		{
+			weight += recipe.getComponentAmount(entry.getKey()) * entry.getValue().weight_per_amount;
+		}
+		
+		return Equipment_HAND.getWeapon(WeaponType.MELEE, null, style, 1, strength, elemental, damage, attackSpeed, weight);
 	}
 }

@@ -207,6 +207,7 @@ abstract class Recipe_Type
 			System.out.println("temp="+temp);
 		}
 
+		if (value < 0) return 0;
 		return (int) (value * scale);
 	}
 
@@ -249,6 +250,7 @@ abstract class Recipe_Type
 			if (temp != 1) value += temp;
 		}
 
+		if (value < 0) return 0;
 		return (int) (value * scale);
 	}
 

@@ -34,7 +34,7 @@ public class BloomEffect extends PostProcessingEffect {
 		
 		batch.begin();
 		
-		shader.setUniformf("u_threshold", 1.0f);
+		shader.setUniformf("u_threshold", 1.6f);
 		
 		batch.draw(texture, 0, 0, GameData.resolution[0], GameData.resolution[1],
 				0, 0, texture.getWidth(), texture.getHeight(),

@@ -82,7 +82,7 @@ public class InGameScreen extends AbstractScreen {
 		for (ParticleEmitter pe : GameData.particleEmitters)
 		{
 			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
-			pe.render(decalBatch, cam);
+			pe.render(cam);
 			particleNum += pe.particles;
 			
 			protoRenderer.glowRequired = true;

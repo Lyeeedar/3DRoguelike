@@ -20,12 +20,10 @@ import com.badlogic.gdx.math.Vector3;
 
 public class Particle {
 	
-	public Decal decal;
 	Vector3 velocity;
 	float remainingTime;
 
-	Color start;
-	Color end;
+	Color colour = new Color();
 	
 	float rstep;
 	float gstep;
@@ -35,21 +33,21 @@ public class Particle {
 	
 	final String UID;
 	
+	Vector3 position = new Vector3();
+	
 	public Particle(boolean alive)
 	{
 		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		alive = false;
 	}
 	
-	public Particle(String texture, Vector3 velocity, float time, Color start, Color end, float width, float height, float x, float y, float z)
+	public Particle(Vector3 velocity, float time, Color start, Color end, float x, float y, float z)
 	{
 		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.velocity.set(velocity);
 		this.remainingTime = time;
-		this.start = start;
-		
-		if (end != null) this.end = end;
-		else this.end = start;
+		this.colour.set(start);
+		this.position.set(x, y, z);
 		
 		float rdiff = end.r-start.r;
 		rstep = rdiff/time;
@@ -59,20 +57,6 @@ public class Particle {
 		
 		float bdiff = end.b-start.b;
 		bstep = bdiff/time;
-		
-		TextureRegion tex = new TextureRegion(new Texture(Gdx.files.internal(texture)));
-
-		decal = Decal.newDecal(width, height, tex, true);
-		decal.setColor(start.r, start.g, start.b, start.a);
-		
-		decal.getPosition().set(x, y, z);
-	}
-	
-	public void setDecal(String texture, float width, float height)
-	{
-		TextureRegion tex = new TextureRegion(new Texture(Gdx.files.internal(texture)));
-
-		decal = Decal.newDecal(width, height, tex, true);
 	}
 	
 	public void set(Vector3 velocity, float time, Color start, Color end, float x, float y, float z)
@@ -81,10 +65,8 @@ public class Particle {
 		
 		this.velocity = velocity;
 		this.remainingTime = time;
-		this.start = start;
-		
-		if (end != null) this.end = end;
-		else this.end = start;
+		this.colour.set(start);
+		this.position.set(x, y, z);
 		
 		float rdiff = end.r-start.r;
 		rstep = rdiff/time;
@@ -94,10 +76,6 @@ public class Particle {
 		
 		float bdiff = end.b-start.b;
 		bstep = bdiff/time;
-
-		decal.setColor(start.r, start.g, start.b, start.a);
-		
-		decal.getPosition().set(x, y, z);
 	}
 	
 	private final Vector3 tmpVec = new Vector3();
@@ -105,17 +83,13 @@ public class Particle {
 	{
 		remainingTime -= delta;
 		if (remainingTime < 0) alive = false;
-		
 		if (!alive) return;
 		
-		decal.getPosition().add(tmpVec.set(velocity).mul(delta));
+		position.add(velocity.tmp().mul(delta));
 		
-		decal.setColor(end.r-(rstep*remainingTime), end.g-(gstep*remainingTime), end.b-(bstep*remainingTime), 1.0f);
-	}
-	
-	public void lookAt(Camera cam)
-	{
-		decal.lookAt(cam.position, cam.up);
+		colour.r += rstep*delta;
+		colour.g += gstep*delta;
+		colour.b += bstep*delta;
 	}
 	
 	@Override

@@ -115,7 +115,7 @@ public class LevelGraphics {
 			
 			if (t.height < t.roof)
 			{
-				TempVO voRf = new TempVO(Shapes.genTempCuboid(10, 2, 10), GL20.GL_TRIANGLES, colours.get('#'), getTexture('#', biome), tileX*10, t.roof, z*10);
+				TempVO voRf = new TempVO(Shapes.genTempCuboid(10, 1, 10), GL20.GL_TRIANGLES, colours.get('#'), getTexture('#', biome), tileX*10, t.roof, z*10);
 				tempRoofs[tileX][z] = voRf;
 			}
 		}

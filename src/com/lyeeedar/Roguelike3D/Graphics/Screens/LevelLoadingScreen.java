@@ -92,7 +92,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		{
 			time = System.nanoTime();
 			message = "Planning Everything";
-			level = new Level(width, height, biome.getGenerator(), biome, GameData.currentLevel);
+			level = new Level(width, height, biome.getGenerator(), biome, GameData.currentLevel, false);
 			loadingStage++;
 		}
 		else if (loadingStage == 1)
@@ -106,7 +106,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		else if (loadingStage == 2)
 		{
 			message = "Creating Fundamental Structure";
-			graphics = new LevelGraphics(level.getLevelArray(), level.getColours(), biome);
+			graphics = new LevelGraphics(level.getLevelArray(), level.getColours(), biome, level.hasRoof);
 			loadingStage++;
 			percent += taskSteps*5;
 		}

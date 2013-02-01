@@ -93,21 +93,29 @@ public abstract class LevelObject extends GameObject{
 		}
 		else if (ao.type == ObjectType.FIRE_CAMP)
 		{
-			ParticleEmitter p = new ParticleEmitter(x-2.5f, y-2, z-2.5f, 3, 3, 3, 0.0001f, 750);
-			p.setTexture("data/textures/texf.png", new Vector3(0.0f, 3.0f, 0.0f), 2, Color.YELLOW, Color.RED, true, 6.5f, 0.03f);
 
-			lo = new EmitterObject(Shapes.genCuboid(1, 1, 1), x, y, z, ao, p, false);
+			lo = new Static(false, x, y, z, ao);
 			lo.shortDesc = ao.shortDesc;
 			lo.longDesc = ao.longDesc;
+			
+			ParticleEmitter p = new ParticleEmitter(2.5f, 2, 2.5f, 3, 3, 3, 0.01f, 250, lo);
+			p.setTexture("data/textures/texf.png", new Vector3(0.0f, 3.5f, 0.0f), 1.6f, Color.YELLOW, Color.RED, true, 1.5f, 0.03f);
+			
+			GameData.particleEmitters.add(p);
+			
+			lo.vo.attributes.radius = (p.vx > p.vz) ? p.vx : p.vz;
 		}
 		else if (ao.type == ObjectType.FIRE_TORCH)
 		{
-			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.01f, 10);
-			p.setTexture("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, Color.YELLOW, Color.RED, true, 1.5f, 0.5f);
 
-			lo = new EmitterObject(Shapes.genCuboid(0.5f, 3, 0.5f), new Color(0.8f, 0.6f, 0.4f, 1.0f), "texw", x, y, z, ao, p, true);
+			lo = new Static(false, x, y, z, ao);
 			lo.shortDesc = ao.shortDesc;
 			lo.longDesc = ao.longDesc;
+			
+			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.01f, 10, lo);
+			p.setTexture("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, Color.YELLOW, Color.RED, true, 1.5f, 0.5f);
+			
+			GameData.particleEmitters.add(p);
 		}
 		else if (ao.type == ObjectType.STAIR_UP)
 		{

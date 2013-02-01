@@ -36,8 +36,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class LevelGraphics {
 	
-	public static final int CHUNK_WIDTH = 10;
-	public static final int CHUNK_HEIGHT = 10;
+	public static final int CHUNK_WIDTH = 5;
+	public static final int CHUNK_HEIGHT = 5;
 	
 	public ArrayList<VisibleObject> graphics = new ArrayList<VisibleObject>();
 	
@@ -56,8 +56,11 @@ public class LevelGraphics {
 	
 	public Texture map;
 	
-	public LevelGraphics(Tile[][] levelArray, HashMap<Character, Color> colours, BiomeReader biome)
+	public final boolean drawRoofs;
+	
+	public LevelGraphics(Tile[][] levelArray, HashMap<Character, Color> colours, BiomeReader biome, boolean drawRoofs)
 	{
+		this.drawRoofs = drawRoofs;
 		this.levelArray = levelArray;
 		this.colours = colours;
 		this.biome = biome;
@@ -66,7 +69,7 @@ public class LevelGraphics {
 		height = levelArray[0].length;
 		
 		tempVOs = new TempVO[width][height];
-		tempRoofs = new TempVO[width][height];
+		if (drawRoofs) tempRoofs = new TempVO[width][height];
 		
 		wBlocks = (width/CHUNK_WIDTH)+1;
 		hBlocks = (height/CHUNK_HEIGHT)+1;
@@ -113,7 +116,7 @@ public class LevelGraphics {
 			TempVO vo = new TempVO(Shapes.genTempCuboid(10, t.height, 10), GL20.GL_TRIANGLES, colours.get(t.character), getTexture(t.character, biome), tileX*10, t.height/2, z*10);
 			tempVOs[tileX][z] = vo;
 			
-			if (t.height < t.roof)
+			if (drawRoofs && t.height < t.roof)
 			{
 				TempVO voRf = new TempVO(Shapes.genTempCuboid(10, 1, 10), GL20.GL_TRIANGLES, colours.get('#'), getTexture('#', biome), tileX*10, t.roof, z*10);
 				tempRoofs[tileX][z] = voRf;
@@ -144,7 +147,7 @@ public class LevelGraphics {
 				{
 					if (starty+iy == height) break;
 					chunk.addVO(tempVOs[startx+ix][starty+iy], levelArray[startx+ix][starty+iy].character);
-					chunk.addVO(tempRoofs[startx+ix][starty+iy], '#');
+					if (drawRoofs) chunk.addVO(tempRoofs[startx+ix][starty+iy], '#');
 				}
 			}
 			

@@ -128,7 +128,7 @@ public abstract class AbstractScreen implements Screen{
 
         cam = new PerspectiveCamera(75, width, height);
         postProcessor.updateBufferSettings(Format.RGBA4444, width, height);
-        cam.near = 1.0f;
+        cam.near = 0.5f;
         cam.far = 225;
         protoRenderer.cam = cam;
         

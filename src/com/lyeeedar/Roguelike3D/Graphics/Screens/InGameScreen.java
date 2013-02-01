@@ -10,6 +10,10 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Texture;
@@ -54,39 +58,57 @@ public class InGameScreen extends AbstractScreen {
 	@Override
 	public void drawModels(float delta) {
 
+		
+		if (GameData.skyBox != null) GameData.skyBox.render(cam);
+		
 		for (VisibleObject vo : GameData.levelGraphics.graphics)
 		{
 			vo.render(protoRenderer);
 		}
 		
 		for (LevelObject lo : GameData.level.levelObjects)
-		{			
+		{	
+			lo.draw(cam);
 			if (!lo.visible) continue;
 			lo.vo.render(protoRenderer);
-			lo.draw(cam);
 		}
 		
 		for (GameActor ga : GameData.level.actors)
 		{
+			ga.draw(cam);
 			if (!ga.visible) continue;
 			ga.vo.render(protoRenderer);
-			ga.draw(cam);
 		}
 	}
 	
 	float time = 0;
 	int particleNum = 0;
+	ArrayList<ParticleEmitter> visibleEmitters = new ArrayList<ParticleEmitter>();
 	@Override
 	public void drawDecals(float delta) {
 		particleNum = 0;
+		visibleEmitters.clear();
 		for (ParticleEmitter pe : GameData.particleEmitters)
 		{
 			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
-			pe.render(cam);
-			particleNum += pe.particles;
+
+			pe.distance = cam.position.dst2(pe.getPos());
+			particleNum += pe.active.size();;
 			
-			protoRenderer.glowRequired = true;
+			visibleEmitters.add(pe);
 		}
+		
+		Collections.sort(visibleEmitters,new Comparator<ParticleEmitter>() {
+            public int compare(ParticleEmitter p1, ParticleEmitter p2) {
+                return (p1.distance < p2.distance) ? 1 : -1;
+            }
+        });
+		
+		for (ParticleEmitter p : visibleEmitters)
+		{
+			p.render(cam);
+		}
+		
 		time -= delta;
 		if (time < 0)
 		{

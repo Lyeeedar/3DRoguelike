@@ -56,8 +56,11 @@ public class Level {
 	
 	public GeneratorType gtype;
 	
-	public Level(int width, int height, GeneratorType gtype, BiomeReader biome, LevelContainer lc)
+	public boolean hasRoof;
+	
+	public Level(int width, int height, GeneratorType gtype, BiomeReader biome, LevelContainer lc, boolean hasRoof)
 	{
+		this.hasRoof = hasRoof;
 		this.gtype = gtype;
 		this.width = width;
 		this.height = height;
@@ -288,7 +291,7 @@ public class Level {
 			{
 				return true;
 			}
-			else if (pos.y > t.roof)
+			else if (hasRoof && pos.y > t.roof)
 			{
 				return true;
 			}
@@ -331,7 +334,7 @@ public class Level {
 				}
 				break;
 			}
-			else if (pos.y > t.roof)
+			else if (hasRoof && pos.y > t.roof)
 			{
 				sB.delete(0, sB.length());
 				if (longDesc)
@@ -390,7 +393,7 @@ public class Level {
 		
 		Tile t = getLevelArray()[x][z];
 		
-		if ((fy-radius < t.floor) || (fy+radius > t.roof)) return true;
+		if ((fy-radius < t.floor) || (hasRoof && fy+radius > t.roof)) return true;
 
 		return checkSolid(x, z);
 	}

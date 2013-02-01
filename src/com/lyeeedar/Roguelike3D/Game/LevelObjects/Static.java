@@ -11,7 +11,7 @@ public class Static extends LevelObject {
 
 	public Static(boolean visible, float x, float y, float z, AbstractObject ao) {
 		super(visible, x, y, z, ao);
-		this.solid = true;
+		this.solid = visible;
 	}
 
 	public Static(VisibleObject vo, float x, float y, float z, AbstractObject ao) {

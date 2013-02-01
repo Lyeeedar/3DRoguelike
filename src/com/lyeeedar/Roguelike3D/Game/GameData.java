@@ -30,6 +30,7 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.Stair;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
+import com.lyeeedar.Roguelike3D.Graphics.Models.SkyBox;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 
@@ -166,6 +167,7 @@ public class GameData {
 	
 	public static Level level;
 	public static LevelGraphics levelGraphics;
+	public static SkyBox skyBox = new SkyBox("sky");
 	
 	public static Player player;
 	
@@ -213,6 +215,7 @@ public class GameData {
 		if (player == null)
 		{
 			player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f);
+			player.visible = false;
 			GameStats.setPlayerStats(player);
 		}
 		

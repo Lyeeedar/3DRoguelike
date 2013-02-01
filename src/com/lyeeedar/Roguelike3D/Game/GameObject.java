@@ -193,7 +193,7 @@ public abstract class GameObject {
 				grounded = true;
 			}
 			// above
-			else if (position.y+velocity.y+vo.attributes.radius > below.roof) {
+			else if (lvl.hasRoof && position.y+velocity.y+vo.attributes.radius > below.roof) {
 				velocity.y = 0;
 				tmpVec.set(position);
 				this.positionYAbsolutely(below.roof-vo.attributes.radius);

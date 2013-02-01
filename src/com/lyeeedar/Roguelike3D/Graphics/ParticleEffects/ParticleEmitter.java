@@ -28,14 +28,17 @@ import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 
 public class ParticleEmitter {
 	
+	public float distance = 0;
+	
 	public String UID;
 	
-	ArrayDeque<Particle> active;
-	ArrayDeque<Particle> inactive;
+	public ArrayDeque<Particle> active;
+	public ArrayDeque<Particle> inactive;
 	
 	PointLight boundLight;
 	
@@ -43,7 +46,7 @@ public class ParticleEmitter {
 	
 	float time = 0;
 	
-	float x; float y; float z; float vx; float vy; float vz; float speed;
+	float x; float y; float z; public float vx; public float vy; public float vz; float speed;
 	
 	float radius;
 	
@@ -54,13 +57,18 @@ public class ParticleEmitter {
 	final ShaderProgram particleShader;
 	final Mesh mesh;
 	
-	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles)
+	GameObject bound;
+	
+	float ox; float oy; float oz;
+	
+	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles, GameObject bound)
 	{
+		this.bound = bound;
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.particles = particles;
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.ox = x;
+		this.oy = y;
+		this.oz = z;
 		this.vx = vx;
 		this.vy = vy;
 		this.vz = vz;
@@ -138,7 +146,8 @@ public class ParticleEmitter {
 		Gdx.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE);
 		Gdx.gl.glEnable(GL11.GL_POINT_SPRITE_OES);
 		Gdx.gl.glEnable(GL20.GL_BLEND); 
-		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+		//Gdx.gl.glBlendFunc(GL20.GL_DST_ALPHA, GL20.GL_SRC_ALPHA);
+		Gdx.gl.glDepthMask(false);
 		
 		particleShader.begin();
 		
@@ -152,8 +161,17 @@ public class ParticleEmitter {
 		particleShader.end();
 	}
 	
+	private int signx;
+	private int signy;
+	private int signz;
 	public void update(float delta)
 	{
+		x = bound.getPosition().x+ox;
+		y = bound.getPosition().y+oy;
+		z = bound.getPosition().z+oz;
+		
+		boundLight.position.set(x, y, z);
+		
 		if (boundLight != null)
 		{
 			boundLight.intensity = (float) (intensity * 
@@ -200,13 +218,21 @@ public class ParticleEmitter {
 		}
 		
 		time -= delta;
-		if (time > 0 || inactive.size() == 0) return;
-		time = speed;
+		if (inactive.size() == 0) return;
 		
-		Particle p = inactive.pop();
-		p.set(velocity, atime*ran.nextFloat(), start, end, x+(vx*ran.nextFloat()), y+(vy*ran.nextFloat()), z+(vz*ran.nextFloat()));
-
-		active.add(p);
+		while (time < 0 && inactive.size() > 0)
+		{
+			Particle p = inactive.pop();
+			
+			signx = (ran.nextInt(2) == 0) ? 1 : -1;
+			signy = (ran.nextInt(2) == 0) ? 1 : -1;
+			signz = (ran.nextInt(2) == 0) ? 1 : -1;
+			p.set(velocity, atime*ran.nextFloat(), start, end, x+(vx*ran.nextFloat()*signx), y+(vy*ran.nextFloat()*signy), z+(vz*ran.nextFloat()*signz));
+	
+			active.add(p);
+			
+			time += speed;
+		}
 	}
 	
 	final Vector3 tmpVec = new Vector3();

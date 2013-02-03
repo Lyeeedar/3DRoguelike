@@ -204,7 +204,7 @@ public class InGameScreen extends AbstractScreen {
 			for (ParticleEmitter pe : GameData.particleEmitters)
 			{
 				if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
-				pe.update(delta);
+				pe.update(delta, cam);
 			}
 			
 			cam.position.set(GameData.player.getPosition()).add(GameData.player.offsetPos);

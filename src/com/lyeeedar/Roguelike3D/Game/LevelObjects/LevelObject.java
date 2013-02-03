@@ -61,7 +61,7 @@ public abstract class LevelObject extends GameObject{
 		this.ao = ao;
 	}
 	
-	public static LevelObject checkObject(AbstractObject ao, float x, float y, float z, Level level, LevelContainer lc, MonsterEvolver evolver)
+	public static LevelObject checkObject(AbstractObject ao, float x, float y, float z, Level level, MonsterEvolver evolver)
 	{
 		LevelObject lo = null;
 		

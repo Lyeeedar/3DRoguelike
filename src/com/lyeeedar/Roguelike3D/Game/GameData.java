@@ -166,17 +166,17 @@ public class GameData {
 	public static LightManager lightManager;
 	
 	public static Level level;
+	
 	public static LevelGraphics levelGraphics;
+	public static ArrayList<ParticleEmitter> particleEmitters = new ArrayList<ParticleEmitter>();
 	public static SkyBox skyBox = new SkyBox("sky");
 	
 	public static Player player;
 	
 	public static float gravity = 0.1f;
-	
-	public static ArrayList<ParticleEmitter> particleEmitters = new ArrayList<ParticleEmitter>();
-	
-	public static ArrayList<LevelContainer> dungeon = new ArrayList<LevelContainer>();
-	public static LevelContainer currentLevel;
+
+	public static HashMap<String, LevelContainer> dungeon = new HashMap<String, LevelContainer>();
+	public static String currentLevel;
 	
 	public static Roguelike3DGame game;
 	
@@ -195,10 +195,13 @@ public class GameData {
 	}
 	
 	static String prevLevel;
-	public static void changeLevel(LevelContainer lc)
+	public static void changeLevel(String level)
 	{
-		prevLevel = currentLevel.UID;
-		currentLevel = lc;
+		prevLevel = currentLevel;
+		currentLevel = level;
+		
+		LevelContainer lc = dungeon.get(level);
+		
 		BiomeReader biome = new BiomeReader(lc.biome);
 		RoomReader rReader = new RoomReader(lc.biome, lc.depth);
 		

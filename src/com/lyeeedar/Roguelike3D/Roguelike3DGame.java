@@ -10,15 +10,19 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D;
 
+import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL11;
+import com.badlogic.gdx.utils.BufferUtils;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Screens.*;
 
 
@@ -36,6 +40,12 @@ public class Roguelike3DGame extends Game {
 	
 	@Override
 	public void create() {
+		
+		FloatBuffer buffer = BufferUtils.newFloatBuffer(16);
+		Gdx.gl20.glGetFloatv(GL11.GL_POINT_SIZE_MAX, buffer);
+		ParticleEmitter.POINT_SIZE_MAX = buffer.get(0);
+		System.out.println("Max supported Point size: "+ParticleEmitter.POINT_SIZE_MAX);
+		
 		loadScreens();
 		switchScreen(MAINMENU);
 	}

@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.ParticleEffects;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -27,11 +28,14 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.BufferUtils;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 
 public class ParticleEmitter {
+	
+	public static float POINT_SIZE_MAX = 0;
 	
 	public float distance = 0;
 	
@@ -54,15 +58,24 @@ public class ParticleEmitter {
 	
 	Texture texture;
 	
-	final ShaderProgram particleShader;
-	final Mesh mesh;
+	final static ShaderProgram pointShader = new ShaderProgram(
+			Gdx.files.internal("data/shaders/model/particlePoint.vertex.glsl").readString(),
+			Gdx.files.internal("data/shaders/model/particlePoint.fragment.glsl").readString());
+	final static ShaderProgram quadShader = new ShaderProgram(
+			Gdx.files.internal("data/shaders/model/particleQuad.vertex.glsl").readString(),
+			Gdx.files.internal("data/shaders/model/particleQuad.fragment.glsl").readString());
+	
+	final Mesh meshPoint;
+	final Mesh meshQuad;
 	
 	GameObject bound;
 	
 	float ox; float oy; float oz;
 	
+	private boolean pointMode = true;
+	
 	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles, GameObject bound)
-	{
+	{	
 		this.bound = bound;
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.particles = particles;
@@ -85,16 +98,17 @@ public class ParticleEmitter {
 		
 		radius = vx + vz;
 		
-		mesh = new Mesh(true, particles, 0, 
+		meshPoint = new Mesh(false, particles, 0, 
 				new VertexAttribute(Usage.Position, 3, "a_position"),
 				new VertexAttribute(Usage.Generic, 3, "a_colour"));
 		
-		final String vertexShader = Gdx.files.internal("data/shaders/model/particle.vertex.glsl").readString();
-		final String fragmentShader = Gdx.files.internal("data/shaders/model/particle.fragment.glsl").readString();
-		
-		particleShader = new ShaderProgram(vertexShader, fragmentShader);
-		
-		vertices = new float[particles*6];
+		meshQuad = new Mesh(false, particles*4, 0, 
+				new VertexAttribute(Usage.Position, 3, "a_position"),
+				new VertexAttribute(Usage.Generic, 3, "a_colour"),
+				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoords"));
+
+		verticesPoint = new float[particles*6];
+		verticesQuad = new float[particles*32];
 	}
 	
 	Vector3 velocity; float atime; Color start; Color end; float width; float height;
@@ -140,32 +154,59 @@ public class ParticleEmitter {
 		}
 	}
 	
-	final float[] vertices;
+	final float[] verticesPoint;
+	final float[] verticesQuad;
 	public void render(Camera cam)
 	{
-		Gdx.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE);
-		Gdx.gl.glEnable(GL11.GL_POINT_SPRITE_OES);
-		Gdx.gl.glEnable(GL20.GL_BLEND); 
-		//Gdx.gl.glBlendFunc(GL20.GL_DST_ALPHA, GL20.GL_SRC_ALPHA);
-		Gdx.gl.glDepthMask(false);
-		
-		particleShader.begin();
-		
-		particleShader.setUniformMatrix("u_mv", cam.combined);
-		particleShader.setUniformf("u_cam", cam.position);
-		texture.bind(0);
-		particleShader.setUniformi("u_texture", 0);
-		mesh.setVertices(vertices);
-		mesh.render(particleShader, GL20.GL_POINTS);
-		
-		particleShader.end();
+		if (pointMode) {
+			Gdx.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE);
+			Gdx.gl.glEnable(GL11.GL_POINT_SPRITE_OES);
+			Gdx.gl.glEnable(GL20.GL_BLEND); 
+			//Gdx.gl.glBlendFunc(GL20.GL_DST_ALPHA, GL20.GL_SRC_ALPHA);
+			Gdx.gl.glDepthMask(false);
+			
+			pointShader.begin();
+			
+			pointShader.setUniformMatrix("u_mv", cam.combined);
+			pointShader.setUniformf("u_cam", cam.position);
+			texture.bind(0);
+			pointShader.setUniformi("u_texture", 0);
+			meshPoint.setVertices(verticesPoint);
+			meshPoint.render(pointShader, GL20.GL_POINTS);
+			
+			pointShader.end();
+			
+			Gdx.gl.glDepthMask(true);
+		}
+		else
+		{
+			Gdx.gl.glEnable(GL20.GL_BLEND);
+			Gdx.gl.glDepthMask(false);
+			
+			quadShader.begin();
+			
+			quadShader.setUniformMatrix("u_mv", cam.combined);
+			texture.bind(0);
+			quadShader.setUniformi("u_texture", 0);
+			
+			meshQuad.setVertices(verticesQuad);
+			meshQuad.render(quadShader, GL20.GL_TRIANGLES);
+			
+			quadShader.end();
+			
+			Gdx.gl.glDepthMask(true);
+		}
 	}
 	
 	private int signx;
 	private int signy;
 	private int signz;
-	public void update(float delta)
+	private final Vector3 plane = new Vector3();
+	private final Vector3 up = new Vector3(0, 1, 0);
+	public void update(float delta, Camera cam)
 	{
+		plane.set(cam.direction).crs(up).nor();
+		
 		x = bound.getPosition().x+ox;
 		y = bound.getPosition().y+oy;
 		z = bound.getPosition().z+oz;
@@ -193,28 +234,72 @@ public class ParticleEmitter {
 				pItr.remove();
 				inactive.add(p);
 			}
+			else if (pointMode)
+			{
+				verticesPoint[(i*6)] = p.position.x;
+				verticesPoint[(i*6)+1] = p.position.y;
+				verticesPoint[(i*6)+2] = p.position.z;
+				
+				verticesPoint[(i*6)+3] = p.colour.r;
+				verticesPoint[(i*6)+4] = p.colour.g;
+				verticesPoint[(i*6)+5] = p.colour.b;
+			}
 			else
 			{
-				vertices[(i*6)] = p.position.x;
-				vertices[(i*6)+1] = p.position.y;
-				vertices[(i*6)+2] = p.position.z;
+				verticesQuad[(i*32)] = p.position.x;
+				verticesQuad[(i*32)+1] = p.position.y;
+				verticesQuad[(i*32)+2] = p.position.z;
 				
-				vertices[(i*6)+3] = p.colour.r;
-				vertices[(i*6)+4] = p.colour.g;
-				vertices[(i*6)+5] = p.colour.b;
+				verticesPoint[(i*32)+3] = p.colour.r;
+				verticesPoint[(i*32)+4] = p.colour.g;
+				verticesPoint[(i*32)+5] = p.colour.b;
+				
+				verticesPoint[(i*32)+6] = 0.0f;
+				verticesPoint[(i*32)+7] = 0.0f;
+				
+				Vector3 nPos1 = plane.tmp().mul(width).add(p.position);
+				
+				verticesQuad[(i*32)+8] = nPos1.x;
+				verticesQuad[(i*32)+9] = nPos1.y;
+				verticesQuad[(i*32)+10] = nPos1.z;
+				
+				verticesPoint[(i*32)+11] = p.colour.r;
+				verticesPoint[(i*32)+12] = p.colour.g;
+				verticesPoint[(i*32)+13] = p.colour.b;
+				
+				verticesPoint[(i*32)+14] = width;
+				verticesPoint[(i*32)+15] = 0.0f;
+				
+				
+				verticesQuad[(i*32)+16] = p.position.x;
+				verticesQuad[(i*32)+17] = p.position.y-height;
+				verticesQuad[(i*32)+18] = p.position.z;
+				
+				verticesPoint[(i*32)+19] = p.colour.r;
+				verticesPoint[(i*32)+20] = p.colour.g;
+				verticesPoint[(i*32)+21] = p.colour.b;
+				
+				verticesPoint[(i*32)+22] = 0.0f;
+				verticesPoint[(i*32)+23] = height;
+				
+				
+				verticesQuad[(i*32)+24] = nPos1.x;
+				verticesQuad[(i*32)+25] = nPos1.y-height;
+				verticesQuad[(i*32)+26] = nPos1.z;
+				
+				verticesPoint[(i*32)+27] = p.colour.r;
+				verticesPoint[(i*32)+28] = p.colour.g;
+				verticesPoint[(i*32)+29] = p.colour.b;
+				
+				verticesPoint[(i*32)+30] = width;
+				verticesPoint[(i*32)+31] = height;
 			}
 			i++;
 		}
 		
-		for (; i < vertices.length/6; i++)
+		for (i *= ((pointMode) ? 6 : 32); i < ((pointMode) ? verticesPoint.length : verticesQuad.length); i++)
 		{
-			vertices[(i*6)] = 0;
-			vertices[(i*6)+1] = 0;
-			vertices[(i*6)+2] = 0;
-			
-			vertices[(i*6)+3] = 0;
-			vertices[(i*6)+4] = 0;
-			vertices[(i*6)+5] = 0;
+			if (pointMode) verticesPoint[i] = 0; else verticesQuad[i] = 0;
 		}
 		
 		time -= delta;

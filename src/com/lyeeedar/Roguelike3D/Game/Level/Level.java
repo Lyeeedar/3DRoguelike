@@ -57,9 +57,11 @@ public class Level {
 	public GeneratorType gtype;
 	
 	public boolean hasRoof;
+	public int depth;
 	
-	public Level(int width, int height, GeneratorType gtype, BiomeReader biome, LevelContainer lc, boolean hasRoof)
+	public Level(int width, int height, GeneratorType gtype, BiomeReader biome, boolean hasRoof, int depth, int up, int down, int other)
 	{
+		this.depth = depth;
 		this.hasRoof = hasRoof;
 		this.gtype = gtype;
 		this.width = width;
@@ -88,7 +90,7 @@ public class Level {
 		
 		for (AbstractObject ao : generator.getObjects())
 		{
-			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this, lc, null);
+			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this, null);
 			
 			if (lo != null)
 			{

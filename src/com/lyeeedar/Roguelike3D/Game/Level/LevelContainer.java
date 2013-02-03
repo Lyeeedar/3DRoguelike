@@ -4,79 +4,57 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 
 public class LevelContainer {
 	
-	Random ran = new Random();
+	public final Random ran = new Random();
 	
-	public String UID;
+	public final String UID;
+	public final String name;
 	
 	public Level level = null;
 	
-	public String biome;
+	public final String biome;
 	
-	public int depth;
+	public final int depth;
 	
-	public ArrayList<LevelContainer> up_levels = new ArrayList<LevelContainer>();
-	public ArrayList<LevelContainer> down_levels = new ArrayList<LevelContainer>();
-	public ArrayList<LevelContainer> other_levels = new ArrayList<LevelContainer>();
+	public final String[] up_levels;
+	public final String[] down_levels;
+	public final String[] other_levels;
 	
 	public HashMap<String, ArrayList<MonsterEvolver>> monsters = new HashMap<String, ArrayList<MonsterEvolver>>();
 
-	public LevelContainer(String biome, int depth) {
+	public LevelContainer(String name, String biome, int depth, String[] up, String[] down, String[] other) {
 		this.biome = biome;
 		this.depth = depth;
+		this.name = name;
+		this.up_levels = up;
+		this.down_levels = down;
+		this.other_levels = other;
 		
 		this.UID = depth+biome+this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 	}
 	
-	public int up_index = 0;
-	public void addLevel_UP(LevelContainer lc)
+	public Level getLevel(BiomeReader biome)
 	{
-		lc.down_levels.add(this);
-		up_levels.add(lc);
-	}
-	
-	public int down_index = 0;
-	public void addLevel_DOWN(LevelContainer lc)
-	{
-		lc.up_levels.add(this);
-		down_levels.add(lc);
-	}
-
-	public int other_index = 0;
-	public void addLevel_OTHER(LevelContainer lc)
-	{
-		lc.other_levels.add(this);
-		other_levels.add(lc);
-	}
-	
-	public LevelContainer getUPLEVEL(String UID)
-	{
-		for (LevelContainer lc : up_levels)
-		{
-			if (lc.UID.equals(UID)) return lc;
-		}
+		if (level != null) return level;
 		
-		return null;
-	}
-	
-	public LevelContainer getDOWNLEVEL(String UID)
-	{
-		for (LevelContainer lc : down_levels)
+		if (loadingStage == 0)
 		{
-			if (lc.UID.equals(UID)) return lc;
+			message = "Planning Everything";
+			level = new Level(biome.getWidth(), biome.getHeight(), biome.getGenerator(), biome, GameData.currentLevel, false);
+			loadingStage++;
 		}
-		
-		return null;
-	}
-	
-	public LevelContainer getOTHERLEVEL(String UID)
-	{
-		for (LevelContainer lc : other_levels)
+		else if (loadingStage == 1)
 		{
-			if (lc.UID.equals(UID)) return lc;
+			message = "Filling Rooms";
+			boolean done = level.fillRoom(rReader, GameData.currentLevel);
+			percent += taskSteps;
+			
+			if (done) loadingStage++;
 		}
 		
 		return null;

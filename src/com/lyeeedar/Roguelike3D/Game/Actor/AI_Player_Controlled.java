@@ -8,24 +8,29 @@ import com.lyeeedar.Roguelike3D.Game.GameObject;
 
 public class AI_Player_Controlled extends AI_Package {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4865259496600877342L;
+
 	public AI_Player_Controlled(GameActor actor) {
 		super(actor);
 	}
 
 	
-	float left_cooldown = 0;
-	float right_cooldown = 0;
+	private transient float left_cooldown = 0;
+	private transient float right_cooldown = 0;
 
-	float move = 0;
-	float speed = 0;
-	float xR = 0;
-	float yR = 0;
+	private transient float move = 0;
+	private transient float speed = 0;
+	private transient float xR = 0;
+	private transient float yR = 0;
 
-	float headBob = 0;
-	float whiplashCD = 0;
-	float whiplashSTEP = 0;
+	private transient float headBob = 0;
+	private transient float whiplashCD = 0;
+	private transient float whiplashSTEP = 0;
 	
-	boolean jumpCD = false;
+	private transient boolean jumpCD = false;
 	
 	@Override
 	public void evaluateAI(float delta) {

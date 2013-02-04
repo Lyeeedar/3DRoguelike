@@ -1,5 +1,6 @@
 package com.lyeeedar.Roguelike3D.Game.Level;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -7,15 +8,25 @@ import java.util.Random;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
-public class LevelContainer {
+public class LevelContainer implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1485045667222532500L;
+
 	public final Random ran = new Random();
 	
 	public final String UID;
 	public final String name;
 	
 	public Level level = null;
+	public LightManager lightManager = null;
+	public ArrayList<ParticleEmitter> particleEmitters = new ArrayList<ParticleEmitter>();
 	
 	public final String biome;
 	
@@ -23,38 +34,46 @@ public class LevelContainer {
 	
 	public final String[] up_levels;
 	public final String[] down_levels;
-	public final String[] other_levels;
 	
 	public HashMap<String, ArrayList<MonsterEvolver>> monsters = new HashMap<String, ArrayList<MonsterEvolver>>();
 
-	public LevelContainer(String name, String biome, int depth, String[] up, String[] down, String[] other) {
+	public LevelContainer(String name, String biome, int depth, String[] up, String[] down) {
 		this.biome = biome;
 		this.depth = depth;
 		this.name = name;
 		this.up_levels = up;
 		this.down_levels = down;
-		this.other_levels = other;
 		
 		this.UID = depth+biome+this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 	}
 	
-	public Level getLevel(BiomeReader biome)
+	public LightManager getLightManager()
 	{
-		if (level != null) return level;
+		if (lightManager == null)
+		{
+			lightManager = new LightManager(10, GameData.lightQuality);
+		}
 		
+		return lightManager;
+	}
+	
+	int loadingStage = 0;
+	public Level getLevel(BiomeReader biome, RoomReader rReader)
+	{
 		if (loadingStage == 0)
 		{
-			message = "Planning Everything";
-			level = new Level(biome.getWidth(), biome.getHeight(), biome.getGenerator(), biome, GameData.currentLevel, false);
+			level = new Level(biome.getWidth(), biome.getHeight(), biome.getGenerator(), biome, false, depth, up_levels.length, down_levels.length);
 			loadingStage++;
 		}
 		else if (loadingStage == 1)
 		{
-			message = "Filling Rooms";
-			boolean done = level.fillRoom(rReader, GameData.currentLevel);
-			percent += taskSteps;
+			boolean done = level.fillRoom(rReader, this);
 			
 			if (done) loadingStage++;
+		}
+		else if (loadingStage == 2)
+		{
+			return level;
 		}
 		
 		return null;
@@ -93,5 +112,27 @@ public class LevelContainer {
 			
 			return evolver;
 		}
+	}
+	
+	int upIndex = 0;
+	public String getUpLevel()
+	{
+		if (upIndex == up_levels.length) return null;
+		
+		String rs = up_levels[upIndex];
+		upIndex++;
+		
+		return rs;
+	}
+	
+	int downIndex = 0;
+	public String getDownLevel()
+	{
+		if (downIndex == down_levels.length) return null;
+		
+		String rs = down_levels[downIndex];
+		downIndex++;
+		
+		return rs;
 	}
 }

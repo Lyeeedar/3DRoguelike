@@ -12,14 +12,18 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 
 public class AI_Enemy_VFFG extends AI_Package {
 	
-	public static final float VIEW_NEAR = 0.1f;
-	public static final float VIEW_FAR = 1000f;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1020570810692893435L;
+	public static final transient float VIEW_NEAR = 0.1f;
+	public static final transient float VIEW_FAR = 1000f;
 
 	public AI_Enemy_VFFG(GameActor actor) {
 		super(actor);
 	}
 
-	float move = 0;
+	private transient float move = 0;
 	@Override
 	public void evaluateAI(float delta) {
 		
@@ -60,7 +64,7 @@ public class AI_Enemy_VFFG extends AI_Package {
 		right_cooldown -= delta;
 	}
 	
-	private static final Vector3 up = new Vector3(0, 1, 0);
+	private static final transient Vector3 up = new Vector3(0, 1, 0);
 	public double angle(Vector3 v1, Vector3 v2)
 	{
 		Vector3 referenceForward = v1;
@@ -72,8 +76,8 @@ public class AI_Enemy_VFFG extends AI_Package {
 		return finalAngle;
 	}
 	
-	float left_cooldown = 0;
-	float right_cooldown = 0;
+	private transient float left_cooldown = 0;
+	private transient float right_cooldown = 0;
 
 	public void attack()
 	{

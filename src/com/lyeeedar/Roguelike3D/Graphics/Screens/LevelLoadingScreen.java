@@ -91,26 +91,33 @@ public class LevelLoadingScreen extends AbstractScreen{
 		if (loadingStage == 0)
 		{
 			time = System.nanoTime();
-			message = "Planning Everything";
-			level = new Level(width, height, biome.getGenerator(), biome, GameData.currentLevel, false);
+			message = "Creating Level";
 			loadingStage++;
 		}
 		else if (loadingStage == 1)
 		{
-			message = "Filling Rooms";
-			boolean done = level.fillRoom(rReader, GameData.currentLevel);
+			level = GameData.getCurrentLevelContainer().getLevel(biome, rReader);
+			
 			percent += taskSteps;
 			
-			if (done) loadingStage++;
+			if (level != null) loadingStage++;
 		}
 		else if (loadingStage == 2)
+		{
+			level.createActors();
+			level.createLevelObjects();
+			
+			percent += taskSteps;
+			loadingStage++;
+		}
+		else if (loadingStage == 3)
 		{
 			message = "Creating Fundamental Structure";
 			graphics = new LevelGraphics(level.getLevelArray(), level.getColours(), biome, level.hasRoof);
 			loadingStage++;
 			percent += taskSteps*5;
 		}
-		else if (loadingStage == 3)
+		else if (loadingStage == 4)
 		{
 			message = "Forcing Matter Into Existence";
 			boolean done = graphics.createTileRow();
@@ -118,7 +125,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 			
 			if (done) loadingStage++;
 		}
-		else if (loadingStage == 4)
+		else if (loadingStage == 5)
 		{
 			message = "Coalescing Matter";
 			boolean done = graphics.createChunkRow(GameData.lightManager, true);
@@ -126,7 +133,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 			
 			if (done) loadingStage++;
 		}
-		else if (loadingStage == 5)
+		else if (loadingStage == 6)
 		{
 			message = "Baking Lights";
 			for (LevelObject lo : level.levelObjects)
@@ -139,7 +146,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 			}
 			loadingStage++;
 		}
-		else if (loadingStage == 6)
+		else if (loadingStage == 7)
 		{
 			System.out.println("Level loading done in "+((float)(System.nanoTime()-time)/1000000000f)+"seconds");
 			GameData.finishLoading(level, graphics, "InGame");
@@ -201,9 +208,9 @@ public class LevelLoadingScreen extends AbstractScreen{
 		protoRenderer = new PrototypeRendererGL20(lightManager);
 		protoRenderer.cam = cam;
 		
-		VisibleObject vo = VisibleObject.createCuboid(2, 2, 2, GL20.GL_TRIANGLES, Color.WHITE, "icon", 0.5f);
-		vo.attributes.material.affectedByLighting = false;
-		GameObject go = new GameActor(vo, 0, 0, -4, 0.5f);
+		GameObject go = new GameActor(Color.WHITE, "icon", 0, 0, -4, 0.5f, GL20.GL_TRIANGLES, "cube", "2", "2", "2");
+		go.create();
+		go.vo.attributes.material.affectedByLighting = false;
 		
 		objects.add(go);
 		

@@ -157,4 +157,13 @@ public class Material {
 	public void generateShader (ShaderHandler materialShaderHandler) {
 		shader = materialShaderHandler.getShader(this);
 	}
+	
+	public void dispose()
+	{
+		shader.dispose();
+		for (MaterialAttribute ma : attributes)
+		{
+			ma.dispose();
+		}
+	}
 }

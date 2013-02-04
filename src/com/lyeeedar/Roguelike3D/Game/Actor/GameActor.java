@@ -12,6 +12,7 @@ package com.lyeeedar.Roguelike3D.Game.Actor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
@@ -38,16 +39,21 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class GameActor extends GameObject{
 	
-	public static final float WHIPLASHCD = 0.1f;
-	public static final float WHIPLASHAMOUNT = 0.1f;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4038143255858827889L;
+	public static final transient float WHIPLASHCD = 0.1f;
+	public static final transient float WHIPLASHAMOUNT = 0.1f;
 
-	public final Vector3 offsetPos = new Vector3();
-	public final Vector3 offsetRot = new Vector3();
-	
+	public final transient Vector3 offsetPos = new Vector3();
+	public final transient Vector3 offsetRot = new Vector3();
+
+	private transient Random ran = new Random();
 
 	// ----- Actor Statistics START ----- //
 	
-	public HashMap<String, Item> INVENTORY = new HashMap<String, Item>();
+	public HashMap<Integer, Component> INVENTORY = new HashMap<Integer, Component>();
 	
 	public int MAX_HEALTH;
 	
@@ -70,28 +76,13 @@ public class GameActor extends GameObject{
 	boolean alive = true;
 	boolean loot = false;
 
-	public ArrayList<Decal> textures = new ArrayList<Decal>();
-	
-	public GameActor(VisibleObject vo, float x, float y, float z, float scale) {
-		super(vo, x, y, z, scale);
-		
-		setupDefenses();
-	}
-	
-	public GameActor(String model, Color colour, String texture, float x, float y, float z, float scale)
+	public GameActor(Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
 	{
-		super(model, colour, texture, x, y, z, scale);
+		super(colour, texture, x, y, z, scale, primitive_type, model);
 		
 		setupDefenses();
 	}
-	
-	public GameActor(Mesh mesh, Color colour, String texture, float x, float y, float z, float scale)
-	{
-		super(mesh, colour, texture, x, y, z, scale);
-		
-		setupDefenses();
-	}
-	
+
 	public void setStats(int health, int weight, int strength, HashMap<Element, Integer> ele_def, HashMap<Damage_Type, Integer> dam_def, ArrayList<String> factions)
 	{
 		this.MAX_HEALTH = health;
@@ -180,9 +171,12 @@ public class GameActor extends GameObject{
 	public void activate() {
 		if (!alive && !loot)
 		{
-			for (Map.Entry<String, Item> entry : INVENTORY.entrySet())
+			for (Map.Entry<Integer, Component> entry : INVENTORY.entrySet())
 			{
-				System.out.println(entry.getValue());
+				if (ran.nextInt(101) < entry.getKey())
+				{
+					System.out.println(entry.getValue());
+				}
 			}
 			loot = true;
 		}
@@ -209,6 +203,19 @@ public class GameActor extends GameObject{
 		}
 		
 		return false;
+	}
+
+	@Override
+	public void fixReferencesSuper() {
+		ai.fixReferences();
+		
+		for (Map.Entry<Integer, Component> entry : INVENTORY.entrySet())
+		{
+			entry.getValue().fixReferences();
+		}
+		
+		if (L_HAND != null) L_HAND.fixReferences();
+		if (R_HAND != null) R_HAND.fixReferences();
 	}
 
 }

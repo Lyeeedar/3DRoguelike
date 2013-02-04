@@ -10,6 +10,10 @@ import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
 
 public abstract class Equipment_HAND extends Equippable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1462740444282967851L;
 	public enum WeaponType {
 		MELEE,
 		RANGED,
@@ -64,7 +68,7 @@ public abstract class Equipment_HAND extends Equippable{
 	}
 
 	public boolean two_handed = false;
-	public float CD;
+	public transient float CD;
 	
 	public Equipment_HAND(float WEIGHT) {
 		super(WEIGHT);

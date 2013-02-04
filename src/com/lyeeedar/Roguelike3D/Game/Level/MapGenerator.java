@@ -36,7 +36,10 @@ public class MapGenerator {
 	
 	int ceiling;
 
-	public MapGenerator(int width, int height, ArrayList<Character> solids, ArrayList<Character> opaques, HashMap<Character, Color> colours, GeneratorType gtype, BiomeReader biome)
+	public MapGenerator(int width, int height,
+			ArrayList<Character> solids, ArrayList<Character> opaques, HashMap<Character, Color> colours,
+			GeneratorType gtype, BiomeReader biome,
+			int up, int down)
 	{
 		this.ceiling = biome.getRoof();
 		
@@ -57,7 +60,7 @@ public class MapGenerator {
 			}
 		}
 		
-		AbstractGenerator generator = getGenerator(gtype, tiles, biome);
+		AbstractGenerator generator = getGenerator(gtype, tiles, biome, up, down);
 		rooms = generator.generate(biome);
 		
 		for (int x = 0; x < width; x++)
@@ -88,11 +91,11 @@ public class MapGenerator {
 		return objects;
 	}
 	
-	private AbstractGenerator getGenerator(GeneratorType gtype, AbstractTile[][] tiles, BiomeReader biome)
+	private AbstractGenerator getGenerator(GeneratorType gtype, AbstractTile[][] tiles, BiomeReader biome, int up, int down)
 	{
 		if (gtype == GeneratorType.SERK)
 		{
-			return new SerkGenerator(tiles, biome);
+			return new SerkGenerator(tiles, biome, up, down);
 		}
 		else if (gtype == GeneratorType.STATIC)
 		{

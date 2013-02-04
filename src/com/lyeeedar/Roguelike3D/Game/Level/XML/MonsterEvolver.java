@@ -428,27 +428,18 @@ public class MonsterEvolver extends XMLReader {
 	{
 		Creature_Evolver ce = EVOLVED_CREATURES[difficulty];
 		
-		VisibleObject vo = null;
-		
 		float scale = ce.creature.model_scale;
 		Color colour = ce.creature.colour;
 		String texture = ce.creature.texture;
 		
-		if (ce.creature.model_type.equalsIgnoreCase("file"))
-		{
-			Mesh mesh = ObjLoader.loadObj(Gdx.files.internal("data/models/"+ce.creature.model_name+".obj").read());
-			
-			vo = new VisibleObject(mesh, GL20.GL_TRIANGLES, colour, texture, scale);
-		}
-		
-		GameActor ga = new GameActor(vo, 0, 0, 0, scale);
+		GameActor ga = new GameActor(colour, texture, 0, 0, 0, scale, GL20.GL_TRIANGLES, "file", ce.creature.model_name);
 		for (Component c : ce.creature.skinDrops)
 		{
-			ga.INVENTORY.put(c.name, c);
+			ga.INVENTORY.put(c.drop_chance, c);
 		}
 		for (Component c : ce.creature.boneDrops)
 		{
-			ga.INVENTORY.put(c.name, c);
+			ga.INVENTORY.put(c.drop_chance, c);
 		}
 		if (ce.attack_right != null)
 		{
@@ -464,7 +455,7 @@ public class MonsterEvolver extends XMLReader {
 					ce.attack_right.weight);
 			for (Component c : ce.creature.attRDrops)
 			{
-				ga.INVENTORY.put(c.name, c);
+				ga.INVENTORY.put(c.drop_chance, c);
 			}
 		}
 		if (ce.attack_left != null)
@@ -481,7 +472,7 @@ public class MonsterEvolver extends XMLReader {
 					ce.attack_left.weight);
 			for (Component c : ce.creature.attLDrops)
 			{
-				ga.INVENTORY.put(c.name, c);
+				ga.INVENTORY.put(c.drop_chance, c);
 			}
 		}
 		

@@ -36,8 +36,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class LevelGraphics {
 	
-	public static final int CHUNK_WIDTH = 5;
-	public static final int CHUNK_HEIGHT = 5;
+	public static final int CHUNK_WIDTH = 10;
+	public static final int CHUNK_HEIGHT = 10;
 	
 	public ArrayList<VisibleObject> graphics = new ArrayList<VisibleObject>();
 	
@@ -253,8 +253,9 @@ class Chunk
 			
 			Mesh merged = Shapes.merge(meshes);
 			
-			VisibleObject vo = new VisibleObject(merged, base.primitive_type, base.colour, base.textureName, 1.0f);
+			VisibleObject vo = new VisibleObject(merged, base.colour, base.textureName, base.primitive_type, 1.0f);
 			vo.attributes.getTransform().setToTranslation(baseVec);
+			vo.attributes.radius *= 4;
 			vos.add(vo);
 		}
 		

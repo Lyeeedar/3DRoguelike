@@ -149,4 +149,11 @@ public class TextureAttribute extends MaterialAttribute {
 	public void free () {
 		if (isPooled) pool.free(this);
 	}
+
+	@Override
+	public void dispose() {
+		if (dTexture != null) dTexture.dispose();
+		if (nmTexture != null) nmTexture.dispose();
+		if (lTexture != null) lTexture.dispose();
+	}
 }

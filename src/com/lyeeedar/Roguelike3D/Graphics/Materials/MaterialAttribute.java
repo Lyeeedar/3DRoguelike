@@ -39,4 +39,6 @@ public abstract class MaterialAttribute {
 	public String getShaderFlag () {
 		return name + FLAG;
 	}
+	
+	public abstract void dispose();
 }

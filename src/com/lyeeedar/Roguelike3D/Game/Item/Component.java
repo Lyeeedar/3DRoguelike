@@ -11,6 +11,11 @@ import com.lyeeedar.Roguelike3D.Graphics.TextureDrawer;
 
 public class Component extends Item implements Comparable<Component>{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7953993190369830710L;
+
 	public enum Component_Type
 	{
 		// Attack related
@@ -40,7 +45,8 @@ public class Component extends Item implements Comparable<Component>{
 	
 	public int rarity;
 	
-	public Texture icon;
+	public transient Texture icon;
+	public String iconName;
 
 	public Component(Component_Type type, String name, int rarity, int drop_chance,
 			String description, int weight_per_amount, int amount, int soft_hard,
@@ -56,15 +62,17 @@ public class Component extends Item implements Comparable<Component>{
 		this.soft_hard = soft_hard;
 		this.flexible_brittle = flexible_brittle;
 		this.element = element;
+		this.iconName = iconName;
 		
+		createIcon();
+	}
+	
+	private void createIcon()
+	{
 		Texture base = new Texture(Gdx.files.internal("data/skins/"+iconName+".png"));
 		Texture rareTint = new Texture(Gdx.files.internal("data/skins/icon-border.png"));
 		Color tint = GameData.getRarity(rarity).getColour();
 		icon = TextureDrawer.combineTextures(base, tint, rareTint, tint);
-		//icon = base;
-		
-		//base.dispose();
-		//rareTint.dispose();
 	}
 	
 	public static Component_Type convertComponentType(String typeName)
@@ -123,6 +131,11 @@ public class Component extends Item implements Comparable<Component>{
 		else if (o.hashCode() < this.hashCode()) return -1;
 		else if (o.hashCode() > this.hashCode()) return 1;
 		return 0;
+	}
+
+	@Override
+	public void fixReferences() {
+		createIcon();
 	}
 
 }

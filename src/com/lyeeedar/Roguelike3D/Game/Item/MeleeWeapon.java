@@ -1,5 +1,6 @@
 package com.lyeeedar.Roguelike3D.Game.Item;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -23,7 +24,12 @@ public class MeleeWeapon extends Equipment_HAND {
 	
 	//final Random ran = new Random();
 	
-	final GameActor holder;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5519914081029109584L;
+	private transient GameActor holder;
+	public final String holderUID;
 	
 	public enum Melee_Weapon_Style {
 		SWING,
@@ -71,6 +77,7 @@ public class MeleeWeapon extends Equipment_HAND {
 		super(weight);
 		this.side = side;
 		this.holder = holder;
+		this.holderUID = holder.UID;
 		
 		if (style == Melee_Weapon_Style.SWING)
 		{
@@ -90,7 +97,7 @@ public class MeleeWeapon extends Equipment_HAND {
 	public HashMap<Element, Integer> ele_dam;
 	public HashMap<Damage_Type, Integer> dam_dam;
 	
-	public float attack_cd = 0;
+	public transient float attack_cd = 0;
 	
 	public void damage(GameActor ga)
 	{
@@ -151,8 +158,8 @@ public class MeleeWeapon extends Equipment_HAND {
 		
 	}
 	
-	final Vector3 tmpVec = new Vector3();
-	final Vector3 tmpVec2 = new Vector3();
+	final transient Vector3 tmpVec = new Vector3();
+	final transient Vector3 tmpVec2 = new Vector3();
 
 	public void update(float delta)
 	{
@@ -187,7 +194,7 @@ public class MeleeWeapon extends Equipment_HAND {
 		atk_style.draw(cam);
 	}
 	
-	Ray ray = new Ray(new Vector3(), new Vector3());
+	private transient Ray ray = new Ray(new Vector3(), new Vector3());
 	public boolean checkCollisionLevel(Vector3 start, Vector3 end)
 	{
 		Level level = GameData.level;
@@ -225,22 +232,31 @@ public class MeleeWeapon extends Equipment_HAND {
 	{
 		atk_style.dispose();
 	}
+
+	@Override
+	public void fixReferences() {
+		holder = GameData.level.getActor(holderUID);
+		atk_style.fixReferences();
+	}
 }
 
-abstract class Attack_Style
+abstract class Attack_Style implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9139533290265415953L;
+
 	public static final int TRAIL_STEPS = 60;
 	
 	Melee_Weapon_Style style;
 	
-	protected final MotionTrail trail;
+	protected transient MotionTrail trail;
 	
-	final Vector3 positionA = new Vector3();
-	final Vector3 positionB = new Vector3();
+	final transient Vector3 positionA = new Vector3();
+	final transient Vector3 positionB = new Vector3();
 	
-	final Vector3 tmpVec = new Vector3();
-	final Vector3 tmpVec2 = new Vector3();
-	final Vector3 tmpVec3 = new Vector3();
+	final transient Vector3 tmpVec = new Vector3();
 	
 	final float step;
 	
@@ -250,8 +266,13 @@ abstract class Attack_Style
 		trail = new MotionTrail(TRAIL_STEPS, Color.LIGHT_GRAY, "data/textures/gradient.png");
 	}
 	
-	float cd = TRAIL_STEPS;
-	float updateCD = 0;
+	public void fixReferences()
+	{
+		trail = new MotionTrail(TRAIL_STEPS, Color.LIGHT_GRAY, "data/textures/gradient.png");
+	}
+	
+	transient float cd = TRAIL_STEPS;
+	transient float updateCD = 0;
 	public void update(float delta, boolean collided)
 	{
 		if (collided) cd--;
@@ -283,17 +304,22 @@ abstract class Attack_Style
 
 class Circular_Attack extends Attack_Style
 {
-	Vector3 startRotation;
-	Vector3 rotPerSecond;
-	Vector3 currentRotation;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7051328157650641931L;
+	transient Vector3 startRotation;
+	transient Vector3 rotPerSecond;
+	transient Vector3 currentRotation;
 	
-	final Vector3 offset;
-	final float nearDist;
-	final float farDist;
-	final GameObject center;
-	Vector3 moveOffset;
+	final transient Vector3 offset;
+	final transient float nearDist;
+	final transient float farDist;
+	transient GameActor center;
+	final String centerUID;
+	transient Vector3 moveOffset;
 	
-	public Circular_Attack(Vector3 offset, float nearDist, float farDist, GameObject center, float step, Vector3 moveOffset) 
+	public Circular_Attack(Vector3 offset, float nearDist, float farDist, GameActor center, float step, Vector3 moveOffset) 
 	{
 		super(step);
 		
@@ -304,8 +330,17 @@ class Circular_Attack extends Attack_Style
 		this.nearDist = nearDist;
 		this.farDist = farDist;
 		this.center = center;
+		this.centerUID = center.UID;
 	}
 	
+	@Override
+	public void fixReferences()
+	{
+		super.fixReferences();
+		
+		center = GameData.level.getActor(centerUID);
+	}
+
 	public void reset(Vector3 startRot, Vector3 rotPerSecond)
 	{
 		this.startRotation = startRot;

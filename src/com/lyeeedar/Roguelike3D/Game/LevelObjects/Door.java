@@ -2,6 +2,7 @@ package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Matrix4;
 import com.lyeeedar.Roguelike3D.Game.GameData;
@@ -13,17 +14,15 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class Door extends LevelObject {
 	
-	float hingex = 0;
-	float hingez = 0;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3585422494836092341L;
+	final float hingex;
+	final float hingez;
 
-	public Door(Mesh mesh, Color colour, String texture, float x, float y, float z, AbstractObject ao, float hingex, float hingez) {
-		super(mesh, colour, texture, x, y, z, ao);
-		this.hingex = hingex;
-		this.hingez = hingez;
-	}
-
-	public Door(String model, Color colour, String texture, float x, float y, float z, AbstractObject ao, float hingex, float hingez) {
-		super(model, colour, texture, x, y, z, ao);
+	public Door(AbstractObject ao, float hingex, float hingez, Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model) {
+		super(ao, colour, texture, x, y, z, scale, primitive_type, model);
 		this.hingex = hingex;
 		this.hingez = hingez;
 	}
@@ -56,7 +55,7 @@ public class Door extends LevelObject {
 		else return null;
 		
 		Color colour = Color.WHITE;
-		Door door = new Door(Shapes.genCuboid(lx, ly, lz), colour, "tex+", x, y+(ly/2), z, ao, hingex, hingez);
+		Door door = new Door(ao, hingex, hingez, colour, "tex+", x, y+(ly/2), z, 1, GL20.GL_TRIANGLES, "cube", ""+lx, ""+ly, ""+lz);
 		door.shortDesc = ao.shortDesc;
 		door.longDesc = ao.longDesc;
 		
@@ -97,7 +96,7 @@ public class Door extends LevelObject {
 		else return "";
 	}
 	
-	private boolean moving = false;
+	private transient boolean moving = false;
 	private boolean open = false;
 	private float angle = 0;
 
@@ -150,6 +149,10 @@ public class Door extends LevelObject {
 
 	@Override
 	public void draw(Camera cam) {
+	}
+
+	@Override
+	public void fixReferencesSuper() {
 	}
 
 }

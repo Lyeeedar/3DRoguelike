@@ -8,6 +8,11 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class PlayerPlacer extends LevelObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1936382369794684932L;
+
 	public PlayerPlacer(boolean visible, float x, float y, float z,
 			AbstractObject ao) {
 		super(visible, x, y, z, ao);
@@ -28,6 +33,10 @@ public class PlayerPlacer extends LevelObject {
 
 	@Override
 	public void draw(Camera cam) {
+	}
+
+	@Override
+	public void fixReferencesSuper() {
 	}
 
 }

@@ -32,7 +32,7 @@ public class StillModelAttributes implements StillModelInstance {
 		this.material = material;
 		
 		if (radius < 5) radius = 5;
-		this.radius = radius;
+		this.radius = radius/2;
 		
 		this.scale = new Vector3(scale, scale, scale);
 	}
@@ -80,5 +80,10 @@ public class StillModelAttributes implements StillModelInstance {
 		copy.transformedPosition.set(transformedPosition);
 		return copy;
 
+	}
+	
+	public void dispose()
+	{
+		material.dispose();
 	}
 }

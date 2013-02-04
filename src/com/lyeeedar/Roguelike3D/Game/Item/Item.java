@@ -10,7 +10,14 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Item;
 
-public class Item {
+import java.io.Serializable;
+
+public abstract class Item implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7122062237284900314L;
 
 	public enum Item_Type {
 		WEAPON,
@@ -24,16 +31,13 @@ public class Item {
 
 	public static Item_Type convertItemType(String item_type)
 	{
-		Item_Type type = null;
+		for (Item_Type it : Item_Type.values())
+		{
+			if (item_type.equalsIgnoreCase(""+it)) return it;
+		}
 
-		if (item_type.equalsIgnoreCase("weapon")) type = Item_Type.WEAPON;
-		else if (item_type.equalsIgnoreCase("armour_head")) type = Item_Type.ARMOUR_HEAD;
-		else if (item_type.equalsIgnoreCase("armour_body")) type = Item_Type.ARMOUR_BODY;
-		else if (item_type.equalsIgnoreCase("armour_legs")) type = Item_Type.ARMOUR_LEGS;
-		else if (item_type.equalsIgnoreCase("armour_hand")) type = Item_Type.ARMOUR_HAND;
-		else if (item_type.equalsIgnoreCase("armour_boots")) type = Item_Type.ARMOUR_BOOTS;
-		else if (item_type.equalsIgnoreCase("component")) type = Item_Type.COMPONENT;
-
-		return type;
+		return null;
 	}
+	
+	public abstract void fixReferences();
 }

@@ -28,9 +28,14 @@ import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public class Player extends GameActor {
 
-	public Player(String model, Color colour, String texture, float x, float y, float z, float scale)
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6756577346541496175L;
+
+	public Player(Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
 	{
-		super(model, colour, texture, x, y, z, scale);
+		super(colour, texture, x, y, z, scale, primitive_type, model);
 
 		WEIGHT = 1;
 		

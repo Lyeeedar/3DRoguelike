@@ -10,12 +10,15 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Models;
 
+import java.io.Serializable;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
+import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.ColorAttribute;
@@ -24,37 +27,53 @@ import com.lyeeedar.Roguelike3D.Graphics.Materials.MaterialAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
-public class VisibleObject {
+public class VisibleObject implements Serializable {
 	
-	public StillModel model;
-	public StillModelAttributes attributes;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -455929496204091194L;
 	
-	public VisibleObject(StillModel model, StillModelAttributes attributes)
+	public transient StillModel model;
+	public transient StillModelAttributes attributes;
+	
+	public final String[] modelData;
+	public final String texture;
+	public final float scale;
+	public final int primitive_type;
+	public final Color colour;
+	
+	public VisibleObject(int primitive_type, Color colour, String textureName, float scale, String... modelData)
 	{
-		this.model = model;
-		this.attributes = attributes;
+		this.texture = textureName;
+		this.modelData = modelData;
+		this.primitive_type = primitive_type;
+		this.colour = colour;
+		this.scale = scale;
 	}
-
-	public VisibleObject(Mesh mesh, int primitive_type, Color colour, String textureName, float scale)
+	
+	public VisibleObject(Mesh mesh, Color colour, String texture, int primitive_type, float scale)
 	{
-		Texture diffuseTexture = new Texture(Gdx.files.internal("data/textures/"+textureName+".png"), true);
+		this.texture = texture;
+		this.modelData = new String[]{"mesh"};
+		this.primitive_type = primitive_type;
+		this.colour = colour;
+		this.scale = scale;
+		
+		
+		Texture diffuseTexture = new Texture(Gdx.files.internal("data/textures/"+texture+".png"), true);
 		diffuseTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
 		diffuseTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
 		
 		Texture normalTexture = null;
-		if (Gdx.files.internal("data/textures/"+textureName+".map.png").exists())
+		if (Gdx.files.internal("data/textures/"+texture+".map.png").exists())
 		{
-			normalTexture = new Texture(Gdx.files.internal("data/textures/"+textureName+".map.png"), true);
+			normalTexture = new Texture(Gdx.files.internal("data/textures/"+texture+".map.png"), true);
 			normalTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
 			normalTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
-			System.out.println("Normal map found for "+textureName);
+			System.out.println("Normal map found for "+texture);
 		}
 
-		create(mesh, primitive_type, colour, diffuseTexture, normalTexture, scale);
-	}
-
-	private void create(Mesh mesh, int primitive_type, Color colour, Texture diffuseTexture, Texture normalTexture, float scale)
-	{
 		mesh = Shapes.insertColour(mesh, colour);
 		//mesh = Shapes.insertTangents(mesh);
 		
@@ -66,12 +85,59 @@ public class VisibleObject {
 		
 		BoundingBox box = mesh.calculateBoundingBox();
 		
-		attributes = new StillModelAttributes(material, box.getDimensions().x+ box.getDimensions().z, scale);
+		attributes = new StillModelAttributes(material, (box.getDimensions().x > box.getDimensions().z) ? box.getDimensions().x : box.getDimensions().z, scale);
 	}
 
-	public static VisibleObject createCuboid(float x, float y, float z, int primitive_type, Color colour, String textureName, float scale)
+	public void create()
 	{
-		return new VisibleObject(Shapes.genCuboid(x, y, z), primitive_type, colour, textureName, scale);
+		if (model != null && attributes != null) return;
+		
+		Texture diffuseTexture = new Texture(Gdx.files.internal("data/textures/"+texture+".png"), true);
+		diffuseTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
+		diffuseTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
+		
+		Texture normalTexture = null;
+		if (Gdx.files.internal("data/textures/"+texture+".map.png").exists())
+		{
+			normalTexture = new Texture(Gdx.files.internal("data/textures/"+texture+".map.png"), true);
+			normalTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
+			normalTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
+			System.out.println("Normal map found for "+texture);
+		}
+
+		Mesh mesh = getMesh();
+		
+		mesh = Shapes.insertColour(mesh, colour);
+		//mesh = Shapes.insertTangents(mesh);
+		
+		SubMesh[] meshes = {new StillSubMesh("SubMesh1", mesh, primitive_type)};
+		model = new StillModel(meshes);
+		MaterialAttribute t = new TextureAttribute(diffuseTexture, normalTexture, null, 0);
+		
+		Material material = new Material("basic", t);
+		
+		BoundingBox box = mesh.calculateBoundingBox();
+		
+		attributes = new StillModelAttributes(material, (box.getDimensions().x > box.getDimensions().z) ? box.getDimensions().x : box.getDimensions().z, scale);
+	}
+	
+	private Mesh getMesh()
+	{
+		if (modelData[0].equalsIgnoreCase("file"))
+		{
+			return ObjLoader.loadObj(Gdx.files.internal("data/models/"+modelData[1]+".obj").read());
+		}
+		else if (modelData[0].equalsIgnoreCase("cube"))
+		{
+			return Shapes.genCuboid(Float.parseFloat(modelData[1]), Float.parseFloat(modelData[2]), Float.parseFloat(modelData[3]));
+		}
+		else if (modelData[0].equalsIgnoreCase("mesh"))
+		{
+			System.err.println("Cannot recreate predefined mesh object!!");
+		}
+		
+		System.err.println("Failed to create mesh for type "+modelData[0]);
+		return null;
 	}
 	
 	public void render(PrototypeRendererGL20 protoRenderer)
@@ -82,6 +148,7 @@ public class VisibleObject {
 	public void dispose()
 	{
 		model.dispose();
+		attributes.dispose();
 	}
 	
 	public void bakeLights(LightManager lights, boolean bakeStatics)

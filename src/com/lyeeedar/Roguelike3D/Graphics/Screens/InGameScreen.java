@@ -117,15 +117,6 @@ public class InGameScreen extends AbstractScreen {
 			time = 1;
 		}
 		
-		for (GameActor ga : GameData.level.actors)
-		{
-			for (Decal gd : ga.textures)
-			{
-				gd.setPosition(ga.getPosition().x, ga.getPosition().y+6, ga.getPosition().z);
-				decalBatch.add(gd);
-			}
-		}
-		
 	}
 
 	@Override

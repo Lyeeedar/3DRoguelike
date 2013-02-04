@@ -10,14 +10,21 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Lights;
 
+import java.io.Serializable;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 
-public class LightManager {
+public class LightManager implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1441486882161209270L;
+
 	public static final int maxLights = 16;
 
 	public enum LightQuality {
@@ -28,14 +35,14 @@ public class LightManager {
 
 	final public Array<PointLight> dynamicPointLights = new Array<PointLight>(false, maxLights);
 	final public Array<PointLight> staticPointLights = new Array<PointLight>(false, maxLights);
-	private float[] positions;
-	private float[] colors;
-	private float[] attenuations;
-	private float[] intensities;
+	private transient float[] positions;
+	private transient float[] colors;
+	private transient float[] attenuations;
+	private transient float[] intensities;
 
 	public int maxLightsPerModel;
 
-	final public Color ambientLight = new Color();
+	public final Color ambientLight = new Color();
 
 	public LightManager () {
 		this(4, LightQuality.VERTEX);
@@ -49,6 +56,17 @@ public class LightManager {
 		positions = new float[3 * maxLightsPerModel];
 		attenuations = new float[maxLightsPerModel];
 		intensities = new float[maxLightsPerModel];
+	}
+	
+	public PointLight getDynamicLight(String UID)
+	{
+		for (PointLight p : dynamicPointLights)
+		{
+			if (p.UID.equals(UID)) return p;
+		}
+		
+		System.err.println("Light not found!");
+		return null;
 	}
 
 	public void addDynamicLight (PointLight light) {

@@ -1,5 +1,6 @@
 package com.lyeeedar.Roguelike3D.Game.Item;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +16,12 @@ import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RecipeReader;
 
-public class Recipe implements Comparable<Recipe>
+public class Recipe implements Comparable<Recipe>, Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9091235160551539915L;
 	// The recipe rarity
 	public int rarity;
 	// The type of the resulting item (armour, weapon etc)
@@ -30,11 +35,8 @@ public class Recipe implements Comparable<Recipe>
 	
 	public String recipeName;
 	
-	RecipeReader reader;
 	public Recipe(RecipeReader reader)
 	{
-		this.reader = reader;
-		
 		recipeName = reader.getRecipeName();
 		type = reader.getItemType();
 		rarity = reader.getRecipeRarity();
@@ -103,8 +105,12 @@ public class Recipe implements Comparable<Recipe>
 	}
 }
 
-class Recipe_Component
+class Recipe_Component implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3513926494850238989L;
 	char tag;
 	String name;
 	int amount;
@@ -162,14 +168,15 @@ class Recipe_Component
 	}
 }
 
-abstract class Recipe_Type
+abstract class Recipe_Type implements Serializable
 {
-	RecipeReader reader;
-	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5871516507153188509L;
 	public Recipe_Type(RecipeReader reader)
 	{
-		this.reader = reader;
-		read();
+		read(reader);
 	}
 
 	public int calculate(ArrayList<ArrayList<String>> eqn, float scale, HashMap<Character, Component> components, Recipe recipe)
@@ -254,7 +261,7 @@ abstract class Recipe_Type
 		return (int) (value * scale);
 	}
 
-	protected abstract void read();
+	protected abstract void read(RecipeReader reader);
 	public abstract Item finalise(HashMap<Character, Component> components, Recipe recipe);
 }
 
@@ -264,6 +271,10 @@ abstract class Recipe_Type
 **/
 class Recipe_Melee_Weapon extends Recipe_Type
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4282943162832212160L;
 	Melee_Weapon_Style style;
 	HashMap<String, String> styleMeta;
 
@@ -298,7 +309,7 @@ class Recipe_Melee_Weapon extends Recipe_Type
 		super(reader);
 	}
 
-	protected void read()
+	protected void read(RecipeReader reader)
 	{
 		this.style = reader.getWeaponStyle();
 		this.styleMeta = reader.getWeaponStyleMeta();

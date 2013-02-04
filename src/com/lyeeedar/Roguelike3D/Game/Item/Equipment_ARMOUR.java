@@ -5,8 +5,12 @@ import java.util.HashMap;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 
-public class Equipment_ARMOUR extends Equippable {
+public abstract class Equipment_ARMOUR extends Equippable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7412331863128890744L;
 	public int STRENGTH;
 	public HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
 	public HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();

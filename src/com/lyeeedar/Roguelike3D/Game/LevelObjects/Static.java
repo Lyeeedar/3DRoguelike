@@ -9,25 +9,19 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class Static extends LevelObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8669658735279491102L;
+
 	public Static(boolean visible, float x, float y, float z, AbstractObject ao) {
 		super(visible, x, y, z, ao);
 		this.solid = visible;
 	}
 
-	public Static(VisibleObject vo, float x, float y, float z, AbstractObject ao) {
-		super(vo, x, y, z, ao);
-		this.solid = true;
-	}
-
-	public Static(Mesh mesh, Color colour, String texture, float x, float y,
-			float z, AbstractObject ao) {
-		super(mesh, colour, texture, x, y, z, ao);
-		this.solid = true;
-	}
-
-	public Static(String model, Color colour, String texture, float x, float y,
-			float z, AbstractObject ao) {
-		super(model, colour, texture, x, y, z, ao);
+	public Static(AbstractObject ao, Color colour, String texture, float x, float y,
+			float z, float scale, int primitive_type, String... model) {
+		super(ao, colour, texture, x, y, z, scale, primitive_type, model);
 		this.solid = true;
 	}
 
@@ -46,6 +40,10 @@ public class Static extends LevelObject {
 
 	@Override
 	public void draw(Camera cam) {
+	}
+
+	@Override
+	public void fixReferencesSuper() {
 	}
 
 }

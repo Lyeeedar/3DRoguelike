@@ -78,4 +78,8 @@ public class ColorAttribute extends MaterialAttribute {
 	public void free () {
 		if (isPooled) pool.free(this);
 	}
+
+	@Override
+	public void dispose() {
+	}
 }

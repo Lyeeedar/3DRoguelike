@@ -9,7 +9,11 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class Stair extends LevelObject {
 	
-	public String level_UID;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -728691849739801350L;
+	public final String level_UID;
 
 	public Stair(boolean visible, float x, float y, float z, AbstractObject ao, String level_UID) {
 		super(visible, x, y, z, ao);
@@ -17,22 +21,9 @@ public class Stair extends LevelObject {
 		this.solid = true;
 	}
 
-	public Stair(VisibleObject vo, float x, float y, float z, AbstractObject ao, String level_UID) {
-		super(vo, x, y, z, ao);
-		this.level_UID = level_UID;
-		this.solid = true;
-	}
-
-	public Stair(Mesh mesh, Color colour, String texture, float x, float y,
-			float z, AbstractObject ao, String level_UID) {
-		super(mesh, colour, texture, x, y, z, ao);
-		this.level_UID = level_UID;
-		this.solid = true;
-	}
-
-	public Stair(String model, Color colour, String texture, float x, float y,
-			float z, AbstractObject ao, String level_UID) {
-		super(model, colour, texture, x, y, z, ao);
+	public Stair(AbstractObject ao, String level_UID, Color colour, String texture, float x, float y,
+			float z, float scale, int primitive_type, String... model) {
+		super(ao, colour, texture, x, y, z, scale, primitive_type, model);
 		this.level_UID = level_UID;
 		this.solid = true;
 	}
@@ -40,7 +31,7 @@ public class Stair extends LevelObject {
 	@Override
 	public void activate() {
 		System.out.println("Change level");
-		GameData.changeLevel(GameData.getLevel(level_UID));
+		GameData.changeLevel(level_UID);
 	}
 
 	@Override
@@ -54,6 +45,10 @@ public class Stair extends LevelObject {
 
 	@Override
 	public void draw(Camera cam) {
+	}
+
+	@Override
+	public void fixReferencesSuper() {
 	}
 
 }

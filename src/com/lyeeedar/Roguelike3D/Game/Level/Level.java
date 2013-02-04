@@ -49,7 +49,7 @@ public class Level {
 	public ArrayList<GameActor> actors = new ArrayList<GameActor>();
 	public ArrayList<LevelObject> levelObjects = new ArrayList<LevelObject>();
 	
-	public ArrayList<DungeonRoom> rooms;
+	private transient ArrayList<DungeonRoom> rooms;
 
 	public int width;
 	public int height;
@@ -59,7 +59,7 @@ public class Level {
 	public boolean hasRoof;
 	public int depth;
 	
-	public Level(int width, int height, GeneratorType gtype, BiomeReader biome, boolean hasRoof, int depth, int up, int down, int other)
+	public Level(int width, int height, GeneratorType gtype, BiomeReader biome, boolean hasRoof, int depth, int up, int down)
 	{
 		this.depth = depth;
 		this.hasRoof = hasRoof;
@@ -84,7 +84,7 @@ public class Level {
 		shortDescs.put('R', biome.getShortDescription('R'));
 		longDescs.put('R', biome.getLongDescription('R'));
 		
-		MapGenerator generator = new MapGenerator(width, height, solids, opaques, colours, gtype, biome);
+		MapGenerator generator = new MapGenerator(width, height, solids, opaques, colours, gtype, biome, up, down);
 		levelArray = generator.getLevel();
 		rooms = generator.getRooms();
 		
@@ -99,7 +99,28 @@ public class Level {
 		}
 	}
 	
-	int fillRoomIndex = 0;
+	public GameActor getActor(String UID)
+	{
+		for (GameActor ga : actors)
+		{
+			if (ga.UID.equals(UID)) return ga;
+		}
+		
+		System.err.println("Actor not found!");
+		return null;
+	}
+	
+	public void createActors()
+	{
+		for (GameActor ga : actors) ga.create();
+	}
+	
+	public void createLevelObjects()
+	{
+		for (LevelObject lo : levelObjects) lo.create();
+	}
+	
+	private transient int fillRoomIndex = 0;
 	public boolean fillRoom(RoomReader rReader, LevelContainer lc)
 	{
 		if (fillRoomIndex == rooms.size())
@@ -161,7 +182,7 @@ public class Level {
 		
 		for (AbstractObject ao : abstractObjects)
 		{
-			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this, lc, evolver);
+			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this, evolver);
 			
 			if (lo != null)
 			{
@@ -182,7 +203,7 @@ public class Level {
 	}
 	
 	
-	float tempdist2;
+	private transient float tempdist2;
 
 	public GameActor getClosestActor(Ray ray, float dist2, Vector3 p1, Vector3 p2, String ignoreUID, Vector3 collisionPoint)
 	{
@@ -302,7 +323,7 @@ public class Level {
 		return false;
 	}
 	
-	public static final int VIEW_STEP = 10;
+	private transient static final int VIEW_STEP = 10;
 	public float getDescription(Ray ray, float view, StringBuilder sB, boolean longDesc)
 	{
 		Vector3 pos = ray.origin.cpy();
@@ -400,7 +421,7 @@ public class Level {
 		return checkSolid(x, z);
 	}
 	
-	public final Vector3 tmpVec = new Vector3();
+	private transient final Vector3 tmpVec = new Vector3();
 	public GameActor checkEntities(Vector3 position, float radius, String UID)
 	{
 		for (GameActor ga : actors)
@@ -472,7 +493,7 @@ public class Level {
 		{
 			if (ga.UID.equals(UID)) 
 			{
-				if (ga.boundLight!= null) GameData.lightManager.removeDynamicLight(ga.boundLight.UID);
+				if (ga.boundLightUID != null) GameData.lightManager.removeDynamicLight(ga.boundLightUID);
 				actors.remove(i);
 				return;
 			}

@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -41,112 +42,81 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
-public abstract class GameObject {
+public abstract class GameObject implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1356577977889288007L;
+
 	public static final float PHYSICS_DAMAGE_THRESHHOLD = 2.0f;
-	
-	public final String UID;
-	
-	protected final Random ran = new Random();
 	
 	public final static float xrotate = -800f/720f;
 	public final static float yrotate = -600f/720f;
+	
+	public final String UID;
+	
+	protected transient Random ran = new Random();
 
 	// x y z
 	protected final Vector3 position = new Vector3();
 	protected final Vector3 rotation = new Vector3(1, 0, 1);
-	public final Vector3 velocity = new Vector3();
+	public transient final Vector3 velocity = new Vector3();
 	
-	public final Vector3 up = new Vector3(0, 1, 0);
+	public transient final Vector3 up = new Vector3(0, 1, 0);
 
-	protected final Vector3 tmpVec = new Vector3();
-	protected final Matrix4 tmpMat = new Matrix4();
+	protected transient final Vector3 tmpVec = new Vector3();
+	protected transient final Matrix4 tmpMat = new Matrix4();
 
-	public VisibleObject vo;
+	public final VisibleObject vo;
+	protected transient PointLight boundLight;
+	
+	public String boundLightUID;
 	
 	public boolean grounded = true;
-	
-	public PointLight boundLight;
-	
-	protected Matrix4 view = new Matrix4();
-	
 	public boolean visible = true;
 	
 	public String shortDesc = "";
 	public String longDesc = "";
 	
-	public float scale;
+	public transient boolean collidedVertically = false;
+	public transient boolean collidedHorizontally = false;
 
-	public GameObject(VisibleObject vo, float x, float y, float z, float scale)
+	private transient float startVelocityHori = 0;
+	private transient float endVelocityHori = 0;
+	private transient float startVelocityVert = 0;
+	private transient float endVelocityVert = 0;
+	private transient float negatedVelocity = 0;
+
+	public GameObject(Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
 	{
 		UID = this.toString()+System.currentTimeMillis()+this.hashCode()+System.nanoTime();
 		
-		create(vo, x, y, z, scale);
-	}
-	
-	public GameObject(String model, Color colour, String texture, float x, float y, float z, float scale)
-	{
-		this(ObjLoader.loadObj(Gdx.files.internal("data/models/"+model+".obj").read()), colour, texture, x, y, z, scale);
-	}
-	
-	public GameObject(Mesh mesh, Color colour, String texture, float x, float y, float z, float scale)
-	{
-		this(new VisibleObject(mesh, GL20.GL_TRIANGLES, colour, texture, scale), x, y, z, scale);
-	}
-	
-	public void create(VisibleObject vo, float x, float y, float z, float scale)
-	{
-		this.scale = scale;
+		VisibleObject vo = new VisibleObject(primitive_type, colour, texture, scale, model);
 		
 		this.vo = vo;
-		position.x = x;
-		position.y = y;
-		position.z = z;
-		
-		BoundingBox box = new BoundingBox();
-		if (vo == null)
-		{
-			box = new BoundingBox(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
-		}
-		else
-		{
-			vo.model.getBoundingBox(box);
-		}
-
-		Vector3 dimensions = box.getDimensions().mul(scale);
-		
-		float dist = 1;
-		
-		if (Math.abs(dimensions.x) > Math.abs(dimensions.z))
-		{
-			dimensions.z = dimensions.x * (dimensions.z / Math.abs(dimensions.z));
-			dist = dimensions.z;
-		}
-		else
-		{
-			dimensions.x = dimensions.z * (dimensions.x / Math.abs(dimensions.x));
-			dist = dimensions.x;
-		}
-		
-		float radius = dist/2;
-		
-		if (Float.isNaN(radius)) radius = 1;
-		else System.out.println(radius);
-		
-		vo.attributes.radius = radius;
-		
-		translate(0, 0, 0);
+		position.set(x, y, z);
 	}
 	
-	public boolean collidedVertically = false;
-	public boolean collidedHorizontally = false;
+	public void fixReferences()
+	{
+		if (boundLightUID != null)
+		{
+			GameData.lightManager.getDynamicLight(boundLightUID);
+		}
+		
+		fixReferencesSuper();
+	}
+	
+	public abstract void fixReferencesSuper();
+	
+	public void create()
+	{
+		vo.create();
 
-	float startVelocityHori = 0;
-	float endVelocityHori = 0;
-	float startVelocityVert = 0;
-	float endVelocityVert = 0;
-	float negatedVelocity = 0;
-	final Ray ray = new Ray(new Vector3(), new Vector3());
+		translate(0, 0, 0);
+	}
+
 	public void applyMovement()
 	{
 		if (velocity.len2() == 0) return;
@@ -303,7 +273,7 @@ public abstract class GameObject {
 		rotation.mul(tmpMat).nor();
 		up.mul(tmpMat).nor();
 		
-		vo.attributes.getRotation().setToLookAt(tmpVec.set(0, 0, 0).add(rotation), up).inv();
+		if (vo.attributes != null) vo.attributes.getRotation().setToLookAt(tmpVec.set(0, 0, 0).add(rotation), up).inv();
 	}
 
 	public void translate(float x, float y, float z)
@@ -314,14 +284,14 @@ public abstract class GameObject {
 	public void translate(Vector3 vec)
 	{
 		position.add(vec);
-		vo.attributes.getTransform().setToTranslation(position);
+		if (vo.attributes != null) vo.attributes.getTransform().setToTranslation(position);
 		if (boundLight != null) boundLight.position.set(position);
 	}
 	
 	public void positionAbsolutely(Vector3 position)
 	{
 		this.position.set(position);
-		vo.attributes.getTransform().setToTranslation(position);
+		if (vo.attributes != null) vo.attributes.getTransform().setToTranslation(position);
 		if (boundLight != null) boundLight.position.set(position);
 	}
 
@@ -346,13 +316,6 @@ public abstract class GameObject {
 		velocity.x += (float)Math.sin(rotation.x) * mag;
 		velocity.z += (float)Math.sin(rotation.z) * mag;
 	}
-
-	public final Vector3 nvec = new Vector3();
-	public Vector3 getCPosition()
-	{
-		nvec.set(position).div(10);
-		return nvec;
-	}
 	
 	public float getRadius()
 	{
@@ -371,10 +334,6 @@ public abstract class GameObject {
 		return vo;
 	}
 
-	public void setVo(VisibleObject vo) {
-		this.vo = vo;
-	}
-
 	public Vector3 getRotation() {
 		return rotation;
 	}
@@ -383,7 +342,6 @@ public abstract class GameObject {
 	{
 		vo.dispose();
 	}
-
 
 	public String getUID() {
 		return UID;

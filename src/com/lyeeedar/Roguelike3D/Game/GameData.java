@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -168,7 +169,7 @@ public class GameData {
 	public static Level level;
 	
 	public static LevelGraphics levelGraphics;
-	public static ArrayList<ParticleEmitter> particleEmitters = new ArrayList<ParticleEmitter>();
+	public static ArrayList<ParticleEmitter> particleEmitters = null;
 	public static SkyBox skyBox = new SkyBox("sky");
 	
 	public static Player player;
@@ -187,11 +188,13 @@ public class GameData {
 		GameData.game = game;
 		GameStats.init();
 		
-		LevelContainer lc = new LevelContainer("start_town", 1);
+		LevelContainer lc = new LevelContainer("start_town", "start_town", 1, new String[]{}, new String[]{});
+		dungeon.put("start_town", lc);
 		
-		currentLevel = lc;
+		
+		currentLevel = "start_town";
 
-		changeLevel(lc);
+		changeLevel("start_town");
 	}
 	
 	static String prevLevel;
@@ -205,8 +208,10 @@ public class GameData {
 		BiomeReader biome = new BiomeReader(lc.biome);
 		RoomReader rReader = new RoomReader(lc.biome, lc.depth);
 		
-		lightManager = new LightManager(10, lightQuality);
+		lightManager = lc.getLightManager();
 		lightManager.ambientLight.set(biome.getAmbientLight());
+		
+		particleEmitters = lc.particleEmitters;
 		
 		game.loadLevel(biome, rReader, Roguelike3DGame.INGAME);
 	}
@@ -217,7 +222,8 @@ public class GameData {
 		
 		if (player == null)
 		{
-			player = new Player("model@", new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f);
+			player = new Player(new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f, GL20.GL_TRIANGLES, "file", "model@");
+			player.create();
 			player.visible = false;
 			GameStats.setPlayerStats(player);
 		}
@@ -242,7 +248,6 @@ public class GameData {
 		}
 		
 		GameData.level = level;
-		currentLevel.level = level;
 		levelGraphics = graphics;
 		
 		level.addActor(player);
@@ -253,45 +258,6 @@ public class GameData {
 		player.boundLight = l;
 		lightManager.addDynamicLight(l);
 	}
-
-	public static LevelContainer getLevel(String UID)
-	{
-		for (LevelContainer lc : dungeon)
-		{
-			if (lc.UID.equals(UID)) return lc;
-		}
-		
-		return null;
-	}
-	
-	public static String createLevelUP(String biome)
-	{
-		if (currentLevel.up_levels.size() > 0 && currentLevel.up_index == 0)
-		{
-			currentLevel.up_index++;
-			return currentLevel.up_levels.get(0).UID;
-		}
-		currentLevel.up_index++;
-		LevelContainer lc = new LevelContainer(biome, currentLevel.depth-1);
-		currentLevel.addLevel_UP(lc);
-		dungeon.add(lc);
-		return lc.UID;
-	}
-	
-	public static String createLevelDOWN(String biome)
-	{
-		if (currentLevel.down_levels.size() > 0 && currentLevel.down_index == 0)
-		{
-			currentLevel.down_index++;
-			return currentLevel.down_levels.get(0).UID;
-		}
-		currentLevel.down_index++;
-		LevelContainer lc = new LevelContainer(biome, currentLevel.depth+1);
-		currentLevel.addLevel_DOWN(lc);
-		dungeon.add(lc);
-		return lc.UID;
-	}
-	
 	
 	public static Element getElement(String eleName)
 	{
@@ -375,4 +341,13 @@ public class GameData {
 		return strength / weight;
 	}
 
+	public static LevelContainer getCurrentLevelContainer()
+	{
+		return dungeon.get(currentLevel);
+	}
+	
+	public static LevelContainer getLevelContainer(String UID)
+	{
+		return dungeon.get(UID);
+	}
 }

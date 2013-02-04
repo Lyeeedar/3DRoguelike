@@ -10,11 +10,18 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Lights;
 
+import java.io.Serializable;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 
-public class PointLight implements Comparable {
+public class PointLight implements Comparable, Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5237715137220677938L;
+
 	final public String UID;
 
 	final public Vector3 position;
@@ -25,9 +32,9 @@ public class PointLight implements Comparable {
 
 	protected int priority;
 
-	static final int PRIORITY_DISCRETE_STEPS = 256;
+	public static final transient int PRIORITY_DISCRETE_STEPS = 256;
 	
-	private final Vector3 tmpVec = new Vector3();
+	private final transient Vector3 tmpVec = new Vector3();
 	
 	public PointLight()
 	{

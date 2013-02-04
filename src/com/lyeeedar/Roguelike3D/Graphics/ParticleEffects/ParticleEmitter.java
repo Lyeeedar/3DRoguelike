@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.ParticleEffects;
 
+import java.io.Serializable;
 import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -19,6 +20,7 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL11;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -27,28 +29,35 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 
-public class ParticleEmitter {
+public class ParticleEmitter implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6308492057144008114L;
+
 	public static float POINT_SIZE_MAX = 0;
 	
-	public float distance = 0;
+	public transient float distance = 0;
 	
-	public String UID;
+	public final String UID;
 	
-	public ArrayDeque<Particle> active;
-	public ArrayDeque<Particle> inactive;
+	public transient ArrayDeque<Particle> active;
+	public transient ArrayDeque<Particle> inactive;
 	
-	PointLight boundLight;
+	transient PointLight boundLight;
+	public String boundLightUID;
 	
-	Random ran = new Random();
+	transient Random ran = new Random();
 	
-	float time = 0;
+	transient float time = 0;
 	
 	float x; float y; float z; public float vx; public float vy; public float vz; float speed;
 	
@@ -56,23 +65,27 @@ public class ParticleEmitter {
 	
 	public int particles;
 	
-	Texture texture;
+	transient Texture texture;
+	public String textureName;
 	
-	final static ShaderProgram pointShader = new ShaderProgram(
+	final static transient ShaderProgram pointShader = new ShaderProgram(
 			Gdx.files.internal("data/shaders/model/particlePoint.vertex.glsl").readString(),
 			Gdx.files.internal("data/shaders/model/particlePoint.fragment.glsl").readString());
-	final static ShaderProgram quadShader = new ShaderProgram(
+	final static transient ShaderProgram quadShader = new ShaderProgram(
 			Gdx.files.internal("data/shaders/model/particleQuad.vertex.glsl").readString(),
 			Gdx.files.internal("data/shaders/model/particleQuad.fragment.glsl").readString());
 	
-	final Mesh meshPoint;
-	final Mesh meshQuad;
+	transient Mesh meshPoint;
+	transient Mesh meshQuad;
 	
-	GameObject bound;
+	transient GameObject bound;
+	public final String boundUID;
 	
 	float ox; float oy; float oz;
 	
-	private boolean pointMode = true;
+	private boolean pointMode = false;
+	
+	Vector3[] particle = {new Vector3(), new Vector3(), new Vector3(), new Vector3()};
 	
 	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles, GameObject bound)
 	{	
@@ -86,6 +99,14 @@ public class ParticleEmitter {
 		this.vy = vy;
 		this.vz = vz;
 		this.speed = speed;
+		this.boundUID = bound.UID;
+		
+		radius = vx + vz;
+		
+		create();
+	}
+	
+	public void create() {
 		
 		active = new ArrayDeque<Particle>(particles);
 		inactive = new ArrayDeque<Particle>(particles);
@@ -95,20 +116,46 @@ public class ParticleEmitter {
 			Particle p = new Particle(false);
 			inactive.add(p);
 		}
-		
-		radius = vx + vz;
-		
 		meshPoint = new Mesh(false, particles, 0, 
 				new VertexAttribute(Usage.Position, 3, "a_position"),
 				new VertexAttribute(Usage.Generic, 3, "a_colour"));
 		
-		meshQuad = new Mesh(false, particles*4, 0, 
+		meshQuad = new Mesh(false, particles*4, particles*6, 
 				new VertexAttribute(Usage.Position, 3, "a_position"),
 				new VertexAttribute(Usage.Generic, 3, "a_colour"),
 				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoords"));
+		
+		meshQuad.setIndices(genIndices(particles));
 
 		verticesPoint = new float[particles*6];
 		verticesQuad = new float[particles*32];
+	}
+	
+	public void fixReferences()
+	{
+		if (boundLightUID != null) GameData.lightManager.getDynamicLight(boundLightUID);
+		
+		bound = GameData.level.getActor(boundUID);
+		this.texture = new Texture(Gdx.files.internal(textureName));
+		
+		create();
+	}
+	
+	public short[] genIndices(int faces)
+	{
+		short[] indices = new short[faces * 6];
+		
+		for (short i = 0; i < faces; i++)
+		{
+			indices[(i*6)+0] = (short) ((i*4)+0);
+			indices[(i*6)+1] = (short) ((i*4)+1);
+			indices[(i*6)+2] = (short) ((i*4)+2);
+			
+			indices[(i*6)+3] = (short) ((i*4)+0);
+			indices[(i*6)+4] = (short) ((i*4)+2);
+			indices[(i*6)+5] = (short) ((i*4)+3);
+		}
+		return indices;
 	}
 	
 	Vector3 velocity; float atime; Color start; Color end; float width; float height;
@@ -117,13 +164,19 @@ public class ParticleEmitter {
 	
 	public void setTexture(String texture, Vector3 velocity, float atime, Color start, Color end, boolean light, float intensity, float attenuation)
 	{
+		this.textureName = texture;
 		this.texture = new Texture(Gdx.files.internal(texture));
 		this.velocity = velocity;
 		this.atime = atime;
 		this.start = start;
 		this.end = end;
 		this.width = this.texture.getWidth();
-		this.height = this.texture.getHeight();
+		this.height = 1;//this.texture.getHeight();
+		
+		particle[0].set(0, height, 0);
+		particle[1].set(width, height, 0);
+		particle[2].set(0, 0, 0);
+		particle[3].set(width, 0, 0);
 		
 		if (light)
 		{
@@ -143,6 +196,8 @@ public class ParticleEmitter {
 				boundLight.attenuation = attenuation;
 				boundLight.intensity = intensity;
 			}
+			
+			boundLightUID = boundLight.UID;
 		}
 		else
 		{
@@ -151,11 +206,12 @@ public class ParticleEmitter {
 				GameData.lightManager.removeDynamicLight(boundLight.UID);
 				boundLight = null;
 			}
+			boundLightUID = null;
 		}
 	}
 	
-	final float[] verticesPoint;
-	final float[] verticesQuad;
+	transient float[] verticesPoint;
+	transient float[] verticesQuad;
 	public void render(Camera cam)
 	{
 		if (pointMode) {
@@ -168,7 +224,8 @@ public class ParticleEmitter {
 			pointShader.begin();
 			
 			pointShader.setUniformMatrix("u_mv", cam.combined);
-			pointShader.setUniformf("u_cam", cam.position);
+
+			pointShader.setUniformf("u_point", getPointSize(cam));
 			texture.bind(0);
 			pointShader.setUniformi("u_texture", 0);
 			meshPoint.setVertices(verticesPoint);
@@ -186,6 +243,7 @@ public class ParticleEmitter {
 			quadShader.begin();
 			
 			quadShader.setUniformMatrix("u_mv", cam.combined);
+
 			texture.bind(0);
 			quadShader.setUniformi("u_texture", 0);
 			
@@ -198,15 +256,26 @@ public class ParticleEmitter {
 		}
 	}
 	
-	private int signx;
-	private int signy;
-	private int signz;
-	private final Vector3 plane = new Vector3();
-	private final Vector3 up = new Vector3(0, 1, 0);
+	public float getPointSize(Camera cam)
+	{
+		
+		float dist = cam.position.dst(getPos());
+		
+		float size = (width > height) ? width : height;
+		
+		return size / ((0.08f * dist)+(0.002f * dist * dist));
+	}
+	
+	private transient int signx;
+	private transient int signy;
+	private transient int signz;
+	
+	private final transient Matrix4 mat = new Matrix4();
+
 	public void update(float delta, Camera cam)
 	{
-		plane.set(cam.direction).crs(up).nor();
-		
+		pointMode = (getPointSize(cam) > POINT_SIZE_MAX) ? false : true;
+
 		x = bound.getPosition().x+ox;
 		y = bound.getPosition().y+oy;
 		z = bound.getPosition().z+oz;
@@ -236,7 +305,7 @@ public class ParticleEmitter {
 			}
 			else if (pointMode)
 			{
-				verticesPoint[(i*6)] = p.position.x;
+				verticesPoint[(i*6)+0] = p.position.x;
 				verticesPoint[(i*6)+1] = p.position.y;
 				verticesPoint[(i*6)+2] = p.position.z;
 				
@@ -246,53 +315,60 @@ public class ParticleEmitter {
 			}
 			else
 			{
-				verticesQuad[(i*32)] = p.position.x;
-				verticesQuad[(i*32)+1] = p.position.y;
-				verticesQuad[(i*32)+2] = p.position.z;
+
+				mat.setToTranslation(p.position).mul(GameData.player.vo.attributes.getRotation());
 				
-				verticesPoint[(i*32)+3] = p.colour.r;
-				verticesPoint[(i*32)+4] = p.colour.g;
-				verticesPoint[(i*32)+5] = p.colour.b;
+				Vector3 nPostl = particle[0].tmp().mul(mat);
+
+				verticesQuad[(i*32)+0] = nPostl.x;
+				verticesQuad[(i*32)+1] = nPostl.y;
+				verticesQuad[(i*32)+2] = nPostl.z;
 				
-				verticesPoint[(i*32)+6] = 0.0f;
-				verticesPoint[(i*32)+7] = 0.0f;
+				verticesQuad[(i*32)+3] = p.colour.r;
+				verticesQuad[(i*32)+4] = p.colour.g;
+				verticesQuad[(i*32)+5] = p.colour.b;
 				
-				Vector3 nPos1 = plane.tmp().mul(width).add(p.position);
+				verticesQuad[(i*32)+6] = 0.0f;
+				verticesQuad[(i*32)+7] = 0.0f;
 				
-				verticesQuad[(i*32)+8] = nPos1.x;
-				verticesQuad[(i*32)+9] = nPos1.y;
-				verticesQuad[(i*32)+10] = nPos1.z;
+				Vector3 nPostr = particle[1].tmp().mul(mat);
 				
-				verticesPoint[(i*32)+11] = p.colour.r;
-				verticesPoint[(i*32)+12] = p.colour.g;
-				verticesPoint[(i*32)+13] = p.colour.b;
+				verticesQuad[(i*32)+8] = nPostr.x;
+				verticesQuad[(i*32)+9] = nPostr.y;
+				verticesQuad[(i*32)+10] = nPostr.z;
 				
-				verticesPoint[(i*32)+14] = width;
-				verticesPoint[(i*32)+15] = 0.0f;
+				verticesQuad[(i*32)+11] = p.colour.r;
+				verticesQuad[(i*32)+12] = p.colour.g;
+				verticesQuad[(i*32)+13] = p.colour.b;
 				
+				verticesQuad[(i*32)+14] = width;
+				verticesQuad[(i*32)+15] = 0.0f;
 				
-				verticesQuad[(i*32)+16] = p.position.x;
-				verticesQuad[(i*32)+17] = p.position.y-height;
-				verticesQuad[(i*32)+18] = p.position.z;
+				Vector3 nPosbl = particle[2].tmp().mul(mat);
 				
-				verticesPoint[(i*32)+19] = p.colour.r;
-				verticesPoint[(i*32)+20] = p.colour.g;
-				verticesPoint[(i*32)+21] = p.colour.b;
+				verticesQuad[(i*32)+16] = nPosbl.x;
+				verticesQuad[(i*32)+17] = nPosbl.y;
+				verticesQuad[(i*32)+18] = nPosbl.z;
 				
-				verticesPoint[(i*32)+22] = 0.0f;
-				verticesPoint[(i*32)+23] = height;
+				verticesQuad[(i*32)+19] = p.colour.r;
+				verticesQuad[(i*32)+20] = p.colour.g;
+				verticesQuad[(i*32)+21] = p.colour.b;
 				
+				verticesQuad[(i*32)+22] = 0.0f;
+				verticesQuad[(i*32)+23] = height;
 				
-				verticesQuad[(i*32)+24] = nPos1.x;
-				verticesQuad[(i*32)+25] = nPos1.y-height;
-				verticesQuad[(i*32)+26] = nPos1.z;
+				Vector3 nPosbr = particle[3].tmp().mul(mat);
+
+				verticesQuad[(i*32)+24] = nPosbr.x;
+				verticesQuad[(i*32)+25] = nPosbr.y;
+				verticesQuad[(i*32)+26] = nPosbr.z;
 				
-				verticesPoint[(i*32)+27] = p.colour.r;
-				verticesPoint[(i*32)+28] = p.colour.g;
-				verticesPoint[(i*32)+29] = p.colour.b;
+				verticesQuad[(i*32)+27] = p.colour.r;
+				verticesQuad[(i*32)+28] = p.colour.g;
+				verticesQuad[(i*32)+29] = p.colour.b;
 				
-				verticesPoint[(i*32)+30] = width;
-				verticesPoint[(i*32)+31] = height;
+				verticesQuad[(i*32)+30] = width;
+				verticesQuad[(i*32)+31] = height;
 			}
 			i++;
 		}
@@ -312,7 +388,10 @@ public class ParticleEmitter {
 			signx = (ran.nextInt(2) == 0) ? 1 : -1;
 			signy = (ran.nextInt(2) == 0) ? 1 : -1;
 			signz = (ran.nextInt(2) == 0) ? 1 : -1;
-			p.set(velocity, atime*ran.nextFloat(), start, end, x+(vx*ran.nextFloat()*signx), y+(vy*ran.nextFloat()*signy), z+(vz*ran.nextFloat()*signz));
+			p.set(velocity, atime*ran.nextFloat(), start, end, 
+					x+(float)(vx*ran.nextGaussian()*signx), 
+					y+(float)(vy*ran.nextGaussian()*signy),
+					z+(float)(vz*ran.nextGaussian()*signz));
 	
 			active.add(p);
 			
@@ -320,7 +399,7 @@ public class ParticleEmitter {
 		}
 	}
 	
-	final Vector3 tmpVec = new Vector3();
+	final transient Vector3 tmpVec = new Vector3();
 	public Vector3 getPos()
 	{
 		return tmpVec.set(x, y, z);

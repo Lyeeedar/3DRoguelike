@@ -10,13 +10,19 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Level;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.badlogic.gdx.graphics.Color;
 
-public class AbstractObject {
+public class AbstractObject implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4933941182699148908L;
+
 	public enum ObjectType {
 		PLAYER_PLACER,
 		DOOR_UNLOCKED,

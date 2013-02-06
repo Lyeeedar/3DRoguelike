@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -10,35 +10,19 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
-import java.awt.Font;
-import java.util.ArrayList;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.FPSLogger;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
-import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.utils.ArrayMap;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
-import com.lyeeedar.Roguelike3D.Game.GameObject;
-import com.lyeeedar.Roguelike3D.Graphics.Models.FullscreenQuad;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.Particle;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor;
 import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor.Effect;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;

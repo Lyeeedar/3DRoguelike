@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.badlogic.gdx.graphics.Color;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 
 public class AbstractObject implements Serializable {
 	
@@ -65,7 +66,7 @@ public class AbstractObject implements Serializable {
 	
 	public String texture;
 
-	public Color colour;
+	public Colour colour;
 	
 	public HashMap<String, String> meta = new HashMap<String, String>();
 	
@@ -216,7 +217,7 @@ public class AbstractObject implements Serializable {
 		UID = character+"   "+type+System.currentTimeMillis()+toString();
 	}
 	
-	public void setModel(String modelType, String modelName, float modelScale, String texture, Color colour, float[] modelDimensions)
+	public void setModel(String modelType, String modelName, float modelScale, String texture, Colour colour, float[] modelDimensions)
 	{
 		this.modelDimensions = modelDimensions;
 		this.modelType = modelType;

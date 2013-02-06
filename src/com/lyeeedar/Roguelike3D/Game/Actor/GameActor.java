@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.TextureDrawer;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
@@ -43,13 +44,13 @@ public class GameActor extends GameObject{
 	 * 
 	 */
 	private static final long serialVersionUID = -4038143255858827889L;
-	public static final transient float WHIPLASHCD = 0.1f;
-	public static final transient float WHIPLASHAMOUNT = 0.1f;
+	public static final float WHIPLASHCD = 0.1f;
+	public static final float WHIPLASHAMOUNT = 0.1f;
 
-	public final transient Vector3 offsetPos = new Vector3();
-	public final transient Vector3 offsetRot = new Vector3();
+	public final Vector3 offsetPos = new Vector3();
+	public final Vector3 offsetRot = new Vector3();
 
-	private transient Random ran = new Random();
+	private Random ran = new Random();
 
 	// ----- Actor Statistics START ----- //
 	
@@ -76,7 +77,7 @@ public class GameActor extends GameObject{
 	boolean alive = true;
 	boolean loot = false;
 
-	public GameActor(Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
+	public GameActor(Colour colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
 	{
 		super(colour, texture, x, y, z, scale, primitive_type, model);
 		

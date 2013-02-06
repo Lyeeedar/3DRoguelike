@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -11,12 +11,17 @@
 package com.lyeeedar.Roguelike3D.Graphics.Lights;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public class LightManager implements Serializable {
 	
@@ -33,8 +38,8 @@ public class LightManager implements Serializable {
 
 	public LightQuality quality;
 
-	final public Array<PointLight> dynamicPointLights = new Array<PointLight>(false, maxLights);
-	final public Array<PointLight> staticPointLights = new Array<PointLight>(false, maxLights);
+	final public ArrayList<PointLight> dynamicPointLights = new ArrayList<PointLight>(maxLights);
+	final public ArrayList<PointLight> staticPointLights = new ArrayList<PointLight>(maxLights);
 	private transient float[] positions;
 	private transient float[] colors;
 	private transient float[] attenuations;
@@ -42,7 +47,7 @@ public class LightManager implements Serializable {
 
 	public int maxLightsPerModel;
 
-	public final Color ambientLight = new Color();
+	public final Colour ambientLight = new Colour();
 
 	public LightManager () {
 		this(4, LightQuality.VERTEX);
@@ -51,7 +56,12 @@ public class LightManager implements Serializable {
 	public LightManager (int maxLightsPerModel, LightQuality lightQuality) {
 		quality = lightQuality;
 		this.maxLightsPerModel = maxLightsPerModel;
-
+		
+		fixReferences();
+	}
+	
+	public void fixReferences()
+	{
 		colors = new float[3 * maxLightsPerModel];
 		positions = new float[3 * maxLightsPerModel];
 		attenuations = new float[maxLightsPerModel];
@@ -83,11 +93,11 @@ public class LightManager implements Serializable {
 	
 	public void removeDynamicLight(String UID)
 	{
-		for (int i = 0; i < dynamicPointLights.size; i++)
+		for (int i = 0; i < dynamicPointLights.size(); i++)
 		{
 			if (dynamicPointLights.get(i).UID.equals(UID))
 			{
-				dynamicPointLights.removeIndex(i);
+				dynamicPointLights.remove(i);
 				return;
 			}
 		}
@@ -117,8 +127,9 @@ public class LightManager implements Serializable {
 	// frustum check.
 	// TODO another idea would be first cut lights that are further from model
 	// than x that would make sorted faster
+	@SuppressWarnings("unchecked")
 	public void calculateDynamicLights (float x, float y, float z) {
-		final int maxSize = dynamicPointLights.size;
+		final int maxSize = dynamicPointLights.size();
 		// solve what are lights that influence most
 		if (maxSize > maxLightsPerModel) {
 
@@ -127,7 +138,9 @@ public class LightManager implements Serializable {
 				light.priority = (int)(PointLight.PRIORITY_DISCRETE_STEPS * ((light.intensity) * light.position.dst(x, y, z)));
 				// if just linear falloff
 			}
-			dynamicPointLights.sort();
+			
+			Collections.sort(dynamicPointLights);
+			//dynamicPointLights.sort();
 		}
 
 		// fill the light arrays
@@ -135,11 +148,12 @@ public class LightManager implements Serializable {
 		for (int i = 0; i < size; i++) {
 			final PointLight light = dynamicPointLights.get(i);
 			final Vector3 pos = light.position;
+
 			positions[3 * i + 0] = pos.x;
 			positions[3 * i + 1] = pos.y;
 			positions[3 * i + 2] = pos.z;
 
-			final Color col = light.colour;
+			final Colour col = light.colour;
 			colors[3 * i + 0] = col.r;
 			colors[3 * i + 1] = col.g;
 			colors[3 * i + 2] = col.b;
@@ -152,7 +166,7 @@ public class LightManager implements Serializable {
 
 	public long getDynamicLightsHash()
 	{
-		final int maxSize = dynamicPointLights.size;
+		final int maxSize = dynamicPointLights.size();
 		final int size = maxLightsPerModel > maxSize ? maxSize : maxLightsPerModel;
 		long hash = 1;
 		for (int i = 0; i < size; i++) {
@@ -178,7 +192,6 @@ public class LightManager implements Serializable {
 		shader.setUniform1fv("u_light_attenuations", attenuations, 0, maxLightsPerModel);
 	}
 
-	public static final Color WHITE = Color.WHITE;
 	public void applyGlobalLights (ShaderProgram shader, Material material) {
 		
 		if (!material.affectedByLighting) return;

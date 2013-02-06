@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 
 public class ParticleEmitter implements Serializable {
@@ -55,7 +56,7 @@ public class ParticleEmitter implements Serializable {
 	transient PointLight boundLight;
 	public String boundLightUID;
 	
-	transient Random ran = new Random();
+	final Random ran = new Random();
 	
 	transient float time = 0;
 	
@@ -74,6 +75,13 @@ public class ParticleEmitter implements Serializable {
 	final static transient ShaderProgram quadShader = new ShaderProgram(
 			Gdx.files.internal("data/shaders/model/particleQuad.vertex.glsl").readString(),
 			Gdx.files.internal("data/shaders/model/particleQuad.fragment.glsl").readString());
+	
+	/**
+	 * 0 = none
+	 * 1 = point
+	 * 2 = quad
+	 */
+	private static int activeShader = 0;
 	
 	transient Mesh meshPoint;
 	transient Mesh meshQuad;
@@ -133,9 +141,10 @@ public class ParticleEmitter implements Serializable {
 	
 	public void fixReferences()
 	{
-		if (boundLightUID != null) GameData.lightManager.getDynamicLight(boundLightUID);
+		if (boundLightUID != null) boundLight = GameData.lightManager.getDynamicLight(boundLightUID);
 		
 		bound = GameData.level.getActor(boundUID);
+		if (bound == null) bound = GameData.level.getLevelObject(boundUID);
 		this.texture = new Texture(Gdx.files.internal(textureName));
 		
 		create();
@@ -158,11 +167,11 @@ public class ParticleEmitter implements Serializable {
 		return indices;
 	}
 	
-	Vector3 velocity; float atime; Color start; Color end; float width; float height;
+	Vector3 velocity; float atime; Colour start; Colour end; float width; float height;
 	
 	float intensity; float attenuation;
 	
-	public void setTexture(String texture, Vector3 velocity, float atime, Color start, Color end, boolean light, float intensity, float attenuation)
+	public void setTexture(String texture, Vector3 velocity, float atime, Colour start, Colour end, boolean light, float intensity, float attenuation)
 	{
 		this.textureName = texture;
 		this.texture = new Texture(Gdx.files.internal(texture));
@@ -183,11 +192,12 @@ public class ParticleEmitter implements Serializable {
 			this.intensity = intensity;
 			this.attenuation = attenuation;
 			
-			Color lightCol = new Color((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
+			Colour lightCol = new Colour((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
 			
 			if (boundLight == null)
 			{
 				boundLight = new PointLight(new Vector3(x+(vx/2f), y+vy, z+(vz/2)), lightCol, attenuation, intensity);
+				boundLightUID = boundLight.UID;
 				GameData.lightManager.addDynamicLight(boundLight);
 			}
 			else
@@ -196,8 +206,6 @@ public class ParticleEmitter implements Serializable {
 				boundLight.attenuation = attenuation;
 				boundLight.intensity = intensity;
 			}
-			
-			boundLightUID = boundLight.UID;
 		}
 		else
 		{
@@ -205,8 +213,8 @@ public class ParticleEmitter implements Serializable {
 			{
 				GameData.lightManager.removeDynamicLight(boundLight.UID);
 				boundLight = null;
+				boundLightUID = null;
 			}
-			boundLightUID = null;
 		}
 	}
 	
@@ -215,24 +223,34 @@ public class ParticleEmitter implements Serializable {
 	public void render(Camera cam)
 	{
 		if (pointMode) {
+			
 			Gdx.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE);
 			Gdx.gl.glEnable(GL11.GL_POINT_SPRITE_OES);
 			Gdx.gl.glEnable(GL20.GL_BLEND); 
 			//Gdx.gl.glBlendFunc(GL20.GL_DST_ALPHA, GL20.GL_SRC_ALPHA);
 			Gdx.gl.glDepthMask(false);
 			
-			pointShader.begin();
-			
-			pointShader.setUniformMatrix("u_mv", cam.combined);
+			if (activeShader == 0)
+			{
+				activeShader = 1;
+				pointShader.begin();
+				pointShader.setUniformMatrix("u_mv", cam.combined);
+			}
+			else if (activeShader == 2)
+			{
+				quadShader.end();
+				
+				activeShader = 1;
+				pointShader.begin();
+				pointShader.setUniformMatrix("u_mv", cam.combined);
+			}
 
 			pointShader.setUniformf("u_point", getPointSize(cam));
 			texture.bind(0);
 			pointShader.setUniformi("u_texture", 0);
 			meshPoint.setVertices(verticesPoint);
 			meshPoint.render(pointShader, GL20.GL_POINTS);
-			
-			pointShader.end();
-			
+
 			Gdx.gl.glDepthMask(true);
 		}
 		else
@@ -240,19 +258,42 @@ public class ParticleEmitter implements Serializable {
 			Gdx.gl.glEnable(GL20.GL_BLEND);
 			Gdx.gl.glDepthMask(false);
 			
-			quadShader.begin();
-			
-			quadShader.setUniformMatrix("u_mv", cam.combined);
+			if (activeShader == 0)
+			{
+				activeShader = 2;
+				quadShader.begin();
+				quadShader.setUniformMatrix("u_mv", cam.combined);
+			}
+			else if (activeShader == 1)
+			{
+				pointShader.end();
+				
+				activeShader = 2;
+				quadShader.begin();
+				quadShader.setUniformMatrix("u_mv", cam.combined);
+			}
 
 			texture.bind(0);
 			quadShader.setUniformi("u_texture", 0);
 			
 			meshQuad.setVertices(verticesQuad);
 			meshQuad.render(quadShader, GL20.GL_TRIANGLES);
-			
-			quadShader.end();
-			
+
 			Gdx.gl.glDepthMask(true);
+		}
+	}
+	
+	public static void end()
+	{
+		if (activeShader == 1)
+		{
+			activeShader = 0;
+			pointShader.end();
+		}
+		else if (activeShader == 2)
+		{
+			activeShader = 0;
+			quadShader.end();
 		}
 	}
 	
@@ -270,7 +311,7 @@ public class ParticleEmitter implements Serializable {
 	private transient int signy;
 	private transient int signz;
 	
-	private final transient Matrix4 mat = new Matrix4();
+	private final Matrix4 mat = new Matrix4();
 
 	public void update(float delta, Camera cam)
 	{
@@ -280,10 +321,10 @@ public class ParticleEmitter implements Serializable {
 		y = bound.getPosition().y+oy;
 		z = bound.getPosition().z+oz;
 		
-		boundLight.position.set(x, y, z);
-		
 		if (boundLight != null)
 		{
+			boundLight.position.set(x, y, z);
+			
 			boundLight.intensity = (float) (intensity * 
 					(1-((1-((float)active.size() / (float)inactive.size())))/2));
 			boundLight.attenuation = (float) (attenuation * 
@@ -399,7 +440,7 @@ public class ParticleEmitter implements Serializable {
 		}
 	}
 	
-	final transient Vector3 tmpVec = new Vector3();
+	final Vector3 tmpVec = new Vector3();
 	public Vector3 getPos()
 	{
 		return tmpVec.set(x, y, z);
@@ -415,4 +456,91 @@ public class ParticleEmitter implements Serializable {
 		GameData.lightManager.removeDynamicLight(boundLight.UID);
 	}
 
+}
+
+class Particle {
+	
+	Vector3 velocity;
+	float remainingTime;
+
+	Colour colour = new Colour();
+	
+	float rstep;
+	float gstep;
+	float bstep;
+	
+	public boolean alive = true;
+	
+	final String UID;
+	
+	Vector3 position = new Vector3();
+	
+	public Particle(boolean alive)
+	{
+		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
+		alive = false;
+	}
+	
+	public Particle(Vector3 velocity, float time, Colour start, Colour end, float x, float y, float z)
+	{
+		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
+		this.velocity.set(velocity);
+		this.remainingTime = time;
+		this.colour.set(start);
+		this.position.set(x, y, z);
+		
+		float rdiff = end.r-start.r;
+		rstep = rdiff/time;
+		
+		float gdiff = end.g-start.g;
+		gstep = gdiff/time;
+		
+		float bdiff = end.b-start.b;
+		bstep = bdiff/time;
+	}
+	
+	public void set(Vector3 velocity, float time, Colour start, Colour end, float x, float y, float z)
+	{		
+		alive = true;
+		
+		this.velocity = velocity;
+		this.remainingTime = time;
+		this.colour.set(start);
+		this.position.set(x, y, z);
+		
+		float rdiff = end.r-start.r;
+		rstep = rdiff/time;
+		
+		float gdiff = end.g-start.g;
+		gstep = gdiff/time;
+		
+		float bdiff = end.b-start.b;
+		bstep = bdiff/time;
+	}
+	
+	private final Vector3 tmpVec = new Vector3();
+	public void update(float delta)
+	{
+		remainingTime -= delta;
+		if (remainingTime < 0) alive = false;
+		if (!alive) return;
+		
+		position.add(velocity.tmp().mul(delta));
+		
+		colour.r += rstep*delta;
+		colour.g += gstep*delta;
+		colour.b += bstep*delta;
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof Particle)) return false;
+		Particle p = (Particle)o;
+		
+		if (p.alive != alive) return false;
+		
+		if (p.UID.equals(UID)) return true;
+		else return false;
+	}
 }

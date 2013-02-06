@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.io.Serializable;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 
 public class PointLight implements Comparable, Serializable {
 	
@@ -25,23 +26,23 @@ public class PointLight implements Comparable, Serializable {
 	final public String UID;
 
 	final public Vector3 position;
-	public Color colour;
+	public Colour colour;
 
 	public float attenuation;
 	public float intensity;
 
 	protected int priority;
 
-	public static final transient int PRIORITY_DISCRETE_STEPS = 256;
+	public static final int PRIORITY_DISCRETE_STEPS = 256;
 	
-	private final transient Vector3 tmpVec = new Vector3();
+	private final Vector3 tmpVec = new Vector3();
 	
 	public PointLight()
 	{
-		this(new Vector3(), new Color(), 1.0f, 1.0f);
+		this(new Vector3(), new Colour(), 1.0f, 1.0f);
 	}
 	
-	public PointLight(Vector3 position, Color colour, float attentuation, float intensity)
+	public PointLight(Vector3 position, Colour colour, float attentuation, float intensity)
 	{
 		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.position = position;

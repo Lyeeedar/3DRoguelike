@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.AbstractRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
@@ -45,11 +46,11 @@ public abstract class LevelObject extends GameObject{
 	
 	public LevelObject(boolean visible, float x, float y, float z, AbstractObject ao)
 	{
-		this(ao, Color.WHITE, "blank", x, y, z, ao.modelScale, GL20.GL_TRIANGLES, "cube", "1", "1", "1");
+		this(ao, new Colour(1.0f, 1.0f, 1.0f, 1.0f), "blank", x, y, z, ao.modelScale, GL20.GL_TRIANGLES, "cube", "1", "1", "1");
 		this.visible = visible;
 	}
 
-	public LevelObject(AbstractObject ao, Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model) {
+	public LevelObject(AbstractObject ao, Colour colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model) {
 		super(colour, texture, x, y, z, scale, primitive_type, model);
 		this.ao = ao;
 	}
@@ -63,7 +64,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Color colour = ao.colour;
+				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Static(ao, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -92,7 +93,7 @@ public abstract class LevelObject extends GameObject{
 			lo.longDesc = ao.longDesc;
 			
 			ParticleEmitter p = new ParticleEmitter(2.5f, 2, 2.5f, 1.5f, 1.5f, 1.5f, 0.005f, 350, lo);
-			p.setTexture("data/textures/texf.png", new Vector3(0.0f, 3.5f, 0.0f), 1.6f, Color.YELLOW, Color.RED, true, 1.5f, 0.03f);
+			p.setTexture("data/textures/texf.png", new Vector3(0.0f, 3.5f, 0.0f), 1.6f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.03f);
 			
 			GameData.particleEmitters.add(p);
 		}
@@ -104,14 +105,14 @@ public abstract class LevelObject extends GameObject{
 			lo.longDesc = ao.longDesc;
 			
 			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.01f, 10, lo);
-			p.setTexture("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, Color.YELLOW, Color.RED, true, 1.5f, 0.5f);
+			p.setTexture("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.5f);
 			
 			GameData.particleEmitters.add(p);
 		}
 		else if (ao.type == ObjectType.STAIR_UP)
 		{
 			String texture = ao.texture;
-			Color colour = ao.colour;
+			Colour colour = ao.colour;
 			if (ao.modelType.equalsIgnoreCase("model"))
 			{
 				lo = new Stair(ao, GameData.getCurrentLevelContainer().getUpLevel(), colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -125,7 +126,7 @@ public abstract class LevelObject extends GameObject{
 		else if (ao.type == ObjectType.STAIR_DOWN)
 		{
 			String texture = ao.texture;
-			Color colour = ao.colour;
+			Colour colour = ao.colour;
 			if (ao.modelType.equalsIgnoreCase("model"))
 			{
 				lo = new Stair(ao, GameData.getCurrentLevelContainer().getDownLevel(), colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);

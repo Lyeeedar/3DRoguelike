@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.*;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.*;
 import com.lyeeedar.Roguelike3D.Graphics.Models.*;
@@ -104,7 +105,11 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 
 			final Vector3 center = drawable.sortCenter;
 			long light_hash = lightManager.getDynamicLightsHash();
-			lightManager.calculateDynamicLights(center.x, center.y, center.z);
+			//lightManager.calculateDynamicLights(center.x, center.y, center.z);
+			if (GameData.player != null)
+				lightManager.calculateDynamicLights(GameData.player.getPosition().x, GameData.player.getPosition().y, GameData.player.getPosition().z);
+			else
+				lightManager.calculateDynamicLights(center.x, center.y, center.z);
 			boolean check = (light_hash == lightManager.getDynamicLightsHash());
 
 			final Matrix3 normalMatrix = new Matrix3().set(drawable.rotation);

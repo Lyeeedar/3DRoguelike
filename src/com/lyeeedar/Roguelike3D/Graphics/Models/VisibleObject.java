@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.ColorAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
@@ -41,9 +42,9 @@ public class VisibleObject implements Serializable {
 	public final String texture;
 	public final float scale;
 	public final int primitive_type;
-	public final Color colour;
+	public final Colour colour;
 	
-	public VisibleObject(int primitive_type, Color colour, String textureName, float scale, String... modelData)
+	public VisibleObject(int primitive_type, Colour colour, String textureName, float scale, String... modelData)
 	{
 		this.texture = textureName;
 		this.modelData = modelData;
@@ -52,7 +53,7 @@ public class VisibleObject implements Serializable {
 		this.scale = scale;
 	}
 	
-	public VisibleObject(Mesh mesh, Color colour, String texture, int primitive_type, float scale)
+	public VisibleObject(Mesh mesh, Colour colour, String texture, int primitive_type, float scale)
 	{
 		this.texture = texture;
 		this.modelData = new String[]{"mesh"};

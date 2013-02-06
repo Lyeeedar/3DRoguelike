@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Philip Collin.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ * 
+ * Contributors:
+ *     Philip Collin - initial API and implementation
+ ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.ParticleEffects;
 
 import com.badlogic.gdx.Gdx;
@@ -13,6 +23,7 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.CircularArrayRing;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 
 public class MotionTrail {
 	
@@ -23,13 +34,13 @@ public class MotionTrail {
 	
 	final ShaderProgram shader;
 	
-	Color colour;
+	Colour colour;
 	
 	Texture texture;
 	
 	final float[] vertices;
 
-	public MotionTrail(int vertsNum, Color colour, String texture) 
+	public MotionTrail(int vertsNum, Colour colour, String texture) 
 	{		
 		this.colour = colour;
 		this.texture = new Texture(Gdx.files.internal(texture));
@@ -105,19 +116,21 @@ public class MotionTrail {
 	public void draw(Camera cam)
 	{
 		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
+		Gdx.gl.glEnable(GL20.GL_BLEND); 
 		
 		shader.begin();
 		
 		texture.bind();
 		
 		shader.setUniformMatrix("u_mv", cam.combined);
-		shader.setUniformf("u_colour", colour);
+		shader.setUniformf("u_colour", colour.r, colour.g, colour.b, colour.a);
 		
 		mesh.render(shader, GL20.GL_TRIANGLE_STRIP);
 		
 		shader.end();
 		
 		Gdx.graphics.getGL20().glEnable(GL20.GL_CULL_FACE);
+		Gdx.gl.glDisable(GL20.GL_BLEND); 
 	}
 	
 	public void update(Vector3 bottom, Vector3 top)

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Philip Collin.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ * 
+ * Contributors:
+ *     Philip Collin - initial API and implementation
+ ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Item;
 
 import java.io.Serializable;
@@ -18,6 +28,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public class MeleeWeapon extends Equipment_HAND {
@@ -194,7 +205,7 @@ public class MeleeWeapon extends Equipment_HAND {
 		atk_style.draw(cam);
 	}
 	
-	private transient Ray ray = new Ray(new Vector3(), new Vector3());
+	private Ray ray = new Ray(new Vector3(), new Vector3());
 	public boolean checkCollisionLevel(Vector3 start, Vector3 end)
 	{
 		Level level = GameData.level;
@@ -253,22 +264,22 @@ abstract class Attack_Style implements Serializable
 	
 	protected transient MotionTrail trail;
 	
-	final transient Vector3 positionA = new Vector3();
-	final transient Vector3 positionB = new Vector3();
+	final Vector3 positionA = new Vector3();
+	final Vector3 positionB = new Vector3();
 	
-	final transient Vector3 tmpVec = new Vector3();
+	final Vector3 tmpVec = new Vector3();
 	
 	final float step;
 	
 	public Attack_Style(float step)
 	{
 		this.step = step;
-		trail = new MotionTrail(TRAIL_STEPS, Color.LIGHT_GRAY, "data/textures/gradient.png");
+		trail = new MotionTrail(TRAIL_STEPS, new Colour(0.7f, 0.7f, 0.7f, 1.0f), "data/textures/gradient.png");
 	}
 	
 	public void fixReferences()
 	{
-		trail = new MotionTrail(TRAIL_STEPS, Color.LIGHT_GRAY, "data/textures/gradient.png");
+		trail = new MotionTrail(TRAIL_STEPS, new Colour(0.7f, 0.7f, 0.7f, 1.0f), "data/textures/gradient.png");
 	}
 	
 	transient float cd = TRAIL_STEPS;
@@ -308,16 +319,16 @@ class Circular_Attack extends Attack_Style
 	 * 
 	 */
 	private static final long serialVersionUID = -7051328157650641931L;
-	transient Vector3 startRotation;
-	transient Vector3 rotPerSecond;
-	transient Vector3 currentRotation;
+	Vector3 startRotation;
+	Vector3 rotPerSecond;
+	Vector3 currentRotation;
 	
-	final transient Vector3 offset;
-	final transient float nearDist;
-	final transient float farDist;
+	final Vector3 offset;
+	final float nearDist;
+	final float farDist;
 	transient GameActor center;
 	final String centerUID;
-	transient Vector3 moveOffset;
+	Vector3 moveOffset;
 	
 	public Circular_Attack(Vector3 offset, float nearDist, float farDist, GameActor center, float step, Vector3 moveOffset) 
 	{

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 public class BiomeReader extends XMLReader {
@@ -161,14 +162,14 @@ public class BiomeReader extends XMLReader {
 		return getNodeValue(TEXTURE, wall.getChildNodes());
 	}
 	
-	public Color getWallColour()
+	public Colour getWallColour()
 	{
 		Node wall = getNode(WALL, biome.getChildNodes());
 		float red = Float.parseFloat(getNodeValue(COLOUR_RED, wall.getChildNodes()));
 		float green = Float.parseFloat(getNodeValue(COLOUR_GREEN, wall.getChildNodes()));
 		float blue = Float.parseFloat(getNodeValue(COLOUR_BLUE, wall.getChildNodes()));
 		
-		return new Color(red, green, blue, 1.0f);
+		return new Colour(red, green, blue, 1.0f);
 	}
 	
 	public String getFloorTexture()
@@ -177,24 +178,24 @@ public class BiomeReader extends XMLReader {
 		return getNodeValue(TEXTURE, floor.getChildNodes());
 	}
 	
-	public Color getFloorColour()
+	public Colour getFloorColour()
 	{
 		Node floor = getNode(FLOOR, biome.getChildNodes());
 		float red = Float.parseFloat(getNodeValue(COLOUR_RED, floor.getChildNodes()));
 		float green = Float.parseFloat(getNodeValue(COLOUR_GREEN, floor.getChildNodes()));
 		float blue = Float.parseFloat(getNodeValue(COLOUR_BLUE, floor.getChildNodes()));
 		
-		return new Color(red, green, blue, 1.0f);
+		return new Colour(red, green, blue, 1.0f);
 	}
 	
-	public Color getAmbientLight()
+	public Colour getAmbientLight()
 	{
 		Node ambient = getNode(AMBIENT, biome.getChildNodes());
 		float red = Float.parseFloat(getNodeValue(COLOUR_RED, ambient.getChildNodes()));
 		float green = Float.parseFloat(getNodeValue(COLOUR_GREEN, ambient.getChildNodes()));
 		float blue = Float.parseFloat(getNodeValue(COLOUR_BLUE, ambient.getChildNodes()));
 		
-		return new Color(red, green, blue, 1.0f);
+		return new Colour(red, green, blue, 1.0f);
 	}
 	
 	public int getRoomPadding()

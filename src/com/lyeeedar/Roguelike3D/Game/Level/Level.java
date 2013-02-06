@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     Philip Collin - initial API and implementation
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Level;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -29,12 +30,18 @@ import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Static;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 
-public class Level {
+public class Level implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7198101723293369502L;
+
 	public static final String MONSTER_TYPE = "monster_type";
 	
 	Tile[][] levelArray;
@@ -42,7 +49,7 @@ public class Level {
 	HashMap<Character, String> shortDescs = new HashMap<Character, String>();
 	HashMap<Character, String> longDescs = new HashMap<Character, String>();
 	
-	HashMap<Character, Color> colours = new HashMap<Character, Color>();
+	HashMap<Character, Colour> colours = new HashMap<Character, Colour>();
 	ArrayList<Character> opaques = new ArrayList<Character>();
 	ArrayList<Character> solids = new ArrayList<Character>();
 	
@@ -110,14 +117,29 @@ public class Level {
 		return null;
 	}
 	
+	public LevelObject getLevelObject(String UID)
+	{
+		for (LevelObject lo : levelObjects)
+		{
+			if (lo.UID.equals(UID)) return lo;
+		}
+		
+		System.err.println("Level Object not found!");
+		return null;
+	}
+	
 	public void createActors()
 	{
-		for (GameActor ga : actors) ga.create();
+		for (GameActor ga : actors) {
+			ga.create();
+		}
 	}
 	
 	public void createLevelObjects()
 	{
-		for (LevelObject lo : levelObjects) lo.create();
+		for (LevelObject lo : levelObjects) {
+			lo.create();
+		}
 	}
 	
 	private transient int fillRoomIndex = 0;
@@ -203,7 +225,7 @@ public class Level {
 	}
 	
 	
-	private transient float tempdist2;
+	private transient float tempdist2 = 0;
 
 	public GameActor getClosestActor(Ray ray, float dist2, Vector3 p1, Vector3 p2, String ignoreUID, Vector3 collisionPoint)
 	{
@@ -323,7 +345,7 @@ public class Level {
 		return false;
 	}
 	
-	private transient static final int VIEW_STEP = 10;
+	private static final int VIEW_STEP = 10;
 	public float getDescription(Ray ray, float view, StringBuilder sB, boolean longDesc)
 	{
 		Vector3 pos = ray.origin.cpy();
@@ -421,7 +443,7 @@ public class Level {
 		return checkSolid(x, z);
 	}
 	
-	private transient final Vector3 tmpVec = new Vector3();
+	private final Vector3 tmpVec = new Vector3();
 	public GameActor checkEntities(Vector3 position, float radius, String UID)
 	{
 		for (GameActor ga : actors)
@@ -551,11 +573,11 @@ public class Level {
 		}
 	}
 
-	public HashMap<Character, Color> getColours() {
+	public HashMap<Character, Colour> getColours() {
 		return colours;
 	}
 
-	public void setColours(HashMap<Character, Color> colours) {
+	public void setColours(HashMap<Character, Colour> colours) {
 		this.colours = colours;
 	}
 

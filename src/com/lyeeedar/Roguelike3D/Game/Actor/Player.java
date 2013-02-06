@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public class Player extends GameActor {
@@ -33,7 +34,7 @@ public class Player extends GameActor {
 	 */
 	private static final long serialVersionUID = -6756577346541496175L;
 
-	public Player(Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
+	public Player(Colour colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
 	{
 		super(colour, texture, x, y, z, scale, primitive_type, model);
 

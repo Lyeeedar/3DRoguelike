@@ -1,6 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Philip Collin.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ * 
+ * Contributors:
+ *     Philip Collin - initial API and implementation
+ ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Level.XML;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -12,9 +23,17 @@ import org.xml.sax.SAXException;
 import com.badlogic.gdx.Gdx;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
-public abstract class XMLReader {
+public abstract class XMLReader implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6266299160669094961L;
 	Document root_node;
+	
+	public XMLReader() {
+		
+	}
 
 	public XMLReader(String file) {
 		

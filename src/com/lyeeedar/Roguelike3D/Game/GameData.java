@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -18,16 +18,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
-import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.PlayerPlacer;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Stair;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
@@ -74,13 +75,10 @@ public class GameData {
 	{
 		HashMap<Element, Integer> map = new HashMap<Element, Integer>();
 		
-		map.put(Element.FIRE, 0);
-		map.put(Element.METAL, 0);
-		map.put(Element.WOOD, 0);
-		map.put(Element.AIR, 0);
-		map.put(Element.WATER, 0);
-		map.put(Element.AETHER, 0);
-		map.put(Element.VOID, 0);
+		for (Element e : Element.values())
+		{
+			map.put(e, 0);
+		}
 		
 		return map;
 	}
@@ -101,9 +99,10 @@ public class GameData {
 	{
 		HashMap<Damage_Type, Integer> map = new HashMap<Damage_Type, Integer>();
 		
-		map.put(Damage_Type.PIERCE, 0);
-		map.put(Damage_Type.IMPACT, 0);
-		map.put(Damage_Type.TOUCH, 0);
+		for (Damage_Type d : Damage_Type.values())
+		{
+			map.put(d, 0);
+		}
 		
 		return map;
 	}
@@ -130,19 +129,12 @@ public class GameData {
 	
 	public static Rarity getRarity(int i)
 	{
-		Rarity rarity = null;
-		if (i == 1) rarity = Rarity.COMMON;
-		else if (i == 2) rarity = Rarity.UNCOMMON;
-		else if (i == 3) rarity = Rarity.FABULOUS;
-		else if (i == 4) rarity = Rarity.RARE;	
-		else if (i == 5) rarity = Rarity.UNIQUE;
-		else if (i == 6) rarity = Rarity.MYSTICAL;
-		else if (i == 7) rarity = Rarity.LEGENDARY;
-		else if (i == 8) rarity = Rarity.GODLIKE;
-		else if (i == 9) rarity = Rarity.DIVINE;
-		else if (i == 10) rarity = Rarity.TRUE;
+		for (Rarity r : Rarity.values())
+		{
+			if (r.getVal() == i) return r;
+		}
 		
-		return rarity;
+		return null;
 	}
 	
 	public static Label getRarityLabel(int i, Skin skin)
@@ -176,21 +168,35 @@ public class GameData {
 	
 	public static float gravity = 0.1f;
 
-	public static HashMap<String, LevelContainer> dungeon = new HashMap<String, LevelContainer>();
+	public static HashMap<String, LevelContainer> dungeon;
 	public static String currentLevel;
 	
 	public static Roguelike3DGame game;
 	
 	public static int[] resolution = {800, 600};
 	
+	public static void load()
+	{
+		SaveGame save = SaveGame.load();
+		dungeon = save.dungeon;
+		currentLevel = save.currentLevel;
+		
+		changeLevel(currentLevel);
+	}
+	
+	public static void save(SaveGame save)
+	{
+		save.setDungeon(dungeon, currentLevel);
+	}
+	
 	public static void init(final Roguelike3DGame game)
 	{
 		GameData.game = game;
 		GameStats.init();
 		
+		dungeon = new HashMap<String, LevelContainer>();
 		LevelContainer lc = new LevelContainer("start_town", "start_town", 1, new String[]{}, new String[]{});
 		dungeon.put("start_town", lc);
-		
 		
 		currentLevel = "start_town";
 
@@ -220,12 +226,30 @@ public class GameData {
 	{
 		System.out.println("Finishing loading.");
 		
+		GameData.level = level;
+		levelGraphics = graphics;
+		
+		for (GameActor ga : level.actors)
+		{
+			if (ga instanceof Player) {
+				player = (Player) ga;
+				break;
+			}
+		}
+		
 		if (player == null)
 		{
-			player = new Player(new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f, GL20.GL_TRIANGLES, "file", "model@");
+			player = new Player(new Colour(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f, GL20.GL_TRIANGLES, "file", "model@");
 			player.create();
 			player.visible = false;
 			GameStats.setPlayerStats(player);
+			
+			level.addActor(player);
+			
+			PointLight l = new PointLight(player.position.cpy(), new Colour(1.0f, 1.0f, 1.0f, 1.0f), 0.01f, 0.3f);
+			player.boundLight = l;
+			lightManager.addDynamicLight(l);		
+			
 		}
 		
 		for (LevelObject lo : level.levelObjects)
@@ -246,17 +270,29 @@ public class GameData {
 				}
 			}
 		}
+
+		for (GameActor ga : level.actors) {
+			ga.fixReferences();
+		}
 		
-		GameData.level = level;
-		levelGraphics = graphics;
+		for (LevelObject lo : level.levelObjects) {
+			lo.fixReferences();
+		}
 		
-		level.addActor(player);
+		for (ParticleEmitter pe : particleEmitters)
+		{
+			pe.fixReferences();
+		}
+		
+		lightManager.fixReferences();
+
+		SaveGame save = new SaveGame();
+		GameData.save(save);
+		GameStats.save(save);
+		SaveGame.save(save);
 		
 		game.switchScreen(nextScreen);
 		
-		PointLight l = new PointLight(player.position.cpy(), Color.WHITE, 0.01f, 0.3f);
-		player.boundLight = l;
-		lightManager.addDynamicLight(l);
 	}
 	
 	public static Element getElement(String eleName)

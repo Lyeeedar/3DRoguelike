@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,17 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Level;
 
+import java.io.Serializable;
+
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 
-public class Tile {
+public class Tile implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2774877067050458423L;
+
 	public char character;
 	
 	/**

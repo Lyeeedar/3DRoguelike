@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -56,17 +56,17 @@ public abstract class GameObject implements Serializable {
 	
 	public final String UID;
 	
-	protected transient Random ran = new Random();
+	protected Random ran = new Random();
 
 	// x y z
 	protected final Vector3 position = new Vector3();
 	protected final Vector3 rotation = new Vector3(1, 0, 1);
-	public transient final Vector3 velocity = new Vector3();
+	public final Vector3 velocity = new Vector3();
 	
-	public transient final Vector3 up = new Vector3(0, 1, 0);
+	public final Vector3 up = new Vector3(0, 1, 0);
 
-	protected transient final Vector3 tmpVec = new Vector3();
-	protected transient final Matrix4 tmpMat = new Matrix4();
+	protected final Vector3 tmpVec = new Vector3();
+	protected final Matrix4 tmpMat = new Matrix4();
 
 	public final VisibleObject vo;
 	protected transient PointLight boundLight;
@@ -88,7 +88,7 @@ public abstract class GameObject implements Serializable {
 	private transient float endVelocityVert = 0;
 	private transient float negatedVelocity = 0;
 
-	public GameObject(Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
+	public GameObject(Colour colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
 	{
 		UID = this.toString()+System.currentTimeMillis()+this.hashCode()+System.nanoTime();
 		

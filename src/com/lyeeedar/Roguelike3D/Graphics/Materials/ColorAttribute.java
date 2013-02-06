@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Pool;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 
 public class ColorAttribute extends MaterialAttribute {
 
@@ -24,7 +25,7 @@ public class ColorAttribute extends MaterialAttribute {
 	static final public String rim = "u_rim_colour";
 	static final public String fog = "u_fog_colour";
 
-	public final Color color = new Color();
+	public final Colour color = new Colour();
 
 	protected ColorAttribute () {
 	}
@@ -34,7 +35,7 @@ public class ColorAttribute extends MaterialAttribute {
 	 * @param color The {@link Colour} that you wish the attribute to represent.
 	 * @param name The name of the uniform in the {@link ShaderProgram} that will have its value set to this color. (A 'name' does
 	 *           not matter for a game that uses {@link GL10}). */
-	public ColorAttribute (Color color, String name) {
+	public ColorAttribute (Colour color, String name) {
 		super(name);
 		this.color.set(color);
 	}
@@ -53,7 +54,7 @@ public class ColorAttribute extends MaterialAttribute {
 	public void set (MaterialAttribute attr) {
 		ColorAttribute colAttr = (ColorAttribute)attr;
 		name = colAttr.name;
-		final Color c = colAttr.color;
+		final Colour c = colAttr.color;
 		color.r = c.r;
 		color.g = c.g;
 		color.b = c.b;

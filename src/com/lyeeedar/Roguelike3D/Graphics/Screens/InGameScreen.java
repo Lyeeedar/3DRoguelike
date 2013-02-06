@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -68,14 +68,12 @@ public class InGameScreen extends AbstractScreen {
 		
 		for (LevelObject lo : GameData.level.levelObjects)
 		{	
-			lo.draw(cam);
 			if (!lo.visible) continue;
 			lo.vo.render(protoRenderer);
 		}
 		
 		for (GameActor ga : GameData.level.actors)
 		{
-			ga.draw(cam);
 			if (!ga.visible) continue;
 			ga.vo.render(protoRenderer);
 		}
@@ -117,6 +115,17 @@ public class InGameScreen extends AbstractScreen {
 			time = 1;
 		}
 		
+		ParticleEmitter.end();
+		
+		for (LevelObject lo : GameData.level.levelObjects)
+		{	
+			lo.draw(cam);
+		}
+		
+		for (GameActor ga : GameData.level.actors)
+		{
+			ga.draw(cam);
+		}
 	}
 
 	@Override

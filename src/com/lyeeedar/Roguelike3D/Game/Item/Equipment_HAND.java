@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Philip Collin.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ * 
+ * Contributors:
+ *     Philip Collin - initial API and implementation
+ ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Item;
 
 import java.util.HashMap;
@@ -22,21 +32,12 @@ public abstract class Equipment_HAND extends Equippable{
 	
 	public static WeaponType convertStringtoWepType(String type)
 	{
-		WeaponType rType = null;
-		if (type.equalsIgnoreCase("MELEE"))
+		for (WeaponType w : WeaponType.values())
 		{
-			rType = WeaponType.MELEE;
-		}
-		else if (type.equalsIgnoreCase("RANGED"))
-		{
-			rType = WeaponType.RANGED;
-		}
-		else if (type.equalsIgnoreCase("SPELL"))
-		{
-			rType = WeaponType.SPELL;
+			if (type.equalsIgnoreCase(""+w)) return w;
 		}
 		
-		return rType;
+		return null;
 	}
 	
 	public static Equipment_HAND getWeapon(WeaponType type, GameActor holder, String style, int side, 
@@ -71,7 +72,7 @@ public abstract class Equipment_HAND extends Equippable{
 	public transient float CD;
 	
 	public Equipment_HAND(float WEIGHT) {
-		super(WEIGHT);
+		super(WEIGHT, Item_Type.WEAPON);
 	}
 
 

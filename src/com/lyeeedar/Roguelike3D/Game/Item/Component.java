@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Philip Collin.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ * 
+ * Contributors:
+ *     Philip Collin - initial API and implementation
+ ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Item;
 
 import java.util.HashMap;
@@ -9,7 +19,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Graphics.TextureDrawer;
 
-public class Component extends Item implements Comparable<Component>{
+public class Component extends Item{
 	
 	/**
 	 * 
@@ -42,15 +52,15 @@ public class Component extends Item implements Comparable<Component>{
 	public HashMap<Element, Integer> element;
 	
 	public Component_Type type;
-	
-	public int rarity;
-	
+
 	public transient Texture icon;
 	public String iconName;
 
 	public Component(Component_Type type, String name, int rarity, int drop_chance,
 			String description, int weight_per_amount, int amount, int soft_hard,
 			int flexible_brittle, HashMap<Element, Integer> element, String iconName) {
+		
+		super(Item_Type.COMPONENT);
 		
 		this.type = type;
 		this.name = name;
@@ -123,14 +133,6 @@ public class Component extends Item implements Comparable<Component>{
 				"	VOID: "+element.get(Element.VOID)+"\n"+
 				"--------------------"
 				;
-	}
-
-	@Override
-	public int compareTo(Component o) {
-		if (o.toString().equals(this.toString())) return 0;
-		else if (o.hashCode() < this.hashCode()) return -1;
-		else if (o.hashCode() > this.hashCode()) return 1;
-		return 0;
 	}
 
 	@Override

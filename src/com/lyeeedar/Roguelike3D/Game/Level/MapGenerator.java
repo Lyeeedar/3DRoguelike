@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 
 public class MapGenerator {
 	
@@ -30,14 +31,14 @@ public class MapGenerator {
 	private Tile[][] levelArray;
 	ArrayList<Character> solids;
 	ArrayList<Character> opaques;
-	HashMap<Character, Color> colours;
+	HashMap<Character, Colour> colours;
 	ArrayList<DungeonRoom> rooms;
 	ArrayList<AbstractObject> objects;
 	
 	int ceiling;
 
 	public MapGenerator(int width, int height,
-			ArrayList<Character> solids, ArrayList<Character> opaques, HashMap<Character, Color> colours,
+			ArrayList<Character> solids, ArrayList<Character> opaques, HashMap<Character, Colour> colours,
 			GeneratorType gtype, BiomeReader biome,
 			int up, int down)
 	{

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Philip Collin.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ * 
+ * Contributors:
+ *     Philip Collin - initial API and implementation
+ ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
 import com.badlogic.gdx.graphics.Camera;
@@ -9,6 +19,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
@@ -21,7 +32,7 @@ public class Door extends LevelObject {
 	final float hingex;
 	final float hingez;
 
-	public Door(AbstractObject ao, float hingex, float hingez, Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model) {
+	public Door(AbstractObject ao, float hingex, float hingez, Colour colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model) {
 		super(ao, colour, texture, x, y, z, scale, primitive_type, model);
 		this.hingex = hingex;
 		this.hingez = hingez;
@@ -54,7 +65,7 @@ public class Door extends LevelObject {
 		}
 		else return null;
 		
-		Color colour = Color.WHITE;
+		Colour colour = new Colour(1.0f, 1.0f, 1.0f, 1.0f);
 		Door door = new Door(ao, hingex, hingez, colour, "tex+", x, y+(ly/2), z, 1, GL20.GL_TRIANGLES, "cube", ""+lx, ""+ly, ""+lz);
 		door.shortDesc = ao.shortDesc;
 		door.longDesc = ao.longDesc;

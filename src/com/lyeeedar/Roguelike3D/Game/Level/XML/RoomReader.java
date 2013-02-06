@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Philip Collin.
+ * Copyright (c) 2013 Philip Collin.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 public class RoomReader extends XMLReader {
@@ -250,7 +251,7 @@ public class RoomReader extends XMLReader {
 					float red = Float.parseFloat(getNodeValue(RED, colour.getChildNodes()));
 					float green = Float.parseFloat(getNodeValue(GREEN, colour.getChildNodes()));
 					float blue = Float.parseFloat(getNodeValue(BLUE, colour.getChildNodes()));
-					Color col = new Color(red, green, blue, 1.0f);
+					Colour col = new Colour(red, green, blue, 1.0f);
 
 					ao.setModel(modelType, modelName, modelScale, texture, col, dim);
 				}
@@ -311,7 +312,7 @@ public class RoomReader extends XMLReader {
 				float red = Float.parseFloat(getNodeValue(RED, colour.getChildNodes()));
 				float green = Float.parseFloat(getNodeValue(GREEN, colour.getChildNodes()));
 				float blue = Float.parseFloat(getNodeValue(BLUE, colour.getChildNodes()));
-				Color col = new Color(red, green, blue, 1.0f);
+				Colour col = new Colour(red, green, blue, 1.0f);
 				
 				ao.setModel(modelType, modelName, modelScale, texture, col, dim);
 			}

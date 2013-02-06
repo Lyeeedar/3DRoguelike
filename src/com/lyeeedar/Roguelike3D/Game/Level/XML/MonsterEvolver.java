@@ -1,6 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Philip Collin.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/gpl.html
+ * 
+ * Contributors:
+ *     Philip Collin - initial API and implementation
+ ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Level.XML;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,6 +44,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND.WeaponType;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
@@ -45,98 +57,102 @@ import com.sun.org.apache.xerces.internal.parsers.DOMParser;
  */
 public class MonsterEvolver extends XMLReader {
 
-	public static final int EVOLVER_WIDTH = 20;
-	public static final int EVOLVER_HEIGHT = 20;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 935894653679977084L;
+	public transient static final int EVOLVER_WIDTH = 20;
+	public transient static final int EVOLVER_HEIGHT = 20;
 
-	public static final int EVOLVER_CREATURE_NUM = 20;
+	public transient static final int EVOLVER_CREATURE_NUM = 20;
 
-	public static final int EVOLVER_CREATURE_TURNS = 200;
+	public transient static final int EVOLVER_CREATURE_TURNS = 100;
 
-	public static final String DATA = "DATA";
+	public transient static final String DATA = "DATA";
 
-	public static final String MONSTERS = "monsters";
-	public static final String DEPTH_MIN = "depth_min";
-	public static final String DEPTH_MAX = "depth_max";
-	public static final String MONSTER_TYPE = "monster_type";
-	public static final String CREATURES = "creatures";
+	public transient static final String MONSTERS = "monsters";
+	public transient static final String DEPTH_MIN = "depth_min";
+	public transient static final String DEPTH_MAX = "depth_max";
+	public transient static final String MONSTER_TYPE = "monster_type";
+	public transient static final String CREATURES = "creatures";
 
-	public static final String VISUAL = "visual";	
-	public static final String DESCRIPTION = "description";
-	public static final String MODEL = "model";
-	public static final String MODEL_TYPE = "type";
-	public static final String MODEL_NAME = "name";
-	public static final String MODEL_SCALE = "scale";	
-	public static final String TEXTURE = "texture";	
-	public static final String COLOUR = "colour";
-	public static final String RED = "red";
-	public static final String GREEN = "green";
-	public static final String BLUE = "blue";
+	public transient static final String VISUAL = "visual";	
+	public transient static final String DESCRIPTION = "description";
+	public transient static final String MODEL = "model";
+	public transient static final String MODEL_TYPE = "type";
+	public transient static final String MODEL_NAME = "name";
+	public transient static final String MODEL_SCALE = "scale";	
+	public transient static final String TEXTURE = "texture";	
+	public transient static final String COLOUR = "colour";
+	public transient static final String RED = "red";
+	public transient static final String GREEN = "green";
+	public transient static final String BLUE = "blue";
 
-	public static final String STATS = "stats";
-	public static final String BASE_CALORIES = "base_calories";
-	public static final String WEIGHT = "weight";
-	public static final String HEALTH = "health";
-	public static final String ELEMENT = "element";
-	public static final String ELE_DEFENSES = "ele_defenses";
-	public static final String FIRE = "FIRE";
-	public static final String WATER = "WATER";
-	public static final String AIR = "AIR";
-	public static final String WOOD = "WOOD";
-	public static final String METAL = "METAL";
-	public static final String AETHER = "AETHER";
-	public static final String VOID = "VOID";
-	public static final String DEFENSES = "defenses";
-	public static final String PIERCE = "PIERCE";
-	public static final String IMPACT = "IMPACT";
-	public static final String TOUCH = "TOUCH";
-	public static final String STRENGTH = "strength";
-	public static final String ATTACK_SPEED = "attack_speed";
-	public static final String ATTACK_DIST_MIN = "attack_dist_min";
-	public static final String ATTACK_DIST_MAX = "attack_dist_max";
-	public static final String WEAPON_STYLE = "weapon_style";
-	public static final String WEAPON_TYPE = "weapon_type";
-	public static final String AI = "AI";
+	public transient static final String STATS = "stats";
+	public transient static final String BASE_CALORIES = "base_calories";
+	public transient static final String WEIGHT = "weight";
+	public transient static final String HEALTH = "health";
+	public transient static final String ELEMENT = "element";
+	public transient static final String ELE_DEFENSES = "ele_defenses";
+	public transient static final String FIRE = "FIRE";
+	public transient static final String WATER = "WATER";
+	public transient static final String AIR = "AIR";
+	public transient static final String WOOD = "WOOD";
+	public transient static final String METAL = "METAL";
+	public transient static final String AETHER = "AETHER";
+	public transient static final String VOID = "VOID";
+	public transient static final String DEFENSES = "defenses";
+	public transient static final String PIERCE = "PIERCE";
+	public transient static final String IMPACT = "IMPACT";
+	public transient static final String TOUCH = "TOUCH";
+	public transient static final String STRENGTH = "strength";
+	public transient static final String ATTACK_SPEED = "attack_speed";
+	public transient static final String ATTACK_DIST_MIN = "attack_dist_min";
+	public transient static final String ATTACK_DIST_MAX = "attack_dist_max";
+	public transient static final String WEAPON_STYLE = "weapon_style";
+	public transient static final String WEAPON_TYPE = "weapon_type";
+	public transient static final String AI = "AI";
 
-	public static final String MIND = "MIND";
-	public static final String SKIN = "SKIN";
-	public static final String BONES = "BONES";
-	public static final String MUSCLES = "MUSCLES";
-	public static final String ATTACK = "ATTACK";
-	public static final String ATTACK_RIGHT = "ATTACK_RIGHT";
-	public static final String ATTACK_LEFT = "ATTACK_LEFT";
+	public transient static final String MIND = "MIND";
+	public transient static final String SKIN = "SKIN";
+	public transient static final String BONES = "BONES";
+	public transient static final String MUSCLES = "MUSCLES";
+	public transient static final String ATTACK = "ATTACK";
+	public transient static final String ATTACK_RIGHT = "ATTACK_RIGHT";
+	public transient static final String ATTACK_LEFT = "ATTACK_LEFT";
 
-	public static final String SCALING = "scaling";
-	public static final String TYPE = "type";
+	public transient static final String SCALING = "scaling";
+	public transient static final String TYPE = "type";
 
-	public static final String ABSTRACT = "abstract";
-	public static final String CREATURE = "creature";
-	public static final String CALORIE_USAGE = "calorie_usage";
+	public transient static final String ABSTRACT = "abstract";
+	public transient static final String CREATURE = "creature";
+	public transient static final String CALORIE_USAGE = "calorie_usage";
 
-	public static final String ATTRIBUTES = "attributes";
+	public transient static final String ATTRIBUTES = "attributes";
 
-	public static final String CALORIES = "calories";
+	public transient static final String CALORIES = "calories";
 
-	public static final String DIFFICULTY = "difficulty_";
+	public transient static final String DIFFICULTY = "difficulty_";
 	
-	public static final String DROP_LIST = "drop_list";
-	public static final String DROP = "drop";
-	public static final String CHANCE = "chance";
-	public static final String WEIGHT_PER_AMOUNT = "weight_per_amount";
-	public static final String SOFT_HARD = "soft_hard";
-	public static final String FLEXIBLE_BRITTLE = "flexible_brittle";
-	public static final String NAME = "name";
-	public static final String AMOUNT = "amount";
-	public static final String RARITY = "rarity";
+	public transient static final String DROP_LIST = "drop_list";
+	public transient static final String DROP = "drop";
+	public transient static final String CHANCE = "chance";
+	public transient static final String WEIGHT_PER_AMOUNT = "weight_per_amount";
+	public transient static final String SOFT_HARD = "soft_hard";
+	public transient static final String FLEXIBLE_BRITTLE = "flexible_brittle";
+	public transient static final String NAME = "name";
+	public transient static final String AMOUNT = "amount";
+	public transient static final String RARITY = "rarity";
 	
-	public static final String FACTIONS = "factions";
-	public static final String FACTION = "faction";
-	public static final String ICON = "icon";
+	public transient static final String FACTIONS = "factions";
+	public transient static final String FACTION = "faction";
+	public transient static final String ICON = "icon";
 	
-	final Random ran = new Random();
+	final transient Random ran = new Random();
 
 	final String monster;
-	final Node selected_monster;
-	final Node attribute_root;
+	final transient Node selected_monster;
+	final transient Node attribute_root;
 
 	final HashMap<String, AbstractCreature_Evolver> creatures = new HashMap<String, AbstractCreature_Evolver>();
 
@@ -429,7 +445,7 @@ public class MonsterEvolver extends XMLReader {
 		Creature_Evolver ce = EVOLVED_CREATURES[difficulty];
 		
 		float scale = ce.creature.model_scale;
-		Color colour = ce.creature.colour;
+		Colour colour = ce.creature.colour;
 		String texture = ce.creature.texture;
 		
 		GameActor ga = new GameActor(colour, texture, 0, 0, 0, scale, GL20.GL_TRIANGLES, "file", ce.creature.model_name);
@@ -483,7 +499,7 @@ public class MonsterEvolver extends XMLReader {
 		return ga;
 	}
 	
-	EvolverTile[][] grid = new EvolverTile[EVOLVER_WIDTH][EVOLVER_HEIGHT];
+	transient EvolverTile[][] grid = new EvolverTile[EVOLVER_WIDTH][EVOLVER_HEIGHT];
 	public void createMap()
 	{
 		for (int x = 0; x < EVOLVER_WIDTH; x++)
@@ -897,12 +913,16 @@ class EvolverTile
 	public Creature_Evolver creature = null;
 }
 
-class Creature_Evolver
+class Creature_Evolver implements Serializable
 {
-	public static final int FEED_DURATION = 5;
-	public static final int FOOD_CALORIES = 200;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7925461195208826620L;
+	public transient static final int FEED_DURATION = 5;
+	public transient static final int FOOD_CALORIES = 200;
 
-	public final Random ran = new Random();
+	public transient final Random ran = new Random();
 
 	public int consumed_calories = 100;
 	public int points = 0;
@@ -933,10 +953,10 @@ class Creature_Evolver
 	/**
 	 * up, down, left, right
 	 */
-	public boolean[] rotation = new boolean[4];
+	public transient boolean[] rotation = new boolean[4];
 
-	public int x;
-	public int y;
+	public transient int x;
+	public transient int y;
 
 	public Creature_Evolver(AbstractCreature_Evolver creature, int calorie_usage, int x, int y)
 	{
@@ -948,7 +968,7 @@ class Creature_Evolver
 		rotation[ran.nextInt(4)] = true;
 	}
 
-	int feedCountdown = 0;
+	transient int feedCountdown = 0;
 	public void update(EvolverTile[][] grid)
 	{
 //		if (calorie_usage/10 > consumed_calories)
@@ -1254,8 +1274,12 @@ class Creature_Evolver
 	}
 }
 
-class AbstractCreature_Evolver
+class AbstractCreature_Evolver implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5735799594872194576L;
 	public final String name;
 	public final ArrayList<String> factions;
 
@@ -1265,7 +1289,7 @@ class AbstractCreature_Evolver
 		this.name = name;
 	}
 
-	NodeList description; String model_type; String model_name; float model_scale; String texture; Color colour;
+	transient NodeList description; String model_type; String model_name; float model_scale; String texture; Colour colour;
 	public void addVisual(NodeList description, String model_type, String model_name, String model_scale, String texture, String r, String g, String b)
 	{
 		this.description = description;
@@ -1273,7 +1297,7 @@ class AbstractCreature_Evolver
 		this.model_name = model_name;
 		this.model_scale = Float.parseFloat(model_scale);
 		this.texture = texture;
-		this.colour = new Color(Float.parseFloat(r), Float.parseFloat(g), Float.parseFloat(b), 1.0f);
+		this.colour = new Colour(Float.parseFloat(r), Float.parseFloat(g), Float.parseFloat(b), 1.0f);
 	}
 
 	int base_calories; int weight; int health; int strength;
@@ -1359,8 +1383,12 @@ class AbstractCreature_Evolver
 	}
 }
 
-class Mind_Evolver
+class Mind_Evolver implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2447742508198331316L;
 	String name;
 	public Mind_Evolver(String name)
 	{
@@ -1391,8 +1419,12 @@ class Mind_Evolver
 	}
 }
 
-class Skin_Evolver
+class Skin_Evolver implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8441346867369627207L;
 	String name;
 	public Skin_Evolver(String name)
 	{
@@ -1446,8 +1478,12 @@ class Skin_Evolver
 	}
 }
 
-class Bones_Evolver
+class Bones_Evolver implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2354864208762217473L;
 	String name;
 	public Bones_Evolver(String name)
 	{
@@ -1480,8 +1516,12 @@ class Bones_Evolver
 	}
 }
 
-class Muscles_Evolver
+class Muscles_Evolver implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4784108714291815658L;
 	String name;
 	public Muscles_Evolver(String name)
 	{
@@ -1503,8 +1543,12 @@ class Muscles_Evolver
 	}
 }
 
-class Attack_Evolver
+class Attack_Evolver implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6632103730316200474L;
 	String name;
 	public Attack_Evolver(String name)
 	{
@@ -1553,9 +1597,13 @@ class Attack_Evolver
 	}
 }
 
-abstract class AI_Evolver_Package
+abstract class AI_Evolver_Package implements Serializable
 {
-	public static final int SIGHT_DIST = 4;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6268009811093340625L;
+	public transient static final int SIGHT_DIST = 4;
 
 	public abstract int[] evaluate(EvolverTile[][] grid, Creature_Evolver entity);
 	public abstract int evaluateCombatAttack();
@@ -1568,12 +1616,12 @@ abstract class AI_Evolver_Package
 		return getToString();
 	}
 
-	int[] array = new int[2];
-	int view = SIGHT_DIST;
-	int startx = 0;
-	int starty = 0;
-	int x = startx;
-	int y = starty;
+	transient int[] array = new int[2];
+	transient int view = SIGHT_DIST;
+	transient int startx = 0;
+	transient int starty = 0;
+	transient int x = startx;
+	transient int y = starty;
 	public ArrayList<EvolverTile> getInterestingTiles(EvolverTile[][] grid, Creature_Evolver entity)
 	{
 		ArrayList<EvolverTile> interesting = new ArrayList<EvolverTile>();
@@ -1723,6 +1771,11 @@ abstract class AI_Evolver_Package
 
 class AI_Evolver_VFFG extends AI_Evolver_Package
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2161904739892927372L;
+
 	int violence; int flee; int feed; int guard;
 
 	public AI_Evolver_VFFG(int violence, int flee, int feed, int guard)
@@ -1742,11 +1795,11 @@ class AI_Evolver_VFFG extends AI_Evolver_Package
 										"	Guard="+guard+"\n";
 	}
 
-	int[] target = new int[2];
-	int wantMagnitude;
-	int[] returnMove = new int[2];
-	int diffX = 0;
-	int diffY = 0;
+	transient int[] target = new int[2];
+	transient int wantMagnitude;
+	transient int[] returnMove = new int[2];
+	transient int diffX = 0;
+	transient int diffY = 0;
 	@Override
 	public int[] evaluate(EvolverTile[][] grid, Creature_Evolver entity) {
 		ArrayList<EvolverTile> interesting = super.getInterestingTiles(grid, entity);
@@ -1828,8 +1881,8 @@ class AI_Evolver_VFFG extends AI_Evolver_Package
 		return returnMove;
 	}
 
-	int dist;
-	int mag;
+	transient int dist;
+	transient int mag;
 	public int calculateWantMagnitude(EvolverTile tile, int ex, int ey)
 	{
 		mag = 0;

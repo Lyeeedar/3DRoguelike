@@ -205,7 +205,7 @@ public class Level implements Serializable {
 		for (AbstractObject ao : abstractObjects)
 		{
 			LevelObject lo = LevelObject.checkObject(ao, (ao.x)*10, 0, (ao.z)*10, this, evolver);
-			
+	
 			if (lo != null)
 			{
 				lo.shortDesc = ao.shortDesc;

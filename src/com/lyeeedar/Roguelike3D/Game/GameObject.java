@@ -102,7 +102,7 @@ public abstract class GameObject implements Serializable {
 	{
 		if (boundLightUID != null)
 		{
-			GameData.lightManager.getDynamicLight(boundLightUID);
+			boundLight = GameData.lightManager.getDynamicLight(boundLightUID);
 		}
 		
 		fixReferencesSuper();
@@ -151,10 +151,10 @@ public abstract class GameObject implements Serializable {
 				grounded = true;
 			}
 			// below
-			else if (position.y+velocity.y-vo.attributes.radius < below.floor) {
+			else if (position.y+velocity.y-getRadius() < below.floor) {
 				velocity.y = 0;
 				tmpVec.set(position);
-				this.positionYAbsolutely(below.floor+vo.attributes.radius);
+				this.positionYAbsolutely(below.floor+getRadius());
 				
 				if (lvl.checkCollision(position.tmp(), vo.attributes.radius, UID))
 				{
@@ -163,7 +163,7 @@ public abstract class GameObject implements Serializable {
 				grounded = true;
 			}
 			// above
-			else if (lvl.hasRoof && position.y+velocity.y+vo.attributes.radius > below.roof) {
+			else if (lvl.hasRoof && position.y+velocity.y+getRadius() > below.roof) {
 				velocity.y = 0;
 				tmpVec.set(position);
 				this.positionYAbsolutely(below.roof-vo.attributes.radius);

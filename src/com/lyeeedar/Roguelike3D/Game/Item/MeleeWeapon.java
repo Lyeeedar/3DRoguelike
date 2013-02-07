@@ -92,7 +92,7 @@ public class MeleeWeapon extends Equipment_HAND {
 		
 		if (style == Melee_Weapon_Style.SWING)
 		{
-			atk_style = new Circular_Attack(new Vector3(0, -2, 0), 5, 6, holder, 0.01f, new Vector3());
+			atk_style = new Circular_Attack(new Vector3(0, -2, 0), 0, 3, holder, 0.01f, new Vector3());
 		}
 		else atk_style = null;
 		
@@ -384,8 +384,8 @@ class Circular_Attack extends Attack_Style
 	{
 		tmpVec.set(currentRotation).nor();
 		
-		positionA.set(tmpVec).mul(nearDist).add(center.getPosition()).add(offset);
+		positionA.set(tmpVec).mul(nearDist+center.getRadius()).add(center.getPosition()).add(offset);
 		
-		positionB.set(tmpVec).mul(farDist).add(center.getPosition()).add(offset);
+		positionB.set(tmpVec).mul(farDist+center.getRadius()).add(center.getPosition()).add(offset);
 	}
 }

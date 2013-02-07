@@ -27,6 +27,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.PlayerPlacer;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.Spawner;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Stair;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
@@ -195,8 +196,11 @@ public class GameData {
 		GameStats.init();
 		
 		dungeon = new HashMap<String, LevelContainer>();
-		LevelContainer lc = new LevelContainer("start_town", "start_town", 1, new String[]{}, new String[]{});
-		dungeon.put("start_town", lc);
+		LevelContainer lc = new LevelContainer("start_town", "start_town", 1, new String[]{}, new String[]{"generic1"});
+		dungeon.put(lc.name, lc);
+		
+		LevelContainer lc1 = new LevelContainer("generic1", "generic", 1, new String[]{"start_town"}, new String[]{});
+		dungeon.put(lc1.name, lc1);
 		
 		currentLevel = "start_town";
 
@@ -206,6 +210,8 @@ public class GameData {
 	static String prevLevel;
 	public static void changeLevel(String level)
 	{
+		player = null;
+		
 		prevLevel = currentLevel;
 		currentLevel = level;
 		
@@ -242,7 +248,6 @@ public class GameData {
 			player = new Player(new Colour(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f, GL20.GL_TRIANGLES, "file", "model@");
 			player.create();
 			player.visible = false;
-			GameStats.setPlayerStats(player);
 			
 			level.addActor(player);
 			
@@ -252,25 +257,8 @@ public class GameData {
 			
 		}
 		
-		for (LevelObject lo : level.levelObjects)
-		{
-			if (lo instanceof PlayerPlacer)
-			{
-				player.positionAbsolutely(lo.position.cpy());
-				break;
-			}
-			else if (lo instanceof Stair)
-			{
-				Stair s = (Stair) lo;
-				
-				if (s.level_UID.equals(prevLevel))
-				{
-					player.positionAbsolutely(s.position.cpy().add(0, 4, 0));
-					break;
-				}
-			}
-		}
-
+		GameStats.setPlayerStats(player);
+		
 		for (GameActor ga : level.actors) {
 			ga.fixReferences();
 		}
@@ -285,6 +273,38 @@ public class GameData {
 		}
 		
 		lightManager.fixReferences();
+		
+		for (LevelObject lo : level.levelObjects)
+		{
+
+			if (lo instanceof PlayerPlacer)
+			{
+				if (prevLevel.equals(currentLevel))
+				{
+					player.positionAbsolutely(lo.position.tmp());
+					break;
+				}
+			}
+			else if (lo instanceof Stair)
+			{
+				Stair s = (Stair) lo;
+				
+				if (s.level_UID.equals(prevLevel))
+				{
+					player.positionAbsolutely(s.position.tmp().add(0, s.getPosition().y+s.getRadius()+player.getRadius()+1, 0));
+				}
+			}
+		}
+		
+		for (LevelObject lo : level.levelObjects)
+		{
+			if (lo instanceof Spawner)
+			{
+				Spawner s = (Spawner) lo;
+				
+				s.spawn(level);
+			}
+		}
 
 		SaveGame save = new SaveGame();
 		GameData.save(save);
@@ -297,58 +317,22 @@ public class GameData {
 	
 	public static Element getElement(String eleName)
 	{
-		Element element = null;
-		
-		if (eleName.equalsIgnoreCase("FIRE"))
+		for (Element e : Element.values())
 		{
-			element = Element.FIRE;
-		}
-		else if (eleName.equalsIgnoreCase("WATER"))
-		{
-			element = Element.WATER;
-		}
-		else if (eleName.equalsIgnoreCase("AIR"))
-		{
-			element = Element.AIR;
-		}
-		else if (eleName.equalsIgnoreCase("WOOD"))
-		{
-			element = Element.WOOD;
-		}
-		else if (eleName.equalsIgnoreCase("METAL"))
-		{
-			element = Element.METAL;
-		}
-		else if (eleName.equalsIgnoreCase("AETHER"))
-		{
-			element = Element.AETHER;
-		}
-		else if (eleName.equalsIgnoreCase("VOID"))
-		{
-			element = Element.VOID;
+			if (eleName.equalsIgnoreCase(""+e)) return e;
 		}
 		
-		return element;
+		return null;
 	}
 	
 	public static Damage_Type getDamageType(String type)
 	{
-		Damage_Type damType = null;
-		
-		if (type.equalsIgnoreCase("PIERCE"))
+		for (Damage_Type dt : Damage_Type.values())
 		{
-			damType = Damage_Type.PIERCE;
-		}
-		else if (type.equalsIgnoreCase("IMPACT"))
-		{
-			damType = Damage_Type.IMPACT;
-		}
-		else if (type.equalsIgnoreCase("TOUCH"))
-		{
-			damType = Damage_Type.TOUCH;
+			if (type.equalsIgnoreCase(""+dt)) return dt;
 		}
 		
-		return damType;
+		return null;
 	}
 	
 	public static int calculateDamage(int strength, 

@@ -143,72 +143,213 @@ public abstract class LevelObject extends GameObject{
 		}
 		else if (ao.type == ObjectType.SPAWNER_0)
 		{
-			GameActor monster = evolver.getMonster(0);
-			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
-			level.actors.add(monster);
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Colour colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Spawner(ao, 0, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					lo = new Spawner(ao, 0, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
+				}
+			}
+			else
+			{
+				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 0, evolver);
+			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_1)
 		{
-			
-			GameActor monster = evolver.getMonster(1);
-			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
-			level.actors.add(monster);
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Colour colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Spawner(ao, 1, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					lo = new Spawner(ao, 1, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
+				}
+			}
+			else
+			{
+				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 1, evolver);
+			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_2)
 		{
-			
-			GameActor monster = evolver.getMonster(2);
-			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
-			level.actors.add(monster);
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Colour colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Spawner(ao, 2, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					lo = new Spawner(ao, 2, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
+				}
+			}
+			else
+			{
+				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 2, evolver);
+			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_3)
 		{
-			
-			GameActor monster = evolver.getMonster(3);
-			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
-			level.actors.add(monster);
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Colour colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Spawner(ao, 3, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					lo = new Spawner(ao, 3, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
+				}
+			}
+			else
+			{
+				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 3, evolver);
+			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_4)
 		{
-			
-			GameActor monster = evolver.getMonster(4);
-			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
-			level.actors.add(monster);
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Colour colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Spawner(ao, 4, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					lo = new Spawner(ao, 4, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
+				}
+			}
+			else
+			{
+				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 4, evolver);
+			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_5)
 		{
-			
-			GameActor monster = evolver.getMonster(5);
-			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
-			level.actors.add(monster);
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Colour colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Spawner(ao, 5, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					lo = new Spawner(ao, 5, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
+				}
+			}
+			else
+			{
+				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 5, evolver);
+			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_6)
 		{
-			
-			GameActor monster = evolver.getMonster(6);
-			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
-			level.actors.add(monster);
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Colour colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Spawner(ao, 6, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					lo = new Spawner(ao, 6, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
+				}
+			}
+			else
+			{
+				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 6, evolver);
+			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_7)
 		{
-			
-			GameActor monster = evolver.getMonster(7);
-			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
-			level.actors.add(monster);
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Colour colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Spawner(ao, 7, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					lo = new Spawner(ao, 7, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
+				}
+			}
+			else
+			{
+				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 7, evolver);
+			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_8)
 		{
-			
-			GameActor monster = evolver.getMonster(8);
-			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
-			level.actors.add(monster);
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Colour colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Spawner(ao, 8, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					lo = new Spawner(ao, 8, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
+				}
+			}
+			else
+			{
+				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 8, evolver);
+			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_9)
 		{
-			
-			GameActor monster = evolver.getMonster(9);
-			monster.positionAbsolutely((ao.x)*10, 0, (ao.z)*10);
-			level.actors.add(monster);
+			if (ao.visible)
+			{
+				String texture = ao.texture;
+				Colour colour = ao.colour;
+				if (ao.modelType.equalsIgnoreCase("file"))
+				{
+					lo = new Spawner(ao, 9, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				}
+				else if (ao.modelType.equalsIgnoreCase("cube"))
+				{
+					lo = new Spawner(ao, 9, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
+				}
+			}
+			else
+			{
+				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 9, evolver);
+			}
 		}
 		
 		return lo;

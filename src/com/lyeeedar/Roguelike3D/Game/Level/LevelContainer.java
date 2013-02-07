@@ -89,6 +89,18 @@ public class LevelContainer implements Serializable {
 		return null;
 	}
 	
+	public MonsterEvolver getMonsterEvolver(String type, String UID)
+	{
+		ArrayList<MonsterEvolver> m = monsters.get(type);
+		
+		for (MonsterEvolver me : m)
+		{
+			if (me.UID.equals(UID)) return me;
+		}
+		
+		return null;
+	}
+	
 	public MonsterEvolver getMonsterEvolver(String type)
 	{
 		if (!monsters.containsKey(type))

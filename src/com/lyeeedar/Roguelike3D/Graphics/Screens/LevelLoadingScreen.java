@@ -105,8 +105,8 @@ public class LevelLoadingScreen extends AbstractScreen{
 		}
 		else if (loadingStage == 2)
 		{
-			level.createActors();
 			level.createLevelObjects();
+			level.createActors();
 			
 			percent += taskSteps;
 			loadingStage++;

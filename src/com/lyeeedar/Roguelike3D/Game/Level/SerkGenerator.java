@@ -49,17 +49,23 @@ public class SerkGenerator implements AbstractGenerator{
 	final int width;
 	final int height;
 	
+	final int up;
+	final int down;
+	
 	public SerkGenerator(AbstractTile[][] tiles, BiomeReader biome, int up, int down)
 	{
 		this.tiles = tiles;
 		this.width = tiles.length;
 		this.height = tiles[0].length;
 		
+		this.up = up;
+		this.down = down;
+		
 		ROOM_PLACE_PADDING = biome.getRoomPadding();
-		START_MIN = up;
-		START_VAR = 0;
-		END_MIN = down;
-		END_VAR = 0;
+		START_MIN = biome.getRoomSizeMin(RoomType.START);
+		START_VAR = biome.getRoomSizeVar(RoomType.START);
+		END_MIN = biome.getRoomSizeMin(RoomType.END);
+		END_VAR = biome.getRoomSizeVar(RoomType.END);
 		MAIN_MIN = biome.getRoomSizeMin(RoomType.MAIN);
 		MAIN_VAR = biome.getRoomSizeVar(RoomType.MAIN)+1;
 		SPECIAL_MIN = biome.getRoomSizeMin(RoomType.SPECIAL);
@@ -73,13 +79,13 @@ public class SerkGenerator implements AbstractGenerator{
 		
 		setInfluence();
 		
-		int reps = biome.getRoomNumberMin(RoomType.START)+ran.nextInt(biome.getRoomNumberVar(RoomType.START));
+		int reps = up;
 
-		while(!placeRoom(RoomType.START)){}
+		for (int i = 0; i < reps; i++) while(!placeRoom(RoomType.START)){}
 		
-		reps = biome.getRoomNumberMin(RoomType.END)+ran.nextInt(biome.getRoomNumberVar(RoomType.END));
+		reps = down;
 
-		while(!placeRoom(RoomType.END)){}
+		for (int i = 0; i < reps; i++) while(!placeRoom(RoomType.END)){}
 		
 		reps = biome.getRoomNumberMin(RoomType.MAIN)+ran.nextInt(biome.getRoomNumberVar(RoomType.MAIN));
 		for (int i = 0 ; i < reps; i++)

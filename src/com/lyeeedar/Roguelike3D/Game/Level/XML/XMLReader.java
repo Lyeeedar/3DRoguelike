@@ -29,7 +29,7 @@ public abstract class XMLReader implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -6266299160669094961L;
-	Document root_node;
+	transient Document root_node;
 	
 	public XMLReader() {
 		

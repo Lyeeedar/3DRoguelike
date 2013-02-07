@@ -155,10 +155,18 @@ public class MonsterEvolver extends XMLReader {
 	final transient Node attribute_root;
 
 	final HashMap<String, AbstractCreature_Evolver> creatures = new HashMap<String, AbstractCreature_Evolver>();
+	
+	public final String UID;
+	
+	public final String type;
 
 	public MonsterEvolver(String monster_type, int depth) {
 
 		super("data/xml/monsters.data");
+		
+		this.type = monster_type;
+		
+		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		
 		System.out.println("Creating for type "+monster_type+" at depth "+depth);
 		
@@ -370,7 +378,7 @@ public class MonsterEvolver extends XMLReader {
 		}
 	}
 	
-	public ArrayList<Component> getDrops(Node dropList)
+	private ArrayList<Component> getDrops(Node dropList)
 	{
 		ArrayList<Component> drops = new ArrayList<Component>();
 		
@@ -389,7 +397,7 @@ public class MonsterEvolver extends XMLReader {
 		return drops;
 	}
 	
-	public Component getComponent(Node dropNode)
+	private Component getComponent(Node dropNode)
 	{
 		String typeString = getNodeValue(TYPE, dropNode.getChildNodes());
 		Component_Type type = Component.convertComponentType(typeString);
@@ -595,7 +603,7 @@ public class MonsterEvolver extends XMLReader {
 		}
 	}
 	
-	public Creature_Evolver createCreature(int difficulty)
+	private Creature_Evolver createCreature(int difficulty)
 	{
 		Node abs = getNode(ABSTRACT, selected_monster.getChildNodes());
 		Node abstractList = getNode(DIFFICULTY+difficulty, abs.getChildNodes());
@@ -626,7 +634,7 @@ public class MonsterEvolver extends XMLReader {
 		return c_e;
 	}
 	
-	public Creature_Evolver recreateCreature(int difficulty)
+	private Creature_Evolver recreateCreature(int difficulty)
 	{
 		Node abstractList = getNode(DIFFICULTY+difficulty, getNode(ABSTRACT, selected_monster.getChildNodes()).getChildNodes());
 		AbstractCreature_Evolver creature = creatures.get(getNodeValue(CREATURE, abstractList.getChildNodes()));
@@ -876,24 +884,6 @@ public class MonsterEvolver extends XMLReader {
 				);
 
 		return a_e;
-	}
-
-	public char[][] getVisualGrid()
-	{
-		char[][] vGrid = new char[EVOLVER_WIDTH][EVOLVER_HEIGHT];
-
-		for (int x = 0; x < EVOLVER_WIDTH; x++)
-		{
-			for (int y = 0; y < EVOLVER_HEIGHT; y++)
-			{
-				vGrid[x][y] = '.';
-
-				if (grid[x][y].food) vGrid[x][y] = 'F';
-				if (grid[x][y].creature != null) vGrid[x][y] = 'C';
-			}
-		}
-
-		return vGrid;
 	}
 }
 
@@ -1913,9 +1903,9 @@ class AI_Evolver_VFFG extends AI_Evolver_Package
 
 class Evolver_Combat
 {
-	public static final int COMBAT_STEPS = 50;
+	public static final int COMBAT_STEPS = 25;
 	final Random ran = new Random();
-	public static final float STAGE_LENGTH = 50;
+	public static final float STAGE_LENGTH = 25;
 	public static final float TIME_STEP = 0.5f;
 
 	Creature_Evolver c1;

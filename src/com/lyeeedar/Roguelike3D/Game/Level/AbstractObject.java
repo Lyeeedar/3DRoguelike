@@ -112,98 +112,12 @@ public class AbstractObject implements Serializable {
 	
 	private ObjectType stringToObjectType(String type)
 	{
-		ObjectType otype = null;
-		
-		if (type.equalsIgnoreCase("STATIC"))
+		for (ObjectType o : ObjectType.values())
 		{
-			otype = ObjectType.STATIC;
-		}
-		else if (type.equalsIgnoreCase("PLAYER_PLACER"))
-		{
-			otype = ObjectType.PLAYER_PLACER;
-		}
-		else if (type.equalsIgnoreCase("DOOR_UNLOCKED"))
-		{
-			otype = ObjectType.DOOR_UNLOCKED;
-		}
-		else if (type.equalsIgnoreCase("DOOR_LOCKED"))
-		{
-			otype = ObjectType.DOOR_LOCKED;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_0"))
-		{
-			otype = ObjectType.SPAWNER_0;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_1"))
-		{
-			otype = ObjectType.SPAWNER_1;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_2"))
-		{
-			otype = ObjectType.SPAWNER_2;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_3"))
-		{
-			otype = ObjectType.SPAWNER_3;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_4"))
-		{
-			otype = ObjectType.SPAWNER_4;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_5"))
-		{
-			otype = ObjectType.SPAWNER_5;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_6"))
-		{
-			otype = ObjectType.SPAWNER_6;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_7"))
-		{
-			otype = ObjectType.SPAWNER_7;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_8"))
-		{
-			otype = ObjectType.SPAWNER_8;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_9"))
-		{
-			otype = ObjectType.SPAWNER_9;
-		}
-		else if (type.equalsIgnoreCase("SPAWNER_B"))
-		{
-			otype = ObjectType.SPAWNER_B;
-		}
-		else if (type.equalsIgnoreCase("STAIR_UP"))
-		{
-			otype = ObjectType.STAIR_UP;
-		}
-		else if (type.equalsIgnoreCase("STAIR_DOWN"))
-		{
-			otype = ObjectType.STAIR_DOWN;
-		}
-		else if (type.equalsIgnoreCase("FIRE_CAMP"))
-		{
-			otype = ObjectType.FIRE_CAMP;
-		}
-		else if (type.equalsIgnoreCase("FIRE_TORCH"))
-		{
-			otype = ObjectType.FIRE_TORCH;
-		}
-		else if (type.equalsIgnoreCase("TREASURE"))
-		{
-			otype = ObjectType.TREASURE;
-		}
-		else if (type.equalsIgnoreCase("ARTIFACT"))
-		{
-			otype = ObjectType.ARTIFACT;
-		}
-		else if (type.equalsIgnoreCase("ALTAR"))
-		{
-			otype = ObjectType.ALTAR;
+			if (type.equalsIgnoreCase(""+o)) return o;
 		}
 		
-		return otype;
+		return null;
 	}
 	
 	public AbstractObject(char character, ObjectType type, boolean visible, String shortDesc, String longDesc)

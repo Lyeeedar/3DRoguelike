@@ -77,7 +77,7 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 
 	@Override
 	public void draw (StillModel model, StillModelAttributes attributes) {
-		if (cam != null) if (!cam.frustum.sphereInFrustum(attributes.getSortCenter(), attributes.getBoundingSphereRadius())) return;
+		if (cam != null) if (!cam.frustum.sphereInFrustum(attributes.getSortCenter(), attributes.getBoundingSphereRadius()*2)) return;
 		
 		if (remakeShaders) attributes.material.generateShader(shaderHandler);	
 		drawableManager.add(model, attributes);
@@ -271,6 +271,8 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 		Gdx.gl.glDisable(GL20.GL_BLEND);
 	}
 
+	public static final Vector3 tmp = new Vector3();
+	
 	class DrawableManager {
 		Pool<Drawable> drawablePool = new Pool<Drawable>() {
 			@Override
@@ -358,7 +360,7 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 				
 				attributes.getTransform().getTranslation(t);
 				
-				transform.setToTranslationAndScaling(t, attributes.scale);
+				transform.setToTranslationAndScaling(t, tmp.set(attributes.scale, attributes.scale, attributes.scale));
 
 				sortCenter.set(attributes.getSortCenter());
 				distance = (int)(PRIORITY_DISCRETE_STEPS * sortCenter.dst(cam.position));

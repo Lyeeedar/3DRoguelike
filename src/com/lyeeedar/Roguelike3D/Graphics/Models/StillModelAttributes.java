@@ -12,6 +12,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Models;
 
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 
 public class StillModelAttributes implements StillModelInstance {
@@ -26,14 +27,17 @@ public class StillModelAttributes implements StillModelInstance {
 	public Material material;
 	public float radius;
 	
-	public final Vector3 scale;
+	public final float scale;
+	
+	public Vector3 box;
 
-	public StillModelAttributes (Material material, float radius, float scale) {
+	public StillModelAttributes (Material material, float radius, float scale, Vector3 box) {
 		this.material = material;
+		this.box = box;
 		
 		this.radius = radius/2 * scale;
 		
-		this.scale = new Vector3(scale, scale, scale);
+		this.scale = scale;
 	}
 
 	@Override
@@ -71,7 +75,7 @@ public class StillModelAttributes implements StillModelInstance {
 		
 		Material copy_material = material.copy();
 		
-		final StillModelAttributes copy = new StillModelAttributes(copy_material, radius, scale.x);
+		final StillModelAttributes copy = new StillModelAttributes(copy_material, radius, scale, box);
 		
 		copy.position.set(position.val);
 		copy.rotation.set(rotation.val);

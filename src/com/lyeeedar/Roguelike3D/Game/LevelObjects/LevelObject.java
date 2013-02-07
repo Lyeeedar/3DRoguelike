@@ -39,9 +39,6 @@ public abstract class LevelObject extends GameObject{
 	public static final transient String MONSTER_TYPE = "monster_type";
 	public static final transient String LEVEL = "level";
 	
-	boolean opaque = true;
-	boolean solid = false;
-	
 	public final AbstractObject ao;
 	
 	public LevelObject(boolean visible, float x, float y, float z, AbstractObject ao)
@@ -93,7 +90,7 @@ public abstract class LevelObject extends GameObject{
 			lo.longDesc = ao.longDesc;
 			
 			ParticleEmitter p = new ParticleEmitter(2.5f, 2, 2.5f, 1.5f, 1.5f, 1.5f, 0.005f, 350, lo);
-			p.setTexture("data/textures/texf.png", new Vector3(0.0f, 3.5f, 0.0f), 1.6f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.03f);
+			p.setTexture("texf", new Vector3(0.0f, 3.5f, 0.0f), 1.6f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.03f);
 			
 			GameData.particleEmitters.add(p);
 		}
@@ -105,7 +102,7 @@ public abstract class LevelObject extends GameObject{
 			lo.longDesc = ao.longDesc;
 			
 			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.01f, 10, lo);
-			p.setTexture("data/textures/texf.png", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.5f);
+			p.setTexture("texf", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.5f);
 			
 			GameData.particleEmitters.add(p);
 		}
@@ -353,33 +350,5 @@ public abstract class LevelObject extends GameObject{
 		}
 		
 		return lo;
-	}
-
-	/**
-	 * @return the opaque
-	 */
-	public boolean isOpaque() {
-		return opaque;
-	}
-
-	/**
-	 * @param opaque the opaque to set
-	 */
-	public void setOpaque(boolean opaque) {
-		this.opaque = opaque;
-	}
-
-	/**
-	 * @return the solid
-	 */
-	public boolean isSolid() {
-		return solid;
-	}
-
-	/**
-	 * @param solid the solid to set
-	 */
-	public void setSolid(boolean solid) {
-		this.solid = solid;
 	}
 }

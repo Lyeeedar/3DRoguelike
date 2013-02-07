@@ -145,7 +145,7 @@ public class ParticleEmitter implements Serializable {
 		
 		bound = GameData.level.getActor(boundUID);
 		if (bound == null) bound = GameData.level.getLevelObject(boundUID);
-		this.texture = new Texture(Gdx.files.internal(textureName));
+		this.texture = GameData.loadTexture(textureName);
 		
 		create();
 	}
@@ -174,7 +174,7 @@ public class ParticleEmitter implements Serializable {
 	public void setTexture(String texture, Vector3 velocity, float atime, Colour start, Colour end, boolean light, float intensity, float attenuation)
 	{
 		this.textureName = texture;
-		this.texture = new Texture(Gdx.files.internal(texture));
+		this.texture = GameData.loadTexture(texture);
 		this.velocity = velocity;
 		this.atime = atime;
 		this.start = start;

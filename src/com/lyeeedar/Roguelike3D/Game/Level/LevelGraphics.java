@@ -37,8 +37,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 
 public class LevelGraphics {
 	
-	public static final int CHUNK_WIDTH = 10;
-	public static final int CHUNK_HEIGHT = 10;
+	public static final int CHUNK_WIDTH = 20;
+	public static final int CHUNK_HEIGHT = 20;
 	
 	public ArrayList<VisibleObject> graphics = new ArrayList<VisibleObject>();
 	

@@ -448,6 +448,8 @@ public class Level implements Serializable {
 	{
 		for (GameActor ga : actors)
 		{
+			if (!ga.isSolid()) continue;
+			
 			if (ga.UID.equals(UID)) continue;
 			
 			if (position.dst2(ga.getPosition()) < (radius+ga.vo.attributes.radius)*(radius+ga.vo.attributes.radius))
@@ -465,7 +467,12 @@ public class Level implements Serializable {
 		{
 			if (!ga.isSolid()) continue;
 			
-			if (position.dst2(ga.getPosition()) < (radius+ga.vo.attributes.radius)*(radius+ga.vo.attributes.radius))
+			//if (position.dst2(ga.getPosition()) < (radius+ga.vo.attributes.radius)*(radius+ga.vo.attributes.radius))
+			Vector3 box = ga.vo.attributes.box;
+			Vector3 hbox = box.tmp2().mul(0.5f);
+			if (GameData.SphereBoxIntersection(position.x, position.y, position.z, radius,
+					ga.getPosition().x-hbox.x, ga.getPosition().y-hbox.y, ga.getPosition().z-hbox.z,
+					box.x, box.y, box.z))
 			{
 				return ga;
 			}

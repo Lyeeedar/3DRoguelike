@@ -75,6 +75,7 @@ public abstract class GameObject implements Serializable {
 	
 	public boolean grounded = true;
 	public boolean visible = true;
+	public boolean solid = true;
 	
 	public String shortDesc = "";
 	public String longDesc = "";
@@ -354,5 +355,103 @@ public abstract class GameObject implements Serializable {
 	public abstract void activate();
 	
 	public abstract String getActivatePrompt();
+
+	/**
+	 * @return the boundLight
+	 */
+	public PointLight getBoundLight() {
+		return boundLight;
+	}
+
+	/**
+	 * @param boundLight the boundLight to set
+	 */
+	public void setBoundLight(PointLight boundLight) {
+		this.boundLight = boundLight;
+	}
+
+	/**
+	 * @return the boundLightUID
+	 */
+	public String getBoundLightUID() {
+		return boundLightUID;
+	}
+
+	/**
+	 * @param boundLightUID the boundLightUID to set
+	 */
+	public void setBoundLightUID(String boundLightUID) {
+		this.boundLightUID = boundLightUID;
+	}
+
+	/**
+	 * @return the grounded
+	 */
+	public boolean isGrounded() {
+		return grounded;
+	}
+
+	/**
+	 * @param grounded the grounded to set
+	 */
+	public void setGrounded(boolean grounded) {
+		this.grounded = grounded;
+	}
+
+	/**
+	 * @return the visible
+	 */
+	public boolean isVisible() {
+		return visible;
+	}
+
+	/**
+	 * @param visible the visible to set
+	 */
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+
+	/**
+	 * @return the solid
+	 */
+	public boolean isSolid() {
+		return solid;
+	}
+
+	/**
+	 * @param solid the solid to set
+	 */
+	public void setSolid(boolean solid) {
+		this.solid = solid;
+	}
+
+	/**
+	 * @return the shortDesc
+	 */
+	public String getShortDesc() {
+		return shortDesc;
+	}
+
+	/**
+	 * @param shortDesc the shortDesc to set
+	 */
+	public void setShortDesc(String shortDesc) {
+		this.shortDesc = shortDesc;
+	}
+
+	/**
+	 * @return the longDesc
+	 */
+	public String getLongDesc() {
+		return longDesc;
+	}
+
+	/**
+	 * @param longDesc the longDesc to set
+	 */
+	public void setLongDesc(String longDesc) {
+		this.longDesc = longDesc;
+	}
 
 }

@@ -12,8 +12,10 @@ package com.lyeeedar.Roguelike3D.Game;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -176,6 +178,23 @@ public class GameData {
 	
 	public static int[] resolution = {800, 600};
 	
+	public static HashMap<String, Texture> loadedTextures = new HashMap<String, Texture>();
+	
+	public static Texture loadTexture(String textureName)
+	{
+		String textureLocation = "data/textures/"+textureName+".png";
+		
+		if (loadedTextures.containsKey(textureLocation)) return loadedTextures.get(textureLocation);
+		
+		if (!Gdx.files.internal(textureLocation).exists()) return null;
+		
+		Texture texture = new Texture(Gdx.files.internal(textureLocation), true);
+		
+		loadedTextures.put(textureLocation, texture);
+		
+		return texture;
+	}
+	
 	public static void load()
 	{
 		SaveGame save = SaveGame.load();
@@ -276,6 +295,17 @@ public class GameData {
 		
 		for (LevelObject lo : level.levelObjects)
 		{
+			lo.positionYAbsolutely(lo.getRadius());
+			if (lo instanceof Spawner)
+			{
+				Spawner s = (Spawner) lo;
+				
+				s.spawn(level);
+			}
+		}
+		
+		for (LevelObject lo : level.levelObjects)
+		{
 
 			if (lo instanceof PlayerPlacer)
 			{
@@ -293,16 +323,6 @@ public class GameData {
 				{
 					player.positionAbsolutely(s.position.tmp().add(0, s.getPosition().y+s.getRadius()+player.getRadius()+1, 0));
 				}
-			}
-		}
-		
-		for (LevelObject lo : level.levelObjects)
-		{
-			if (lo instanceof Spawner)
-			{
-				Spawner s = (Spawner) lo;
-				
-				s.spawn(level);
 			}
 		}
 
@@ -369,5 +389,50 @@ public class GameData {
 	public static LevelContainer getLevelContainer(String UID)
 	{
 		return dungeon.get(UID);
+	}
+	
+	/**
+	 * sx,sy,sz = sphere x,y,z centre co-ordinates
+	 * sr = sphere radius
+	 * bx,by,bz = box x,y,z corner co-ordinates
+	 * bw,bh,bd = box width,height,depth
+	 * @param sx
+	 * @param sy
+	 * @param sz
+	 * @param sr
+	 * @param bx
+	 * @param by
+	 * @param bz
+	 * @param bw
+	 * @param bh
+	 * @param bd
+	 * @return
+	 */
+	public static boolean SphereBoxIntersection(float sx, float sy, float sz, float sr, float bx, float by, float bz, float bw, float bh, float bd)
+	{
+		float dmin = 0;
+		float sr2 = sr*sr;
+
+		// x axis
+		if (sx < bx)
+			dmin=dmin+((sx-bx)*(sx-bx));
+
+		else if (sx>(bx+bw))
+			dmin=dmin+(((sx-(bx+bw)))*((sx-(bx+bw))));
+
+		// y axis
+		if (sy < by)
+			dmin=dmin+((sy-by)*(sy-by));
+		else if (sy>(by+bh))
+			dmin=dmin+(((sy-(by+bh)))*((sy-(by+bh))));
+
+		// z axis
+		if (sz < bz)
+			dmin=dmin+((sz-bz)*(sz-bz));
+		else if (sz>(bz+bd))
+			dmin=dmin+(((sz-(bz+bd)))*((sz-(bz+bd))));
+
+		if (dmin<=sr2) return true; 
+		else return false;
 	}
 }

@@ -180,6 +180,8 @@ public class GameActor extends GameObject{
 				}
 			}
 			loot = true;
+			solid = false;
+			visible = false;
 		}
 	}
 

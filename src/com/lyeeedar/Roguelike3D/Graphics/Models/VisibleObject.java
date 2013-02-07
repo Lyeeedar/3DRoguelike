@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.ColorAttribute;
@@ -60,39 +61,22 @@ public class VisibleObject implements Serializable {
 		this.primitive_type = primitive_type;
 		this.colour = colour;
 		this.scale = scale;
-		
-		
-		Texture diffuseTexture = new Texture(Gdx.files.internal("data/textures/"+texture+".png"), true);
-		diffuseTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
-		diffuseTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
-		
-		Texture normalTexture = null;
-		if (Gdx.files.internal("data/textures/"+texture+".map.png").exists())
-		{
-			normalTexture = new Texture(Gdx.files.internal("data/textures/"+texture+".map.png"), true);
-			normalTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
-			normalTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
-			System.out.println("Normal map found for "+texture);
-		}
 
-		mesh = Shapes.insertColour(mesh, colour);
-		//mesh = Shapes.insertTangents(mesh);
-		
-		SubMesh[] meshes = {new StillSubMesh("SubMesh1", mesh, primitive_type)};
-		model = new StillModel(meshes);
-		MaterialAttribute t = new TextureAttribute(diffuseTexture, normalTexture, null, 0);
-		
-		Material material = new Material("basic", t);
-		
-		BoundingBox box = mesh.calculateBoundingBox();
-		
-		attributes = new StillModelAttributes(material, (box.getDimensions().x > box.getDimensions().z) ? box.getDimensions().x : box.getDimensions().z, scale);
+		loadGraphics(mesh);
 	}
 
 	public void create()
 	{
 		if (model != null && attributes != null) return;
 		
+		Mesh mesh = getMesh();
+		
+		loadGraphics(mesh);
+		
+	}
+	
+	private void loadGraphics(Mesh mesh)
+	{
 		Texture diffuseTexture = new Texture(Gdx.files.internal("data/textures/"+texture+".png"), true);
 		diffuseTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
 		diffuseTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
@@ -106,8 +90,6 @@ public class VisibleObject implements Serializable {
 			System.out.println("Normal map found for "+texture);
 		}
 
-		Mesh mesh = getMesh();
-		
 		mesh = Shapes.insertColour(mesh, colour);
 		//mesh = Shapes.insertTangents(mesh);
 		
@@ -119,7 +101,7 @@ public class VisibleObject implements Serializable {
 		
 		BoundingBox box = mesh.calculateBoundingBox();
 		
-		attributes = new StillModelAttributes(material, (box.getDimensions().x > box.getDimensions().z) ? box.getDimensions().x : box.getDimensions().z, scale);
+		attributes = new StillModelAttributes(material, (box.getDimensions().x > box.getDimensions().z) ? box.getDimensions().x : box.getDimensions().z, scale, box.getDimensions());
 	}
 	
 	private Mesh getMesh()

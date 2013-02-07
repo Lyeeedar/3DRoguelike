@@ -112,6 +112,11 @@ public class AI_Player_Controlled extends AI_Package {
 			actor.getVelocity().set(0, 2, 2);
 		}
 		
+		if (Gdx.input.isKeyPressed(Keys.F))
+		{			
+			actor.positionYAbsolutely(20);
+		}
+		
 		if (Gdx.input.isKeyPressed(Keys.L))
 		{			
 			GameData.load();

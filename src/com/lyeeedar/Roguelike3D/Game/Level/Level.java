@@ -492,6 +492,24 @@ public class Level implements Serializable {
 		return null;
 	}
 	
+	public GameActor checkCollisionGameActors(Vector3 position, Vector3 box)
+	{
+		for (GameActor ga : actors)
+		{
+			if (!ga.isSolid()) continue;
+			
+			Vector3 hbox = box.tmp2().mul(0.5f);
+			if (GameData.SphereBoxIntersection(ga.getPosition().x, ga.getPosition().y, ga.getPosition().z, ga.radius,
+					position.x-hbox.x, position.y-hbox.y, position.z-hbox.z,
+					box.x, box.y, box.z))
+			{
+				return ga;
+			}
+		}
+		
+		return null;	
+	}
+	
 	public boolean checkLevelCollision(float x, float y, float z)
 	{					
 		int ix = (int)((x/10f));

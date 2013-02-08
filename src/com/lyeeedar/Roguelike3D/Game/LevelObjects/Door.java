@@ -103,7 +103,7 @@ public class Door extends LevelObject {
 		}
 		else if (!moving)
 		{
-			if (GameData.level.checkEntities(position, vo.attributes.radius, UID) != null) return;
+			if (GameData.level.checkCollisionGameActors(position, vo.attributes.box) != null) return;
 			
 			moving = true;
 		}

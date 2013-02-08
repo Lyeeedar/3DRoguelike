@@ -138,6 +138,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 			{
 				GameData.skyBox = new SkyBox(GameData.getCurrentLevelContainer().skybox);
 			}
+			else GameData.skyBox = null;
 			
 			loadingStage++;
 			percent += taskSteps*5;

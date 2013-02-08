@@ -26,7 +26,9 @@ import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
+import com.lyeeedar.Roguelike3D.Game.Level.XML.DungeonReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.Door;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.PlayerPlacer;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Spawner;
@@ -40,6 +42,8 @@ import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 
 public class GameData {
+	
+	public static final int BLOCK_SIZE = 10;
 	
 	/**
 	 * Cycle of elements:
@@ -124,10 +128,10 @@ public class GameData {
 		;
 		
 		private final int val;
-		private final Color colour;
-		Rarity(int val, int r, int g, int b) { this.val = val; this.colour = new Color(r/255f, g/255f, b/255f, 1.0f); }
+		private final Colour colour;
+		Rarity(int val, int r, int g, int b) { this.val = val; this.colour = new Colour(r/255f, g/255f, b/255f, 1.0f); }
 		public int getVal() { return val; }
-		public Color getColour() { return colour; }
+		public Colour getColour() { return colour; }
 	}
 	
 	public static Rarity getRarity(int i)
@@ -137,7 +141,7 @@ public class GameData {
 			if (r.getVal() == i) return r;
 		}
 		
-		return null;
+		return Rarity.TRUE;
 	}
 	
 	public static Label getRarityLabel(int i, Skin skin)
@@ -148,7 +152,7 @@ public class GameData {
 		
 		LabelStyle ls = l.getStyle();
 		LabelStyle nls = new LabelStyle();
-		nls.fontColor = r.getColour();
+		nls.fontColor = r.getColour().getColor();
 		nls.background = ls.background;
 		nls.font = ls.font;
 		
@@ -165,7 +169,7 @@ public class GameData {
 	
 	public static LevelGraphics levelGraphics;
 	public static ArrayList<ParticleEmitter> particleEmitters = null;
-	public static SkyBox skyBox = new SkyBox("sky");
+	public static SkyBox skyBox;
 	
 	public static Player player;
 	
@@ -214,12 +218,9 @@ public class GameData {
 		GameData.game = game;
 		GameStats.init();
 		
-		dungeon = new HashMap<String, LevelContainer>();
-		LevelContainer lc = new LevelContainer("start_town", "start_town", 1, new String[]{}, new String[]{"generic1"});
-		dungeon.put(lc.name, lc);
+		DungeonReader dr = new DungeonReader();
 		
-		LevelContainer lc1 = new LevelContainer("generic1", "generic", 1, new String[]{"start_town"}, new String[]{});
-		dungeon.put(lc1.name, lc1);
+		dungeon = dr.getDungeon();
 		
 		currentLevel = "start_town";
 
@@ -272,6 +273,7 @@ public class GameData {
 			
 			PointLight l = new PointLight(player.position.cpy(), new Colour(1.0f, 1.0f, 1.0f, 1.0f), 0.01f, 0.3f);
 			player.boundLight = l;
+			player.boundLightUID = l.UID;
 			lightManager.addDynamicLight(l);		
 			
 		}
@@ -292,6 +294,7 @@ public class GameData {
 		}
 		
 		lightManager.fixReferences();
+		level.fixReferences();
 		
 		for (LevelObject lo : level.levelObjects)
 		{
@@ -302,6 +305,13 @@ public class GameData {
 				
 				s.spawn(level);
 			}
+			else if (lo instanceof Door)
+			{
+				Door d = (Door) lo;
+				
+				d.orientate(level);
+			}
+			lo.positionYAbsolutely(lo.getRadius());
 		}
 		
 		for (LevelObject lo : level.levelObjects)

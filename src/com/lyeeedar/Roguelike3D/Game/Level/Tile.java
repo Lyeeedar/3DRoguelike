@@ -12,6 +12,7 @@ package com.lyeeedar.Roguelike3D.Game.Level;
 
 import java.io.Serializable;
 
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 
 public class Tile implements Serializable {
@@ -39,7 +40,8 @@ public class Tile implements Serializable {
 	public float height;
 	public boolean visible = false;
 	
-	public LevelObject lo;
+	private transient LevelObject lo;
+	public String loUID;
 	
 	public Tile (char character, float floor, float roof, float height)
 	{
@@ -47,6 +49,22 @@ public class Tile implements Serializable {
 		this.floor = floor;
 		this.roof = roof;
 		this.height = height;
+	}
+	
+	public void setLo(LevelObject lo)
+	{
+		this.lo = lo;
+	}
+	
+	public LevelObject getLo()
+	{
+		return lo;
+	}
+	
+	public void fixReferences()
+	{
+		if (loUID != null)
+			lo = GameData.level.getLevelObject(loUID);
 	}
 
 }

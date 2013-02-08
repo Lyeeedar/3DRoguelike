@@ -46,6 +46,8 @@ public class LevelContainer implements Serializable {
 	public final String[] down_levels;
 	
 	public HashMap<String, ArrayList<MonsterEvolver>> monsters = new HashMap<String, ArrayList<MonsterEvolver>>();
+	
+	public String skybox;
 
 	public LevelContainer(String name, String biome, int depth, String[] up, String[] down) {
 		this.biome = biome;
@@ -72,7 +74,8 @@ public class LevelContainer implements Serializable {
 	{
 		if (loadingStage == 0)
 		{
-			level = new Level(biome.getWidth(), biome.getHeight(), biome.getGenerator(), biome, false, depth, up_levels.length, down_levels.length);
+			skybox = biome.getSkybox();
+			level = new Level(biome.getWidth(), biome.getHeight(), biome.getGenerator(), biome, (skybox == null), depth, up_levels.length, down_levels.length);
 			loadingStage++;
 		}
 		else if (loadingStage == 1)

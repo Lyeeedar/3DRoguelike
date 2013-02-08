@@ -64,23 +64,23 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Static(ao, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Static(ao, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Static(ao, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Static(ao, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Static(false, (ao.x)*10, 0, (ao.z)*10, ao);
+				lo = new Static(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao);
 				
 			}
 		}
 		else if (ao.type == ObjectType.DOOR_UNLOCKED)
 		{
-			lo = Door.create(ao, level, x, y, z);
+			lo = new Door(ao, new Colour(), "tex+", (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, 1.0f, GL20.GL_TRIANGLES, "cube", "1", "1", "1");
 		}
 		else if (ao.type == ObjectType.FIRE_CAMP)
 		{
@@ -101,7 +101,7 @@ public abstract class LevelObject extends GameObject{
 			lo.shortDesc = ao.shortDesc;
 			lo.longDesc = ao.longDesc;
 			
-			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.01f, 10, lo);
+			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.01f, GameData.BLOCK_SIZE, lo);
 			p.setTexture("texf", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.5f);
 			
 			GameData.particleEmitters.add(p);
@@ -112,11 +112,11 @@ public abstract class LevelObject extends GameObject{
 			Colour colour = ao.colour;
 			if (ao.modelType.equalsIgnoreCase("model"))
 			{
-				lo = new Stair(ao, GameData.getCurrentLevelContainer().getUpLevel(), colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				lo = new Stair(ao, GameData.getCurrentLevelContainer().getUpLevel(), colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 			}
 			else if (ao.modelType.equalsIgnoreCase("cube"))
 			{
-				lo = new Stair(ao, GameData.getCurrentLevelContainer().getUpLevel(), colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+				lo = new Stair(ao, GameData.getCurrentLevelContainer().getUpLevel(), colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 						"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 			}
 		}
@@ -126,17 +126,17 @@ public abstract class LevelObject extends GameObject{
 			Colour colour = ao.colour;
 			if (ao.modelType.equalsIgnoreCase("model"))
 			{
-				lo = new Stair(ao, GameData.getCurrentLevelContainer().getDownLevel(), colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+				lo = new Stair(ao, GameData.getCurrentLevelContainer().getDownLevel(), colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 			}
 			else if (ao.modelType.equalsIgnoreCase("cube"))
 			{
-				lo = new Stair(ao, GameData.getCurrentLevelContainer().getDownLevel(), colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+				lo = new Stair(ao, GameData.getCurrentLevelContainer().getDownLevel(), colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 						"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 			}
 		}
 		else if (ao.type == ObjectType.PLAYER_PLACER)
 		{
-			lo = new PlayerPlacer(false, (ao.x)*10, 0, (ao.z)*10, ao);
+			lo = new PlayerPlacer(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao);
 		}
 		else if (ao.type == ObjectType.SPAWNER_0)
 		{
@@ -146,17 +146,17 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Spawner(ao, 0, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Spawner(ao, 0, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Spawner(ao, 0, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Spawner(ao, 0, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 0, evolver);
+				lo = new Spawner(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao, 0, evolver);
 			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_1)
@@ -167,17 +167,17 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Spawner(ao, 1, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Spawner(ao, 1, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Spawner(ao, 1, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Spawner(ao, 1, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 1, evolver);
+				lo = new Spawner(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao, 1, evolver);
 			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_2)
@@ -188,17 +188,17 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Spawner(ao, 2, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Spawner(ao, 2, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Spawner(ao, 2, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Spawner(ao, 2, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 2, evolver);
+				lo = new Spawner(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao, 2, evolver);
 			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_3)
@@ -209,17 +209,17 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Spawner(ao, 3, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Spawner(ao, 3, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Spawner(ao, 3, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Spawner(ao, 3, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 3, evolver);
+				lo = new Spawner(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao, 3, evolver);
 			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_4)
@@ -230,17 +230,17 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Spawner(ao, 4, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Spawner(ao, 4, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Spawner(ao, 4, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Spawner(ao, 4, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 4, evolver);
+				lo = new Spawner(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao, 4, evolver);
 			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_5)
@@ -251,17 +251,17 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Spawner(ao, 5, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Spawner(ao, 5, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Spawner(ao, 5, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Spawner(ao, 5, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 5, evolver);
+				lo = new Spawner(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao, 5, evolver);
 			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_6)
@@ -272,17 +272,17 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Spawner(ao, 6, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Spawner(ao, 6, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Spawner(ao, 6, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Spawner(ao, 6, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 6, evolver);
+				lo = new Spawner(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao, 6, evolver);
 			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_7)
@@ -293,17 +293,17 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Spawner(ao, 7, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Spawner(ao, 7, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Spawner(ao, 7, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Spawner(ao, 7, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 7, evolver);
+				lo = new Spawner(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao, 7, evolver);
 			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_8)
@@ -314,17 +314,17 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Spawner(ao, 8, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Spawner(ao, 8, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Spawner(ao, 8, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Spawner(ao, 8, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 8, evolver);
+				lo = new Spawner(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao, 8, evolver);
 			}
 		}
 		else if (ao.type == ObjectType.SPAWNER_9)
@@ -335,17 +335,17 @@ public abstract class LevelObject extends GameObject{
 				Colour colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
-					lo = new Spawner(ao, 9, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
+					lo = new Spawner(ao, 9, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
 				}
 				else if (ao.modelType.equalsIgnoreCase("cube"))
 				{
-					lo = new Spawner(ao, 9, evolver, colour, texture, (ao.x)*10, 0, (ao.z)*10, ao.modelScale, GL20.GL_TRIANGLES,
+					lo = new Spawner(ao, 9, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES,
 							"cube", ""+ao.modelDimensions[0], ""+ao.modelDimensions[1], ""+ao.modelDimensions[2]);
 				}
 			}
 			else
 			{
-				lo = new Spawner(false, (ao.x)*10, 0, (ao.z)*10, ao, 9, evolver);
+				lo = new Spawner(false, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao, 9, evolver);
 			}
 		}
 		

@@ -45,6 +45,8 @@ public class VisibleObject implements Serializable {
 	public final int primitive_type;
 	public final Colour colour;
 	
+	public boolean disposed = true;
+	
 	public VisibleObject(int primitive_type, Colour colour, String textureName, float scale, String... modelData)
 	{
 		this.texture = textureName;
@@ -77,14 +79,13 @@ public class VisibleObject implements Serializable {
 	
 	private void loadGraphics(Mesh mesh)
 	{
-		Texture diffuseTexture = new Texture(Gdx.files.internal("data/textures/"+texture+".png"), true);
+		Texture diffuseTexture = GameData.loadTexture(texture);
 		diffuseTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
 		diffuseTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
 		
-		Texture normalTexture = null;
-		if (Gdx.files.internal("data/textures/"+texture+".map.png").exists())
+		Texture normalTexture = GameData.loadTexture(texture+".map");
+		if (normalTexture != null)
 		{
-			normalTexture = new Texture(Gdx.files.internal("data/textures/"+texture+".map.png"), true);
 			normalTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
 			normalTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
 			System.out.println("Normal map found for "+texture);
@@ -102,6 +103,8 @@ public class VisibleObject implements Serializable {
 		BoundingBox box = mesh.calculateBoundingBox();
 		
 		attributes = new StillModelAttributes(material, (box.getDimensions().x > box.getDimensions().z) ? box.getDimensions().x : box.getDimensions().z, scale, box.getDimensions());
+	
+		disposed = false;
 	}
 	
 	private Mesh getMesh()
@@ -131,7 +134,11 @@ public class VisibleObject implements Serializable {
 	public void dispose()
 	{
 		model.dispose();
+		model = null;
 		attributes.dispose();
+		attributes = null;
+		
+		disposed = true;
 	}
 	
 	public void bakeLights(LightManager lights, boolean bakeStatics)
@@ -142,10 +149,9 @@ public class VisibleObject implements Serializable {
 		
 		Mesh newMesh = Shapes.insertLight(oldMesh, lights, bakeStatics, attributes.getSortCenter(), attributes.getRotation(), attributes.getMaterial().affectedByLighting);
 		
-		model.dispose();
+		model.subMeshes[0] = new StillSubMesh("SubMesh1", newMesh, primitive_type);
 		
-		SubMesh[] meshes = {new StillSubMesh("SubMesh1", newMesh, primitive_type)};
-		model = new StillModel(meshes);
+		oldMesh.dispose();
 	}
 
 }

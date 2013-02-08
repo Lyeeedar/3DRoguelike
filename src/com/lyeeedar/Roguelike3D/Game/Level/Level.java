@@ -106,6 +106,17 @@ public class Level implements Serializable {
 		}
 	}
 	
+	public void fixReferences()
+	{
+		for (Tile[] tiles : levelArray)
+		{
+			for (Tile t : tiles)
+			{
+				t.fixReferences();
+			}
+		}
+	}
+	
 	public GameActor getActor(String UID)
 	{
 		for (GameActor ga : actors)
@@ -212,7 +223,7 @@ public class Level implements Serializable {
 				lo.longDesc = ao.longDesc;
 				levelObjects.add(lo);
 				
-				levelArray[(int) ao.x][(int) ao.z].lo = lo;
+				levelArray[(int) ao.x][(int) ao.z].setLo(lo);
 			}
 			else
 			{
@@ -505,6 +516,18 @@ public class Level implements Serializable {
 		
 		if (t.character == ' ') return true;
 
+		for (Character c : solids)
+		{
+			if (t.character == c)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean checkSolid(Tile t)
+	{
 		for (Character c : solids)
 		{
 			if (t.character == c)

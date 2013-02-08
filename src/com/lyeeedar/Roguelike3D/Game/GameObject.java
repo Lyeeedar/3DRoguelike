@@ -68,7 +68,7 @@ public abstract class GameObject implements Serializable {
 	protected final Vector3 tmpVec = new Vector3();
 	protected final Matrix4 tmpMat = new Matrix4();
 
-	public final VisibleObject vo;
+	public VisibleObject vo;
 	protected transient PointLight boundLight;
 	
 	public String boundLightUID;

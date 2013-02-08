@@ -160,7 +160,6 @@ public class Material {
 	
 	public void dispose()
 	{
-		shader.dispose();
 		for (MaterialAttribute ma : attributes)
 		{
 			ma.dispose();

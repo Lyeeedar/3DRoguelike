@@ -36,6 +36,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
+import com.lyeeedar.Roguelike3D.Graphics.Models.SkyBox;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
@@ -92,11 +93,28 @@ public class LevelLoadingScreen extends AbstractScreen{
 		if (loadingStage == 0)
 		{
 			time = System.nanoTime();
-			message = "Creating Level";
+			message = "Disposing previous level";
+			
+			
+			if (GameData.level != null) {
+				for (GameActor ga : GameData.level.actors) {
+					ga.dispose();
+				}
+				
+				for (LevelObject lo : GameData.level.levelObjects) {
+					lo.dispose();
+				}
+			}
+			
+			if (GameData.levelGraphics != null) GameData.levelGraphics.dispose();
+			
+			
 			loadingStage++;
 		}
 		else if (loadingStage == 1)
 		{
+			message = "Loading Level";
+			
 			level = GameData.getCurrentLevelContainer().getLevel(biome, rReader);
 			
 			percent += taskSteps;
@@ -115,6 +133,12 @@ public class LevelLoadingScreen extends AbstractScreen{
 		{
 			message = "Creating Fundamental Structure";
 			graphics = new LevelGraphics(level.getLevelArray(), level.getColours(), biome, level.hasRoof);
+			
+			if (GameData.getCurrentLevelContainer().skybox != null)
+			{
+				GameData.skyBox = new SkyBox(GameData.getCurrentLevelContainer().skybox);
+			}
+			
 			loadingStage++;
 			percent += taskSteps*5;
 		}

@@ -29,16 +29,15 @@ public class Door extends LevelObject {
 	 * 
 	 */
 	private static final long serialVersionUID = 3585422494836092341L;
-	final float hingex;
-	final float hingez;
+	float hingex;
+	float hingez;
 
-	public Door(AbstractObject ao, float hingex, float hingez, Colour colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model) {
+	public Door(AbstractObject ao, Colour colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model) {
 		super(ao, colour, texture, x, y, z, scale, primitive_type, model);
-		this.hingex = hingex;
-		this.hingez = hingez;
+		solid = true;
 	}
 
-	public static Door create(AbstractObject ao, Level level, float x, float y, float z) {
+	public void orientate(Level level) {
 
 		float lx = 0;
 		float lz = 0;
@@ -46,34 +45,50 @@ public class Door extends LevelObject {
 		
 		float hingex = 0;
 		float hingez = 0;
+		
+		float x = getPosition().x;
+		float y = getPosition().y;
+		float z = getPosition().z;
+		
+		Tile up = level.getTile((int)(x/10f), (int)(z/10f)+1);
+		Tile down = level.getTile((int)(x/10f), (int)(z/10f)-1);
+		
+		Tile left = level.getTile((int)(x/10f)-1, (int)(z/10f));
+		Tile right = level.getTile((int)(x/10f)+1, (int)(z/10f));
 
-		if (level.checkSolid((int)(x/10f), (int)(z/10f)-1) && level.checkSolid((int)(x/10f), (int)(z/10f)+1))
+		if ((level.checkSolid(up) && level.checkSolid(down)) ||
+				((up.getLo() instanceof Static) && (down.getLo() instanceof Static)))
 		{
 			lx = 1;
-			lz = 10;
+			lz = GameData.BLOCK_SIZE;
 			
 			hingez = 5;
 			hingex = 0.1f;
 		}
-		else if (level.checkSolid((int)(x/10f)-1, (int)(z/10f)) && level.checkSolid((int)(x/10f)+1, (int)(z/10f)))
+		else if ((level.checkSolid(left) && level.checkSolid(right)) ||
+				((left.getLo() instanceof Static) && (right.getLo() instanceof Static)))
 		{
-			lx = 10;
+			lx = GameData.BLOCK_SIZE;
 			lz = 1;
 			
 			hingez = 0.1f;
 			hingex = 5;
 		}
-		else return null;
 		
-		Colour colour = new Colour(1.0f, 1.0f, 1.0f, 1.0f);
-		Door door = new Door(ao, hingex, hingez, colour, "tex+", x, y+(ly/2), z, 1, GL20.GL_TRIANGLES, "cube", ""+lx, ""+ly, ""+lz);
-		door.shortDesc = ao.shortDesc;
-		door.longDesc = ao.longDesc;
-		
-		door.solid = true;
-		//door.vo.attributes.radius /= 2;
-		
-		return door;
+		if (vo.modelData[1].equals(""+lx) && vo.modelData[2].equals(""+ly) && vo.modelData[3].equals(""+lz))
+		{
+			
+		}
+		else
+		{
+			this.vo.dispose();
+			VisibleObject vo2 = new VisibleObject(vo.primitive_type, vo.colour, vo.texture, vo.scale, "cube", ""+lx, ""+ly, ""+lz);
+			vo2.create();
+			this.vo = vo2;
+			
+			this.hingex = hingex;
+			this.hingez = hingez;
+		}
 	}
 
 	@Override

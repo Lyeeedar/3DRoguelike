@@ -152,8 +152,8 @@ public class TextureAttribute extends MaterialAttribute {
 
 	@Override
 	public void dispose() {
-		if (dTexture != null) dTexture.dispose();
-		if (nmTexture != null) nmTexture.dispose();
-		if (lTexture != null) lTexture.dispose();
+//		if (dTexture != null) dTexture.dispose();
+//		if (nmTexture != null) nmTexture.dispose();
+//		if (lTexture != null) lTexture.dispose();
 	}
 }

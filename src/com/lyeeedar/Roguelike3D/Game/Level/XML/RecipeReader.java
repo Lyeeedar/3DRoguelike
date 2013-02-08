@@ -25,6 +25,10 @@ import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
 public class RecipeReader extends XMLReader
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8166000329429735497L;
 	public static final String TYPE = "type";
 	public static final String COMPONENTS = "components";
 	public static final String NAME = "name";

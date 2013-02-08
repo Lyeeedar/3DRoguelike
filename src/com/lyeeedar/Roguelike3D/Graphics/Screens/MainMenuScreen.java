@@ -60,6 +60,12 @@ public class MainMenuScreen extends AbstractScreen {
 		Label lblTitle = new Label("Askey", skin);
 		
 		TextButton btnContinue = new TextButton("Continue", skin);
+		btnContinue.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				GameData.load();
+				return false;
+			}
+		});
 		
 		TextButton btnNewGame = new TextButton("New Game", skin);
 		btnNewGame.addListener(new InputListener() {
@@ -70,7 +76,6 @@ public class MainMenuScreen extends AbstractScreen {
 		});
 
 		
-		TextButton btnLoadGame = new TextButton("Load Game", skin);
 		TextButton btnOptions = new TextButton("Options", skin);
 		TextButton btnCredits = new TextButton("Credits", skin);
 		btnCredits.addListener(new InputListener() {
@@ -139,8 +144,6 @@ public class MainMenuScreen extends AbstractScreen {
 		table.add(btnContinue).width(300).height(50).padBottom(25);
 		table.row();
 		table.add(btnNewGame).width(300).height(50).padBottom(25);
-		table.row();
-		table.add(btnLoadGame).width(300).height(50).padBottom(25);
 		table.row();
 		table.add(btnOptions).width(300).height(50).padBottom(25);
 		table.row();

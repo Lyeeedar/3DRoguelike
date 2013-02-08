@@ -59,6 +59,7 @@ public class BiomeReader extends XMLReader {
 	public static final String ROOM_SIZE = "size";
 	public static final String MIN = "min";
 	public static final String VAR = "var";
+	public static final String SKYBOX = "skybox";
 	
 	public static final String SERK = "Serk";
 	public static final String STATIC = "Static";
@@ -133,6 +134,15 @@ public class BiomeReader extends XMLReader {
 		}
 		
 		return "";
+	}
+	
+	public String getSkybox()
+	{
+		String skybox = getNodeValue(SKYBOX, biome.getChildNodes());
+		
+		if (skybox.equals("")) skybox = null;
+		
+		return skybox;
 	}
 	
 	public int getWidth()

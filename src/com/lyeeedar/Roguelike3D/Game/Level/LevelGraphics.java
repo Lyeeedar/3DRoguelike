@@ -24,6 +24,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
@@ -114,12 +115,12 @@ public class LevelGraphics {
 			Tile t = levelArray[tileX][z];
 			if (t.character == ' ') continue;
 
-			TempVO vo = new TempVO(Shapes.genTempCuboid(10, t.height, 10), GL20.GL_TRIANGLES, colours.get(t.character), getTexture(t.character, biome), tileX*10, t.height/2, z*10);
+			TempVO vo = new TempVO(Shapes.genTempCuboid(GameData.BLOCK_SIZE, t.height, GameData.BLOCK_SIZE), GL20.GL_TRIANGLES, colours.get(t.character), getTexture(t.character, biome), tileX*10, t.height/2, z*10);
 			tempVOs[tileX][z] = vo;
 			
 			if (drawRoofs && t.height < t.roof)
 			{
-				TempVO voRf = new TempVO(Shapes.genTempCuboid(10, 1, 10), GL20.GL_TRIANGLES, colours.get('#'), getTexture('#', biome), tileX*10, t.roof, z*10);
+				TempVO voRf = new TempVO(Shapes.genTempCuboid(GameData.BLOCK_SIZE, 1, GameData.BLOCK_SIZE), GL20.GL_TRIANGLES, colours.get('#'), getTexture('#', biome), tileX*10, t.roof, z*10);
 				tempRoofs[tileX][z] = voRf;
 			}
 		}

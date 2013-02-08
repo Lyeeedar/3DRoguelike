@@ -17,9 +17,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.TextureDrawer;
 
-public class Component extends Item{
+public class Component extends Item {
 	
 	/**
 	 * 
@@ -81,7 +82,7 @@ public class Component extends Item{
 	{
 		Texture base = new Texture(Gdx.files.internal("data/skins/"+iconName+".png"));
 		Texture rareTint = new Texture(Gdx.files.internal("data/skins/icon-border.png"));
-		Color tint = GameData.getRarity(rarity).getColour();
+		Color tint = GameData.getRarity(rarity).getColour().getColor();
 		icon = TextureDrawer.combineTextures(base, tint, rareTint, tint);
 	}
 	

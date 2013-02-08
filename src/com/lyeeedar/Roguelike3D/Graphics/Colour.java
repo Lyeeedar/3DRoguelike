@@ -26,6 +26,10 @@ public class Colour implements Serializable {
 	private static final long serialVersionUID = 1849249567986215838L;
 
 	public Colour() {
+		r = 1.0f;
+		g = 1.0f;
+		b = 1.0f;
+		a = 1.0f;
 	}
 
 	/** Constructor, sets the components of the color

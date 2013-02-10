@@ -107,13 +107,15 @@ public abstract class AbstractScreen implements Screen{
 	@Override
 	public void resize(int width, int height) {
 		
+		System.out.println("Screen resized to "+width+" by "+height);
+		
 		screen_width = width;
 		screen_height = height;
 
         cam = new PerspectiveCamera(75, width, height);
         postProcessor.updateBufferSettings(Format.RGBA4444, width, height);
-        cam.near = 0.5f;
-        cam.far = 225;
+        cam.near = 0.1f;
+        cam.far = 200;
         protoRenderer.cam = cam;
         
         decalBatch.setGroupStrategy(new CameraGroupStrategy(cam));

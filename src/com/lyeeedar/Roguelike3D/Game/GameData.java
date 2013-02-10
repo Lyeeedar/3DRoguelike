@@ -16,6 +16,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -319,14 +320,17 @@ public class GameData {
 
 			if (lo instanceof PlayerPlacer)
 			{
+				System.out.println("Player placed at Player Placer");
 				if (prevLevel.equals(currentLevel))
 				{
-					player.positionAbsolutely(lo.position.tmp());
+					Vector3 pos = lo.position.tmp();
+					player.positionAbsolutely(pos.x, pos.y+player.getRadius()+1, pos.z);
 					break;
 				}
 			}
 			else if (lo instanceof Stair)
 			{
+				System.out.println("Player placed at Stair");
 				Stair s = (Stair) lo;
 				
 				if (s.level_UID.equals(prevLevel))

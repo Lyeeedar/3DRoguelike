@@ -74,6 +74,12 @@ public class Door extends LevelObject {
 			hingez = 0.1f;
 			hingex = 5;
 		}
+		else
+		{
+			solid = false;
+			visible = false;
+			return;
+		}
 		
 		if (vo.modelData[1].equals(""+lx) && vo.modelData[2].equals(""+ly) && vo.modelData[3].equals(""+lz))
 		{

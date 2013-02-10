@@ -56,8 +56,10 @@ public class Player extends GameActor {
 		ELE_DEF.put(Element.AETHER, 100);
 		ELE_DEF.put(Element.VOID, 0);
 		
-		R_HAND = new MeleeWeapon(this, Melee_Weapon_Style.SWING, 2, 10, ELE_DEF, DAM_DEF, 1, 1);
-		L_HAND = new MeleeWeapon(this, Melee_Weapon_Style.SWING, 1, 10, ELE_DEF, DAM_DEF, 1, 1);
+		R_HAND = new MeleeWeapon(Melee_Weapon_Style.SWING, 2, ELE_DEF, DAM_DEF, 1, 1, false, 3);
+		R_HAND.equip(this, 2);
+//		L_HAND = new MeleeWeapon(Melee_Weapon_Style.SWING, 2, ELE_DEF, DAM_DEF, 1, 1, false, 3);
+//		L_HAND.equip(this, 1);
 		
 		ai = new AI_Player_Controlled(this);
 

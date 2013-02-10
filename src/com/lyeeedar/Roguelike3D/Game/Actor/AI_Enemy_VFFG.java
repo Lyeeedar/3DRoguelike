@@ -69,9 +69,7 @@ public class AI_Enemy_VFFG extends AI_Package {
 		}
 		
 		actor.applyMovement();
-		
-		left_cooldown -= delta;
-		right_cooldown -= delta;
+
 	}
 	
 	private static final Vector3 up = new Vector3(0, 1, 0);
@@ -85,21 +83,16 @@ public class AI_Enemy_VFFG extends AI_Package {
 		float finalAngle = sign * angle;
 		return finalAngle;
 	}
-	
-	private transient float left_cooldown = 0;
-	private transient float right_cooldown = 0;
 
 	public void attack()
 	{
-		if (actor.L_HAND != null && left_cooldown < 0)
+		if (actor.L_HAND != null)
 		{
-			left_cooldown = actor.L_HAND.CD;
 			actor.L_HAND.use();
 		}
 		
-		if (actor.R_HAND != null && right_cooldown < 0)
+		if (actor.R_HAND != null)
 		{
-			right_cooldown = actor.R_HAND.CD;
 			actor.R_HAND.use();
 		}
 		

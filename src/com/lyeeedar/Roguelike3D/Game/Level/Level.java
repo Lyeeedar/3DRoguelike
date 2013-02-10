@@ -300,6 +300,30 @@ public class Level implements Serializable {
 	 * @param ignoreUID - The UID of the object to ignore
 	 * @return
 	 */
+	public LevelObject getClosestSolidLevelObject(Ray ray, float dist2, String ignoreUID, Vector3 collisionPoint)
+	{
+		LevelObject chosen = null;
+		for (LevelObject go : GameData.level.levelObjects)
+		{
+			if (go.UID.equals(ignoreUID)) continue;
+			if (!go.solid) continue;
+
+			if (Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), tmpVec)) 
+			{
+				tempdist2 = tmpVec.dst2(ray.origin);
+				if (tempdist2 > dist2) continue;
+				else
+				{
+					if (collisionPoint != null) collisionPoint.set(tmpVec);
+					dist2 = tempdist2;
+					chosen = go;
+				}
+			}
+		}
+
+		return chosen;
+	}
+	
 	public LevelObject getClosestLevelObject(Ray ray, float dist2, String ignoreUID, Vector3 collisionPoint)
 	{
 		LevelObject chosen = null;
@@ -321,6 +345,36 @@ public class Level implements Serializable {
 		}
 
 		return chosen;
+	}
+	
+	private final Ray ray = new Ray(new Vector3(), new Vector3());
+	public boolean checkCollisionLevel(Vector3 start, Vector3 end, String ignoreUID)
+	{
+		Tile t = getTile((end.x/10f)+0.5f, (end.z/10f)+0.5f);
+		
+		if (end.y < t.height)
+		{
+			return true;
+		}
+		else if (end.y > t.roof)
+		{
+			return true;
+		}
+		
+		ray.origin.set(start);
+		ray.direction.set(end).sub(start).nor();
+		
+		LevelObject lo = getClosestSolidLevelObject(ray, start.dst2(end), ignoreUID, null);
+		
+		return (lo != null);
+	}
+	
+	public GameActor checkCollisionEntity(Vector3 start, Vector3 end, String ignoreUID)
+	{
+		ray.origin.set(start);
+		ray.direction.set(end).sub(start).nor();
+		
+		return getClosestActor(ray, start.dst2(end), start, end, ignoreUID, null);
 	}
 	
 	public boolean checkLevelCollisionRay(Ray ray, float view)
@@ -390,16 +444,22 @@ public class Level implements Serializable {
 				}
 				break;
 			}
-			else if (hasRoof && pos.y > t.roof)
+			else if (pos.y > t.roof)
 			{
-				sB.delete(0, sB.length());
-				if (longDesc)
-				{
-					sB.append(longDescs.get('R'));
+				if (hasRoof) {
+					sB.delete(0, sB.length());
+					if (longDesc)
+					{
+						sB.append(longDescs.get('R'));
+					}
+					else
+					{
+						sB.append(shortDescs.get('R'));
+					}
 				}
 				else
 				{
-					sB.append(shortDescs.get('R'));
+					
 				}
 				break;
 			}
@@ -499,7 +559,7 @@ public class Level implements Serializable {
 			if (!ga.isSolid()) continue;
 			
 			Vector3 hbox = box.tmp2().mul(0.5f);
-			if (GameData.SphereBoxIntersection(ga.getPosition().x, ga.getPosition().y, ga.getPosition().z, ga.radius,
+			if (GameData.SphereBoxIntersection(ga.getPosition().x, ga.getPosition().y, ga.getPosition().z, ga.getRadius(),
 					position.x-hbox.x, position.y-hbox.y, position.z-hbox.z,
 					box.x, box.y, box.z))
 			{

@@ -93,7 +93,7 @@ public class ParticleEmitter implements Serializable {
 	
 	private boolean pointMode = false;
 	
-	Vector3[] particle = {new Vector3(), new Vector3(), new Vector3(), new Vector3()};
+	Vector3[] particle = {new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()};
 	
 	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles, GameObject bound)
 	{	
@@ -186,6 +186,7 @@ public class ParticleEmitter implements Serializable {
 		particle[1].set(width, height, 0);
 		particle[2].set(0, 0, 0);
 		particle[3].set(width, 0, 0);
+		particle[4].set(0.5f, height/2, 0);
 		
 		if (light)
 		{
@@ -299,12 +300,13 @@ public class ParticleEmitter implements Serializable {
 	
 	public float getPointSize(Camera cam)
 	{
-		
 		float dist = cam.position.dst(getPos());
 		
 		float size = (width > height) ? width : height;
 		
-		return size / ((0.08f * dist)+(0.002f * dist * dist));
+		size /= ((0.2f * dist)+(0.01f * dist * dist));
+		
+		return (cam.viewportWidth/100)*size;
 	}
 	
 	private transient int signx;
@@ -339,6 +341,8 @@ public class ParticleEmitter implements Serializable {
 			Particle p = pItr.next();
 			p.update(delta);
 			
+			mat.setToTranslation(p.position).mul(GameData.player.vo.attributes.getRotation());
+			
 			if (!p.alive)
 			{
 				pItr.remove();
@@ -346,9 +350,11 @@ public class ParticleEmitter implements Serializable {
 			}
 			else if (pointMode)
 			{
-				verticesPoint[(i*6)+0] = p.position.x;
-				verticesPoint[(i*6)+1] = p.position.y;
-				verticesPoint[(i*6)+2] = p.position.z;
+				Vector3 nPos = particle[4].tmp().mul(mat);
+				
+				verticesPoint[(i*6)+0] = nPos.x;
+				verticesPoint[(i*6)+1] = nPos.y;
+				verticesPoint[(i*6)+2] = nPos.z;
 				
 				verticesPoint[(i*6)+3] = p.colour.r;
 				verticesPoint[(i*6)+4] = p.colour.g;
@@ -356,9 +362,6 @@ public class ParticleEmitter implements Serializable {
 			}
 			else
 			{
-
-				mat.setToTranslation(p.position).mul(GameData.player.vo.attributes.getRotation());
-				
 				Vector3 nPostl = particle[0].tmp().mul(mat);
 
 				verticesQuad[(i*32)+0] = nPostl.x;

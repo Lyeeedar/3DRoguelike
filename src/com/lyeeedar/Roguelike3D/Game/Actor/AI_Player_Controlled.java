@@ -27,10 +27,6 @@ public class AI_Player_Controlled extends AI_Package {
 		super(actor);
 	}
 
-	
-	private transient float left_cooldown = 0;
-	private transient float right_cooldown = 0;
-
 	private transient float move = 0;
 	private transient float speed = 0;
 	private transient float xR = 0;
@@ -72,9 +68,6 @@ public class AI_Player_Controlled extends AI_Package {
 			actor.offsetRot.y = -GameActor.WHIPLASHAMOUNT;
 			whiplashCD = GameActor.WHIPLASHCD;
 		}
-		
-		left_cooldown -= delta;
-		right_cooldown -= delta;
 		
 		move = delta * 10f;
 		speed = GameData.calculateSpeed(actor.WEIGHT, actor.STRENGTH);
@@ -122,15 +115,13 @@ public class AI_Player_Controlled extends AI_Package {
 			GameData.load();
 		}
 		
-		if (actor.L_HAND != null && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && left_cooldown < 0)
+		if (actor.L_HAND != null && Gdx.input.isButtonPressed(Input.Buttons.LEFT))
 		{
-			left_cooldown = actor.L_HAND.CD;
 			actor.L_HAND.use();
 		}
 		
-		if (actor.R_HAND != null && Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && right_cooldown < 0)
+		if (actor.R_HAND != null && Gdx.input.isButtonPressed(Input.Buttons.RIGHT))
 		{
-			right_cooldown = actor.R_HAND.CD;
 			actor.R_HAND.use();
 		}
 		

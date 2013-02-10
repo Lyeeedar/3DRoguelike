@@ -469,14 +469,15 @@ public class MonsterEvolver extends XMLReader {
 		{
 			ga.R_HAND = Equipment_HAND.getWeapon(
 					ce.attack_right.wep_type,
-					ga,
 					ce.attack_right.wep_style,
-					2,
 					ce.attack_right.strength,
 					ce.attack_right.ele_amount,
 					ce.attack_right.dam_amount,
 					ce.attack_right.atk_speed,
-					ce.attack_right.weight);
+					ce.attack_right.weight,
+					false,
+					2);
+			ga.R_HAND.equip(ga, 2);
 			for (Component c : ce.creature.attRDrops)
 			{
 				ga.INVENTORY.put(c.drop_chance, c);
@@ -486,14 +487,15 @@ public class MonsterEvolver extends XMLReader {
 		{
 			ga.L_HAND = Equipment_HAND.getWeapon(
 					ce.attack_left.wep_type,
-					ga,
 					ce.attack_left.wep_style,
-					2,
 					ce.attack_left.strength,
 					ce.attack_left.ele_amount,
 					ce.attack_left.dam_amount,
 					ce.attack_left.atk_speed,
-					ce.attack_left.weight);
+					ce.attack_left.weight,
+					false,
+					2);
+			ga.L_HAND.equip(ga, 1);
 			for (Component c : ce.creature.attLDrops)
 			{
 				ga.INVENTORY.put(c.drop_chance, c);

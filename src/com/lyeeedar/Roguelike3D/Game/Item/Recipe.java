@@ -366,6 +366,6 @@ class Recipe_Melee_Weapon extends Recipe_Type
 			weight += recipe.getComponentAmount(entry.getKey()) * entry.getValue().weight_per_amount;
 		}
 		
-		return Equipment_HAND.getWeapon(WeaponType.MELEE, null, style, 1, strength, elemental, damage, attackSpeed, weight);
+		return Equipment_HAND.getWeapon(WeaponType.MELEE, ""+style, strength, elemental, damage, attackSpeed, weight, false, 2);
 	}
 }

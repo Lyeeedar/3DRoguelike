@@ -26,6 +26,126 @@ public class Shapes {
 	{
 		return genCuboid(dimensions.x, dimensions.y, dimensions.z);
 	}
+	
+	public static float[] genCubeVertices(float x, float y, float z, float offsetx, float offsety, float offsetz)
+	{
+		x /= 2.0f;
+		y /= 2.0f;
+		z /= 2.0f;
+
+		float[] cubeVerts = {
+				-x+offsetx, -y+offsety, -z+offsetz, // bottom
+				-x+offsetx, -y+offsety, z+offsetz,
+				x+offsetx, -y+offsety, z+offsetz,
+				x+offsetx, -y+offsety, -z+offsetz,
+
+				-x+offsetx, y+offsety, -z+offsetz, // top
+				-x+offsetx, y+offsety, z+offsetz,
+				x+offsetx, y+offsety, z+offsetz,
+				x+offsetx, y+offsety, -z+offsetz,
+
+				-x+offsetx, -y+offsety, -z+offsetz, // back
+				-x+offsetx, y+offsety, -z+offsetz,
+				x+offsetx, y+offsety, -z+offsetz,
+				x+offsetx, -y+offsety, -z+offsetz,
+
+				-x+offsetx, -y+offsety, z+offsetz, // front
+				-x+offsetx, y+offsety, z+offsetz,
+				x+offsetx, y+offsety, z+offsetz,
+				x+offsetx, -y+offsety, z+offsetz,
+
+				-x+offsetx, -y+offsety, -z+offsetz, // left
+				-x+offsetx, -y+offsety, z+offsetz,
+				-x+offsetx, y+offsety, z+offsetz,
+				-x+offsetx, y+offsety, -z+offsetz,
+
+				x+offsetx, -y+offsety, -z+offsetz, // right
+				x+offsetx, -y+offsety, z+offsetz,
+				x+offsetx, y+offsety, z+offsetz,
+				x+offsetx, y+offsety, -z+offsetz};
+
+		float[] cubeNormals = {
+				0.0f, -1.0f, 0.0f, // bottom
+				0.0f, -1.0f, 0.0f,
+				0.0f, -1.0f, 0.0f,
+				0.0f, -1.0f, 0.0f,
+
+				0.0f, 1.0f, 0.0f, // top
+				0.0f, 1.0f, 0.0f,
+				0.0f, 1.0f, 0.0f,
+				0.0f, 1.0f, 0.0f,
+
+				0.0f, 0.0f, -1.0f, // back
+				0.0f, 0.0f, -1.0f,
+				0.0f, 0.0f, -1.0f,
+				0.0f, 0.0f,	-1.0f,
+
+				0.0f, 0.0f, 1.0f, //front
+				0.0f, 0.0f, 1.0f,
+				0.0f, 0.0f, 1.0f,
+				0.0f, 0.0f, 1.0f,
+
+				-1.0f, 0.0f, 0.0f, // left
+				-1.0f, 0.0f, 0.0f,
+				-1.0f, 0.0f, 0.0f,
+				-1.0f, 0.0f, 0.0f,
+
+				1.0f, 0.0f, 0.0f, // right
+				1.0f, 0.0f, 0.0f,
+				1.0f, 0.0f, 0.0f,
+				1.0f, 0.0f, 0.0f};
+
+		float[] cubeTex = {
+
+				0.0f, 0.0f, // bottom
+				0.0f, z,
+				x, z,
+				x, 0.0f,
+
+				x, 0.0f, // top
+				x, z,
+				0.0f, z,
+				0.0f, 0.0f,
+
+				x, y, // back
+				x, 0.0f,
+				0.0f, 0.0f,
+				0.0f, y,
+
+				x, y, // front
+				x, 0.0f,
+				0.0f, 0.0f,
+				0.0f, y,
+
+				z, y, // left
+				0.0f, y,
+				0.0f, 0.0f,
+				z, 0.0f,
+
+				z, y, // right
+				0.0f, y,
+				0.0f, 0.0f,
+				z, 0.0f
+
+		};
+
+		float[] vertices = new float[24 * 8];
+		int pIdx = 0;
+		int nIdx = 0;
+		int tIdx = 0;
+		for (int i = 0; i < vertices.length;) {
+			vertices[i++] = cubeVerts[pIdx++];
+			vertices[i++] = cubeVerts[pIdx++];
+			vertices[i++] = cubeVerts[pIdx++];
+			vertices[i++] = cubeNormals[nIdx++];
+			vertices[i++] = cubeNormals[nIdx++];
+			vertices[i++] = cubeNormals[nIdx++];
+			vertices[i++] = cubeTex[tIdx++];
+			vertices[i++] = cubeTex[tIdx++];
+		}
+
+		return vertices;
+	}
 
 	public static float[] genCubeVertices(float x, float y, float z)
 	{
@@ -178,6 +298,23 @@ public class Shapes {
 				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoord0"));
 
 		float[] vertices = genCubeVertices(x, y, z);
+
+		short[] indices = genCubeIndices();
+
+		mesh.setVertices(vertices);
+		mesh.setIndices(indices);
+
+		return mesh;
+	}
+	
+	public static Mesh genCuboid (float x, float y, float z, float offsetx, float offsety, float offsetz) {
+
+		Mesh mesh = new Mesh(true, 24, 36, 
+				new VertexAttribute(Usage.Position, 3, "a_position"),
+				new VertexAttribute(Usage.Normal, 3, "a_normal"),
+				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoord0"));
+
+		float[] vertices = genCubeVertices(x, y, z, offsetx, offsety, offsetz);
 
 		short[] indices = genCubeIndices();
 

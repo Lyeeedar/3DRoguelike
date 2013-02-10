@@ -13,10 +13,28 @@ package com.lyeeedar.Roguelike3D.Game.Item;
 import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
+import com.lyeeedar.Roguelike3D.Game.Level.Level;
+import com.lyeeedar.Roguelike3D.Game.Level.Tile;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.MaterialAttribute;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
+import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
+import com.lyeeedar.Roguelike3D.Graphics.Models.StillModel;
+import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
+import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
+import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModel;
+import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModelNode;
 
 public abstract class Equipment_HAND extends Equippable{
 	
@@ -39,44 +57,155 @@ public abstract class Equipment_HAND extends Equippable{
 		
 		return null;
 	}
-	
-	public static Equipment_HAND getWeapon(WeaponType type, GameActor holder, String style, int side, 
-			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam, float attack_speed, float weight)
-	{
-		Equipment_HAND wep = null;
-		
-		if (type == WeaponType.MELEE)
-		{
-			wep = new MeleeWeapon(holder, MeleeWeapon.convertWeaponStyle(style), side, strength, ele_dam, dam_dam, attack_speed, weight);
-		}
-		else System.err.println("Failed at creating weapon: "+type);
-		
-		return wep;
-	}
-	
-	public static Equipment_HAND getWeapon(WeaponType type, GameActor holder, Melee_Weapon_Style style, int side, 
-			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam, float attack_speed, float weight)
-	{
-		Equipment_HAND wep = null;
-		
-		if (type == WeaponType.MELEE)
-		{
-			wep = new MeleeWeapon(holder, style, side, strength, ele_dam, dam_dam, attack_speed, weight);
-		}
-		else System.err.println("Failed at creating weapon: "+type);
-		
-		return wep;
-	}
 
-	public boolean two_handed = false;
-	public transient float CD;
+	public static Equipment_HAND getWeapon(String typeString, String styleString, 
+			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
+			float attack_speed, float weight, boolean two_handed, float range) {
+		
+		WeaponType type = convertStringtoWepType(typeString);
+		
+		return getWeapon(type, styleString, strength, ele_dam, dam_dam, attack_speed, weight, two_handed, range);
+	}
 	
-	public Equipment_HAND(float WEIGHT) {
+	public static Equipment_HAND getWeapon(WeaponType type, String styleString, 
+			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
+			float attack_speed, float weight, boolean two_handed, float range) {
+		
+		Equipment_HAND weapon = null;
+
+		if (type == WeaponType.MELEE)
+		{
+			weapon = new MeleeWeapon(MeleeWeapon.convertWeaponStyle(styleString),  
+					strength, ele_dam, dam_dam,
+					attack_speed, weight, two_handed, range);
+		}
+		
+		return weapon;
+	}
+	
+	public final boolean two_handed;
+	public final float attack_speed;
+	public final int strength;
+	public final HashMap<Element, Integer> ele_dam;
+	public final HashMap<Damage_Type, Integer> dam_dam;
+	
+	public transient GameActor holder;
+	public String holderUID;
+	/**
+	 * 0 = none
+	 * 1 = left
+	 * 2 = right
+	 */
+	public int equippedSide;
+	
+	public transient float useCD = 0;
+	public final float range;
+	
+	RiggedModel model;
+	
+	public Equipment_HAND(float WEIGHT, int strength, 
+			HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
+			float attack_speed, boolean two_handed, float range) {
 		super(WEIGHT, Item_Type.WEAPON);
+		
+		this.range = range;
+		this.two_handed = two_handed;
+		this.strength = strength;
+		this.ele_dam = ele_dam;
+		this.dam_dam = dam_dam;
+		this.attack_speed = attack_speed;
+		
+		model = RiggedModel.getSword();
 	}
+	
+	public void damage(GameActor ga)
+	{
+		System.out.println("HIT on "+ga.UID);
+		ga.damage(strength, ele_dam, dam_dam);
+	}
+	
+	public void unequip()
+	{
+		System.out.println("Unequipping");
+		holder = null;
+		holderUID = null;
+		equippedSide = 0;
+		unequipped();
+	}
+	protected abstract void unequipped();
+	
+	public void equip(GameActor actor, int side)
+	{
+		System.out.println("Equipping");
+		if (side == 1)
+		{
+			actor.L_HAND = this;
+			if (two_handed) {
+				actor.R_HAND.unequip();
+				actor.R_HAND = null;
+			}
+		}
+		else if (side == 2)
+		{
+			actor.R_HAND = this;
+			if (two_handed) {
+				actor.L_HAND.unequip();
+				actor.L_HAND = null;
+			}
+		}
+		else
+		{
+			System.err.println("Invalid equip side: "+side);
+		}
+		
+		holder = actor;
+		holderUID = holder.UID;
+		equippedSide = side;
+		equipped(actor, side);
+		
+	}
+	protected abstract void equipped(GameActor actor, int side);
+	
+	public void use()
+	{
+		model.rootNode.activate();
+		if (holder == null)
+		{
+			System.err.println("Holder null!");
+		}
+		
+		if (useCD > 0) return;
+		useCD = attack_speed;
+		used();
+	}
+	protected abstract void used();
+	
+	Matrix4 tmp = new Matrix4();
+	public void draw(Camera cam)
+	{
+		model.draw(cam);
+	}
+	protected abstract void drawed(Camera cam);
+	
+	public void update(float delta)
+	{
+		model.update(delta, holder.UID);
+		model.composeMatrixes(tmp.set(holder.vo.attributes.getTransform()).mul(holder.vo.attributes.getRotation()));
+		
+		useCD -= delta;
+		updated(delta);
+	}
+	protected abstract void updated(float delta);
+	
+	public void fixReferences()
+	{
+		if (holderUID != null)
+		{
+			holder = GameData.level.getActor(holderUID);
+		}
+		fixReferencesSuper();
+	}
+	
+	protected abstract void fixReferencesSuper();
 
-
-	public abstract void use();
-	public abstract void draw(Camera cam);
-	public abstract void update(float delta);
 }

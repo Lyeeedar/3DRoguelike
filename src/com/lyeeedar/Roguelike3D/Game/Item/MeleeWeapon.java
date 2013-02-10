@@ -33,14 +33,7 @@ import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public class MeleeWeapon extends Equipment_HAND {
 	
-	//final Random ran = new Random();
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5519914081029109584L;
-	private transient GameActor holder;
-	public final String holderUID;
 	
 	public enum Melee_Weapon_Style {
 		SWING,
@@ -49,12 +42,12 @@ public class MeleeWeapon extends Equipment_HAND {
 
 	public static Melee_Weapon_Style convertWeaponStyle(String wep_style)
 	{
-		Melee_Weapon_Style style = null;
+		for (Melee_Weapon_Style mws : Melee_Weapon_Style.values())
+		{
+			if (wep_style.equalsIgnoreCase(""+mws)) return mws;
+		}
 
-		if (wep_style.equalsIgnoreCase("swing")) style = Melee_Weapon_Style.SWING;
-		else if (wep_style.equalsIgnoreCase("stab")) style = Melee_Weapon_Style.STAB;
-
-		return style;
+		return null;
 	}
 	
 	@Override
@@ -72,7 +65,7 @@ public class MeleeWeapon extends Equipment_HAND {
 				"Impact: " + dam_dam.get(Damage_Type.IMPACT)  + "\n" +
 				"Touch: " + dam_dam.get(Damage_Type.TOUCH)  + "\n" +
 				elements +
-				"Attack CD: " + CD + "\n" +
+				"Attack CD: " + attack_speed + "\n" +
 				"Weight: " + WEIGHT + "\n" +
 				"-----------------"
 				;
@@ -81,48 +74,25 @@ public class MeleeWeapon extends Equipment_HAND {
 	final Attack_Style atk_style;
 	private boolean swinging = false;
 	boolean collided = false;
-	final int side;
 
-	public MeleeWeapon(GameActor holder, Melee_Weapon_Style style, int side, 
-			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam, float attack_speed, float weight) {
-		super(weight);
-		this.side = side;
-		this.holder = holder;
-		this.holderUID = holder.UID;
+	public MeleeWeapon(Melee_Weapon_Style style,  
+			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
+			float attack_speed, float weight, boolean two_handed, float range) {
+		super(weight, strength, ele_dam, dam_dam, attack_speed, two_handed, range);
 		
 		if (style == Melee_Weapon_Style.SWING)
 		{
-			atk_style = new Circular_Attack(new Vector3(0, -2, 0), 0, 3, holder, 0.01f, new Vector3());
+			atk_style = new Circular_Attack(0.01f, range);
 		}
 		else atk_style = null;
-		
-		this.strength = strength;
-		this.ele_dam = ele_dam;
-		this.dam_dam = dam_dam;
-		this.CD = attack_speed;
-	}
-	
-	
-	// ----- Damage stats ----- //
-	public int strength;
-	public HashMap<Element, Integer> ele_dam;
-	public HashMap<Damage_Type, Integer> dam_dam;
-	
-	public transient float attack_cd = 0;
-	
-	public void damage(GameActor ga)
-	{
-		System.out.println("HIT on "+ga.UID);
-		ga.damage(strength, ele_dam, dam_dam);
+
 	}
 
-	
-	public void use()
+	@Override
+	protected void used()
 	{
 		beginSwing();
 	}
-	
-	
 	
 	// ----- Begin Visual Stuff ----- //
 	public void beginSwing()
@@ -131,13 +101,13 @@ public class MeleeWeapon extends Equipment_HAND {
 		{
 			float height = holder.getPosition().y;
 			
-			float startH = 0.2f + height;// + (ran.nextFloat()*2);
+			float startH = 0.2f + height;
 			
 			Vector3 base = new Vector3(holder.getRotation().x, 0, holder.getRotation().z);
 			Vector3 up = new Vector3(0, 1, 0);
-			Vector3 start = base.crs(up).mul(2);//.add(ran.nextFloat()-ran.nextFloat(), 0, ran.nextFloat()-ran.nextFloat());
+			Vector3 start = base.crs(up).mul(2);
 			
-			if (side == 1) start.mul(-1);
+			if (equippedSide == 1) start.mul(-1);
 			
 			start.add(holder.getRotation().x, startH, holder.getRotation().z);
 			
@@ -146,13 +116,13 @@ public class MeleeWeapon extends Equipment_HAND {
 			rot.add(holder.getRotation().x, height-startH, holder.getRotation().z);
 			
 			
-			beginSwingCircular(start, rot);
+			beginSwingCircular(start, rot, Vector3.tmp3.set(0, -2, 0));
 			
 		}
 		else System.err.println("Invalid wep type: "+atk_style.style);
 	}
 	
-	public void beginSwingCircular(Vector3 startRot, Vector3 rotPerSecond)
+	public void beginSwingCircular(Vector3 startRot, Vector3 rotPerSecond, Vector3 offset)
 	{
 		if (atk_style.style != Melee_Weapon_Style.SWING)
 		{
@@ -161,28 +131,23 @@ public class MeleeWeapon extends Equipment_HAND {
 		}
 		
 		Circular_Attack c_a = (Circular_Attack) atk_style;
-		c_a.reset(startRot, rotPerSecond);
-		c_a.moveOffset.set(holder.getRotation().tmp().div(100f));
+		c_a.reset(startRot, rotPerSecond, offset);
 
 		swinging = true;
 		collided = false;
-		
 	}
-	
-	final transient Vector3 tmpVec = new Vector3();
-	final transient Vector3 tmpVec2 = new Vector3();
 
-	public void update(float delta)
+	@Override
+	protected void updated(float delta)
 	{
 		if (!swinging) return;
 		if (atk_style.cd <= 0) swinging = false;
-		
 		
 		atk_style.update(delta, collided);
 		
 		if (collided) return;
 		
-		GameActor ga = checkCollisionEntity(atk_style.positionA, atk_style.positionB);
+		GameActor ga = GameData.level.checkCollisionEntity(atk_style.positionA, atk_style.positionB, holderUID);
 		if (ga != null)
 		{
 			damage(ga);
@@ -190,53 +155,18 @@ public class MeleeWeapon extends Equipment_HAND {
 			return;
 		}
 
-		if (checkCollisionLevel(atk_style.positionA, atk_style.positionB))
+		if (GameData.level.checkCollisionLevel(atk_style.positionA, atk_style.positionB, holderUID))
 		{
 			collided = true;
 			return;
 		}
 	}
 	
-	public void draw(Camera cam)
+	protected void drawed(Camera cam)
 	{
 		if (!swinging) return;
 		
-		
 		atk_style.draw(cam);
-	}
-	
-	private Ray ray = new Ray(new Vector3(), new Vector3());
-	public boolean checkCollisionLevel(Vector3 start, Vector3 end)
-	{
-		Level level = GameData.level;
-		
-		Tile t = level.getTile((end.x/10f)+0.5f, (end.z/10f)+0.5f);
-		
-		if (end.y < t.height)
-		{
-			return true;
-		}
-		else if (end.y > t.roof)
-		{
-			return true;
-		}
-		
-		ray.origin.set(start);
-		ray.direction.set(end).sub(start).nor();
-		
-		LevelObject lo = level.getClosestLevelObject(ray, start.dst2(end), holder.UID, null);
-		
-		return (lo != null);
-	}
-	
-	public GameActor checkCollisionEntity(Vector3 start, Vector3 end)
-	{
-		Level level = GameData.level;
-		
-		ray.origin.set(start);
-		ray.direction.set(end).sub(start).nor();
-		
-		return level.getClosestActor(ray, start.dst2(end), start, end, holder.UID, null);
 	}
 	
 	public void dispose()
@@ -245,17 +175,29 @@ public class MeleeWeapon extends Equipment_HAND {
 	}
 
 	@Override
-	public void fixReferences() {
-		holder = GameData.level.getActor(holderUID);
+	protected void fixReferencesSuper() {
+
 		atk_style.fixReferences();
+	}
+
+	@Override
+	protected void unequipped() {
+		holder = null;
+		holderUID = null;
+		atk_style.unequip();
+	}
+
+	@Override
+	protected void equipped(GameActor actor, int side) {
+		holder = actor;
+		holderUID = actor.UID;
+		
+		atk_style.equip(actor);
 	}
 }
 
 abstract class Attack_Style implements Serializable
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 9139533290265415953L;
 
 	public static final int TRAIL_STEPS = 60;
@@ -263,6 +205,8 @@ abstract class Attack_Style implements Serializable
 	Melee_Weapon_Style style;
 	
 	protected transient MotionTrail trail;
+	protected transient GameActor center;
+	protected String centerUID;
 	
 	final Vector3 positionA = new Vector3();
 	final Vector3 positionB = new Vector3();
@@ -270,16 +214,21 @@ abstract class Attack_Style implements Serializable
 	final Vector3 tmpVec = new Vector3();
 	
 	final float step;
+	final float range;
 	
-	public Attack_Style(float step)
+	public Attack_Style(float step, float range)
 	{
+		this.range = range;
 		this.step = step;
-		trail = new MotionTrail(TRAIL_STEPS, new Colour(0.7f, 0.7f, 0.7f, 1.0f), "data/textures/gradient.png");
+		
+		fixReferences();
 	}
 	
 	public void fixReferences()
 	{
 		trail = new MotionTrail(TRAIL_STEPS, new Colour(0.7f, 0.7f, 0.7f, 1.0f), "data/textures/gradient.png");
+		
+		if (centerUID != null) center = GameData.level.getActor(centerUID);
 	}
 	
 	transient float cd = TRAIL_STEPS;
@@ -310,53 +259,44 @@ abstract class Attack_Style implements Serializable
 		trail.dispose();
 	}
 	
+	public void equip(GameActor actor)
+	{
+		center = actor;
+		centerUID = actor.UID;
+	}
+	
+	public void unequip()
+	{
+		center = null;
+		centerUID = null;
+	}
+	
 	protected abstract void updatePosition(float delta, boolean collided);
 }
 
 class Circular_Attack extends Attack_Style
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -7051328157650641931L;
-	Vector3 startRotation;
-	Vector3 rotPerSecond;
-	Vector3 currentRotation;
+	Vector3 startRotation = new Vector3();
+	Vector3 rotPerSecond = new Vector3();
+	Vector3 offset = new Vector3();
 	
-	final Vector3 offset;
-	final float nearDist;
-	final float farDist;
-	transient GameActor center;
-	final String centerUID;
-	Vector3 moveOffset;
+	Vector3 currentRotation = new Vector3();
 	
-	public Circular_Attack(Vector3 offset, float nearDist, float farDist, GameActor center, float step, Vector3 moveOffset) 
+	public Circular_Attack(float step, float range) 
 	{
-		super(step);
+		super(step, range);
 		
-		this.moveOffset = moveOffset;
 		this.style = Melee_Weapon_Style.SWING;
-		
-		this.offset = offset;
-		this.nearDist = nearDist;
-		this.farDist = farDist;
-		this.center = center;
-		this.centerUID = center.UID;
-	}
-	
-	@Override
-	public void fixReferences()
-	{
-		super.fixReferences();
-		
-		center = GameData.level.getActor(centerUID);
 	}
 
-	public void reset(Vector3 startRot, Vector3 rotPerSecond)
+	public void reset(Vector3 startRot, Vector3 rotPerSecond, Vector3 offset)
 	{
-		this.startRotation = startRot;
-		this.rotPerSecond = rotPerSecond;
-		this.currentRotation = startRotation.cpy();
+		this.startRotation.set(startRot);
+		this.rotPerSecond.set(rotPerSecond);
+		this.offset.set(offset);
+		
+		this.currentRotation.set(startRotation);
 		
 		setPositions();
 		
@@ -367,9 +307,6 @@ class Circular_Attack extends Attack_Style
 
 	protected void updatePosition(float delta, boolean collided)
 	{
-		
-		trail.offsetAll(moveOffset);
-		
 		if (collided) return;
 		
 		tmpVec.set(rotPerSecond);
@@ -384,8 +321,8 @@ class Circular_Attack extends Attack_Style
 	{
 		tmpVec.set(currentRotation).nor();
 		
-		positionA.set(tmpVec).mul(nearDist+center.getRadius()).add(center.getPosition()).add(offset);
+		positionA.set(tmpVec).mul(center.getRadius()).add(center.getPosition()).add(offset);
 		
-		positionB.set(tmpVec).mul(farDist+center.getRadius()).add(center.getPosition()).add(offset);
+		positionB.set(tmpVec).mul(center.getRadius()+range).add(center.getPosition()).add(offset);
 	}
 }

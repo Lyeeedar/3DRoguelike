@@ -26,6 +26,7 @@ public class PlayerPlacer extends LevelObject {
 	public PlayerPlacer(boolean visible, float x, float y, float z,
 			AbstractObject ao) {
 		super(visible, x, y, z, ao);
+		this.solid = false;
 	}
 
 	@Override

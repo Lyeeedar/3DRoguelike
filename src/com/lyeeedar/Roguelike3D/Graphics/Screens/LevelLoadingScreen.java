@@ -99,6 +99,9 @@ public class LevelLoadingScreen extends AbstractScreen{
 			if (GameData.level != null) {
 				for (GameActor ga : GameData.level.actors) {
 					ga.dispose();
+					
+					if (ga.L_HAND != null) ga.L_HAND.dispose();
+					if (ga.R_HAND != null) ga.R_HAND.dispose();
 				}
 				
 				for (LevelObject lo : GameData.level.levelObjects) {
@@ -169,6 +172,16 @@ public class LevelLoadingScreen extends AbstractScreen{
 			for (GameActor ga : level.actors)
 			{
 				ga.vo.bakeLights(GameData.lightManager, false);
+				
+				if (ga.L_HAND != null)
+				{
+					ga.L_HAND.model.bakeLight(GameData.lightManager, false);
+				}
+				
+				if (ga.R_HAND != null)
+				{
+					ga.R_HAND.model.bakeLight(GameData.lightManager, false);
+				}
 			}
 			loadingStage++;
 		}
@@ -229,12 +242,11 @@ public class LevelLoadingScreen extends AbstractScreen{
 	public void create() {
 		
 		LightManager lightManager = new LightManager(0, LightQuality.VERTEX);
-		lightManager.ambientLight.set(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		protoRenderer = new PrototypeRendererGL20(lightManager);
 		protoRenderer.cam = cam;
 		
-		GameObject go = new GameActor(new Colour(1.0f, 1.0f, 1.0f, 1.0f), "icon", 0, 0, -4, 0.5f, GL20.GL_TRIANGLES, "cube", "2", "2", "2");
+		GameObject go = new GameActor(new Colour(), "icon", 0, 0, -4, 0.5f, GL20.GL_TRIANGLES, "cube", "2", "2", "2");
 		go.create();
 		go.vo.attributes.material.affectedByLighting = false;
 		

@@ -74,6 +74,7 @@ public class InGameScreen extends AbstractScreen {
 		
 		for (GameActor ga : GameData.level.actors)
 		{
+			ga.draw(protoRenderer);
 			if (!ga.visible) continue;
 			ga.vo.render(protoRenderer);
 		}
@@ -117,15 +118,15 @@ public class InGameScreen extends AbstractScreen {
 		
 		ParticleEmitter.end();
 		
-		for (LevelObject lo : GameData.level.levelObjects)
-		{	
-			lo.draw(cam);
-		}
-		
-		for (GameActor ga : GameData.level.actors)
-		{
-			ga.draw(cam);
-		}
+//		for (LevelObject lo : GameData.level.levelObjects)
+//		{	
+//			lo.draw(cam);
+//		}
+//		
+//		for (GameActor ga : GameData.level.actors)
+//		{
+//			ga.draw(cam);
+//		}
 	}
 
 	@Override

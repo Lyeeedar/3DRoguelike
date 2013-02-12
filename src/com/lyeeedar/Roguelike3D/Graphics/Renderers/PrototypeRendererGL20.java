@@ -15,6 +15,7 @@ import java.util.Comparator;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
@@ -25,6 +26,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.*;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.*;
 import com.lyeeedar.Roguelike3D.Graphics.Models.*;
+import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedSubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20.DrawableManager.Drawable;
 
 //stuff that happens
@@ -82,6 +84,13 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 		if (remakeShaders) attributes.material.generateShader(shaderHandler);	
 		drawableManager.add(model, attributes);
 	}
+	
+	public void draw (RiggedSubMesh mesh, Matrix4 model_matrix, Material mat, float radius) {
+		if (cam != null) if (!cam.frustum.sphereInFrustum(Vector3.tmp3.set(0, 0, 0).mul(model_matrix), radius*2)) return;
+		
+		if (remakeShaders) mat.generateShader(shaderHandler);	
+		drawableManager.add(mesh, model_matrix, mat);
+	}
 
 	@Override
 	public void end () {
@@ -112,48 +121,44 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 				lightManager.calculateDynamicLights(center.x, center.y, center.z);
 			boolean check = (light_hash == lightManager.getDynamicLightsHash());
 
-			final Matrix3 normalMatrix = new Matrix3().set(drawable.rotation);
-			final Matrix4 modelMatrix = drawable.transform.mul(drawable.rotation);
+			final Matrix3 normalMatrix = new Matrix3().set(drawable.model_matrix);
+			final Matrix4 modelMatrix = drawable.model_matrix;
 
-			final SubMesh subMeshes[] = drawable.model.getSubMeshes();
+			final Mesh mesh = drawable.mesh;
 
 			boolean matrixChanged = true;
-			for (int j = 0; j < subMeshes.length; j++) {
 
-				final SubMesh subMesh = subMeshes[j];
-				final Material material = drawable.materials.get(j);
+			final Material material = drawable.material;
 
-				// bind new shader if material can't use old one
-				final boolean shaderChanged = bindShader(material, check);
+			// bind new shader if material can't use old one
+			final boolean shaderChanged = bindShader(material, check);
 
-				if (shaderChanged || matrixChanged) {
-					currentShader.setUniformMatrix("u_normal_matrix", normalMatrix);
-					currentShader.setUniformMatrix("u_model_matrix", modelMatrix);
-					matrixChanged = false;
-				}
-
-				for (int k = 0, len = material.attributes.size; k < len; k++) {
-					final MaterialAttribute atrib = material.attributes.get(k);
-
-//					// special case for textures. really important to batch these
-//					if (atrib instanceof TextureAttribute) {
-//						final TextureAttribute texAtrib = (TextureAttribute)atrib;
-////						if (!texAtrib.texturePortionEquals(lastTexture[texAtrib.unit])) {
-////							lastTexture[texAtrib.unit] = texAtrib;
-////							texAtrib.bind(currentShader);
-////						} else {
-////							// need to be done, shader textureAtribute name could be changed.
-////							texAtrib.bind(currentShader);
-////						}
-//						texAtrib.bind(currentShader);
-//					} else {
-						atrib.bind(currentShader);
-//					}
-				}
-
-				// finally render current submesh
-				subMesh.getMesh().render(currentShader, subMesh.primitiveType);
+			if (shaderChanged || matrixChanged) {
+				currentShader.setUniformMatrix("u_normal_matrix", normalMatrix);
+				currentShader.setUniformMatrix("u_model_matrix", modelMatrix);
+				matrixChanged = false;
 			}
+
+			for (int k = 0, len = material.attributes.size(); k < len; k++) {
+				final MaterialAttribute atrib = material.attributes.get(k);
+
+				// special case for textures. really important to batch these
+				if (atrib instanceof TextureAttribute) {
+					final TextureAttribute texAtrib = (TextureAttribute)atrib;
+					if (lastTexture[0] == null || !texAtrib.textureName.equals(lastTexture[0].textureName)) {
+						lastTexture[0] = texAtrib;
+						texAtrib.bind(currentShader);
+					} else {
+						// need to be done, shader textureAtribute name could be changed.
+						texAtrib.bind(currentShader);
+					}
+				} else {
+					atrib.bind(currentShader);
+				}
+			}
+
+			// finally render current submesh
+			mesh.render(currentShader, drawable.primitiveType);
 		}
 
 		// if transparent queue is not empty enable blending(this force gpu to
@@ -216,63 +221,58 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			lightManager.calculateDynamicLights(center.x, center.y, center.z);
 			boolean check = (light_hash == lightManager.getDynamicLightsHash());
 
-			final Matrix4 modelMatrix = drawable.transform.mul(drawable.rotation);
-			final Matrix3 normalMatrix = new Matrix3().set(drawable.rotation);
+			final Matrix4 modelMatrix = drawable.model_matrix;
+			final Matrix3 normalMatrix = new Matrix3().set(drawable.model_matrix);
 
-			final SubMesh subMeshes[] = drawable.model.getSubMeshes();
+			final Mesh mesh = drawable.mesh;
 
 			boolean matrixChanged = true;
-			for (int j = 0; j < subMeshes.length; j++) {
 
-				final SubMesh subMesh = subMeshes[j];
-				final Material material = drawable.materials.get(j);
+			final Material material = drawable.material;
 
-				// bind new shader if material can't use old one
-				final boolean shaderChanged = bindShader(material, check);
+			// bind new shader if material can't use old one
+			final boolean shaderChanged = bindShader(material, check);
 
-				if (shaderChanged || matrixChanged) {
-					currentShader.setUniformMatrix("u_normal_matrix", normalMatrix, false);
-					currentShader.setUniformMatrix("u_model_matrix", modelMatrix, false);
-					matrixChanged = false;
-				}
-
-				for (int k = 0, len = material.attributes.size; k < len; k++) {
-					final MaterialAttribute atrib = material.attributes.get(k);
-
-					// yet another attributesof. TODO is there any better way to do this? maybe stuffing this to material
-					if (atrib instanceof BlendingAttribute) {
-						final BlendingAttribute blending = (BlendingAttribute)atrib;
-						if (blending.blendSrcFunc != lastSrcBlend || blending.blendDstFunc != lastDstBlend) {
-							atrib.bind(currentShader);
-							lastSrcBlend = blending.blendSrcFunc;
-							lastDstBlend = blending.blendDstFunc;
-						}
-					} 
-//					else if (atrib instanceof TextureAttribute) {
-//						// special case for textures. really important to batch these
-//						final TextureAttribute texAtrib = (TextureAttribute)atrib;
-//						if (!texAtrib.texturePortionEquals(lastTexture[texAtrib.unit])) {
-//							lastTexture[texAtrib.unit] = texAtrib;
-//							texAtrib.bind(currentShader);
-//						} else {
-//							// need to be done, shader textureAtribute name could be changed.
-//							currentShader.setUniformi(texAtrib.name, texAtrib.unit);
-//						}
-//						texAtrib.bind(currentShader);
-//					} 
-					else {
-						atrib.bind(currentShader);
-					}
-				}
-				// finally render current submesh
-				subMesh.getMesh().render(currentShader, subMesh.primitiveType);
+			if (shaderChanged || matrixChanged) {
+				currentShader.setUniformMatrix("u_normal_matrix", normalMatrix, false);
+				currentShader.setUniformMatrix("u_model_matrix", modelMatrix, false);
+				matrixChanged = false;
 			}
+
+			for (int k = 0, len = material.attributes.size(); k < len; k++) {
+				final MaterialAttribute atrib = material.attributes.get(k);
+
+				// yet another attributesof. TODO is there any better way to do this? maybe stuffing this to material
+				if (atrib instanceof BlendingAttribute) {
+					final BlendingAttribute blending = (BlendingAttribute)atrib;
+					if (blending.blendSrcFunc != lastSrcBlend || blending.blendDstFunc != lastDstBlend) {
+						atrib.bind(currentShader);
+						lastSrcBlend = blending.blendSrcFunc;
+						lastDstBlend = blending.blendDstFunc;
+					}
+				} 
+				else if (atrib instanceof TextureAttribute) {
+					// special case for textures. really important to batch these
+					final TextureAttribute texAtrib = (TextureAttribute)atrib;
+					if (!texAtrib.textureName.equals(lastTexture[0].textureName)) {
+						lastTexture[0] = texAtrib;
+						texAtrib.bind(currentShader);
+					} else {
+						// need to be done, shader textureAtribute name could be changed.
+						currentShader.setUniformi(texAtrib.name, 0);
+					}
+					texAtrib.bind(currentShader);
+				} 
+				else {
+					atrib.bind(currentShader);
+				}
+			}
+			// finally render current submesh
+			mesh.render(currentShader, drawable.primitiveType);
 		}
 		Gdx.gl.glDisable(GL20.GL_BLEND);
 	}
 
-	public static final Vector3 tmp = new Vector3();
-	
 	class DrawableManager {
 		Pool<Drawable> drawablePool = new Pool<Drawable>() {
 			@Override
@@ -299,6 +299,16 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 				drawables.add(drawable);
 		}
 
+		public void add(RiggedSubMesh mesh, Matrix4 model_matrix, Material mat) {
+			Drawable drawable = drawablePool.obtain();
+			drawable.set(mesh, model_matrix, mat);
+
+			if (drawable.blending)
+				drawablesBlended.add(drawable);
+			else
+				drawables.add(drawable);
+		}
+
 		public void clear () {
 			clear(drawables);
 			clear(drawablesBlended);
@@ -308,16 +318,8 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 			while (drawables.size > 0) {
 				final Drawable drawable = drawables.pop();
 
-				// return all materials and attribuets to the pools
-				while (drawable.materials.size > 0) {
-					final Material material = drawable.materials.pop();
-
-					while (material.attributes.size > 0) {
-						material.attributes.pop().free();
-					}
-					material.resetShader();
-					materialPool.free(material);
-				}
+				//drawable.material.resetShader();
+				
 				// reset the drawable and return it to the drawable pool
 				drawablePool.free(drawable);
 			}
@@ -331,56 +333,49 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 		 * @author mzechner */
 		class Drawable implements Comparable<Drawable> {
 			private static final int PRIORITY_DISCRETE_STEPS = 256;
-			Model model;
-			final Matrix4 transform = new Matrix4();
-			final Matrix4 rotation = new Matrix4();
+			Mesh mesh;
+			final Matrix4 model_matrix = new Matrix4();
 			final Vector3 sortCenter = new Vector3();
-			final Array<Material> materials = new Array<Material>(2);
-			boolean isAnimated;
-			String animation;
-			float animationTime;
-			boolean isLooping;
+			Material material;
+
 			boolean blending;
 			int distance;
-			int firstShaderHash;
-			int modelHash;
+			int shaderHash;
+			int materialHash;
+			
+			int primitiveType;
 
+			public void set (RiggedSubMesh mesh, Matrix4 model_matrix, Material mat)
+			{
+				setCommon(mesh.getMesh(), mesh.primitiveType, model_matrix, mat);
+			}
+			
 			public void set (StillModel model, StillModelAttributes attributes) {
-				setCommon(model, attributes);
-				isAnimated = false;
+				model_matrix.set(attributes.getTransform()).scale(attributes.scale, attributes.scale, attributes.scale).mul(attributes.rotation);
+				setCommon(model.subMeshes[0].mesh, model.subMeshes[0].primitiveType, model_matrix, attributes.material);
+
 			}
 
-			private void setCommon (Model model, StillModelAttributes attributes) {
-				this.model = model;
-				modelHash = model.hashCode();
+			private void setCommon (Mesh mesh, int primitiveType, Matrix4 model_matrix, Material mat) {
 				
-				rotation.set(attributes.getRotation());
+				this.mesh = mesh;
+				this.model_matrix.set(model_matrix);
+				this.material = mat;
+				this.primitiveType = primitiveType;
 				
-				Vector3 t = new Vector3();
+				sortCenter.set(0, 0, 0).mul(model_matrix);
 				
-				attributes.getTransform().getTranslation(t);
-				
-				transform.setToTranslationAndScaling(t, tmp.set(attributes.scale, attributes.scale, attributes.scale));
-
-				sortCenter.set(attributes.getSortCenter());
 				distance = (int)(PRIORITY_DISCRETE_STEPS * sortCenter.dst(cam.position));
-				if (attributes.getMaterial() != null) {
-					if (attributes.material.getShader() == null) attributes.material.generateShader(shaderHandler);
-
-					final Material copy = materialPool.obtain();
-					copy.setPooled(attributes.material);
-					materials.add(copy);
+				if (material != null) {
+					if (material.getShader() == null) material.generateShader(shaderHandler);
 				} else {
 					System.err.println("Error! Attributes has no Material!");
 				}
-				blending = false;
-				for (Material mat : materials) {
-					if (mat.isNeedBlending()) {
-						blending = true;
-					}
-				}
-				if (materials.size > 0) firstShaderHash = materials.get(0).getShader().hashCode();
+				
+				blending = material.isNeedBlending();
 
+				shaderHash = material.getShader().hashCode();
+				materialHash = material.hashCode();
 			}
 
 			@Override
@@ -393,9 +388,8 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 	public static final Comparator<Drawable> opaqueSorter = new Comparator<Drawable>() {
 
 		public int compare (Drawable a, Drawable b) {
-			if (a.firstShaderHash != b.firstShaderHash) return b.firstShaderHash - a.firstShaderHash;
-
-			if (a.modelHash != b.modelHash) return b.modelHash - a.modelHash;
+			if (a.shaderHash != b.shaderHash) return b.shaderHash - a.shaderHash;
+			if (a.materialHash != b.materialHash) return b.materialHash - a.materialHash;
 
 			return b.distance - a.distance;
 		}

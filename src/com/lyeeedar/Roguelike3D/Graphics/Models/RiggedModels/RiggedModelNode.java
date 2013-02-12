@@ -7,7 +7,12 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
+import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
+import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public class RiggedModelNode implements Serializable
 {
@@ -15,25 +20,32 @@ public class RiggedModelNode implements Serializable
 	public static final Vector3 tmpVec = new Vector3();
 	
 	private static final long serialVersionUID = -3949208107618544807L;
-	public final SubMesh[] submeshes;
+	public final RiggedSubMesh[] submeshes;
 	public final int[] submeshMaterials;
+	public transient Matrix4[] meshMatrixes;
 	
 	public final Matrix4 position;
 	public final Matrix4 rotation;
-	public RiggedModelNode[] childNodes;
-	public RiggedModelNode parent;
 	
-	public final float radius;
+	public transient Matrix4 offsetPosition = new Matrix4();
+	public transient Matrix4 offsetRotation = new Matrix4();
+	
+	public RiggedModelNode[] childNodes;
+	public transient RiggedModelNode parent;
+	
+	public float radius;
 	
 	public final float rigidity;
 	
-	public final Matrix4 composedMatrix = new Matrix4();
+	public transient Matrix4 composedMatrix = new Matrix4();
 	
 	public RiggedModelBehaviour behaviour;
 	
 	public final boolean collidable;
 	
-	public RiggedModelNode(SubMesh[] submeshes, int[] submeshMaterials, Matrix4 position, Matrix4 rotation, int rigidity, boolean collidable)
+	public boolean collideMode = false;
+	
+	public RiggedModelNode(RiggedSubMesh[] submeshes, int[] submeshMaterials, Matrix4 position, Matrix4 rotation, int rigidity, boolean collidable)
 	{
 		if (submeshes.length != submeshMaterials.length)
 		{
@@ -46,17 +58,6 @@ public class RiggedModelNode implements Serializable
 		this.rotation = rotation;
 		this.rigidity = rigidity;
 		this.collidable = collidable;
-		
-		BoundingBox box = new BoundingBox();
-		
-		for (SubMesh sm : submeshes)
-		{
-			box.ext(sm.mesh.calculateBoundingBox());
-		}
-		
-		float longest = (box.getDimensions().x > box.getDimensions().z) ? box.getDimensions().x : box.getDimensions().z;
-		longest = (box.getDimensions().y > longest) ? box.getDimensions().y : longest;
-		this.radius = longest / 2.0f;
 	}
 	
 	public void setBehaviour(RiggedModelBehaviour behaviour)
@@ -64,15 +65,24 @@ public class RiggedModelNode implements Serializable
 		this.behaviour = behaviour;
 	}
 	
-	public void setReferences(RiggedModelNode parent, RiggedModelNode[] children)
+	public void setParent(RiggedModelNode parent)
 	{
 		this.parent = parent;
+	}
+	
+	public void setChilden(RiggedModelNode[] children)
+	{
 		this.childNodes = children;
 	}
 	
 	public void composeMatrixes(Matrix4 composed)
 	{
-		composedMatrix.set(composed).mul(position).mul(rotation);
+		composedMatrix.set(composed).mul(position).mul(rotation).mul(offsetPosition).mul(offsetRotation);
+		
+		for (int i = 0; i < submeshes.length; i++)
+		{
+			meshMatrixes[i].set(composed).scale(submeshes[i].scale, submeshes[i].scale, submeshes[i].scale);
+		}
 		
 		for (RiggedModelNode rgn : childNodes)
 		{
@@ -80,44 +90,45 @@ public class RiggedModelNode implements Serializable
 		}
 	}
 	
-	public void render(RiggedModel model, Camera cam)
+	public void render(RiggedModel model, PrototypeRendererGL20 renderer)
 	{
 		for (int i = 0; i < submeshes.length; i++)
 		{
-			RiggedModel.shader.begin();
-			
-			RiggedModel.shader.setUniformMatrix("u_pv", cam.combined);
-			RiggedModel.shader.setUniformMatrix("u_model_matrix", composedMatrix);
-			
-			
-			model.materials[submeshMaterials[i]].bind(RiggedModel.shader);
-			
-			submeshes[i].mesh.render(RiggedModel.shader, submeshes[i].primitiveType);
-			
-			RiggedModel.shader.end();
+			renderer.draw(submeshes[i], meshMatrixes[i], model.materials[submeshMaterials[i]], radius);
 		}
 		
 		for (RiggedModelNode rgn : childNodes)
 		{
-			rgn.render(model, cam);
+			rgn.render(model, renderer);
 		}
 	}
 	
-	public boolean checkCollision(String ignoreUID)
+	public GameActor checkCollision(GameActor holder)
 	{
 		tmpVec.set(0, 0, 0).mul(composedMatrix);
 		
-		if (collidable && GameData.level.checkCollision(tmpVec, radius, ignoreUID)) {
-			rotation.rotate(0, 1, 0, 10);
-			return true;
+		if (collidable && collideMode) {
+			GameActor ga = GameData.level.checkEntities(tmpVec, radius, holder.UID);
+
+			LevelObject lo = GameData.level.checkLevelObjects(tmpVec, radius);
+			
+			if (lo != null) ga = holder;
+			
+			if (GameData.level.checkLevelCollision(tmpVec, radius)) ga = holder;
+			
+			if (ga != null) {
+				rotation.rotate(0, 1, 0, (100-rigidity)/50);
+				return ga;
+			}
 		}
 		
 		for (RiggedModelNode rmn : childNodes)
 		{
-			if (rmn.checkCollision(ignoreUID)) return true;
+			GameActor ga = rmn.checkCollision(holder);
+			if (ga != null) return ga;
 		}
 		
-		return false;
+		return null;
 	}
 	
 	public void update(float delta)
@@ -130,13 +141,23 @@ public class RiggedModelNode implements Serializable
 		}
 	}
 	
-	public void activate()
+	public void held()
 	{
-		if (behaviour != null) behaviour.activate();
+		if (behaviour != null) behaviour.held();
 		
 		for (RiggedModelNode rmn : childNodes)
 		{
-			rmn.activate();
+			rmn.held();
+		}
+	}
+	
+	public void released()
+	{
+		if (behaviour != null) behaviour.released();
+		
+		for (RiggedModelNode rmn : childNodes)
+		{
+			rmn.released();
 		}
 	}
 	
@@ -147,6 +168,107 @@ public class RiggedModelNode implements Serializable
 		for (RiggedModelNode rmn : childNodes)
 		{
 			rmn.cancel();
+		}
+	}
+	
+	public void bakeLight(LightManager lights, boolean bakeStatics, RiggedModel model)
+	{
+		for (int i = 0; i < submeshes.length; i++)
+		{
+			submeshes[i].bakeLights(lights, bakeStatics, meshMatrixes[i], model.materials[submeshMaterials[i]]);
+		}
+
+		for (RiggedModelNode rmn : childNodes)
+		{
+			rmn.bakeLight(lights, bakeStatics, model);
+		}
+	}
+	
+	public void setCollideMode(boolean mode, boolean propogateUp)
+	{
+		if (propogateUp)
+		{
+			if (parent != null)
+			{
+				parent.setCollideMode(mode, true);
+			}
+			else
+			{
+				for (RiggedModelNode rmn : childNodes)
+				{
+					rmn.setCollideMode(mode, false);
+				}
+			}
+		}
+		else
+		{
+			collideMode = mode;
+			
+			for (RiggedModelNode rmn : childNodes)
+			{
+				rmn.setCollideMode(mode, false);
+			}
+		}
+	}
+	
+	public void create()
+	{
+		offsetPosition = new Matrix4();
+		offsetRotation = new Matrix4();
+		
+		composedMatrix = new Matrix4();
+		
+		meshMatrixes = new Matrix4[submeshes.length];
+		
+		for (int i = 0; i < meshMatrixes.length; i++)
+		{
+			meshMatrixes[i] = new Matrix4();
+		}
+		
+		for (RiggedSubMesh rsm : submeshes)
+		{
+			rsm.create();
+		}
+		
+		BoundingBox box = new BoundingBox();
+		
+		for (RiggedSubMesh sm : submeshes)
+		{
+			box.ext(sm.getBoundingBox());
+		}
+		
+		float longest = (box.getDimensions().x > box.getDimensions().z) ? box.getDimensions().x : box.getDimensions().z;
+		longest = (box.getDimensions().y > longest) ? box.getDimensions().y : longest;
+		this.radius = (longest / 2.0f);// * scale;
+		
+
+		for (RiggedModelNode rmn : childNodes)
+		{
+			rmn.create();
+		}
+		
+	}
+	
+	public void fixReferences()
+	{
+
+		for (RiggedModelNode rmn : childNodes)
+		{
+			rmn.setParent(this);
+			rmn.fixReferences();
+		}
+	}
+	
+	public void dispose()
+	{
+		for (RiggedSubMesh rsm : submeshes)
+		{
+			rsm.dispose();
+		}
+
+		for (RiggedModelNode rmn : childNodes)
+		{
+			rmn.dispose();
 		}
 	}
 }

@@ -75,4 +75,10 @@ public class Colour implements Serializable {
 		this.b = b;
 		this.a = a;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return r+","+g+","+b+","+a;
+	}
 }

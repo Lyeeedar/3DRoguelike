@@ -10,36 +10,41 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Materials;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Array;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.ShaderHandler;
 
-public class Material {
+public class Material implements Serializable {
+
+	private static final long serialVersionUID = 7913278056780119939L;
 	protected String name;
-	public Array<MaterialAttribute> attributes;
+	public ArrayList<MaterialAttribute> attributes;
 	
 	public boolean affectedByLighting = true;
 
 	/** This flag is true if material contain blendingAttribute */
 	protected boolean needBlending;
 
-	protected ShaderProgram shader;
+	protected transient ShaderProgram shader;
 
 	public ShaderProgram getShader () {
 		return shader;
 	}
 
 	public Material () {
-		attributes = new Array<MaterialAttribute>(2);
+		attributes = new ArrayList<MaterialAttribute>();
 	}
 
-	public Material (String name, Array<MaterialAttribute> attributes) {
+	public Material (String name, ArrayList<MaterialAttribute> attributes) {
 		this.name = name;
 		this.attributes = attributes;
 
 		// this way we foresee if blending is needed with this material and rendering can deferred more easily
 		this.needBlending = false;
-		for (int i = 0; i < this.attributes.size; i++) {
+		for (int i = 0; i < this.attributes.size(); i++) {
 			if (this.attributes.get(i) instanceof BlendingAttribute) {
 				this.needBlending = true;
 			}
@@ -48,11 +53,13 @@ public class Material {
 
 	public Material (String name, MaterialAttribute... attributes) {
 		this.name = name;
-		this.attributes = new Array<MaterialAttribute>(attributes);
+		this.attributes = new ArrayList<MaterialAttribute>(attributes.length);
+		
+		for (MaterialAttribute ma : attributes) this.attributes.add(ma);
 
 		// this way we foresee if blending is needed with this material and rendering can deferred more easily
 		this.needBlending = false;
-		for (int i = 0; i < this.attributes.size; i++) {
+		for (int i = 0; i < this.attributes.size(); i++) {
 			if (this.attributes.get(i) instanceof BlendingAttribute) {
 				this.needBlending = true;
 			}
@@ -68,7 +75,7 @@ public class Material {
 	}
 
 	public void bind (ShaderProgram program) {
-		for (int i = 0; i < attributes.size; i++) {
+		for (int i = 0; i < attributes.size(); i++) {
 			attributes.get(i).bind(program);
 		}
 	}
@@ -78,8 +85,10 @@ public class Material {
 	}
 
 	public Material copy () {
-		Array<MaterialAttribute> attributes = new Array<MaterialAttribute>(this.attributes.size);
-		for (int i = 0; i < attributes.size; i++) {
+		ArrayList<MaterialAttribute> attributes = new ArrayList<MaterialAttribute>(this.attributes.size());
+		for (MaterialAttribute ma : this.attributes) attributes.add(ma);
+
+		for (int i = 0; i < attributes.size(); i++) {
 			attributes.add(this.attributes.get(i).copy());
 		}
 		final Material copy = new Material(name, attributes);
@@ -89,6 +98,10 @@ public class Material {
 
 	@Override
 	public int hashCode () {
+		for (MaterialAttribute ma : attributes)
+		{
+			if (ma instanceof TextureAttribute) return ma.hashCode();
+		}
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + attributes.hashCode();
@@ -103,8 +116,8 @@ public class Material {
 		if (getClass() != obj.getClass()) return false;
 		Material other = (Material)obj;
 		if (other.affectedByLighting != this.affectedByLighting) return false;
-		if (other.attributes.size != attributes.size) return false;
-		for (int i = 0; i < attributes.size; i++) {
+		if (other.attributes.size() != attributes.size()) return false;
+		for (int i = 0; i < attributes.size(); i++) {
 			if (!attributes.get(i).equals(other.attributes.get(i))) return false;
 		}
 		if (name == null) {
@@ -116,8 +129,8 @@ public class Material {
 	public boolean shaderEquals (Material other) {
 		if (this == other) return true;
 
-		int len = this.attributes.size;
-		if (len != other.attributes.size) return false;
+		int len = this.attributes.size();
+		if (len != other.attributes.size()) return false;
 
 		for (int i = 0; i < len; i++) {
 			final String str = this.attributes.get(i).name;
@@ -141,7 +154,7 @@ public class Material {
 		shader = material.shader;
 		needBlending = material.needBlending;
 		attributes.clear();
-		for (int i = 0, len = material.attributes.size; i < len; i++) {
+		for (int i = 0, len = material.attributes.size(); i < len; i++) {
 			attributes.add(material.attributes.get(i).pooledCopy());
 		}
 	}
@@ -163,6 +176,14 @@ public class Material {
 		for (MaterialAttribute ma : attributes)
 		{
 			ma.dispose();
+		}
+	}
+	
+	public void create()
+	{
+		for (MaterialAttribute ma : attributes)
+		{
+			ma.create();
 		}
 	}
 }

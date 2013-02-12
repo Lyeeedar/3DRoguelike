@@ -193,10 +193,8 @@ public class LightManager implements Serializable {
 	}
 
 	public void applyGlobalLights (ShaderProgram shader, Material material) {
-		
-		if (!material.affectedByLighting) return;
-		
-		//shader.setUniformf("u_ambient", ambientLight);
+		if (!material.affectedByLighting) shader.setUniformf("u_ambient_light", 1, 1, 1);
+		else shader.setUniformf("u_ambient_light", ambientLight.r, ambientLight.g, ambientLight.b);
 	}
 	
 	public Vector3 calculateLightAtPoint(Vector3 position, Vector3 normal, boolean bakeStatics)

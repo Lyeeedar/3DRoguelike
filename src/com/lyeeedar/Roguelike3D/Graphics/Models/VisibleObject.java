@@ -19,6 +19,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
@@ -79,26 +80,16 @@ public class VisibleObject implements Serializable {
 	
 	private void loadGraphics(Mesh mesh)
 	{
-		Texture diffuseTexture = GameData.loadTexture(texture);
-		diffuseTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
-		diffuseTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
-		
-		Texture normalTexture = GameData.loadTexture(texture+".map");
-		if (normalTexture != null)
-		{
-			normalTexture.setWrap( TextureWrap.Repeat, TextureWrap.Repeat );
-			normalTexture.setFilter( TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear );
-			System.out.println("Normal map found for "+texture);
-		}
-
-		mesh = Shapes.insertColour(mesh, colour);
+		//mesh = Shapes.insertColour(mesh, colour);
 		//mesh = Shapes.insertTangents(mesh);
 		
 		SubMesh[] meshes = {new StillSubMesh("SubMesh1", mesh, primitive_type)};
 		model = new StillModel(meshes);
-		MaterialAttribute t = new TextureAttribute(diffuseTexture, normalTexture, null, 0);
+		MaterialAttribute t = new TextureAttribute(texture, 0);
+		MaterialAttribute c = new ColorAttribute(colour, ColorAttribute.colour);
 		
-		Material material = new Material("basic", t);
+		Material material = new Material("basic", t, c);
+		material.create();
 		
 		BoundingBox box = mesh.calculateBoundingBox();
 		
@@ -111,7 +102,7 @@ public class VisibleObject implements Serializable {
 	{
 		if (modelData[0].equalsIgnoreCase("file"))
 		{
-			return ObjLoader.loadObj(Gdx.files.internal("data/models/"+modelData[1]+".obj").read());
+			return GameData.loadMesh(modelData[1]);
 		}
 		else if (modelData[0].equalsIgnoreCase("cube"))
 		{
@@ -133,7 +124,8 @@ public class VisibleObject implements Serializable {
 
 	public void dispose()
 	{
-		model.dispose();
+		if (!modelData[0].equals("file"))
+			model.dispose();
 		model = null;
 		attributes.dispose();
 		attributes = null;
@@ -147,11 +139,11 @@ public class VisibleObject implements Serializable {
 		
 		Mesh oldMesh = model.subMeshes[0].mesh;
 		
-		Mesh newMesh = Shapes.insertLight(oldMesh, lights, bakeStatics, attributes.getSortCenter(), attributes.getRotation(), attributes.getMaterial().affectedByLighting);
+		Matrix4 mat = new Matrix4();
+		mat.set(attributes.getTransform()).scale(attributes.scale, attributes.scale, attributes.scale).mul(attributes.getRotation());
+		Mesh newMesh = Shapes.insertLight(oldMesh, lights, bakeStatics, mat, attributes.getMaterial().affectedByLighting);
 		
 		model.subMeshes[0] = new StillSubMesh("SubMesh1", newMesh, primitive_type);
-		
-		oldMesh.dispose();
 	}
 
 }

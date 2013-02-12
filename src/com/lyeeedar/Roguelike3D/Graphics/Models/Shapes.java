@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
@@ -340,16 +341,19 @@ public class Shapes {
 		return tmpMesh;
 	}
 
-	public static void translateCubeMesh(Mesh mesh, float x, float y, float z)
+	public static void translateMesh(Mesh mesh, float x, float y, float z)
 	{
 		final int vertexSize = mesh.getVertexAttributes().vertexSize / 4;
 		float[] newPos = new float[mesh.getMaxVertices()*vertexSize];
 		mesh.getVertices(newPos);
+		
+		int positionOffset = mesh.getVertexAttributes().getOffset(Usage.Position);
+		
 		for (int i = 0; i < mesh.getMaxVertices(); i++)
 		{
-			newPos[(i*vertexSize)] += x;
-			newPos[(i*vertexSize)+1] += y;
-			newPos[(i*vertexSize)+2] += z;
+			newPos[(i*vertexSize)+0+positionOffset] += x;
+			newPos[(i*vertexSize)+1+positionOffset] += y;
+			newPos[(i*vertexSize)+2+positionOffset] += z;
 		}
 		mesh.setVertices(newPos);
 	}
@@ -446,7 +450,7 @@ public class Shapes {
 		return newMesh;
 	}
 	
-	public static Mesh insertLight(Mesh mesh, LightManager lights, boolean bakeStatics, Vector3 meshPosition, Matrix4 meshRotation, boolean lit)
+	public static Mesh insertLight(Mesh mesh, LightManager lights, boolean bakeStatics, Matrix4 model_matrix, boolean lit)
 	{
 		VertexAttributes attributes = mesh.getVertexAttributes();
 		final int vertCount = mesh.getNumVertices();
@@ -470,6 +474,11 @@ public class Shapes {
 		int positionOffset = attributes.getOffset(Usage.Position);
 		int normalOffset = attributes.getOffset(Usage.Normal);
 		
+		Matrix4 normal_matrix = new Matrix4();
+		normal_matrix.set(model_matrix);
+		
+		Vector3 position = new Vector3();
+		
 		for (int i = 0; i < vertCount; i++)
 		{
 			int j = 0;
@@ -478,11 +487,10 @@ public class Shapes {
 				newVerts[ (i*newVertexSize) + j ] = verts[ (i*vertexSize) + j ];
 			}
 			
-			Vector3 position = meshPosition.cpy();
-			position.add(verts[(i*vertexSize)+positionOffset], verts[(i*vertexSize)+positionOffset+1], verts[(i*vertexSize)+positionOffset+2]);
+			position.set(verts[(i*vertexSize)+positionOffset], verts[(i*vertexSize)+positionOffset+1], verts[(i*vertexSize)+positionOffset+2]).mul(model_matrix);
 
 			Vector3 normal = new Vector3(verts[(i*vertexSize)+normalOffset], verts[(i*vertexSize)+normalOffset+1], verts[(i*vertexSize)+normalOffset+2]);
-			normal.mul(meshRotation);
+			normal.mul(normal_matrix).nor();
 			
 			Vector3 light_colour = new Vector3(1.0f, 1.0f, 1.0f);
 			
@@ -622,5 +630,23 @@ public class Shapes {
 		
 		vec2.nor();
 		return vec2;
+	}
+	
+	public static Mesh copyMesh(Mesh mesh)
+	{
+		VertexAttributes attributes = mesh.getVertexAttributes();
+		final int vertCount = mesh.getNumVertices();
+		final int vertexSize = attributes.vertexSize / 4;
+		
+		float[] verts = new float[vertexSize * vertCount]; 
+		mesh.getVertices(verts);
+		short[] indices = new short[mesh.getNumIndices()];
+		mesh.getIndices(indices);
+		
+		Mesh newMesh = new Mesh(true, mesh.getNumVertices(), mesh.getNumIndices(), attributes);
+		newMesh.setVertices(verts);
+		newMesh.setIndices(indices);
+		
+		return newMesh;
 	}
 }

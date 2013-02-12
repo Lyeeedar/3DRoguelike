@@ -17,37 +17,60 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Pool;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 
 public class TextureAttribute extends MaterialAttribute {
 	
+	private static final long serialVersionUID = 3095829882861332616L;
 	public final static int MAX_TEXTURE_UNITS = 16;
 	static final public String diffuseTexture = "u_diffuse_texture";
 	static final public String lightmapTexture = "u_lightmap_texture";
 	static final public String specularTexture = "u_specular_texture";
 	static final public String normalmapTexture = "u_normalmap_texture";
 
-	public Texture dTexture;
-	public Texture nmTexture;
-	public Texture lTexture;
+	public transient Texture dTexture;
+	public transient Texture nmTexture;
+	public transient Texture lTexture;
 	
 	public int startUnit;
-	public int minFilter;
-	public int magFilter;
-	public int uWrap;
-	public int vWrap;
+	public TextureFilter minFilter;
+	public TextureFilter magFilter;
+	public TextureWrap uWrap;
+	public TextureWrap vWrap;
 	
-	protected TextureAttribute()
+	public String textureName;
+
+	@Override
+	public int hashCode()
 	{
-		
+		return dTexture.hashCode();
 	}
 	
-	public TextureAttribute (Texture dTexture, Texture nmTexture, Texture lTexture, int unit, TextureFilter minFilter, TextureFilter magFilter,
-			TextureWrap uWrap, TextureWrap vWrap) {
-		this(dTexture, nmTexture, lTexture, unit,  minFilter.getGLEnum(), magFilter.getGLEnum(), uWrap.getGLEnum(), vWrap.getGLEnum());
+	public TextureAttribute (String textureName, int unit, TextureFilter minFilter, TextureFilter magFilter, TextureWrap uWrap, TextureWrap vWrap) {
+		this.textureName = textureName;
+
+		if (unit+3 > MAX_TEXTURE_UNITS) throw new RuntimeException(MAX_TEXTURE_UNITS + " is max texture units supported");
+		this.startUnit = unit;
+		this.uWrap = uWrap;
+		this.vWrap = vWrap;
+		this.minFilter = minFilter;
+		this.magFilter = magFilter;
 	}
 
-	public TextureAttribute (Texture dTexture, Texture nmTexture, Texture lTexture, int unit, int minFilter, int magFilter, int uWrap, int vWrap) {
-		super("");
+	private void loadTextures() {
+		
+		dTexture = GameData.loadTexture(textureName);
+		dTexture.setWrap( uWrap, vWrap );
+		dTexture.setFilter( minFilter, magFilter );
+		
+		nmTexture = GameData.loadTexture(textureName+".map");
+		if (nmTexture != null)
+		{
+			nmTexture.setWrap( uWrap, vWrap );
+			nmTexture.setFilter( minFilter, magFilter );
+			System.out.println("Normal map found for "+textureName);
+		}
+		
 		name = diffuseTexture;
 		if (nmTexture != null)
 		{
@@ -57,20 +80,13 @@ public class TextureAttribute extends MaterialAttribute {
 		{
 			name += FLAG+"\n#define "+lightmapTexture;
 		}
-
-		this.dTexture = dTexture;
-		this.nmTexture = nmTexture;
-		this.lTexture = lTexture;
-		if (unit+3 > MAX_TEXTURE_UNITS) throw new RuntimeException(MAX_TEXTURE_UNITS + " is max texture units supported");
-		this.startUnit = unit;
-		this.uWrap = uWrap;
-		this.vWrap = vWrap;
-		this.minFilter = minFilter;
-		this.magFilter = magFilter;
 	}
 
-	public TextureAttribute (Texture dTexture, Texture nmTexture, Texture lTexture, int unit) {
-		this(dTexture, nmTexture, lTexture, unit, dTexture.getMinFilter(), dTexture.getMagFilter(), dTexture.getUWrap(), dTexture.getVWrap());
+	public TextureAttribute (String textureName, int unit) {
+		this(textureName, unit, TextureFilter.MipMapLinearLinear, TextureFilter.MipMapLinearLinear, TextureWrap.Repeat, TextureWrap.Repeat);
+	}
+
+	public TextureAttribute() {
 	}
 
 	@Override
@@ -84,17 +100,6 @@ public class TextureAttribute extends MaterialAttribute {
 		
 		dTexture.bind(0);
 		
-//		if (lTexture != null)
-//		{
-//			lTexture.bind(texIndex);
-//			Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MIN_FILTER, minFilter);
-//			Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MAG_FILTER, magFilter);
-//			Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_S, uWrap);
-//			Gdx.gl.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_WRAP_T, vWrap);
-//			program.setUniformi(lightmapTexture, texIndex);
-//			texIndex++;
-//		}
-		
 		program.setUniformi(diffuseTexture, 0);
 		program.setUniformi(normalmapTexture, 3);
 		program.setUniformi(lightmapTexture, 2);
@@ -102,7 +107,7 @@ public class TextureAttribute extends MaterialAttribute {
 
 	@Override
 	public MaterialAttribute copy () {
-		return new TextureAttribute(dTexture, nmTexture, lTexture, startUnit, minFilter, magFilter, uWrap, vWrap);
+		return new TextureAttribute(textureName, startUnit, minFilter, magFilter, uWrap, vWrap);
 	}
 
 	@Override
@@ -152,8 +157,10 @@ public class TextureAttribute extends MaterialAttribute {
 
 	@Override
 	public void dispose() {
-//		if (dTexture != null) dTexture.dispose();
-//		if (nmTexture != null) nmTexture.dispose();
-//		if (lTexture != null) lTexture.dispose();
+	}
+
+	@Override
+	public void create() {
+		loadTextures();
 	}
 }

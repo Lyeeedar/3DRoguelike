@@ -30,6 +30,8 @@ public class StillModelAttributes implements StillModelInstance {
 	public final float scale;
 	
 	public Vector3 box;
+	
+	public static final Matrix4 composed = new Matrix4();
 
 	public StillModelAttributes (Material material, float radius, float scale, Vector3 box) {
 		this.material = material;
@@ -88,5 +90,10 @@ public class StillModelAttributes implements StillModelInstance {
 	public void dispose()
 	{
 		material.dispose();
+	}
+	
+	public Matrix4 getComposedMatrix()
+	{
+		return composed.set(position).scale(scale, scale, scale).mul(rotation);
 	}
 }

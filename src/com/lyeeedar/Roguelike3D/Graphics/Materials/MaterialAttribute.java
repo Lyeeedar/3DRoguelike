@@ -10,9 +10,13 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Materials;
 
+import java.io.Serializable;
+
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
-public abstract class MaterialAttribute {
+public abstract class MaterialAttribute implements Serializable {
+
+	private static final long serialVersionUID = 7055324739119426496L;
 	protected static final String FLAG = "Flag";
 	public String name;
 	protected final boolean isPooled;
@@ -39,6 +43,8 @@ public abstract class MaterialAttribute {
 	public String getShaderFlag () {
 		return name + FLAG;
 	}
+	
+	public abstract void create();
 	
 	public abstract void dispose();
 }

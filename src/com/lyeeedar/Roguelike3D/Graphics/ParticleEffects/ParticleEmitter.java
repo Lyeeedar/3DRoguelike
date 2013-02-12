@@ -26,6 +26,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -95,7 +96,11 @@ public class ParticleEmitter implements Serializable {
 	
 	Vector3[] particle = {new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()};
 	
-	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles, GameObject bound)
+	final boolean vertexEmission;
+	
+	transient Vector3[] vertices;
+	
+	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles, GameObject bound, boolean vertexEmission)
 	{	
 		this.bound = bound;
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
@@ -108,6 +113,7 @@ public class ParticleEmitter implements Serializable {
 		this.vz = vz;
 		this.speed = speed;
 		this.boundUID = bound.UID;
+		this.vertexEmission = vertexEmission;
 		
 		radius = vx + vz;
 		
@@ -137,6 +143,35 @@ public class ParticleEmitter implements Serializable {
 
 		verticesPoint = new float[particles*6];
 		verticesQuad = new float[particles*32];
+		
+		if (vertexEmission)
+		{
+			
+			Mesh mesh = bound.vo.model.subMeshes[0].mesh;
+					
+			VertexAttributes attributes = mesh.getVertexAttributes();
+			final int vertCount = mesh.getNumVertices();
+			final int vertexSize = attributes.vertexSize / 4;
+
+			float[] verts = new float[vertexSize * vertCount]; 
+			mesh.getVertices(verts);
+			
+			int positionOffset = attributes.getOffset(Usage.Position);
+			
+			vertices = new Vector3[vertCount];
+			
+			final float scale = bound.vo.scale;
+			
+			for (int i = 0; i < vertCount; i++)
+			{
+				vertices[i] = new Vector3(
+						verts[(i * vertexSize) + positionOffset + 0] * scale,
+						verts[(i * vertexSize) + positionOffset + 1] * scale,
+						verts[(i * vertexSize) + positionOffset + 2] * scale
+						);
+			}
+
+		}
 	}
 	
 	public void fixReferences()
@@ -429,14 +464,24 @@ public class ParticleEmitter implements Serializable {
 		{
 			Particle p = inactive.pop();
 			
-			signx = (ran.nextInt(2) == 0) ? 1 : -1;
-			signy = (ran.nextInt(2) == 0) ? 1 : -1;
-			signz = (ran.nextInt(2) == 0) ? 1 : -1;
-			p.set(velocity, atime*ran.nextFloat(), start, end, 
-					x+(float)(vx*ran.nextGaussian()*signx), 
-					y+(float)(vy*ran.nextGaussian()*signy),
-					z+(float)(vz*ran.nextGaussian()*signz));
-	
+			if (vertexEmission)
+			{
+				Vector3 vertex = vertices[ran.nextInt(vertices.length)];
+				
+				p.set(velocity, atime*ran.nextFloat(), start, end, 
+						x+vertex.x, 
+						y+vertex.y,
+						z+vertex.z);
+			}
+			else {
+				signx = (ran.nextInt(2) == 0) ? 1 : -1;
+				signy = (ran.nextInt(2) == 0) ? 1 : -1;
+				signz = (ran.nextInt(2) == 0) ? 1 : -1;
+				p.set(velocity, atime*ran.nextFloat(), start, end, 
+						x+(float)(vx*ran.nextGaussian()*signx), 
+						y+(float)(vy*ran.nextGaussian()*signy),
+						z+(float)(vz*ran.nextGaussian()*signz));
+			}
 			active.add(p);
 			
 			time += speed;

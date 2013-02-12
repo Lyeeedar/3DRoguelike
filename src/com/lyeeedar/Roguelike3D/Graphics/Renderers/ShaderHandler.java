@@ -32,7 +32,7 @@ public class ShaderHandler {
 			}
 		}
 
-		System.out.println("Adding shader");
+		System.out.println("Creating shader");
 		materialsWithShader.add(material);
 		return ShaderFactory.createShader(material, lightManager);
 	}

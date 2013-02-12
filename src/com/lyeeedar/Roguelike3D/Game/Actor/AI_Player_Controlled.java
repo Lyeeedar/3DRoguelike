@@ -98,7 +98,7 @@ public class AI_Player_Controlled extends AI_Package {
 		{
 			headBob = 0;
 		}
-		actor.offsetPos.y = (float) Math.sin(headBob)/5;
+		actor.offsetPos.y = ((float) Math.sin(headBob)/5) + 2;
 		
 		if (Gdx.input.isKeyPressed(Keys.B))
 		{			
@@ -115,14 +115,26 @@ public class AI_Player_Controlled extends AI_Package {
 			GameData.load();
 		}
 		
-		if (actor.L_HAND != null && Gdx.input.isButtonPressed(Input.Buttons.LEFT))
-		{
-			actor.L_HAND.use();
+		if (actor.L_HAND != null) {
+			if (Gdx.input.isButtonPressed(Input.Buttons.LEFT))
+			{
+				actor.L_HAND.held();
+			}
+			else
+			{
+				actor.L_HAND.released();
+			}
 		}
 		
-		if (actor.R_HAND != null && Gdx.input.isButtonPressed(Input.Buttons.RIGHT))
-		{
-			actor.R_HAND.use();
+		if (actor.R_HAND != null) {
+			if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT))
+			{
+				actor.R_HAND.held();
+			}
+			else
+			{
+				actor.R_HAND.released();
+			}
 		}
 		
 		actor.applyMovement();

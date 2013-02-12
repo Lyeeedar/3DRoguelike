@@ -88,12 +88,12 @@ public class AI_Enemy_VFFG extends AI_Package {
 	{
 		if (actor.L_HAND != null)
 		{
-			actor.L_HAND.use();
+			actor.L_HAND.held();
 		}
 		
 		if (actor.R_HAND != null)
 		{
-			actor.R_HAND.use();
+			actor.R_HAND.held();
 		}
 		
 	}

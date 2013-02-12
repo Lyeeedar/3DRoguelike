@@ -35,6 +35,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModel;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModelNode;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public abstract class Equipment_HAND extends Equippable{
 	
@@ -60,7 +61,7 @@ public abstract class Equipment_HAND extends Equippable{
 
 	public static Equipment_HAND getWeapon(String typeString, String styleString, 
 			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
-			float attack_speed, float weight, boolean two_handed, float range) {
+			float attack_speed, float weight, boolean two_handed, int range) {
 		
 		WeaponType type = convertStringtoWepType(typeString);
 		
@@ -69,7 +70,7 @@ public abstract class Equipment_HAND extends Equippable{
 	
 	public static Equipment_HAND getWeapon(WeaponType type, String styleString, 
 			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
-			float attack_speed, float weight, boolean two_handed, float range) {
+			float attack_speed, float weight, boolean two_handed, int range) {
 		
 		Equipment_HAND weapon = null;
 
@@ -77,7 +78,7 @@ public abstract class Equipment_HAND extends Equippable{
 		{
 			weapon = new MeleeWeapon(MeleeWeapon.convertWeaponStyle(styleString),  
 					strength, ele_dam, dam_dam,
-					attack_speed, weight, two_handed, range);
+					attack_speed, weight, two_handed, RiggedModel.getSword(range));
 		}
 		
 		return weapon;
@@ -99,23 +100,20 @@ public abstract class Equipment_HAND extends Equippable{
 	public int equippedSide;
 	
 	public transient float useCD = 0;
-	public final float range;
 	
-	RiggedModel model;
+	public final RiggedModel model;
 	
 	public Equipment_HAND(float WEIGHT, int strength, 
 			HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
-			float attack_speed, boolean two_handed, float range) {
+			float attack_speed, boolean two_handed, RiggedModel model) {
 		super(WEIGHT, Item_Type.WEAPON);
 		
-		this.range = range;
+		this.model = model;
 		this.two_handed = two_handed;
 		this.strength = strength;
 		this.ele_dam = ele_dam;
 		this.dam_dam = dam_dam;
 		this.attack_speed = attack_speed;
-		
-		model = RiggedModel.getSword();
 	}
 	
 	public void damage(GameActor ga)
@@ -137,6 +135,9 @@ public abstract class Equipment_HAND extends Equippable{
 	public void equip(GameActor actor, int side)
 	{
 		System.out.println("Equipping");
+		
+		model.create();
+		
 		if (side == 1)
 		{
 			actor.L_HAND = this;
@@ -166,9 +167,9 @@ public abstract class Equipment_HAND extends Equippable{
 	}
 	protected abstract void equipped(GameActor actor, int side);
 	
-	public void use()
+	public void held()
 	{
-		model.rootNode.activate();
+		model.held();
 		if (holder == null)
 		{
 			System.err.println("Holder null!");
@@ -176,20 +177,23 @@ public abstract class Equipment_HAND extends Equippable{
 		
 		if (useCD > 0) return;
 		useCD = attack_speed;
-		used();
 	}
-	protected abstract void used();
+	
+	public void released()
+	{
+		model.released();
+	}
 	
 	Matrix4 tmp = new Matrix4();
-	public void draw(Camera cam)
+	public void draw(PrototypeRendererGL20 renderer)
 	{
-		model.draw(cam);
+		model.draw(renderer);
 	}
 	protected abstract void drawed(Camera cam);
 	
 	public void update(float delta)
 	{
-		model.update(delta, holder.UID);
+		model.update(delta, holder);
 		model.composeMatrixes(tmp.set(holder.vo.attributes.getTransform()).mul(holder.vo.attributes.getRotation()));
 		
 		useCD -= delta;
@@ -197,15 +201,27 @@ public abstract class Equipment_HAND extends Equippable{
 	}
 	protected abstract void updated(float delta);
 	
+	public void create()
+	{
+		model.create();
+	}
+	
 	public void fixReferences()
 	{
 		if (holderUID != null)
 		{
 			holder = GameData.level.getActor(holderUID);
 		}
+		
+		model.fixReferences();
+		
 		fixReferencesSuper();
 	}
 	
 	protected abstract void fixReferencesSuper();
 
+	public void dispose()
+	{
+		model.dispose();
+	}
 }

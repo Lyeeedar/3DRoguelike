@@ -19,7 +19,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Colour;
 
 public class ColorAttribute extends MaterialAttribute {
 
-	static final public String diffuse = "u_diffuse_colour";
+	private static final long serialVersionUID = 8802901657668185338L;
+	static final public String colour = "u_colour";
 	static final public String specular = "u_specular_colour";
 	static final public String emissive = "u_emissive_colour";
 	static final public String rim = "u_rim_colour";
@@ -42,7 +43,7 @@ public class ColorAttribute extends MaterialAttribute {
 
 	@Override
 	public void bind (ShaderProgram program) {
-		program.setUniformf(name, color.r, color.g, color.b, color.a);
+		program.setUniformf(name, color.r, color.g, color.b);
 	}
 
 	@Override
@@ -82,5 +83,9 @@ public class ColorAttribute extends MaterialAttribute {
 
 	@Override
 	public void dispose() {
+	}
+
+	@Override
+	public void create() {
 	}
 }

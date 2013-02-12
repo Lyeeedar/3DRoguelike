@@ -11,12 +11,15 @@
 package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public class Spawner extends LevelObject {
 
@@ -58,6 +61,11 @@ public class Spawner extends LevelObject {
 		creature.create();
 		creature.positionAbsolutely(getPosition().x, getPosition().y+getRadius()+creature.getRadius()+1, getPosition().z);
 		level.actors.add(creature);
+		
+		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 1.5f, 1.5f, 1.5f, 0.075f, 100, creature, true);
+		p.setTexture("texf", new Vector3(0.0f, 2.5f, 0.0f), 1.0f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.03f);
+		
+		GameData.particleEmitters.add(p);
 	}
 	
 	@Override
@@ -65,7 +73,7 @@ public class Spawner extends LevelObject {
 	}
 
 	@Override
-	public void draw(Camera cam) {
+	public void draw(PrototypeRendererGL20 renderer) {
 	}
 
 	@Override

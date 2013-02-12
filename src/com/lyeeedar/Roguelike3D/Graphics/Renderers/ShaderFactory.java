@@ -37,7 +37,7 @@ public class ShaderFactory {
 		flags.append("\n");
 
 		if (material != null) {
-			for (int i = 0; i < material.attributes.size; i++) {
+			for (int i = 0; i < material.attributes.size(); i++) {
 				flags.append(define);
 				flags.append(material.attributes.get(i).getShaderFlag());
 				flags.append("\n");
@@ -65,7 +65,6 @@ public class ShaderFactory {
 		if (!shader.isCompiled())
 		{
 			Gdx.app.error("Problem loading shader:", shader.getLog());
-			System.out.println(fragmentShader);
 			
 			final String vertexShader2 = flags + Gdx.files.internal("data/shaders/model/" + VERTEX_FILE + ".vertex.glsl").readString();
 			final String fragmentShader2 = flags + Gdx.files.internal("data/shaders/model/" + VERTEX_FILE + ".fragment.glsl").readString();

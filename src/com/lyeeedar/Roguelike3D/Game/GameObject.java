@@ -41,6 +41,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public abstract class GameObject implements Serializable {
 	
@@ -222,25 +223,25 @@ public abstract class GameObject implements Serializable {
 			}
 		}
 		
-		// Work our negated velocity from collision
-		endVelocityHori = Math.abs(velocity.x)+Math.abs(velocity.z);
-		negatedVelocity = startVelocityHori-endVelocityHori;
-		
-		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
-		{
-			collidedHorizontally = true;
-			System.out.println("ouch! Hori!"+negatedVelocity);
-		}
-		
-		endVelocityVert = Math.abs(velocity.y);
-
-		negatedVelocity = startVelocityVert-endVelocityVert;
-		
-		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
-		{
-			//collidedVertically = true;
-			System.out.println("ouch! Vert!"+negatedVelocity);
-		}
+//		// Work our negated velocity from collision
+//		endVelocityHori = Math.abs(velocity.x)+Math.abs(velocity.z);
+//		negatedVelocity = startVelocityHori-endVelocityHori;
+//		
+//		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
+//		{
+//			collidedHorizontally = true;
+//			System.out.println("ouch! Hori!"+negatedVelocity);
+//		}
+//		
+//		endVelocityVert = Math.abs(velocity.y);
+//
+//		negatedVelocity = startVelocityVert-endVelocityVert;
+//		
+//		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
+//		{
+//			//collidedVertically = true;
+//			System.out.println("ouch! Vert!"+negatedVelocity);
+//		}
 	}
 	
 	public void Yrotate (float angle) {
@@ -326,6 +327,10 @@ public abstract class GameObject implements Serializable {
 	public Vector3 getPosition() {
 		return position;
 	}
+	
+	public Vector3 getTruePosition() {
+		return vo.attributes.getSortCenter();
+	}
 
 	public Vector3 getVelocity() {
 		return velocity;
@@ -350,7 +355,7 @@ public abstract class GameObject implements Serializable {
 	
 	public abstract void update(float delta);
 	
-	public abstract void draw(Camera cam);
+	public abstract void draw(PrototypeRendererGL20 renderer);
 	
 	public abstract void activate();
 	

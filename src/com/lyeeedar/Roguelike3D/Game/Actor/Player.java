@@ -22,6 +22,8 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND.WeaponType;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon;
 import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
@@ -56,10 +58,10 @@ public class Player extends GameActor {
 		ELE_DEF.put(Element.AETHER, 100);
 		ELE_DEF.put(Element.VOID, 0);
 		
-		R_HAND = new MeleeWeapon(Melee_Weapon_Style.SWING, 2, ELE_DEF, DAM_DEF, 1, 1, false, 3);
+		R_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "SWING", 2, ELE_DEF, DAM_DEF, 20, 85, false, 3);
 		R_HAND.equip(this, 2);
-//		L_HAND = new MeleeWeapon(Melee_Weapon_Style.SWING, 2, ELE_DEF, DAM_DEF, 1, 1, false, 3);
-//		L_HAND.equip(this, 1);
+		L_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "SWING", 2, ELE_DEF, DAM_DEF, 71, 13, false, 3);
+		L_HAND.equip(this, 1);
 		
 		ai = new AI_Player_Controlled(this);
 

@@ -143,6 +143,15 @@ public class Level implements Serializable {
 	{
 		for (GameActor ga : actors) {
 			ga.create();
+			if (ga.L_HAND != null)
+			{
+				ga.L_HAND.create();
+			}
+			
+			if (ga.R_HAND != null)
+			{
+				ga.R_HAND.create();
+			}
 		}
 	}
 	
@@ -248,7 +257,7 @@ public class Level implements Serializable {
 			if (p1.dst2(go.getPosition()) < go.vo.attributes.radius*go.vo.attributes.radius) return go;
 			if (p2.dst2(go.getPosition()) < go.vo.attributes.radius*go.vo.attributes.radius) return go;
 
-			if (Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), tmpVec)) 
+			if (Intersector.intersectRaySphere(ray, go.getTruePosition(), go.getRadius(), tmpVec)) 
 			{
 				tempdist2 = tmpVec.dst2(ray.origin);
 				if (tempdist2 > dist2) continue;
@@ -278,7 +287,7 @@ public class Level implements Serializable {
 		{
 			if (go.UID.equals(ignoreUID)) continue;
 
-			if (Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), tmpVec)) 
+			if (Intersector.intersectRaySphere(ray, go.getTruePosition(), go.getRadius(), tmpVec)) 
 			{
 				tempdist2 = tmpVec.dst2(ray.origin);
 				if (tempdist2 > dist2) continue;
@@ -308,7 +317,7 @@ public class Level implements Serializable {
 			if (go.UID.equals(ignoreUID)) continue;
 			if (!go.solid) continue;
 
-			if (Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), tmpVec)) 
+			if (Intersector.intersectRaySphere(ray, go.getTruePosition(), go.getRadius(), tmpVec)) 
 			{
 				tempdist2 = tmpVec.dst2(ray.origin);
 				if (tempdist2 > dist2) continue;
@@ -331,7 +340,7 @@ public class Level implements Serializable {
 		{
 			if (go.UID.equals(ignoreUID)) continue;
 
-			if (Intersector.intersectRaySphere(ray, go.getPosition(), go.getRadius(), tmpVec)) 
+			if (Intersector.intersectRaySphere(ray, go.getTruePosition(), go.getRadius(), tmpVec)) 
 			{
 				tempdist2 = tmpVec.dst2(ray.origin);
 				if (tempdist2 > dist2) continue;
@@ -541,8 +550,8 @@ public class Level implements Serializable {
 			//if (position.dst2(ga.getPosition()) < (radius+ga.vo.attributes.radius)*(radius+ga.vo.attributes.radius))
 			Vector3 box = ga.vo.attributes.box;
 			Vector3 hbox = box.tmp2().mul(0.5f);
-			if (GameData.SphereBoxIntersection(position.x, position.y, position.z, radius,
-					ga.getPosition().x-hbox.x, ga.getPosition().y-hbox.y, ga.getPosition().z-hbox.z,
+			if (GameData.SphereBoxIntersection(ga.getPosition().x, ga.getPosition().y, ga.getPosition().z, ga.getRadius(),
+					position.x-hbox.x, position.y-hbox.y, position.z-hbox.z,
 					box.x, box.y, box.z))
 			{
 				return ga;

@@ -17,6 +17,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public class Stair extends LevelObject {
 	
@@ -55,7 +56,7 @@ public class Stair extends LevelObject {
 	}
 
 	@Override
-	public void draw(Camera cam) {
+	public void draw(PrototypeRendererGL20 renderer) {
 	}
 
 	@Override

@@ -22,6 +22,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public class Door extends LevelObject {
 	
@@ -180,7 +181,7 @@ public class Door extends LevelObject {
 	}
 
 	@Override
-	public void draw(Camera cam) {
+	public void draw(PrototypeRendererGL20 renderer) {
 	}
 
 	@Override

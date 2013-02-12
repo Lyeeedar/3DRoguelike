@@ -15,7 +15,9 @@ import java.util.HashMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
@@ -191,13 +193,36 @@ public class GameData {
 		
 		if (loadedTextures.containsKey(textureLocation)) return loadedTextures.get(textureLocation);
 		
-		if (!Gdx.files.internal(textureLocation).exists()) return null;
+		if (!Gdx.files.internal(textureLocation).exists()) {
+			System.err.println("Texture "+textureName+" does not exist!");
+			return null;
+		}
 		
 		Texture texture = new Texture(Gdx.files.internal(textureLocation), true);
 		
 		loadedTextures.put(textureLocation, texture);
 		
 		return texture;
+	}
+	
+	public static HashMap<String, Mesh> loadedMeshes = new HashMap<String, Mesh>();
+	
+	public static Mesh loadMesh(String meshName)
+	{
+		String meshLocation = "data/models/"+meshName+".obj";
+		
+		if (loadedMeshes.containsKey(meshLocation)) return loadedMeshes.get(meshLocation);
+		
+		if (!Gdx.files.internal(meshLocation).exists()) {
+			System.err.println("Mesh "+meshName+" does not exist!");
+			return null;
+		}
+		
+		Mesh mesh = ObjLoader.loadObj(Gdx.files.internal(meshLocation).read());
+		
+		loadedMeshes.put(meshLocation, mesh);
+		
+		return mesh;
 	}
 	
 	public static void load()
@@ -266,7 +291,7 @@ public class GameData {
 		
 		if (player == null)
 		{
-			player = new Player(new Colour(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 1.0f, GL20.GL_TRIANGLES, "file", "model@");
+			player = new Player(new Colour(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 0.5f, GL20.GL_TRIANGLES, "file", "model@");
 			player.create();
 			player.visible = false;
 			
@@ -283,6 +308,18 @@ public class GameData {
 		
 		for (GameActor ga : level.actors) {
 			ga.fixReferences();
+			
+			if (ga.L_HAND != null)
+			{
+				ga.L_HAND.fixReferences();
+				ga.L_HAND.model.bakeLight(GameData.lightManager, false);
+			}
+			
+			if (ga.R_HAND != null)
+			{
+				ga.R_HAND.fixReferences();
+				ga.R_HAND.model.bakeLight(GameData.lightManager, false);
+			}
 		}
 		
 		for (LevelObject lo : level.levelObjects) {

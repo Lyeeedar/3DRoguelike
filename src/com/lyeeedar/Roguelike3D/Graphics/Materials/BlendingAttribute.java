@@ -17,6 +17,8 @@ import com.badlogic.gdx.utils.Pool;
 
 public class BlendingAttribute extends MaterialAttribute {
 
+	private static final long serialVersionUID = 2887289964072007435L;
+
 	/** if BlendingAttribute name is translucent then default tranparency mechanism is used in shader */
 	public static final String translucent = "u_translucent";
 
@@ -77,5 +79,9 @@ public class BlendingAttribute extends MaterialAttribute {
 
 	@Override
 	public void dispose() {
+	}
+
+	@Override
+	public void create() {
 	}
 }

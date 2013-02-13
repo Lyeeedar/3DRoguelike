@@ -60,7 +60,7 @@ public class Player extends GameActor {
 		
 		R_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "sword", "SWING", 15, ELE_DEF, DAM_DEF, 20, 85, false, 3);
 		R_HAND.equip(this, 2);
-		L_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "torch", "SWING", 15, ELE_DEF, DAM_DEF, 71, 13, false, 3);
+		L_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "torch", "STAB", 15, ELE_DEF, DAM_DEF, 71, 13, false, 3);
 		L_HAND.equip(this, 1);
 		
 		ai = new AI_Player_Controlled(this);

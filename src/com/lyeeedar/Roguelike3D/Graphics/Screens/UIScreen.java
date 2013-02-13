@@ -10,12 +10,16 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 
 public abstract class UIScreen extends AbstractScreen {
 	
 	String returnScreen;
 
+	final Skin skin = new Skin(Gdx.files.internal("data/skins/uiskin.json"));
+	
 	public UIScreen(Roguelike3DGame game) {
 		super(game);
 	}

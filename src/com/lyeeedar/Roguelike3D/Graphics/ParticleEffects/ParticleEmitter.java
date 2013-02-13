@@ -57,7 +57,7 @@ public class ParticleEmitter implements Serializable {
 	transient PointLight boundLight;
 	public String boundLightUID;
 	
-	final Random ran = new Random();
+	transient Random ran;
 	
 	transient float time = 0;
 	
@@ -115,7 +115,7 @@ public class ParticleEmitter implements Serializable {
 	}
 	
 	public void create() {
-		
+		ran = new Random();
 		this.texture = GameData.loadTexture(textureName);
 		
 		active = new ArrayDeque<Particle>(particles);
@@ -560,7 +560,6 @@ class Particle {
 		bstep = bdiff/time;
 	}
 	
-	private final Vector3 tmpVec = new Vector3();
 	public void update(float delta)
 	{
 		remainingTime -= delta;

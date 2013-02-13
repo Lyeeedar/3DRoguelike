@@ -25,8 +25,9 @@ import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Recipe;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RecipeReader;
+import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 
-public class MainMenuScreen extends AbstractScreen {
+public class MainMenuScreen extends UIScreen {
 	
 	Table table;
 
@@ -54,10 +55,8 @@ public class MainMenuScreen extends AbstractScreen {
 
 	@Override
 	public void create() {
-		
-		Skin skin = new Skin(Gdx.files.internal("data/skins/uiskin.json"));
-		
-		Label lblTitle = new Label("Askey", skin);
+
+		Label lblTitle = new Label("EtDotR", skin);
 		
 		TextButton btnContinue = new TextButton("Continue", skin);
 		btnContinue.addListener(new InputListener() {
@@ -77,10 +76,17 @@ public class MainMenuScreen extends AbstractScreen {
 
 		
 		TextButton btnOptions = new TextButton("Options", skin);
+		btnOptions.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				game.switchScreen(GameScreen.OPTIONS);
+				return false;
+			}
+		});
+		
 		TextButton btnCredits = new TextButton("Credits", skin);
 		btnCredits.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				game.switchScreen(Roguelike3DGame.CREDITS);
+				game.switchScreen(GameScreen.CREDITS);
 				return false;
 			}
 		});
@@ -132,7 +138,7 @@ public class MainMenuScreen extends AbstractScreen {
 				Component c = new Component(Component_Type.TOOTH, "Tooth thingy", 1, 1, "desc", 1, 50, 10, 10, GameData.getElementMap(), "grasping-claws");
 				GameStats.addComponent(c);
 				
-				game.switchScreen(Roguelike3DGame.RECIPES);
+				game.switchScreen(GameScreen.RECIPES);
 				return false;
 			}
 		});
@@ -177,6 +183,14 @@ public class MainMenuScreen extends AbstractScreen {
 
 	@Override
 	public void superDispose() {
+	}
+
+	@Override
+	protected void createSuper() {
+	}
+
+	@Override
+	protected void superSuperDispose() {
 	}
 
 }

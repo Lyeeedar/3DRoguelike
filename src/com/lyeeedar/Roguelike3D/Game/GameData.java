@@ -12,7 +12,10 @@ package com.lyeeedar.Roguelike3D.Game;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Application.ApplicationType;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -36,13 +39,14 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.PlayerPlacer;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Spawner;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Stair;
+import com.lyeeedar.Roguelike3D.Graphics.ApplicationChanger;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SkyBox;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
-
+import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 
 public class GameData {
 	
@@ -165,6 +169,9 @@ public class GameData {
 	}
 	
 	public static LightQuality lightQuality = LightQuality.NORMALMAP;
+	public static int LightsPerModel = 8;
+	
+	public static boolean updateLights = false;
 	
 	public static LightManager lightManager;
 	
@@ -186,6 +193,28 @@ public class GameData {
 	public static int[] resolution = {800, 600};
 	
 	public static HashMap<String, Texture> loadedTextures = new HashMap<String, Texture>();
+	
+	public static ApplicationChanger applicationChanger;
+
+	public static void createApplication() {
+		
+		if (Gdx.app != null) {
+			System.err.println("Application already exists!");
+			return;
+		}
+		
+		Gdx.app = applicationChanger.createApplication(game, applicationChanger.prefs);
+	}
+	
+	public static void updateApplication()
+	{
+		applicationChanger.updateApplication(applicationChanger.prefs);
+	}
+	
+	public static Preferences getGamePreferences()
+	{
+		return applicationChanger.prefs;
+	}
 	
 	public static Texture loadTexture(String textureName)
 	{
@@ -241,7 +270,6 @@ public class GameData {
 	
 	public static void init(final Roguelike3DGame game)
 	{
-		GameData.game = game;
 		GameStats.init();
 		
 		DungeonReader dr = new DungeonReader();
@@ -269,10 +297,10 @@ public class GameData {
 		lightManager = lc.getLightManager();
 		lightManager.ambientLight.set(biome.getAmbientLight());
 
-		game.loadLevel(biome, rReader, Roguelike3DGame.INGAME);
+		game.loadLevel(biome, rReader, GameScreen.INGAME);
 	}
 	
-	public static void finishLoading(Level level, LevelGraphics graphics, String nextScreen)
+	public static void finishLoading(Level level, LevelGraphics graphics, GameScreen nextScreen)
 	{
 		System.out.println("Finishing loading.");
 		

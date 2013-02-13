@@ -35,6 +35,7 @@ public class RiggedModelNode implements Serializable
 	public transient RiggedModelNode parent;
 	
 	public float radius;
+	public float renderRadius;
 	
 	public final float rigidity;
 	
@@ -106,7 +107,7 @@ public class RiggedModelNode implements Serializable
 	{
 		for (int i = 0; i < submeshes.length; i++)
 		{
-			renderer.draw(submeshes[i], meshMatrixes[i], model.materials[submeshMaterials[i]], radius);
+			renderer.draw(submeshes[i], meshMatrixes[i], model.materials[submeshMaterials[i]], renderRadius);
 		}
 		
 		for (RiggedModelNode rgn : childNodes)
@@ -252,6 +253,8 @@ public class RiggedModelNode implements Serializable
 		float longest = (box.getDimensions().x > box.getDimensions().z) ? box.getDimensions().x : box.getDimensions().z;
 		longest = (box.getDimensions().y > longest) ? box.getDimensions().y : longest;
 		this.radius = (longest / 2.0f);
+		
+		this.renderRadius = (radius > 1) ? radius : 1;
 		
 
 		for (RiggedModelNode rmn : childNodes)

@@ -40,6 +40,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SkyBox;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 
 public class LevelLoadingScreen extends AbstractScreen{
 	
@@ -59,7 +60,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 	
 	float taskSteps;
 	
-	String nextScreen;
+	GameScreen nextScreen;
 	
 	int width;
 	int height;
@@ -68,7 +69,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		super(game);
 	}
 	
-	public void setSettings(BiomeReader biome, RoomReader rReader, String nextScreen)
+	public void setSettings(BiomeReader biome, RoomReader rReader, GameScreen nextScreen)
 	{
 		this.width = biome.getWidth();
 		this.height = biome.getHeight();
@@ -190,7 +191,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		else if (loadingStage == 7)
 		{
 			System.out.println("Level loading done in "+((float)(System.nanoTime()-time)/1000000000f)+"seconds");
-			GameData.finishLoading(level, graphics, "InGame");
+			GameData.finishLoading(level, graphics, GameScreen.INGAME);
 			loadingStage++;
 		}
 		

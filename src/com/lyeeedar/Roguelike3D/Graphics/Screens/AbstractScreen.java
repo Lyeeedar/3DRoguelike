@@ -109,6 +109,9 @@ public abstract class AbstractScreen implements Screen{
 		
 		System.out.println("Screen resized to "+width+" by "+height);
 		
+		width = GameData.resolution[0];
+		height = GameData.resolution[1];
+		
 		screen_width = width;
 		screen_height = height;
 

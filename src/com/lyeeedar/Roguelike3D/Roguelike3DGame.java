@@ -28,15 +28,20 @@ import com.lyeeedar.Roguelike3D.Graphics.Screens.*;
 
 public class Roguelike3DGame extends Game {
 	
-	public static final String INGAME = "InGame";
-	public static final String LEVELLOADING = "LevelLoading";
-	public static final String MAINMENU = "MainMenu";
-	public static final String CREDITS = "Credits";
-	public static final String RECIPES = "Recipes";
+	public enum GameScreen {
+		INGAME,
+		LEVELLOADING,
+		MAINMENU,
+		CREDITS,
+		RECIPES,
+		OPTIONS,
+		GAMEMENU,
+		INVENTORY
+	}
 
-	public HashMap<String, AbstractScreen> screens = new HashMap<String, AbstractScreen>();
+	public HashMap<GameScreen, AbstractScreen> screens = new HashMap<GameScreen, AbstractScreen>();
 	
-	String currentScreen;
+	GameScreen currentScreen;
 	
 	@Override
 	public void create() {
@@ -47,31 +52,32 @@ public class Roguelike3DGame extends Game {
 		System.out.println("Max supported Point size: "+ParticleEmitter.POINT_SIZE_MAX);
 		
 		loadScreens();
-		switchScreen(MAINMENU);
+		switchScreen(GameScreen.MAINMENU);
 	}
 	
 	private void loadScreens()
 	{
-		screens.put(LEVELLOADING, new LevelLoadingScreen(this));	
-		screens.put(INGAME, new InGameScreen(this));
-		screens.put(MAINMENU, new MainMenuScreen(this));
-		screens.put(CREDITS, new CreditsScreen(this));
-		screens.put(RECIPES, new RecipeScreen(this));
+		screens.put(GameScreen.LEVELLOADING, new LevelLoadingScreen(this));	
+		screens.put(GameScreen.INGAME, new InGameScreen(this));
+		screens.put(GameScreen.MAINMENU, new MainMenuScreen(this));
+		screens.put(GameScreen.CREDITS, new CreditsScreen(this));
+		screens.put(GameScreen.RECIPES, new RecipeScreen(this));
+		screens.put(GameScreen.OPTIONS, new OptionsScreen(this));
 		
-		for (Map.Entry<String, AbstractScreen> entry : screens.entrySet())
+		for (Map.Entry<GameScreen, AbstractScreen> entry : screens.entrySet())
 		{
 			entry.getValue().create();
 		}
 	}
 	
-	public void loadLevel(BiomeReader biome, RoomReader rReader, String nextScreen)
+	public void loadLevel(BiomeReader biome, RoomReader rReader, GameScreen nextScreen)
 	{
-		LevelLoadingScreen screen = (LevelLoadingScreen) screens.get(LEVELLOADING);
+		LevelLoadingScreen screen = (LevelLoadingScreen) screens.get(GameScreen.LEVELLOADING);
 		screen.setSettings(biome, rReader, nextScreen);
 		setScreen(screen);
 	}
 
-	public void switchScreen(String screen)
+	public void switchScreen(GameScreen screen)
 	{
 		currentScreen = screen;
 		setScreen(screens.get(screen));

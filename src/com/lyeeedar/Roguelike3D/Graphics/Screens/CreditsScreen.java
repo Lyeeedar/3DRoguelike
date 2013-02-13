@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
+import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 
 public class CreditsScreen extends AbstractScreen {
 	
@@ -74,7 +75,7 @@ public class CreditsScreen extends AbstractScreen {
 		countdown -= delta;
 		if (countdown < 0 && Gdx.input.isTouched())
 		{
-			game.switchScreen(Roguelike3DGame.MAINMENU);
+			game.switchScreen(GameScreen.MAINMENU);
 		}
 	}
 

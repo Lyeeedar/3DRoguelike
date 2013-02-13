@@ -30,6 +30,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModel;
+import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedOneHandedStab;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedOneHandedSwing;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
@@ -81,6 +82,10 @@ public class MeleeWeapon extends Equipment_HAND {
 		if (style == Melee_Weapon_Style.SWING)
 		{
 			model.rootNode.setBehaviour(new RiggedOneHandedSwing(model.rootNode, weight, attack_speed));
+		}
+		else if (style == Melee_Weapon_Style.STAB)
+		{
+			model.rootNode.setBehaviour(new RiggedOneHandedStab(model.rootNode, weight, attack_speed));
 		}
 
 	}

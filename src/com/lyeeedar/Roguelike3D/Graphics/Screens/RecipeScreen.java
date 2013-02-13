@@ -47,8 +47,6 @@ public class RecipeScreen extends UIScreen {
 	
 	public static final int NUM_RECIPES = 6;
 
-	final Skin skin = new Skin(Gdx.files.internal("data/skins/uiskin.json"));
-	
 	Table table;
 	Table left;
 	Table leftBot;
@@ -329,7 +327,6 @@ public class RecipeScreen extends UIScreen {
 
 	@Override
 	protected void superSuperDispose() {
-		skin.dispose();
 	}
 
 	@Override

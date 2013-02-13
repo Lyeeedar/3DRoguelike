@@ -34,6 +34,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 
 public class InGameScreen extends AbstractScreen {
 	
@@ -111,22 +112,13 @@ public class InGameScreen extends AbstractScreen {
 		time -= delta;
 		if (time < 0)
 		{
-			//System.out.println("Player position = " + GameData.player.getPosition());
+			System.out.println("Java Heap Size: "+Gdx.app.getJavaHeap()/1000000+"mb");
+			System.out.println("Native Heap Size: "+Gdx.app.getNativeHeap()/1000000+"mb");
 			System.out.println("Visible Particles: "+particleNum);
 			time = 1;
 		}
 		
 		ParticleEmitter.end();
-		
-//		for (LevelObject lo : GameData.level.levelObjects)
-//		{	
-//			lo.draw(cam);
-//		}
-//		
-//		for (GameActor ga : GameData.level.actors)
-//		{
-//			ga.draw(cam);
-//		}
 	}
 
 	@Override
@@ -166,7 +158,7 @@ public class InGameScreen extends AbstractScreen {
 		}
 		
 		font.draw(spriteBatch, desc, 300, 20);
-		font.draw(spriteBatch, "Lights per Model: " + GameData.lightManager.maxLightsPerModel, 20, screen_height-20);
+		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, screen_height-20);
 		font.draw(spriteBatch, "1: Normal Maps: "+(GameData.lightManager.quality==LightQuality.NORMALMAP), 20, screen_height-40);
 		font.draw(spriteBatch, "2: PostProcessor: "+PostProcessor.ON, 20, screen_height-60);
 	}
@@ -213,7 +205,7 @@ public class InGameScreen extends AbstractScreen {
 			cam.update();
 		}
 		
-		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) game.switchScreen(Roguelike3DGame.MAINMENU);
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) game.switchScreen(GameScreen.MAINMENU);
 		if (Gdx.input.isKeyPressed(Keys.TAB) && !tabCD) 
 		{
 			if (paused)
@@ -253,16 +245,6 @@ public class InGameScreen extends AbstractScreen {
 		else if (!Gdx.input.isKeyPressed(Keys.NUM_1))
 		{
 			cd1 = false;
-		}
-		
-		if (Gdx.input.isKeyPressed(Keys.NUM_2) && !cd2) 
-		{
-			PostProcessor.ON = !PostProcessor.ON;
-			cd2 = true;
-		}
-		else if (!Gdx.input.isKeyPressed(Keys.NUM_2))
-		{
-			cd2 = false;
 		}
 		
 		if (Gdx.input.isKeyPressed(Keys.EQUALS) && !cdPlus) 

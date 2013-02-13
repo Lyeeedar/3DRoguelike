@@ -33,7 +33,7 @@ public class PostProcessor {
 		BLOOM
 	}
 	
-	public static boolean ON = true;
+	public static boolean ON = false;
 	
 	private Format format;
 	private int width;

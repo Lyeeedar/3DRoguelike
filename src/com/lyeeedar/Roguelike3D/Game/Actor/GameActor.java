@@ -39,7 +39,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 
-public class GameActor extends GameObject{
+public abstract class GameActor extends GameObject{
 	
 	/**
 	 * 
@@ -183,6 +183,9 @@ public class GameActor extends GameObject{
 			loot = true;
 			solid = false;
 			visible = false;
+			
+			dispose();
+			GameData.level.removeActor(UID);
 		}
 	}
 
@@ -222,4 +225,9 @@ public class GameActor extends GameObject{
 		if (R_HAND != null) R_HAND.fixReferences();
 	}
 
+	protected void disposed()
+	{
+		if (L_HAND != null) L_HAND.dispose();
+		if (R_HAND != null) R_HAND.dispose();
+	} 
 }

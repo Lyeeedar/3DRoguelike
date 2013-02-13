@@ -87,9 +87,9 @@ public class InGameScreen extends AbstractScreen {
 	public void drawDecals(float delta) {
 		particleNum = 0;
 		visibleEmitters.clear();
-		for (ParticleEmitter pe : GameData.particleEmitters)
+		for (ParticleEmitter pe : GameData.level.particleEmitters)
 		{
-			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
+			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
 
 			pe.distance = cam.position.dst2(pe.getPos());
 			particleNum += pe.active.size();;
@@ -201,9 +201,9 @@ public class InGameScreen extends AbstractScreen {
 				ga.update(delta);
 			}
 			
-			for (ParticleEmitter pe : GameData.particleEmitters)
+			for (ParticleEmitter pe : GameData.level.particleEmitters)
 			{
-				if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius())) continue;
+				if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
 				pe.update(delta, cam);
 			}
 			

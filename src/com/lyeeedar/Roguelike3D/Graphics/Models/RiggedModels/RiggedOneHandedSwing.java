@@ -13,7 +13,7 @@ public class RiggedOneHandedSwing extends RiggedModelBehaviour {
 		super(node);
 		
 		this.weight = weight/10;
-		this.attack_speed = 50+(attack_speed/10);
+		this.attack_speed = 100+(attack_speed/10);
 	}
 
 	int stage = 0;

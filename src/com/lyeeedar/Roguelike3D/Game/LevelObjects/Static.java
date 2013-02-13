@@ -58,4 +58,8 @@ public class Static extends LevelObject {
 	public void fixReferencesSuper() {
 	}
 
+	@Override
+	protected void disposed() {
+	}
+
 }

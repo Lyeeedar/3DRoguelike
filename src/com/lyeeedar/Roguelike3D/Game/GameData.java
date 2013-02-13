@@ -171,7 +171,7 @@ public class GameData {
 	public static Level level;
 	
 	public static LevelGraphics levelGraphics;
-	public static ArrayList<ParticleEmitter> particleEmitters = null;
+
 	public static SkyBox skyBox;
 	
 	public static Player player;
@@ -268,9 +268,7 @@ public class GameData {
 		
 		lightManager = lc.getLightManager();
 		lightManager.ambientLight.set(biome.getAmbientLight());
-		
-		particleEmitters = lc.particleEmitters;
-		
+
 		game.loadLevel(biome, rReader, Roguelike3DGame.INGAME);
 	}
 	
@@ -295,13 +293,7 @@ public class GameData {
 			player.create();
 			player.visible = false;
 			
-			level.addActor(player);
-			
-			PointLight l = new PointLight(player.position.cpy(), new Colour(1.0f, 1.0f, 1.0f, 1.0f), 0.01f, 0.3f);
-			player.boundLight = l;
-			player.boundLightUID = l.UID;
-			lightManager.addDynamicLight(l);		
-			
+			level.addActor(player);	
 		}
 		
 		GameStats.setPlayerStats(player);
@@ -324,11 +316,6 @@ public class GameData {
 		
 		for (LevelObject lo : level.levelObjects) {
 			lo.fixReferences();
-		}
-		
-		for (ParticleEmitter pe : particleEmitters)
-		{
-			pe.fixReferences();
 		}
 		
 		lightManager.fixReferences();

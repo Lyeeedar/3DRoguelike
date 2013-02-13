@@ -188,4 +188,8 @@ public class Door extends LevelObject {
 	public void fixReferencesSuper() {
 	}
 
+	@Override
+	protected void disposed() {
+	}
+
 }

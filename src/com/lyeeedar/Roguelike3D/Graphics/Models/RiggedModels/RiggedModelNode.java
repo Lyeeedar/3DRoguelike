@@ -12,6 +12,7 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public class RiggedModelNode implements Serializable
@@ -45,6 +46,9 @@ public class RiggedModelNode implements Serializable
 	
 	public boolean collideMode = false;
 	
+	public transient ParticleEmitter particleEmitter;
+	public String particleEmitterUID;
+	
 	public RiggedModelNode(RiggedSubMesh[] submeshes, int[] submeshMaterials, Matrix4 position, Matrix4 rotation, int rigidity, boolean collidable)
 	{
 		if (submeshes.length != submeshMaterials.length)
@@ -60,6 +64,12 @@ public class RiggedModelNode implements Serializable
 		this.collidable = collidable;
 	}
 	
+	public void setParticleEmitter(ParticleEmitter emitter)
+	{
+		this.particleEmitter = emitter;
+		this.particleEmitterUID = emitter.UID;
+	}
+	
 	public void setBehaviour(RiggedModelBehaviour behaviour)
 	{
 		this.behaviour = behaviour;
@@ -70,7 +80,7 @@ public class RiggedModelNode implements Serializable
 		this.parent = parent;
 	}
 	
-	public void setChilden(RiggedModelNode[] children)
+	public void setChilden(RiggedModelNode... children)
 	{
 		this.childNodes = children;
 	}
@@ -88,6 +98,8 @@ public class RiggedModelNode implements Serializable
 		{
 			rgn.composeMatrixes(composedMatrix);
 		}
+		
+		if (particleEmitter != null) particleEmitter.setPosition(Vector3.tmp3.set(0, 0, 0).mul(composedMatrix));
 	}
 	
 	public void render(RiggedModel model, PrototypeRendererGL20 renderer)
@@ -239,7 +251,7 @@ public class RiggedModelNode implements Serializable
 		
 		float longest = (box.getDimensions().x > box.getDimensions().z) ? box.getDimensions().x : box.getDimensions().z;
 		longest = (box.getDimensions().y > longest) ? box.getDimensions().y : longest;
-		this.radius = (longest / 2.0f);// * scale;
+		this.radius = (longest / 2.0f);
 		
 
 		for (RiggedModelNode rmn : childNodes)
@@ -247,11 +259,15 @@ public class RiggedModelNode implements Serializable
 			rmn.create();
 		}
 		
+		if (particleEmitter != null) particleEmitter.create();
+		
 	}
 	
 	public void fixReferences()
 	{
 
+		if (particleEmitterUID != null) GameData.level.getParticleEmitter(particleEmitterUID);
+		
 		for (RiggedModelNode rmn : childNodes)
 		{
 			rmn.setParent(this);
@@ -269,6 +285,11 @@ public class RiggedModelNode implements Serializable
 		for (RiggedModelNode rmn : childNodes)
 		{
 			rmn.dispose();
+		}
+		
+		if (particleEmitter != null) {
+			particleEmitter.dispose();
+			GameData.level.removeParticleEmitter(particleEmitterUID);
 		}
 	}
 }

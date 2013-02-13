@@ -287,6 +287,8 @@ class Recipe_Melee_Weapon extends Recipe_Type
 	private static final long serialVersionUID = 4282943162832212160L;
 	Melee_Weapon_Style style;
 	HashMap<String, String> styleMeta;
+	
+	String visualType;
 
 	int strength;
 	float strengthScale;
@@ -323,6 +325,8 @@ class Recipe_Melee_Weapon extends Recipe_Type
 	{
 		this.style = reader.getWeaponStyle();
 		this.styleMeta = reader.getWeaponStyleMeta();
+		
+		this.visualType = reader.getVisualType();
 
 		this.strengthScale = reader.getScale(RecipeReader.STRENGTH);
 		this.strengthEqn = reader.getEqn(RecipeReader.STRENGTH);
@@ -366,6 +370,6 @@ class Recipe_Melee_Weapon extends Recipe_Type
 			weight += recipe.getComponentAmount(entry.getKey()) * entry.getValue().weight_per_amount;
 		}
 		
-		return Equipment_HAND.getWeapon(WeaponType.MELEE, ""+style, strength, elemental, damage, attackSpeed, weight, false, 2);
+		return Equipment_HAND.getWeapon(WeaponType.MELEE, visualType, ""+style, strength, elemental, damage, attackSpeed, weight, false, 2);
 	}
 }

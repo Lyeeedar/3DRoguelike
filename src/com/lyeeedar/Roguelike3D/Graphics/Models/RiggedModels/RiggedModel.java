@@ -9,8 +9,10 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.MaterialAttribute;
@@ -18,6 +20,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public class RiggedModel implements Serializable {
@@ -132,7 +135,7 @@ public class RiggedModel implements Serializable {
 		RiggedModelNode hilt = new RiggedModelNode(meshes, new int[]{0, 0}, new Matrix4().setToTranslation(0, 0, 0.7f), new Matrix4(), 0, false);
 		
 		hilt.setParent(rootnode);
-		rootnode.setChilden(new RiggedModelNode[]{hilt});
+		rootnode.setChilden(hilt);
 		
 		RiggedSubMesh[] meshesblade = {new RiggedSubMesh("Blade", GL20.GL_TRIANGLES, 0.5f, "file", "modelHBlade")};
 		
@@ -141,25 +144,60 @@ public class RiggedModel implements Serializable {
 		{
 			RiggedModelNode node = new RiggedModelNode(meshesblade, new int[]{0}, new Matrix4().setToTranslation(0, 0, 0.5f), new Matrix4(), 100, true);
 			node.setParent(prevNode);
-			prevNode.setChilden(new RiggedModelNode[]{node});
+			prevNode.setChilden(node);
 			
 			prevNode = node;
 		}
 		
 		RiggedModelNode nodeblade = new RiggedModelNode(meshesblade, new int[]{0}, new Matrix4().setToTranslation(0, 0, 0.34f), new Matrix4(), 100, true);
 		nodeblade.setParent(prevNode);
-		prevNode.setChilden(new RiggedModelNode[]{nodeblade});
+		prevNode.setChilden(nodeblade);
 
 		RiggedSubMesh[] meshestip = {new RiggedSubMesh("Tip", GL20.GL_TRIANGLES, -0.5f, "file", "modelABlade")};
 		
 		RiggedModelNode nodeTip = new RiggedModelNode(meshestip, new int[]{0}, new Matrix4().setToTranslation(0, 0, 0.2f), new Matrix4(), 100, true);
 		nodeTip.setParent(nodeblade);
-		nodeblade.setChilden(new RiggedModelNode[]{nodeTip});
-		nodeTip.setChilden(new RiggedModelNode[]{});
+		nodeblade.setChilden(nodeTip);
+		nodeTip.setChilden();
 		
 		MaterialAttribute t = new TextureAttribute("blank", 0);
 		Material material = new Material("basic", t);
 		
 		return new RiggedModel(rootnode, new Material[]{material});
+	}
+	
+	public static RiggedModel getTorch()
+	{
+		RiggedModelNode rootnode = new RiggedModelNode(new RiggedSubMesh[]{}, new int[]{}, new Matrix4(), new Matrix4(), 0, false);
+		rootnode.setParent(null);
+		
+		RiggedSubMesh[] meshes = {new RiggedSubMesh("Torch", GL20.GL_TRIANGLES, 1, "cube", "0.1", "0.1", "3")};
+		
+		RiggedModelNode node = new RiggedModelNode(meshes, new int[]{0}, new Matrix4().setToTranslation(0, 0, 1.5f), new Matrix4(), 100, true);
+		
+		rootnode.setChilden(node);
+		node.setParent(rootnode);
+		
+		RiggedSubMesh[] meshes1 = {new RiggedSubMesh("Flame", GL20.GL_TRIANGLES, 1, "cube", "0.01", "0.01", "0.01")};
+		
+		RiggedModelNode node1 = new RiggedModelNode(meshes1, new int[]{0}, new Matrix4().setToTranslation(0, -0.5f, -0.5f), new Matrix4(), 100, true);
+		
+		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.05f, 100);
+		p.setTexture("texf", new Vector3(0.0f, 2.5f, 0.0f), 1.0f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.03f);
+		p.create();
+		
+		node.setChilden(node1);
+		
+		node1.setParticleEmitter(p);
+		node1.setParent(node);
+		node1.setChilden();
+		
+		GameData.level.particleEmitters.add(p);
+		
+		MaterialAttribute t = new TextureAttribute("wood", 0);
+		Material material = new Material("basic", t);
+		
+		return new RiggedModel(rootnode, new Material[]{material});
+		
 	}
 }

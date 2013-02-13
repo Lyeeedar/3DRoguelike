@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
+import com.lyeeedar.Roguelike3D.Game.Actor.Enemy;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
@@ -128,6 +129,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		{
 			level.createLevelObjects();
 			level.createActors();
+			level.createParticleEmitters();
 			
 			percent += taskSteps;
 			loadingStage++;
@@ -246,7 +248,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		protoRenderer = new PrototypeRendererGL20(lightManager);
 		protoRenderer.cam = cam;
 		
-		GameObject go = new GameActor(new Colour(), "icon", 0, 0, -4, 0.5f, GL20.GL_TRIANGLES, "cube", "2", "2", "2");
+		GameObject go = new Enemy(new Colour(), "icon", 0, 0, -4, 0.5f, GL20.GL_TRIANGLES, "cube", "2", "2", "2");
 		go.create();
 		go.vo.attributes.material.affectedByLighting = false;
 		

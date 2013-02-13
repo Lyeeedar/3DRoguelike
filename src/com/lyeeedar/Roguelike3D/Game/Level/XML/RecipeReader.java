@@ -182,6 +182,13 @@ public class RecipeReader extends XMLReader
 
 		return styleMeta;
 	}
+	
+	public String getVisualType()
+	{
+		Node item = getNode(ITEM, recipe.getChildNodes());
+
+		return getNodeValue(VISUAL, item.getChildNodes());
+	}
 
 	public float getScale(String att)
 	{

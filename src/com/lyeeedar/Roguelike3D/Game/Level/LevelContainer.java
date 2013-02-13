@@ -36,8 +36,7 @@ public class LevelContainer implements Serializable {
 	
 	public Level level = null;
 	public LightManager lightManager = null;
-	public ArrayList<ParticleEmitter> particleEmitters = new ArrayList<ParticleEmitter>();
-	
+
 	public final String biome;
 	
 	public final int depth;

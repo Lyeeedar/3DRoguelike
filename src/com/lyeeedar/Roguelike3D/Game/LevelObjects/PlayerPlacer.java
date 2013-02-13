@@ -51,4 +51,8 @@ public class PlayerPlacer extends LevelObject {
 	public void fixReferencesSuper() {
 	}
 
+	@Override
+	protected void disposed() {
+	}
+
 }

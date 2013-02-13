@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -41,6 +42,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public abstract class GameObject implements Serializable {
@@ -71,6 +73,8 @@ public abstract class GameObject implements Serializable {
 
 	public VisibleObject vo;
 	protected transient PointLight boundLight;
+	protected transient ParticleEmitter particleEmitter;
+	public String particleEmitterUID;
 	
 	public String boundLightUID;
 	
@@ -100,8 +104,19 @@ public abstract class GameObject implements Serializable {
 		position.set(x, y, z);
 	}
 	
+	public void addParticleEmitter(ParticleEmitter emitter)
+	{
+		this.particleEmitter = emitter;
+		this.particleEmitterUID = emitter.UID;
+	}
+	
 	public void fixReferences()
 	{
+		if (particleEmitterUID != null)
+		{
+			particleEmitter = GameData.level.getParticleEmitter(particleEmitterUID);
+		}
+		
 		if (boundLightUID != null)
 		{
 			boundLight = GameData.lightManager.getDynamicLight(boundLightUID);
@@ -286,8 +301,8 @@ public abstract class GameObject implements Serializable {
 	public void translate(Vector3 vec)
 	{
 		position.add(vec);
-		if (vo.attributes != null) vo.attributes.getTransform().setToTranslation(position);
-		if (boundLight != null) boundLight.position.set(position);
+
+		positionAbsolutely(position);
 	}
 	
 	public void positionAbsolutely(Vector3 position)
@@ -295,6 +310,7 @@ public abstract class GameObject implements Serializable {
 		this.position.set(position);
 		if (vo.attributes != null) vo.attributes.getTransform().setToTranslation(position);
 		if (boundLight != null) boundLight.position.set(position);
+		if (particleEmitter != null) particleEmitter.setPosition(vo.attributes.getSortCenter());
 	}
 
 	public void positionYAbsolutely(float y)
@@ -347,7 +363,15 @@ public abstract class GameObject implements Serializable {
 	public void dispose()
 	{
 		vo.dispose();
+		if (boundLight != null) GameData.lightManager.removeDynamicLight(boundLightUID);
+		if (particleEmitter != null) {
+			GameData.level.removeParticleEmitter(particleEmitterUID);
+			particleEmitter.dispose();
+		}
+		disposed();
 	}
+	
+	protected abstract void disposed();
 
 	public String getUID() {
 		return UID;

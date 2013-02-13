@@ -86,23 +86,19 @@ public class ParticleEmitter implements Serializable {
 	
 	transient Mesh meshPoint;
 	transient Mesh meshQuad;
-	
-	transient GameObject bound;
-	public final String boundUID;
-	
+
 	float ox; float oy; float oz;
 	
 	private boolean pointMode = false;
 	
 	Vector3[] particle = {new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()};
 	
-	final boolean vertexEmission;
+	private boolean vertexEmission;
 	
 	transient Vector3[] vertices;
 	
-	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles, GameObject bound, boolean vertexEmission)
+	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles)
 	{	
-		this.bound = bound;
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.particles = particles;
 		this.ox = x;
@@ -112,8 +108,6 @@ public class ParticleEmitter implements Serializable {
 		this.vy = vy;
 		this.vz = vz;
 		this.speed = speed;
-		this.boundUID = bound.UID;
-		this.vertexEmission = vertexEmission;
 		
 		radius = vx + vz;
 		
@@ -121,6 +115,8 @@ public class ParticleEmitter implements Serializable {
 	}
 	
 	public void create() {
+		
+		this.texture = GameData.loadTexture(textureName);
 		
 		active = new ArrayDeque<Particle>(particles);
 		inactive = new ArrayDeque<Particle>(particles);
@@ -143,46 +139,41 @@ public class ParticleEmitter implements Serializable {
 
 		verticesPoint = new float[particles*6];
 		verticesQuad = new float[particles*32];
+	}
+	
+	public void turnOffVertexEmission()
+	{
+		vertexEmission = false;
+	}
+	
+	public void setToVertexEmission(Mesh mesh, float scale)
+	{
+		vertexEmission = true;
+	
+		VertexAttributes attributes = mesh.getVertexAttributes();
+		final int vertCount = mesh.getNumVertices();
+		final int vertexSize = attributes.vertexSize / 4;
+
+		float[] verts = new float[vertexSize * vertCount]; 
+		mesh.getVertices(verts);
 		
-		if (vertexEmission)
+		int positionOffset = attributes.getOffset(Usage.Position);
+		
+		vertices = new Vector3[vertCount];
+		
+		for (int i = 0; i < vertCount; i++)
 		{
-			
-			Mesh mesh = bound.vo.model.subMeshes[0].mesh;
-					
-			VertexAttributes attributes = mesh.getVertexAttributes();
-			final int vertCount = mesh.getNumVertices();
-			final int vertexSize = attributes.vertexSize / 4;
-
-			float[] verts = new float[vertexSize * vertCount]; 
-			mesh.getVertices(verts);
-			
-			int positionOffset = attributes.getOffset(Usage.Position);
-			
-			vertices = new Vector3[vertCount];
-			
-			final float scale = bound.vo.scale;
-			
-			for (int i = 0; i < vertCount; i++)
-			{
-				vertices[i] = new Vector3(
-						verts[(i * vertexSize) + positionOffset + 0] * scale,
-						verts[(i * vertexSize) + positionOffset + 1] * scale,
-						verts[(i * vertexSize) + positionOffset + 2] * scale
-						);
-			}
-
+			vertices[i] = new Vector3(
+					verts[(i * vertexSize) + positionOffset + 0] * scale,
+					verts[(i * vertexSize) + positionOffset + 1] * scale,
+					verts[(i * vertexSize) + positionOffset + 2] * scale
+					);
 		}
 	}
 	
 	public void fixReferences()
 	{
 		if (boundLightUID != null) boundLight = GameData.lightManager.getDynamicLight(boundLightUID);
-		
-		bound = GameData.level.getActor(boundUID);
-		if (bound == null) bound = GameData.level.getLevelObject(boundUID);
-		this.texture = GameData.loadTexture(textureName);
-		
-		create();
 	}
 	
 	public short[] genIndices(int faces)
@@ -349,14 +340,17 @@ public class ParticleEmitter implements Serializable {
 	private transient int signz;
 	
 	private final Matrix4 mat = new Matrix4();
+	
+	public void setPosition(Vector3 position)
+	{
+		x = position.x+ox;
+		y = position.y+oy;
+		z = position.z+oz;
+	}
 
 	public void update(float delta, Camera cam)
 	{
 		pointMode = (getPointSize(cam) > POINT_SIZE_MAX) ? false : true;
-
-		x = bound.getPosition().x+ox;
-		y = bound.getPosition().y+oy;
-		z = bound.getPosition().z+oz;
 		
 		if (boundLight != null)
 		{

@@ -16,6 +16,7 @@ import java.util.Random;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -33,6 +34,7 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.Static;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 
 public class Level implements Serializable {
@@ -55,6 +57,7 @@ public class Level implements Serializable {
 	
 	public ArrayList<GameActor> actors = new ArrayList<GameActor>();
 	public ArrayList<LevelObject> levelObjects = new ArrayList<LevelObject>();
+	public ArrayList<ParticleEmitter> particleEmitters = new ArrayList<ParticleEmitter>();
 	
 	private transient ArrayList<DungeonRoom> rooms;
 
@@ -117,6 +120,17 @@ public class Level implements Serializable {
 		}
 	}
 	
+	public ParticleEmitter getParticleEmitter(String UID)
+	{
+		for (ParticleEmitter pe : particleEmitters)
+		{
+			if (pe.UID.equals(UID)) return pe;
+		}
+		
+		System.err.println("Particle Emitter not found!");
+		return null;
+	}
+	
 	public GameActor getActor(String UID)
 	{
 		for (GameActor ga : actors)
@@ -159,6 +173,14 @@ public class Level implements Serializable {
 	{
 		for (LevelObject lo : levelObjects) {
 			lo.create();
+		}
+	}
+	
+	public void createParticleEmitters()
+	{
+		for (ParticleEmitter pe : particleEmitters)
+		{
+			pe.create();
 		}
 	}
 	
@@ -550,8 +572,8 @@ public class Level implements Serializable {
 			//if (position.dst2(ga.getPosition()) < (radius+ga.vo.attributes.radius)*(radius+ga.vo.attributes.radius))
 			Vector3 box = ga.vo.attributes.box;
 			Vector3 hbox = box.tmp2().mul(0.5f);
-			if (GameData.SphereBoxIntersection(ga.getPosition().x, ga.getPosition().y, ga.getPosition().z, ga.getRadius(),
-					position.x-hbox.x, position.y-hbox.y, position.z-hbox.z,
+			if (GameData.SphereBoxIntersection(position.x, position.y, position.z, radius,
+					ga.getPosition().x-hbox.x, ga.getPosition().y-hbox.y, ga.getPosition().z-hbox.z,
 					box.x, box.y, box.z))
 			{
 				return ga;
@@ -632,13 +654,27 @@ public class Level implements Serializable {
 		{
 			if (ga.UID.equals(UID)) 
 			{
-				if (ga.boundLightUID != null) GameData.lightManager.removeDynamicLight(ga.boundLightUID);
 				actors.remove(i);
 				return;
 			}
 			i++;
 		}
 		System.err.println("Failed to remove actor!");
+	}
+	
+	public void removeParticleEmitter(String UID)
+	{
+		int i = 0;
+		for (ParticleEmitter pe : particleEmitters)
+		{
+			if (pe.UID.equals(UID)) 
+			{
+				particleEmitters.remove(i);
+				return;
+			}
+			i++;
+		}
+		System.err.println("Failed to remove emitter!");
 	}
 	
 	public void addActor(GameActor actor)
@@ -649,6 +685,11 @@ public class Level implements Serializable {
 	public void addLvlObject(LevelObject lo)
 	{
 		levelObjects.add(lo);
+	}
+	
+	public void addParticleEmitter(ParticleEmitter pe)
+	{
+		particleEmitters.add(pe);
 	}
 	
 	public boolean checkOpaque(int x, int z)

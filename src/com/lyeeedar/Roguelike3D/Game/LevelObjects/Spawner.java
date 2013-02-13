@@ -39,6 +39,7 @@ public class Spawner extends LevelObject {
 		this.me = me;
 		this.type = me.type;
 		this.monsterUID = me.UID;
+		this.solid = false;
 	}
 
 	public Spawner(AbstractObject ao, int difficulty, MonsterEvolver me, Colour colour, String texture, float x,
@@ -62,10 +63,12 @@ public class Spawner extends LevelObject {
 		creature.positionAbsolutely(getPosition().x, getPosition().y+getRadius()+creature.getRadius()+1, getPosition().z);
 		level.actors.add(creature);
 		
-		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 1.5f, 1.5f, 1.5f, 0.075f, 100, creature, true);
+		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 1.5f, 1.5f, 1.5f, 0.075f, 100);
 		p.setTexture("texf", new Vector3(0.0f, 2.5f, 0.0f), 1.0f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.03f);
 		
-		GameData.particleEmitters.add(p);
+		GameData.level.particleEmitters.add(p);
+		creature.addParticleEmitter(p);
+		p.setToVertexEmission(creature.vo.model.subMeshes[0].mesh, creature.vo.scale);
 	}
 	
 	@Override
@@ -83,6 +86,10 @@ public class Spawner extends LevelObject {
 	@Override
 	public String getActivatePrompt() {
 		return null;
+	}
+
+	@Override
+	protected void disposed() {
 	}
 
 }

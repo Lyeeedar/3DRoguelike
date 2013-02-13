@@ -38,6 +38,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Actor.AI_Enemy_VFFG;
 import com.lyeeedar.Roguelike3D.Game.Actor.AI_Player_Controlled;
+import com.lyeeedar.Roguelike3D.Game.Actor.Enemy;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
@@ -110,6 +111,7 @@ public class MonsterEvolver extends XMLReader {
 	public transient static final String ATTACK_DIST_MIN = "attack_dist_min";
 	public transient static final String ATTACK_DIST_MAX = "attack_dist_max";
 	public transient static final String WEAPON_STYLE = "weapon_style";
+	public transient static final String WEAPON_VISUAL = "weapon_visual";
 	public transient static final String WEAPON_TYPE = "weapon_type";
 	public transient static final String AI = "AI";
 
@@ -456,7 +458,7 @@ public class MonsterEvolver extends XMLReader {
 		Colour colour = ce.creature.colour;
 		String texture = ce.creature.texture;
 		
-		GameActor ga = new GameActor(colour, texture, 0, 0, 0, scale, GL20.GL_TRIANGLES, "file", ce.creature.model_name);
+		GameActor ga = new Enemy(colour, texture, 0, 0, 0, scale, GL20.GL_TRIANGLES, "file", ce.creature.model_name);
 		for (Component c : ce.creature.skinDrops)
 		{
 			ga.INVENTORY.put(c.drop_chance, c);
@@ -469,6 +471,7 @@ public class MonsterEvolver extends XMLReader {
 		{
 			ga.R_HAND = Equipment_HAND.getWeapon(
 					ce.attack_right.wep_type,
+					ce.attack_right.wep_visual,
 					ce.attack_right.wep_style,
 					ce.attack_right.strength,
 					ce.attack_right.ele_amount,
@@ -487,6 +490,7 @@ public class MonsterEvolver extends XMLReader {
 		{
 			ga.L_HAND = Equipment_HAND.getWeapon(
 					ce.attack_left.wep_type,
+					ce.attack_left.wep_visual,
 					ce.attack_left.wep_style,
 					ce.attack_left.strength,
 					ce.attack_left.ele_amount,
@@ -816,6 +820,7 @@ public class MonsterEvolver extends XMLReader {
 				getNodeValue(ATTACK_DIST_MIN, selected.getChildNodes()),
 				getNodeValue(ATTACK_DIST_MAX, selected.getChildNodes()),
 				getNodeValue(WEAPON_TYPE, selected.getChildNodes()),
+				getNodeValue(WEAPON_VISUAL, selected.getChildNodes()),
 				getNodeValue(WEAPON_STYLE, selected.getChildNodes())
 				);
 
@@ -868,6 +873,7 @@ public class MonsterEvolver extends XMLReader {
 				getNodeValue(ATTACK_DIST_MIN, selected.getChildNodes()),
 				getNodeValue(ATTACK_DIST_MAX, selected.getChildNodes()),
 				getNodeValue(WEAPON_TYPE, selected.getChildNodes()),
+				getNodeValue(WEAPON_VISUAL, selected.getChildNodes()),
 				getNodeValue(WEAPON_STYLE, selected.getChildNodes())
 				);
 
@@ -1559,8 +1565,8 @@ class Attack_Evolver implements Serializable
 		this.description = description;
 	}
 
-	int calories; int weight; int strength; float atk_speed; float atk_dst_min; float atk_dst_max; WeaponType wep_type; String wep_style;
-	public void addStats(String calories, String weight, String strength, String atk_speed, String atk_dst_min, String atk_dst_max, String wep_type, String wep_style)
+	int calories; int weight; int strength; float atk_speed; float atk_dst_min; float atk_dst_max; WeaponType wep_type; String wep_style; String wep_visual;
+	public void addStats(String calories, String weight, String strength, String atk_speed, String atk_dst_min, String atk_dst_max, String wep_type, String wep_visual, String wep_style)
 	{
 		this.calories = Integer.parseInt(calories);
 		this.weight = Integer.parseInt(weight);
@@ -1569,6 +1575,7 @@ class Attack_Evolver implements Serializable
 		this.atk_dst_min = Float.parseFloat(atk_dst_min);
 		this.atk_dst_max = Float.parseFloat(atk_dst_max);
 		this.wep_type = Equipment_HAND.convertStringtoWepType(wep_type);
+		this.wep_visual = wep_visual;
 		this.wep_style = wep_style;
 	}
 

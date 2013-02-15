@@ -353,4 +353,8 @@ public abstract class LevelObject extends GameObject{
 		
 		return lo;
 	}
+	
+	public void created(){
+		
+	}
 }

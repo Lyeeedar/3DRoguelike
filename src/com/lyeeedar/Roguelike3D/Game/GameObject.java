@@ -132,7 +132,11 @@ public abstract class GameObject implements Serializable {
 		vo.create();
 
 		translate(0, 0, 0);
+		
+		created();
 	}
+	
+	public abstract void created();
 
 	public void applyMovement()
 	{

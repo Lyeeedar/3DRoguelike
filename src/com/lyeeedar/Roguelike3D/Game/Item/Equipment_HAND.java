@@ -38,10 +38,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModelNode;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
 
 public abstract class Equipment_HAND extends Equippable{
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -1462740444282967851L;
 	public enum WeaponType {
 		MELEE,
@@ -99,7 +96,14 @@ public abstract class Equipment_HAND extends Equippable{
 	public final HashMap<Element, Integer> ele_dam;
 	public final HashMap<Damage_Type, Integer> dam_dam;
 	
-	public transient GameActor holder;
+	private transient GameActor holder;
+	/**
+	 * @return the holder
+	 */
+	public GameActor getHolder() {
+		return holder;
+	}
+
 	public String holderUID;
 	/**
 	 * 0 = none

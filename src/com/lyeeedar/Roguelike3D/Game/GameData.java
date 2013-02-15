@@ -28,6 +28,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND.WeaponType;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
@@ -318,6 +320,24 @@ public class GameData {
 		if (player == null)
 		{
 			player = new Player(new Colour(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 0.5f, GL20.GL_TRIANGLES, "file", "model@");
+			
+			HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
+			DAM_DEF.put(Damage_Type.PIERCE, 50);
+			DAM_DEF.put(Damage_Type.IMPACT, 50);
+			DAM_DEF.put(Damage_Type.TOUCH, 0);
+
+			HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
+			ELE_DEF.put(Element.FIRE, 0);
+			ELE_DEF.put(Element.AIR, 0);
+			ELE_DEF.put(Element.WATER, 0);
+			ELE_DEF.put(Element.WOOD, 0);
+			ELE_DEF.put(Element.METAL, 0);
+			ELE_DEF.put(Element.AETHER, 100);
+			ELE_DEF.put(Element.VOID, 0);
+			
+			player.R_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "sword", "SWING", 15, ELE_DEF, DAM_DEF, 20, 85, false, 3);
+			player.L_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "torch", "STAB", 15, ELE_DEF, DAM_DEF, 71, 13, false, 3);
+			
 			player.create();
 			player.visible = false;
 			
@@ -332,13 +352,11 @@ public class GameData {
 			if (ga.L_HAND != null)
 			{
 				ga.L_HAND.fixReferences();
-				ga.L_HAND.model.bakeLight(GameData.lightManager, false);
 			}
 			
 			if (ga.R_HAND != null)
 			{
 				ga.R_HAND.fixReferences();
-				ga.R_HAND.model.bakeLight(GameData.lightManager, false);
 			}
 		}
 		

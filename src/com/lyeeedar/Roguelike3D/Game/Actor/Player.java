@@ -42,27 +42,6 @@ public class Player extends GameActor {
 
 		WEIGHT = 1;
 		
-		HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
-		
-		DAM_DEF.put(Damage_Type.PIERCE, 50);
-		DAM_DEF.put(Damage_Type.IMPACT, 50);
-		DAM_DEF.put(Damage_Type.TOUCH, 0);
-
-		HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
-		
-		ELE_DEF.put(Element.FIRE, 0);
-		ELE_DEF.put(Element.AIR, 0);
-		ELE_DEF.put(Element.WATER, 0);
-		ELE_DEF.put(Element.WOOD, 0);
-		ELE_DEF.put(Element.METAL, 0);
-		ELE_DEF.put(Element.AETHER, 100);
-		ELE_DEF.put(Element.VOID, 0);
-		
-		R_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "sword", "SWING", 15, ELE_DEF, DAM_DEF, 20, 85, false, 3);
-		R_HAND.equip(this, 2);
-		L_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "torch", "STAB", 15, ELE_DEF, DAM_DEF, 71, 13, false, 3);
-		L_HAND.equip(this, 1);
-		
 		ai = new AI_Player_Controlled(this);
 
 	}

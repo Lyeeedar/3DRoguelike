@@ -91,12 +91,6 @@ public class RiggedModel implements Serializable {
 		rootNode.fixReferences();
 	}
 	
-	
-	public void bakeLight(LightManager lights, boolean bakeStatics)
-	{
-		rootNode.bakeLight(lights, bakeStatics, this);
-	}
-	
 	public void dispose()
 	{
 		rootNode.dispose();
@@ -182,8 +176,8 @@ public class RiggedModel implements Serializable {
 		
 		RiggedModelNode node1 = new RiggedModelNode(meshes1, new int[]{0}, new Matrix4().setToTranslation(0, -0.5f, -0.5f), new Matrix4(), 100, true);
 		
-		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.05f, 100);
-		p.setTexture("texf", new Vector3(0.0f, 2.5f, 0.0f), 1.0f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.03f);
+		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.02f, 350);
+		p.setTexture("texf", new Vector3(0.0f, -0.7f, 0.0f), 4.0f, new Colour(0.6f, 0.4f, 1.0f, 1.0f), new Colour(0.0f, 0.0f, 0.6f, 1.0f), true, 1.5f, 0.03f);
 		p.create();
 		
 		node.setChilden(node1);

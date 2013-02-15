@@ -79,11 +79,6 @@ public class RiggedSubMesh implements Serializable {
 		box.max.mul(scale);
 	}
 	
-	public void bakeLights(LightManager lights, boolean bakeStatics, Matrix4 model_matrix, Material mat)
-	{
-		mesh = Shapes.insertLight(mesh, lights, bakeStatics, model_matrix, mat.affectedByLighting);
-	}
-	
 	public Mesh getMesh()
 	{
 		return mesh;

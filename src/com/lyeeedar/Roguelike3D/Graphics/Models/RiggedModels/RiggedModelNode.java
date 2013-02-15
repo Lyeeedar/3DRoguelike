@@ -183,20 +183,7 @@ public class RiggedModelNode implements Serializable
 			rmn.cancel();
 		}
 	}
-	
-	public void bakeLight(LightManager lights, boolean bakeStatics, RiggedModel model)
-	{
-		for (int i = 0; i < submeshes.length; i++)
-		{
-			submeshes[i].bakeLights(lights, bakeStatics, meshMatrixes[i], model.materials[submeshMaterials[i]]);
-		}
 
-		for (RiggedModelNode rmn : childNodes)
-		{
-			rmn.bakeLight(lights, bakeStatics, model);
-		}
-	}
-	
 	public void setCollideMode(boolean mode, boolean propogateUp)
 	{
 		if (propogateUp)

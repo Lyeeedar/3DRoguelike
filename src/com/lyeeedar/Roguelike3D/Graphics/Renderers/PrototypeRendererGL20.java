@@ -104,6 +104,12 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 	final private TextureAttribute lastTexture[] = new TextureAttribute[TextureAttribute.MAX_TEXTURE_UNITS];
 
 	private void flush () {
+		
+		if (lightManager == null) {}
+		else if (GameData.player != null)
+			lightManager.calculateDynamicLights(GameData.player.getPosition().x, GameData.player.getPosition().y, GameData.player.getPosition().z);
+		else
+			lightManager.calculateDynamicLights(0, 0, 0);
 
 		// opaque is sorted front to back
 		// transparent is sorted back to front
@@ -114,12 +120,9 @@ public class PrototypeRendererGL20 implements ModelRenderer {
 
 			final Vector3 center = drawable.sortCenter;
 			long light_hash = lightManager.getDynamicLightsHash();
-			//lightManager.calculateDynamicLights(center.x, center.y, center.z);
-			if (GameData.player != null)
-				lightManager.calculateDynamicLights(GameData.player.getPosition().x, GameData.player.getPosition().y, GameData.player.getPosition().z);
-			else
-				lightManager.calculateDynamicLights(center.x, center.y, center.z);
-			boolean check = (light_hash == lightManager.getDynamicLightsHash());
+			//lightManager.calculateDynamicLights(center.x, center.y, center.z);		
+			
+			boolean check = true;//(light_hash == lightManager.getDynamicLightsHash());
 
 			final Matrix3 normalMatrix = new Matrix3().set(drawable.model_matrix);
 			final Matrix4 modelMatrix = drawable.model_matrix;

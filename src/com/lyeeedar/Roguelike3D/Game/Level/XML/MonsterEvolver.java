@@ -480,7 +480,6 @@ public class MonsterEvolver extends XMLReader {
 					ce.attack_right.weight,
 					false,
 					2);
-			ga.R_HAND.equip(ga, 2);
 			for (Component c : ce.creature.attRDrops)
 			{
 				ga.INVENTORY.put(c.drop_chance, c);
@@ -499,7 +498,6 @@ public class MonsterEvolver extends XMLReader {
 					ce.attack_left.weight,
 					false,
 					2);
-			ga.L_HAND.equip(ga, 1);
 			for (Component c : ce.creature.attLDrops)
 			{
 				ga.INVENTORY.put(c.drop_chance, c);

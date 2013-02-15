@@ -93,13 +93,13 @@ public class MeleeWeapon extends Equipment_HAND {
 	@Override
 	protected void updated(float delta)
 	{
-		GameActor ga = model.rootNode.checkCollision(holder);
+		GameActor ga = model.rootNode.checkCollision(getHolder());
 		
 		if (ga != null)
 		{
 			model.rootNode.cancel();
 			
-			if (ga != holder) {
+			if (ga != getHolder()) {
 				damage(ga);
 			}
 		}
@@ -119,24 +119,20 @@ public class MeleeWeapon extends Equipment_HAND {
 
 	@Override
 	protected void unequipped() {
-		holder = null;
-		holderUID = null;
 	}
 
 	@Override
 	protected void equipped(GameActor actor, int side) {
-		holder = actor;
-		holderUID = actor.UID;
 		
 		model.rootNode.behaviour.equip(actor, side);
 		
 		if (side == 1)
 		{
-			model.rootNode.position.setToTranslation(-1, 0, -1);
+			model.rootNode.position.setToTranslation(-actor.getRadius(), 0, -2);
 		}
 		else if (side == 2)
 		{
-			model.rootNode.position.setToTranslation(1, 0, -1);
+			model.rootNode.position.setToTranslation(actor.getRadius(), 0, -2);
 		}
 	}
 }

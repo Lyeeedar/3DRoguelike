@@ -167,25 +167,25 @@ public class LevelLoadingScreen extends AbstractScreen{
 		}
 		else if (loadingStage == 6)
 		{
-			message = "Baking Lights";
-			for (LevelObject lo : level.levelObjects)
-			{
-				lo.vo.bakeLights(GameData.lightManager, false);
-			}
-			for (GameActor ga : level.actors)
-			{
-				ga.vo.bakeLights(GameData.lightManager, false);
-				
-				if (ga.L_HAND != null)
-				{
-					ga.L_HAND.model.bakeLight(GameData.lightManager, false);
-				}
-				
-				if (ga.R_HAND != null)
-				{
-					ga.R_HAND.model.bakeLight(GameData.lightManager, false);
-				}
-			}
+//			message = "Baking Lights";
+//			for (LevelObject lo : level.levelObjects)
+//			{
+//				lo.vo.bakeLights(GameData.lightManager, false);
+//			}
+//			for (GameActor ga : level.actors)
+//			{
+//				ga.vo.bakeLights(GameData.lightManager, false);
+//				
+//				if (ga.L_HAND != null)
+//				{
+//					ga.L_HAND.model.bakeLight(GameData.lightManager, false);
+//				}
+//				
+//				if (ga.R_HAND != null)
+//				{
+//					ga.R_HAND.model.bakeLight(GameData.lightManager, false);
+//				}
+//			}
 			loadingStage++;
 		}
 		else if (loadingStage == 7)

@@ -122,6 +122,18 @@ public abstract class GameActor extends GameObject{
 		}
 	}
 	
+	public void created()
+	{
+		if (L_HAND != null)
+		{
+			L_HAND.equip(this, 1);
+		}
+		if (R_HAND != null)
+		{
+			R_HAND.equip(this, 2);
+		}
+	}
+	
 	public void setupDefenses()
 	{
 		DAM_DEF = GameData.getDamageMap();

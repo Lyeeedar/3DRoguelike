@@ -13,7 +13,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class RiggedModelNode implements Serializable
 {
@@ -103,7 +104,7 @@ public class RiggedModelNode implements Serializable
 		if (particleEmitter != null) particleEmitter.setPosition(Vector3.tmp3.set(0, 0, 0).mul(composedMatrix));
 	}
 	
-	public void render(RiggedModel model, PrototypeRendererGL20 renderer)
+	public void render(RiggedModel model, Renderer renderer)
 	{
 		for (int i = 0; i < submeshes.length; i++)
 		{
@@ -280,6 +281,19 @@ public class RiggedModelNode implements Serializable
 		if (particleEmitter != null) {
 			particleEmitter.dispose();
 			GameData.level.removeParticleEmitter(particleEmitterUID);
+		}
+	}
+	
+	public void bakeLight(LightManager lights, boolean bakeStatics)
+	{
+		for (int i = 0; i < submeshes.length; i++)
+		{
+			submeshes[i].bakeLight(lights, bakeStatics, meshMatrixes[i]);
+		}
+
+		for (RiggedModelNode rmn : childNodes)
+		{
+			rmn.bakeLight(lights, bakeStatics);
 		}
 	}
 }

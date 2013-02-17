@@ -36,7 +36,8 @@ import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.TextureDrawer;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 
 public abstract class GameActor extends GameObject{
@@ -176,7 +177,7 @@ public abstract class GameActor extends GameObject{
 	
 
 	@Override
-	public void draw(PrototypeRendererGL20 renderer)
+	public void draw(Renderer renderer)
 	{
 		if (L_HAND != null) L_HAND.draw(renderer);
 		if (R_HAND != null) R_HAND.draw(renderer);

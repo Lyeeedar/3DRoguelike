@@ -13,6 +13,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Materials;
 import java.io.Serializable;
 
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 
 public abstract class MaterialAttribute implements Serializable {
 
@@ -30,7 +31,7 @@ public abstract class MaterialAttribute implements Serializable {
 		isPooled = false;
 	}
 
-	public abstract void bind (ShaderProgram program);
+	public abstract void bind (ShaderProgram program, LightManager lights);
 
 	public abstract MaterialAttribute copy ();
 

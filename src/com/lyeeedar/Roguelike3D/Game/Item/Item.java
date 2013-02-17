@@ -19,12 +19,18 @@ public abstract class Item implements Serializable, Comparable<Component> {
 	 */
 	private static final long serialVersionUID = -7122062237284900314L;
 	
+	public final String UID;
+	
 	public int rarity;
 	public final Item_Type item_type;
+	public String name;
+	public String description;
 	
 	public Item(Item_Type type)
 	{
 		this.item_type = type;
+		
+		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 	}
 
 	public enum Item_Type {
@@ -51,7 +57,10 @@ public abstract class Item implements Serializable, Comparable<Component> {
 
 	@Override
 	public int compareTo(Component o) {
-		if (o.toString().equals(this.toString())) return 0;
+		
+		int rarity = this.rarity - o.rarity;
+		if (rarity != 0) return rarity;
+		else if (o.toString().equals(this.toString())) return 0;
 		else if (o.hashCode() < this.hashCode()) return -1;
 		else if (o.hashCode() > this.hashCode()) return 1;
 		return 0;

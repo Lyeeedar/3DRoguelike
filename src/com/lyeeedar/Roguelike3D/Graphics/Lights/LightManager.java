@@ -33,7 +33,7 @@ public class LightManager implements Serializable {
 	public static final int maxLights = 16;
 
 	public enum LightQuality {
-		VERTEX, FRAGMENT, NORMALMAP
+		FORWARD_VERTEX, DEFFERED
 	};
 
 	public LightQuality quality;
@@ -43,15 +43,10 @@ public class LightManager implements Serializable {
 	private transient float[] positions;
 	private transient float[] colors;
 	private transient float[] attenuations;
-	private transient float[] intensities;
 
 	public int maxLightsPerModel;
-
-	public final Colour ambientLight = new Colour();
-
-	public LightManager () {
-		this(4, LightQuality.VERTEX);
-	}
+	private final Colour ambientLight = new Colour();
+	private final Vector3 ambientDir = new Vector3();
 
 	public LightManager (int maxLightsPerModel, LightQuality lightQuality) {
 		quality = lightQuality;
@@ -60,12 +55,23 @@ public class LightManager implements Serializable {
 		fixReferences();
 	}
 	
+	public void setAmbient(float r, float g, float b, float x, float y, float z)
+	{
+		ambientLight.set(r, g, b, 1.0f);
+		ambientDir.set(x, y, z);
+	}
+	
+	public void setAmbient(Colour colour, Vector3 dir)
+	{
+		ambientLight.set(colour);
+		ambientDir.set(dir);
+	}
+	
 	public void fixReferences()
 	{
 		colors = new float[3 * maxLightsPerModel];
 		positions = new float[3 * maxLightsPerModel];
 		attenuations = new float[maxLightsPerModel];
-		intensities = new float[maxLightsPerModel];
 	}
 	
 	public PointLight getDynamicLight(String UID)
@@ -117,16 +123,8 @@ public class LightManager implements Serializable {
 		colors = new float[3 * maxLightsPerModel];
 		positions = new float[3 * maxLightsPerModel];
 		attenuations = new float[maxLightsPerModel];
-		intensities = new float[maxLightsPerModel];
 	}
-
-	// TODO make it better if it slow
-	// NAIVE but simple implementation of light choosing algorithm
-	// currently calculate lights based on transformed center position of model
-	// TODO one idea would be first cull lights that can't affect the scene with
-	// frustum check.
-	// TODO another idea would be first cut lights that are further from model
-	// than x that would make sorted faster
+	
 	@SuppressWarnings("unchecked")
 	public void calculateDynamicLights (float x, float y, float z) {
 		final int maxSize = dynamicPointLights.size();
@@ -135,7 +133,7 @@ public class LightManager implements Serializable {
 
 			for (int i = 0; i < maxSize; i++) {
 				final PointLight light = dynamicPointLights.get(i);
-				light.priority = (int)(PointLight.PRIORITY_DISCRETE_STEPS * ((light.intensity) * light.position.dst(x, y, z)));
+				light.priority = (int)(PointLight.PRIORITY_DISCRETE_STEPS * light.position.dst(x, y, z));
 				// if just linear falloff
 			}
 			
@@ -159,8 +157,6 @@ public class LightManager implements Serializable {
 			colors[3 * i + 2] = col.b;
 
 			attenuations[i] = light.attenuation;
-			
-			intensities[i] = light.intensity;
 		}
 	}
 
@@ -182,51 +178,45 @@ public class LightManager implements Serializable {
 	}
 	
 	/** Apply lights GLES2.0, call calculateLights before applying */
-	public void applyDynamicLights (ShaderProgram shader, Material material) {
-		
-		if (!material.affectedByLighting) return;
-		
+	public void applyDynamicLights (ShaderProgram shader) {
+		if (maxLightsPerModel == 0) return;
 		shader.setUniform3fv("u_light_positions", positions, 0, maxLightsPerModel * 3);
 		shader.setUniform3fv("u_light_colours", colors, 0, maxLightsPerModel * 3);
-		shader.setUniform1fv("u_light_intensities", intensities, 0, maxLightsPerModel);
 		shader.setUniform1fv("u_light_attenuations", attenuations, 0, maxLightsPerModel);
 	}
 
-	public void applyGlobalLights (ShaderProgram shader, Material material) {
-		if (!material.affectedByLighting) shader.setUniformf("u_ambient_light", 1, 1, 1);
-		else shader.setUniformf("u_ambient_light", ambientLight.r, ambientLight.g, ambientLight.b);
+	public void applyGlobalLights (ShaderProgram shader) {
+		shader.setUniformf("u_ambient_light", ambientLight.r, ambientLight.g, ambientLight.b);
 	}
 	
 	public Vector3 calculateLightAtPoint(Vector3 position, Vector3 normal, boolean bakeStatics)
 	{
-		Vector3 light_agg_col = new Vector3(ambientLight.r, ambientLight.g, ambientLight.b);
+		Vector3 light_agg_col = calculateLight(ambientDir, ambientLight.getColour(), 0, normal);
 		
 		if (!bakeStatics) return light_agg_col;
 		
-		//System.out.println("Start light = "+light_agg_col);
-		
 		for (PointLight pl : staticPointLights)
 		{
-			Vector3 l_vector = pl.position.cpy();
+			Vector3 l_vector = pl.position.tmp();
 			l_vector.sub(position);
 			
-			light_agg_col.add(calculateLight(l_vector, pl.getColourRGB(), pl.attenuation, pl.intensity, normal.cpy()));
+			light_agg_col.add(calculateLight(l_vector, pl.getColourRGB(), pl.attenuation, normal));
 		}
 		
-		//System.out.println("Final light = "+light_agg_col);
 		return light_agg_col;
 	}
 	
-	private Vector3 calculateLight(Vector3 l_vector, Vector3 l_colour, float l_attenuation, float l_intensity, Vector3 n_dir)
+	private Vector3 calculateLight(Vector3 l_vector, Vector3 l_colour, float l_attenuation, Vector3 n_dir)
 	{
 		if (l_colour.len2() == 0) return new Vector3(0, 0, 0);
 
 		float distance = l_vector.len();
 		Vector3 l_dir = l_vector.nor();
 		
-		float attenuation = 1.0f / (l_attenuation * distance * distance);
+		float attenuation = 1.0f;
+		if (l_attenuation != 0) attenuation = 1.0f / (l_attenuation * distance * distance);
 		float intensity = attenuation * Math.max(0.0f, l_dir.dot(n_dir));
 		
-		return l_colour.mul(intensity * l_intensity);
+		return l_colour.mul(intensity);
 	}
 }

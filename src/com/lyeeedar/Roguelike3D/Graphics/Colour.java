@@ -13,6 +13,7 @@ package com.lyeeedar.Roguelike3D.Graphics;
 import java.io.Serializable;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector3;
 
 public class Colour implements Serializable {
 
@@ -67,6 +68,12 @@ public class Colour implements Serializable {
 	public Color getColor()
 	{
 		return new Color(r, g, b, a);
+	}
+	
+	public final Vector3 tmpVec = new Vector3();
+	public Vector3 getColour()
+	{
+		return tmpVec.set(r, g, b);
 	}
 
 	public void set(float r, float g, float b, float a) {

@@ -21,7 +21,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class RiggedModel implements Serializable {
 
@@ -71,7 +72,7 @@ public class RiggedModel implements Serializable {
 		rootNode.composeMatrixes(composed);
 	}
 	
-	public void draw(PrototypeRendererGL20 renderer)
+	public void draw(Renderer renderer)
 	{
 		rootNode.render(this, renderer);
 	}
@@ -98,6 +99,11 @@ public class RiggedModel implements Serializable {
 		{
 			m.dispose();
 		}
+	}
+	
+	public void bakeLight(LightManager lights, boolean bakeStatics)
+	{
+		rootNode.bakeLight(lights, bakeStatics);
 	}
 	
 	/**
@@ -154,8 +160,8 @@ public class RiggedModel implements Serializable {
 		nodeblade.setChilden(nodeTip);
 		nodeTip.setChilden();
 		
-		MaterialAttribute t = new TextureAttribute("blank", 0);
-		Material material = new Material("basic", t);
+		Material material = new Material("basic");
+		material.setTexture("blank");
 		
 		return new RiggedModel(rootnode, new Material[]{material});
 	}
@@ -177,7 +183,7 @@ public class RiggedModel implements Serializable {
 		RiggedModelNode node1 = new RiggedModelNode(meshes1, new int[]{0}, new Matrix4().setToTranslation(0, -0.5f, -0.5f), new Matrix4(), 100, true);
 		
 		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.02f, 350);
-		p.setTexture("texf", new Vector3(0.0f, -0.7f, 0.0f), 4.0f, new Colour(0.6f, 0.4f, 1.0f, 1.0f), new Colour(0.0f, 0.0f, 0.6f, 1.0f), true, 1.5f, 0.03f);
+		p.setTexture("texf", new Vector3(0.0f, -0.7f, 0.0f), 4.0f, new Colour(0.6f, 0.4f, 1.0f, 1.0f), new Colour(0.0f, 0.0f, 0.6f, 1.0f), true, 0.03f);
 		p.create();
 		
 		node.setChilden(node1);
@@ -188,8 +194,8 @@ public class RiggedModel implements Serializable {
 		
 		GameData.level.particleEmitters.add(p);
 		
-		MaterialAttribute t = new TextureAttribute("wood", 0);
-		Material material = new Material("basic", t);
+		Material material = new Material("basic");
+		material.setTexture("wood");
 		
 		return new RiggedModel(rootnode, new Material[]{material});
 		

@@ -13,6 +13,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Lights;
 import java.io.Serializable;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 
@@ -29,7 +30,6 @@ public class PointLight implements Comparable, Serializable {
 	public Colour colour;
 
 	public float attenuation;
-	public float intensity;
 
 	protected int priority;
 
@@ -37,17 +37,13 @@ public class PointLight implements Comparable, Serializable {
 	
 	private final Vector3 tmpVec = new Vector3();
 	
-	public PointLight()
-	{
-		this(new Vector3(), new Colour(), 1.0f, 1.0f);
-	}
-	
-	public PointLight(Vector3 position, Colour colour, float attentuation, float intensity)
+	public transient Mesh area;
+
+	public PointLight(Vector3 position, Colour colour, float attentuation)
 	{
 		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.position = position;
 		this.colour = colour;
-		this.intensity = intensity;
 		this.attenuation = attentuation;
 	}
 	
@@ -79,6 +75,11 @@ public class PointLight implements Comparable, Serializable {
 	public Vector3 getColourRGB()
 	{
 		return new Vector3(colour.r, colour.g, colour.b);
+	}
+	
+	public void fixReferences()
+	{
+		
 	}
 
 }

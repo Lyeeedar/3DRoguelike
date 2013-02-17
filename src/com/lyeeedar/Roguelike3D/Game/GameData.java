@@ -170,7 +170,7 @@ public class GameData {
 		return l;
 	}
 	
-	public static LightQuality lightQuality = LightQuality.NORMALMAP;
+	public static LightQuality lightQuality = LightQuality.FORWARD_VERTEX;
 	public static int LightsPerModel = 8;
 	
 	public static boolean updateLights = false;
@@ -297,7 +297,7 @@ public class GameData {
 		RoomReader rReader = new RoomReader(lc.biome, lc.depth);
 		
 		lightManager = lc.getLightManager();
-		lightManager.ambientLight.set(biome.getAmbientLight());
+		lightManager.setAmbient(biome.getAmbientLight(), new Vector3(0, -1, 0));
 
 		game.loadLevel(biome, rReader, GameScreen.INGAME);
 	}

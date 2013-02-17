@@ -17,7 +17,8 @@ import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class Static extends LevelObject {
 
@@ -51,7 +52,7 @@ public class Static extends LevelObject {
 	}
 
 	@Override
-	public void draw(PrototypeRendererGL20 renderer) {
+	public void draw(Renderer renderer) {
 	}
 
 	@Override

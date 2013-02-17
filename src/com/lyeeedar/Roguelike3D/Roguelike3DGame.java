@@ -60,7 +60,6 @@ public class Roguelike3DGame extends Game {
 		screens.put(GameScreen.LEVELLOADING, new LevelLoadingScreen(this));	
 		screens.put(GameScreen.INGAME, new InGameScreen(this));
 		screens.put(GameScreen.MAINMENU, new MainMenuScreen(this));
-		screens.put(GameScreen.CREDITS, new CreditsScreen(this));
 		screens.put(GameScreen.RECIPES, new RecipeScreen(this));
 		screens.put(GameScreen.OPTIONS, new OptionsScreen(this));
 		

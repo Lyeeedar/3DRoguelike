@@ -41,9 +41,7 @@ public class Component extends Item {
 		// Bone related
 	}
 	
-	public String name;
 	public int drop_chance;
-	public String description;
 	public int weight_per_amount;
 	public int amount;
 	

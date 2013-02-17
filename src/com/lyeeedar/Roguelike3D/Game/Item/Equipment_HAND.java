@@ -35,7 +35,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModel;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModelNode;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public abstract class Equipment_HAND extends Equippable{
 
@@ -198,7 +199,7 @@ public abstract class Equipment_HAND extends Equippable{
 	}
 	
 	Matrix4 tmp = new Matrix4();
-	public void draw(PrototypeRendererGL20 renderer)
+	public void draw(Renderer renderer)
 	{
 		model.draw(renderer);
 	}

@@ -72,20 +72,6 @@ public class StillModelAttributes implements StillModelInstance {
 	public float getBoundingSphereRadius () {
 		return radius;
 	}
-
-	public StillModelAttributes copy () {
-		
-		Material copy_material = material.copy();
-		
-		final StillModelAttributes copy = new StillModelAttributes(copy_material, radius, scale, box);
-		
-		copy.position.set(position.val);
-		copy.rotation.set(rotation.val);
-		copy.origin.set(origin);
-		copy.transformedPosition.set(transformedPosition);
-		return copy;
-
-	}
 	
 	public void dispose()
 	{

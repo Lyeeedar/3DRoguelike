@@ -28,7 +28,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Materials.ColorAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.MaterialAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class VisibleObject implements Serializable {
 	
@@ -85,10 +86,10 @@ public class VisibleObject implements Serializable {
 		
 		SubMesh[] meshes = {new StillSubMesh("SubMesh1", mesh, primitive_type)};
 		model = new StillModel(meshes);
-		MaterialAttribute t = new TextureAttribute(texture, 0);
-		MaterialAttribute c = new ColorAttribute(colour, ColorAttribute.colour);
-		
-		Material material = new Material("basic", t, c);
+
+		Material material = new Material("basic");
+		material.setColour(colour);
+		material.setTexture(texture);
 		material.create();
 		
 		BoundingBox box = mesh.calculateBoundingBox();
@@ -117,9 +118,9 @@ public class VisibleObject implements Serializable {
 		return null;
 	}
 	
-	public void render(PrototypeRendererGL20 protoRenderer)
+	public void render(Renderer renderer)
 	{
-		protoRenderer.draw(model, attributes);
+		renderer.draw(model, attributes);
 	}
 
 	public void dispose()
@@ -141,7 +142,7 @@ public class VisibleObject implements Serializable {
 		
 		Matrix4 mat = new Matrix4();
 		mat.set(attributes.getTransform()).scale(attributes.scale, attributes.scale, attributes.scale).mul(attributes.getRotation());
-		Mesh newMesh = Shapes.insertLight(oldMesh, lights, bakeStatics, mat, attributes.getMaterial().affectedByLighting);
+		Mesh newMesh = Shapes.insertLight(oldMesh, lights, bakeStatics, mat);
 		
 		model.subMeshes[0] = new StillSubMesh("SubMesh1", newMesh, primitive_type);
 	}

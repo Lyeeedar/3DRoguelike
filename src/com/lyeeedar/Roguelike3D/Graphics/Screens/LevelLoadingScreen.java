@@ -11,36 +11,26 @@
 package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
+import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.Enemy;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
-import com.lyeeedar.Roguelike3D.Game.Actor.Player;
-import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
-import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
-import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
-import com.lyeeedar.Roguelike3D.Game.LevelObjects.Static;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
-import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SkyBox;
-import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
-import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 
 public class LevelLoadingScreen extends AbstractScreen{
 	
@@ -167,25 +157,25 @@ public class LevelLoadingScreen extends AbstractScreen{
 		}
 		else if (loadingStage == 6)
 		{
-//			message = "Baking Lights";
-//			for (LevelObject lo : level.levelObjects)
-//			{
-//				lo.vo.bakeLights(GameData.lightManager, false);
-//			}
-//			for (GameActor ga : level.actors)
-//			{
-//				ga.vo.bakeLights(GameData.lightManager, false);
-//				
-//				if (ga.L_HAND != null)
-//				{
-//					ga.L_HAND.model.bakeLight(GameData.lightManager, false);
-//				}
-//				
-//				if (ga.R_HAND != null)
-//				{
-//					ga.R_HAND.model.bakeLight(GameData.lightManager, false);
-//				}
-//			}
+			message = "Baking Lights";
+			for (LevelObject lo : level.levelObjects)
+			{
+				lo.vo.bakeLights(GameData.lightManager, false);
+			}
+			for (GameActor ga : level.actors)
+			{
+				ga.vo.bakeLights(GameData.lightManager, false);
+				
+				if (ga.L_HAND != null)
+				{
+					ga.L_HAND.model.bakeLight(GameData.lightManager, false);
+				}
+				
+				if (ga.R_HAND != null)
+				{
+					ga.R_HAND.model.bakeLight(GameData.lightManager, false);
+				}
+			}
 			loadingStage++;
 		}
 		else if (loadingStage == 7)
@@ -203,7 +193,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		
 		for (GameObject go : objects)
 		{
-			go.vo.render(protoRenderer);
+			go.vo.render(renderer);
 		}
 	}
 	
@@ -213,7 +203,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 	}
 	
 	@Override
-	public void drawDecals(float delta) {
+	public void drawTransparent(float delta) {
 		
 		spriteBatch.begin();
 		
@@ -222,9 +212,6 @@ public class LevelLoadingScreen extends AbstractScreen{
 		font.drawMultiLine(spriteBatch, message, 250, 175);
 		
 		spriteBatch.end();
-		
-		protoRenderer.glowRequired = true;
-
 	}
 
 
@@ -244,15 +231,13 @@ public class LevelLoadingScreen extends AbstractScreen{
 	@Override
 	public void create() {
 		
-		LightManager lightManager = new LightManager(0, LightQuality.VERTEX);
+		LightManager lightManager = new LightManager(0, LightQuality.FORWARD_VERTEX);
 		
-		protoRenderer = new PrototypeRendererGL20(lightManager);
-		protoRenderer.cam = cam;
-		
+		renderer = new ForwardRenderer();
+
 		GameObject go = new Enemy(new Colour(), "icon", 0, 0, -4, 0.5f, GL20.GL_TRIANGLES, "cube", "2", "2", "2");
 		go.create();
-		go.vo.attributes.material.affectedByLighting = false;
-		
+
 		objects.add(go);
 		
 		loading_bar = new Texture(Gdx.files.internal("data/skins/loading_bar.png"));

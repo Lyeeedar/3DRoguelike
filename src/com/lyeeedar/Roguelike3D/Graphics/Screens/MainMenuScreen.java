@@ -54,7 +54,7 @@ public class MainMenuScreen extends UIScreen {
 	}
 
 	@Override
-	public void create() {
+	public void createSuper() {
 
 		Label lblTitle = new Label("EtDotR", skin);
 		
@@ -165,28 +165,7 @@ public class MainMenuScreen extends UIScreen {
 	}
 
 	@Override
-	public void drawModels(float delta) {
-	}
-
-	@Override
-	public void drawDecals(float delta) {
-	}
-
-	@Override
-	public void drawOrthogonals(float delta) {
-		
-	}
-
-	@Override
 	public void update(float delta) {
-	}
-
-	@Override
-	public void superDispose() {
-	}
-
-	@Override
-	protected void createSuper() {
 	}
 
 	@Override

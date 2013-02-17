@@ -91,4 +91,16 @@ public class RiggedSubMesh implements Serializable {
 			mesh.dispose();
 		}
 	}
+	
+	public void bakeLight(LightManager lights, boolean bakeStatics, Matrix4 mat)
+	{
+		Mesh newMesh = Shapes.insertLight(mesh, lights, bakeStatics, mat);
+		
+		if (!meshValues[0].equals("file"))
+		{
+			mesh.dispose();
+		}
+		
+		mesh = newMesh;
+	}
 }

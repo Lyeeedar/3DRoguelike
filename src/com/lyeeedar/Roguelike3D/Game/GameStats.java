@@ -27,6 +27,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HEAD;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_LEGS;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
+import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Recipe;
 
 public class GameStats {
@@ -39,6 +40,15 @@ public class GameStats {
 	public static HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
 	public static ArrayList<String> FACTIONS;
 	
+	public enum Equipment_Slot {
+		HEAD,
+		BODY,
+		LEGS,
+		BOOTS,
+		L_HAND,
+		R_HAND
+	}
+	
 	public static Equipment_HEAD head;
 	public static Equipment_BODY body;
 	public static Equipment_LEGS legs;
@@ -48,7 +58,7 @@ public class GameStats {
 	
 	public static TreeMultimap<Integer, Recipe> recipes = TreeMultimap.create();
 	public static TreeMultimap<Integer, Component> components = TreeMultimap.create();
-	public static TreeMultimap<Integer, Equippable> equipment = TreeMultimap.create();
+	public static TreeMultimap<Item_Type, Equippable> equipment = TreeMultimap.create();
 	
 	public static void init()
 	{
@@ -89,6 +99,11 @@ public class GameStats {
 		{
 			components.remove(c.rarity, c);
 		}
+	}
+	
+	public static void addEquipment(Equippable e)
+	{
+		equipment.put(e.item_type, e);
 	}
 	
 	public static void save(SaveGame save)

@@ -410,47 +410,7 @@ public class Shapes {
 		return result;
 	}
 	
-	public static Mesh insertColour(Mesh mesh, Colour colour)
-	{
-		VertexAttributes attributes = mesh.getVertexAttributes();
-		final int vertCount = mesh.getNumVertices();
-		final int vertexSize = attributes.vertexSize / 4;
-		
-		VertexAttribute[] newAttributes = new VertexAttribute[attributes.size()+1];
-		for (int i = 0; i < attributes.size(); i++)
-		{
-			newAttributes[i] = attributes.get(i);
-		}
-		newAttributes[attributes.size()] = new VertexAttribute(Usage.Generic, 3, "a_colour");
-		
-		final int newVertexSize = vertexSize + 3;
-		
-		float[] verts = new float[vertexSize * vertCount]; 
-		mesh.getVertices(verts);
-		short[] indices = new short[mesh.getNumIndices()];
-		mesh.getIndices(indices);
-		float[] newVerts = new float[newVertexSize * vertCount];
-		
-		for (int i = 0; i < vertCount; i++)
-		{
-			int j = 0;
-			for (; j < vertexSize; j++)
-			{
-				newVerts[ (i*newVertexSize) + j ] = verts[ (i*vertexSize) + j ];
-			}
-			newVerts[ (i*newVertexSize) + j ] = colour.r;
-			newVerts[ (i*newVertexSize) + j + 1 ] = colour.g;
-			newVerts[ (i*newVertexSize) + j + 2 ] = colour.b;
-		}
-		
-		Mesh newMesh = new Mesh(true, mesh.getNumVertices(), mesh.getNumIndices(), newAttributes);
-		newMesh.setVertices(newVerts);
-		newMesh.setIndices(indices);
-		
-		return newMesh;
-	}
-	
-	public static Mesh insertLight(Mesh mesh, LightManager lights, boolean bakeStatics, Matrix4 model_matrix, boolean lit)
+	public static Mesh insertLight(Mesh mesh, LightManager lights, boolean bakeStatics, Matrix4 model_matrix)
 	{
 		VertexAttributes attributes = mesh.getVertexAttributes();
 		final int vertCount = mesh.getNumVertices();
@@ -491,10 +451,8 @@ public class Shapes {
 
 			Vector3 normal = new Vector3(verts[(i*vertexSize)+normalOffset], verts[(i*vertexSize)+normalOffset+1], verts[(i*vertexSize)+normalOffset+2]);
 			normal.mul(normal_matrix).nor();
-			
-			Vector3 light_colour = new Vector3(1.0f, 1.0f, 1.0f);
-			
-			if (lit) light_colour = lights.calculateLightAtPoint(position, normal.nor(), bakeStatics);
+
+			Vector3 light_colour = lights.calculateLightAtPoint(position, normal.nor(), bakeStatics);
 			
 			newVerts[ (i*newVertexSize) + j ] = light_colour.x;
 			newVerts[ (i*newVertexSize) + j + 1 ] = light_colour.y;

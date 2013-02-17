@@ -43,7 +43,8 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public abstract class GameObject implements Serializable {
 	
@@ -383,7 +384,7 @@ public abstract class GameObject implements Serializable {
 	
 	public abstract void update(float delta);
 	
-	public abstract void draw(PrototypeRendererGL20 renderer);
+	public abstract void draw(Renderer renderer);
 	
 	public abstract void activate();
 	

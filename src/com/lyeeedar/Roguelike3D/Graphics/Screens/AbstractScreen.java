@@ -15,17 +15,13 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
-import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
-import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor;
-import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor.Effect;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
  
 
 public abstract class AbstractScreen implements Screen{
@@ -36,12 +32,11 @@ public abstract class AbstractScreen implements Screen{
 	protected final Roguelike3DGame game;
 
 	protected final SpriteBatch spriteBatch;
-	protected final DecalBatch decalBatch;
+
 	protected BitmapFont font;
 	protected final Stage stage;
 
-	protected PrototypeRendererGL20 protoRenderer;
-	protected final PostProcessor postProcessor;
+	protected Renderer renderer;
 	
 	PerspectiveCamera cam;
 	
@@ -53,15 +48,10 @@ public abstract class AbstractScreen implements Screen{
 		
 		font = new BitmapFont(Gdx.files.internal("data/skins/default.fnt"), false);
 		spriteBatch = new SpriteBatch();
-		decalBatch = new DecalBatch();
-		decalBatch.setGroupStrategy(new CameraGroupStrategy(cam));
 
 		stage = new Stage(0, 0, true, spriteBatch);
 		
-		protoRenderer = new PrototypeRendererGL20(GameData.lightManager);
-		
-		postProcessor = new PostProcessor(Format.RGBA4444, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		postProcessor.addEffect(Effect.BLOOM);
+		renderer = new ForwardRenderer();
 	}
 
 	@Override
@@ -69,9 +59,7 @@ public abstract class AbstractScreen implements Screen{
 		
 		update(delta);
 		stage.act(delta);
-	
-		if (PostProcessor.ON) postProcessor.begin();
-		
+
 		Gdx.graphics.getGL20().glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
@@ -81,19 +69,16 @@ public abstract class AbstractScreen implements Screen{
 		Gdx.graphics.getGL20().glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.graphics.getGL20().glDepthMask(true);	
 		
-		protoRenderer.begin();
+		renderer.begin();
 		drawModels(delta);
-		protoRenderer.end();
+		renderer.end(GameData.lightManager);
 		
 		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
 		
-		drawDecals(delta);
-		decalBatch.flush();
+		drawTransparent(delta);
 		
 		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
-		
-		if (PostProcessor.ON) postProcessor.end();
-		
+
 		spriteBatch.begin();
 		drawOrthogonals(delta);
 		spriteBatch.end();
@@ -116,22 +101,18 @@ public abstract class AbstractScreen implements Screen{
 		screen_height = height;
 
         cam = new PerspectiveCamera(75, width, height);
-        postProcessor.updateBufferSettings(Format.RGBA4444, width, height);
         cam.near = 0.1f;
         cam.far = 175;
-        protoRenderer.cam = cam;
         
-        decalBatch.setGroupStrategy(new CameraGroupStrategy(cam));
-		
+        renderer.cam = cam;
+
 		stage.setViewport( width, height, true);
 		
 	}
 
 	@Override
 	public void dispose() {
-		protoRenderer.dispose();
-		postProcessor.dispose();
-
+		renderer.dispose();
 		spriteBatch.dispose();
 		font.dispose();
 		stage.dispose();
@@ -145,7 +126,7 @@ public abstract class AbstractScreen implements Screen{
 	 */
 	public abstract void create();
 	/**
-	 * Draw models using {@link PrototypeRendererGL20}. Everything drawn in this method will also be passed through the post-processor
+	 * Draw models using {@link ForwardRenderer}. Everything drawn in this method will also be passed through the post-processor
 	 * @param delta
 	 */
 	public abstract void drawModels(float delta);
@@ -153,7 +134,7 @@ public abstract class AbstractScreen implements Screen{
 	 * Draw decals here. Everything drawn in this method will also be passed through the post-processor
 	 * @param delta
 	 */
-	public abstract void drawDecals(float delta);
+	public abstract void drawTransparent(float delta);
 	/**
 	 * Draw sprites using sprite batch. Everything drawn here will NOT be post-processed
 	 * @param delta

@@ -14,176 +14,96 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.utils.Array;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.ShaderHandler;
+import com.lyeeedar.Roguelike3D.Graphics.Colour;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 
 public class Material implements Serializable {
 
 	private static final long serialVersionUID = 7913278056780119939L;
 	protected String name;
-	public ArrayList<MaterialAttribute> attributes;
-	
-	public boolean affectedByLighting = true;
 
-	/** This flag is true if material contain blendingAttribute */
-	protected boolean needBlending;
+	public ColorAttribute colourAttribute;
+	public TextureAttribute textureAttribute;
+	public TextureAttribute normalmapAttribute;
 
-	protected transient ShaderProgram shader;
-
-	public ShaderProgram getShader () {
-		return shader;
-	}
-
-	public Material () {
-		attributes = new ArrayList<MaterialAttribute>();
-	}
-
-	public Material (String name, ArrayList<MaterialAttribute> attributes) {
+	public Material (String name) {
 		this.name = name;
-		this.attributes = attributes;
-
-		// this way we foresee if blending is needed with this material and rendering can deferred more easily
-		this.needBlending = false;
-		for (int i = 0; i < this.attributes.size(); i++) {
-			if (this.attributes.get(i) instanceof BlendingAttribute) {
-				this.needBlending = true;
-			}
-		}
-	}
-
-	public Material (String name, MaterialAttribute... attributes) {
-		this.name = name;
-		this.attributes = new ArrayList<MaterialAttribute>(attributes.length);
-		
-		for (MaterialAttribute ma : attributes) this.attributes.add(ma);
-
-		// this way we foresee if blending is needed with this material and rendering can deferred more easily
-		this.needBlending = false;
-		for (int i = 0; i < this.attributes.size(); i++) {
-			if (this.attributes.get(i) instanceof BlendingAttribute) {
-				this.needBlending = true;
-			}
-		}
 	}
 	
-	public void addAttributes(MaterialAttribute... attributes)
+	public void setColour(Colour colour)
 	{
-		for (int i = 0; i < attributes.length; i++)
-		{
-			this.attributes.add(attributes[i]);
-		}
+		colourAttribute = new ColorAttribute(colour, ColorAttribute.colour);
+	}
+	
+	public void setTexture(String textureName)
+	{
+		textureAttribute = new TextureAttribute(textureName, 0, TextureAttribute.diffuseTexture);
+		normalmapAttribute = new TextureAttribute(textureName+".map", 2, TextureAttribute.normalmapTexture);
 	}
 
-	public void bind (ShaderProgram program) {
-		for (int i = 0; i < attributes.size(); i++) {
-			attributes.get(i).bind(program);
+	public TextureAttribute bind (ShaderProgram program, LightManager lights, TextureAttribute lastTexture) {
+		if (colourAttribute != null)
+		{
+			colourAttribute.bind(program, lights);
 		}
+		
+		if (lastTexture != null && textureAttribute != null && lastTexture.textureName.equals(textureAttribute.textureName)) return lastTexture;
+		
+		if (normalmapAttribute != null)
+		{
+			normalmapAttribute.bind(program, lights);
+		}
+		if (textureAttribute != null)
+		{
+			textureAttribute.bind(program, lights);
+		}
+		
+		return textureAttribute;
 	}
 
 	public String getName () {
 		return name;
 	}
 
-	public Material copy () {
-		ArrayList<MaterialAttribute> attributes = new ArrayList<MaterialAttribute>(this.attributes.size());
-		for (MaterialAttribute ma : this.attributes) attributes.add(ma);
-
-		for (int i = 0; i < attributes.size(); i++) {
-			attributes.add(this.attributes.get(i).copy());
-		}
-		final Material copy = new Material(name, attributes);
-		copy.shader = this.shader;
-		return copy;
-	}
-
 	@Override
 	public int hashCode () {
-		for (MaterialAttribute ma : attributes)
-		{
-			if (ma instanceof TextureAttribute) return ma.hashCode();
-		}
+		if (textureAttribute != null) return textureAttribute.hashCode();
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + attributes.hashCode();
+		result = prime * result + name.hashCode();
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
-	}
-
-	@Override
-	public boolean equals (Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		Material other = (Material)obj;
-		if (other.affectedByLighting != this.affectedByLighting) return false;
-		if (other.attributes.size() != attributes.size()) return false;
-		for (int i = 0; i < attributes.size(); i++) {
-			if (!attributes.get(i).equals(other.attributes.get(i))) return false;
-		}
-		if (name == null) {
-			if (other.name != null) return false;
-		} else if (!name.equals(other.name)) return false;
-		return true;
-	}
-
-	public boolean shaderEquals (Material other) {
-		if (this == other) return true;
-
-		int len = this.attributes.size();
-		if (len != other.attributes.size()) return false;
-
-		for (int i = 0; i < len; i++) {
-			final String str = this.attributes.get(i).name;
-			if (str == null) return false;
-
-			boolean matchFound = false;
-			for (int j = 0; j < len; j++) {
-				if (str.equals(other.attributes.get(j).name)) {
-					matchFound = true;
-					break;
-				}
-			}
-			if (!matchFound) return false;
-		}
-
-		return true;
-	}
-
-	public void setPooled (Material material) {
-		name = material.name;
-		shader = material.shader;
-		needBlending = material.needBlending;
-		attributes.clear();
-		for (int i = 0, len = material.attributes.size(); i < len; i++) {
-			attributes.add(material.attributes.get(i).pooledCopy());
-		}
-	}
-
-	public boolean isNeedBlending () {
-		return needBlending;
-	}
-
-	public void resetShader () {
-		shader = null;
-	}
-
-	public void generateShader (ShaderHandler materialShaderHandler) {
-		shader = materialShaderHandler.getShader(this);
-	}
-	
-	public void dispose()
-	{
-		for (MaterialAttribute ma : attributes)
-		{
-			ma.dispose();
-		}
 	}
 	
 	public void create()
 	{
-		for (MaterialAttribute ma : attributes)
+		if (colourAttribute != null)
 		{
-			ma.create();
+			colourAttribute.create();
+		}
+		if (normalmapAttribute != null)
+		{
+			normalmapAttribute.create();
+		}
+		if (textureAttribute != null)
+		{
+			textureAttribute.create();
+		}
+	}
+	
+	public void dispose()
+	{
+		if (colourAttribute != null)
+		{
+			colourAttribute.dispose();
+		}
+		if (normalmapAttribute != null)
+		{
+			normalmapAttribute.dispose();
+		}
+		if (textureAttribute != null)
+		{
+			textureAttribute.dispose();
 		}
 	}
 }

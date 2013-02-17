@@ -29,6 +29,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HEAD;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_LEGS;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
+import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Recipe;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 
@@ -61,7 +62,7 @@ public class SaveGame implements Serializable {
 	
 	public TreeMultimap<Integer, Recipe> recipes;
 	public TreeMultimap<Integer, Component> components;
-	public TreeMultimap<Integer, Equippable> equipment;
+	public TreeMultimap<Item_Type, Equippable> equipment;
 	
 
 	public SaveGame() {
@@ -89,7 +90,7 @@ public class SaveGame implements Serializable {
 			Equipment_HAND r_hand,
 			TreeMultimap<Integer, Recipe> recipes,
 			TreeMultimap<Integer, Component> components,
-			TreeMultimap<Integer, Equippable> equipment
+			TreeMultimap<Item_Type, Equippable> equipment
 			)
 	{
 		this.MAX_HEALTH = MAX_HEALTH;

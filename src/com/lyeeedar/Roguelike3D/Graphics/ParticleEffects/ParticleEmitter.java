@@ -195,9 +195,9 @@ public class ParticleEmitter implements Serializable {
 	
 	Vector3 velocity; float atime; Colour start; Colour end; float width; float height;
 	
-	float intensity; float attenuation;
+	float attenuation;
 	
-	public void setTexture(String texture, Vector3 velocity, float atime, Colour start, Colour end, boolean light, float intensity, float attenuation)
+	public void setTexture(String texture, Vector3 velocity, float atime, Colour start, Colour end, boolean light, float attenuation)
 	{
 		this.textureName = texture;
 		this.texture = GameData.loadTexture(texture);
@@ -216,14 +216,13 @@ public class ParticleEmitter implements Serializable {
 		
 		if (light)
 		{
-			this.intensity = intensity;
 			this.attenuation = attenuation;
 			
 			Colour lightCol = new Colour((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
 			
 			if (boundLight == null)
 			{
-				boundLight = new PointLight(new Vector3(x+(vx/2f), y+vy, z+(vz/2)), lightCol, attenuation, intensity);
+				boundLight = new PointLight(new Vector3(x+(vx/2f), y+vy, z+(vz/2)), lightCol, attenuation);
 				boundLightUID = boundLight.UID;
 				GameData.lightManager.addDynamicLight(boundLight);
 			}
@@ -231,7 +230,6 @@ public class ParticleEmitter implements Serializable {
 			{
 				boundLight.colour = lightCol;
 				boundLight.attenuation = attenuation;
-				boundLight.intensity = intensity;
 			}
 		}
 		else
@@ -355,9 +353,7 @@ public class ParticleEmitter implements Serializable {
 		if (boundLight != null)
 		{
 			boundLight.position.set(x, y, z);
-			
-			boundLight.intensity = (float) (intensity * 
-					(1-((1-((float)active.size() / (float)inactive.size())))/2));
+
 			boundLight.attenuation = (float) (attenuation * 
 					(1-((1-((float)inactive.size() / (float)active.size())))/2));
 		}

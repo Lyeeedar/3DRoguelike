@@ -33,7 +33,6 @@ public abstract class UIScreen extends AbstractScreen {
 	public void create() {
 		createSuper();
 	}
-	
 	protected abstract void createSuper();
 
 	@Override
@@ -41,7 +40,7 @@ public abstract class UIScreen extends AbstractScreen {
 	}
 
 	@Override
-	public void drawDecals(float delta) {
+	public void drawTransparent(float delta) {
 	}
 
 	@Override

@@ -18,23 +18,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
+import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
-import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Graphics.PostProcessing.PostProcessor;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
-import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 
 public class InGameScreen extends AbstractScreen {
 	
@@ -64,20 +60,20 @@ public class InGameScreen extends AbstractScreen {
 		
 		for (VisibleObject vo : GameData.levelGraphics.graphics)
 		{
-			vo.render(protoRenderer);
+			vo.render(renderer);
 		}
 		
 		for (LevelObject lo : GameData.level.levelObjects)
 		{	
 			if (!lo.visible) continue;
-			lo.vo.render(protoRenderer);
+			lo.vo.render(renderer);
 		}
 		
 		for (GameActor ga : GameData.level.actors)
 		{
-			ga.draw(protoRenderer);
+			ga.draw(renderer);
 			if (!ga.visible) continue;
-			ga.vo.render(protoRenderer);
+			ga.vo.render(renderer);
 		}
 	}
 	
@@ -85,7 +81,7 @@ public class InGameScreen extends AbstractScreen {
 	int particleNum = 0;
 	ArrayList<ParticleEmitter> visibleEmitters = new ArrayList<ParticleEmitter>();
 	@Override
-	public void drawDecals(float delta) {
+	public void drawTransparent(float delta) {
 		particleNum = 0;
 		visibleEmitters.clear();
 		for (ParticleEmitter pe : GameData.level.particleEmitters)
@@ -159,8 +155,6 @@ public class InGameScreen extends AbstractScreen {
 		
 		font.draw(spriteBatch, desc, 300, 20);
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, screen_height-20);
-		font.draw(spriteBatch, "1: Normal Maps: "+(GameData.lightManager.quality==LightQuality.NORMALMAP), 20, screen_height-40);
-		font.draw(spriteBatch, "2: PostProcessor: "+PostProcessor.ON, 20, screen_height-60);
 	}
 	
 	int count = 1;
@@ -226,50 +220,6 @@ public class InGameScreen extends AbstractScreen {
 		else if (!Gdx.input.isKeyPressed(Keys.TAB))
 		{
 			tabCD = false;
-		}
-		
-		if (Gdx.input.isKeyPressed(Keys.NUM_1) && !cd1) 
-		{
-			if (GameData.lightManager.quality == LightQuality.NORMALMAP)
-			{
-				GameData.lightManager.quality = LightQuality.VERTEX;
-			}
-			else
-			{
-				GameData.lightManager.quality = LightQuality.NORMALMAP;
-			}
-			protoRenderer.updateShader(GameData.lightManager);
-			
-			cd1 = true;
-		}
-		else if (!Gdx.input.isKeyPressed(Keys.NUM_1))
-		{
-			cd1 = false;
-		}
-		
-		if (Gdx.input.isKeyPressed(Keys.EQUALS) && !cdPlus) 
-		{
-			GameData.lightManager.updateLightNum(GameData.lightManager.maxLightsPerModel+1);
-			protoRenderer.updateShader(GameData.lightManager);
-			
-			cdPlus = true;
-		}
-		else if (!Gdx.input.isKeyPressed(Keys.EQUALS))
-		{
-			cdPlus = false;
-		}
-		
-		if (Gdx.input.isKeyPressed(Keys.MINUS) && !cdMinus) 
-		{
-			GameData.lightManager.updateLightNum(GameData.lightManager.maxLightsPerModel-1);
-
-			protoRenderer.updateShader(GameData.lightManager);
-			
-			cdMinus = true;
-		}
-		else if (!Gdx.input.isKeyPressed(Keys.MINUS))
-		{
-			cdMinus = false;
 		}
 		
 		if (paused)
@@ -394,9 +344,6 @@ public class InGameScreen extends AbstractScreen {
 	public void create() {
 		
 		GameData.init(game);
-		
-		protoRenderer = new PrototypeRendererGL20(GameData.lightManager);
-		protoRenderer.cam = cam;
 
 		crosshairs = new Texture(Gdx.files.internal("data/textures/crosshairs.png"));
 		arrow = new Sprite(new Texture(Gdx.files.internal("data/textures/arrow.png")));
@@ -414,7 +361,6 @@ public class InGameScreen extends AbstractScreen {
 	public void show()
 	{
 		Gdx.input.setCursorCatched(true);
-		protoRenderer.lightManager = GameData.lightManager;
 	}
 
 	@Override

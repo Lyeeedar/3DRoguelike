@@ -19,7 +19,8 @@ import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.PrototypeRendererGL20;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class Spawner extends LevelObject {
 
@@ -64,7 +65,7 @@ public class Spawner extends LevelObject {
 		level.actors.add(creature);
 		
 		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 1.5f, 1.5f, 1.5f, 0.075f, 100);
-		p.setTexture("texf", new Vector3(0.0f, 2.5f, 0.0f), 1.0f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 1.5f, 0.03f);
+		p.setTexture("texf", new Vector3(0.0f, 2.5f, 0.0f), 1.0f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 0.03f);
 		
 		GameData.level.particleEmitters.add(p);
 		creature.addParticleEmitter(p);
@@ -76,7 +77,7 @@ public class Spawner extends LevelObject {
 	}
 
 	@Override
-	public void draw(PrototypeRendererGL20 renderer) {
+	public void draw(Renderer renderer) {
 	}
 
 	@Override

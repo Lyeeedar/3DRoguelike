@@ -16,15 +16,12 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Pool;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 
 public class ColorAttribute extends MaterialAttribute {
 
 	private static final long serialVersionUID = 8802901657668185338L;
 	static final public String colour = "u_colour";
-	static final public String specular = "u_specular_colour";
-	static final public String emissive = "u_emissive_colour";
-	static final public String rim = "u_rim_colour";
-	static final public String fog = "u_fog_colour";
 
 	public final Colour color = new Colour();
 
@@ -42,7 +39,7 @@ public class ColorAttribute extends MaterialAttribute {
 	}
 
 	@Override
-	public void bind (ShaderProgram program) {
+	public void bind (ShaderProgram program, LightManager lights) {
 		program.setUniformf(name, color.r, color.g, color.b);
 	}
 

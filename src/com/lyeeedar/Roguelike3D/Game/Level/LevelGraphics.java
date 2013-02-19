@@ -131,7 +131,7 @@ public class LevelGraphics {
 	}
 	
 	int chunkX = 0;
-	public boolean createChunkRow(LightManager lights, boolean bakeStatics)
+	public boolean createChunkRow()
 	{
 		if (chunkX == wBlocks) return true;
 		
@@ -159,8 +159,6 @@ public class LevelGraphics {
 				
 				for (VisibleObject vo : chunkGraphics)
 				{
-					//vo.bakeLights(lights, bakeStatics);
-					
 					graphics.add(vo);
 				}
 			}
@@ -169,6 +167,14 @@ public class LevelGraphics {
 		chunkX++;
 		
 		return false;
+	}
+	
+	public void bakeLights(LightManager lights, boolean bakeStatics)
+	{
+		for (VisibleObject vo : graphics)
+		{
+			vo.bakeLights(lights, bakeStatics);
+		}
 	}
 	
 	public String getTexture(char c, BiomeReader biome)

@@ -90,7 +90,7 @@ public abstract class LevelObject extends GameObject{
 			lo.longDesc = ao.longDesc;
 			
 			ParticleEmitter p = new ParticleEmitter(2.5f, 2, 2.5f, 1.5f, 1.5f, 1.5f, 0.005f, 350);
-			p.setTexture("texf", new Vector3(0.0f, 3.5f, 0.0f), 1.6f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 0.03f);
+			p.setTexture("texf", new Vector3(0.0f, 3.5f, 0.0f), 1.6f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 0.05f, 1.0f, true, true);
 			
 			level.particleEmitters.add(p);
 			lo.addParticleEmitter(p);
@@ -103,7 +103,7 @@ public abstract class LevelObject extends GameObject{
 			lo.longDesc = ao.longDesc;
 			
 			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.01f, 50);
-			p.setTexture("texf", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 0.5f);
+			p.setTexture("texf", new Vector3(0.0f, 2.0f, 0.0f), 0.5f, new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 0.5f, 1.5f, false, true);
 			
 			level.particleEmitters.add(p);
 			lo.addParticleEmitter(p);

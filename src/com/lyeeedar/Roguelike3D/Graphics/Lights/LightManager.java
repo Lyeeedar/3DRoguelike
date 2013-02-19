@@ -17,6 +17,7 @@ import java.util.Comparator;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
@@ -43,6 +44,7 @@ public class LightManager implements Serializable {
 	private transient float[] positions;
 	private transient float[] colors;
 	private transient float[] attenuations;
+	private transient float[] powers;
 
 	public int maxLightsPerModel;
 	private final Colour ambientLight = new Colour();
@@ -69,14 +71,28 @@ public class LightManager implements Serializable {
 	
 	public void fixReferences()
 	{
+		if (maxLightsPerModel == 0) return;
+		
 		colors = new float[3 * maxLightsPerModel];
 		positions = new float[3 * maxLightsPerModel];
 		attenuations = new float[maxLightsPerModel];
+		powers = new float[maxLightsPerModel];
 	}
 	
 	public PointLight getDynamicLight(String UID)
 	{
 		for (PointLight p : dynamicPointLights)
+		{
+			if (p.UID.equals(UID)) return p;
+		}
+		
+		System.err.println("Light not found!");
+		return null;
+	}
+	
+	public PointLight getStaticLight(String UID)
+	{
+		for (PointLight p : staticPointLights)
 		{
 			if (p.UID.equals(UID)) return p;
 		}
@@ -108,6 +124,17 @@ public class LightManager implements Serializable {
 			}
 		}
 	}
+	
+	public void removeStaticLight(String UID) {
+		for (int i = 0; i < staticPointLights.size(); i++)
+		{
+			if (staticPointLights.get(i).UID.equals(UID))
+			{
+				staticPointLights.remove(i);
+				return;
+			}
+		}
+	}
 
 	public void clearAllLights () {
 		dynamicPointLights.clear();
@@ -123,12 +150,15 @@ public class LightManager implements Serializable {
 		colors = new float[3 * maxLightsPerModel];
 		positions = new float[3 * maxLightsPerModel];
 		attenuations = new float[maxLightsPerModel];
+		powers = new float[maxLightsPerModel];
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void calculateDynamicLights (float x, float y, float z) {
+		if (maxLightsPerModel == 0) return;
+		
 		final int maxSize = dynamicPointLights.size();
-		// solve what are lights that influence most
+		// solve the lights that influence most
 		if (maxSize > maxLightsPerModel) {
 
 			for (int i = 0; i < maxSize; i++) {
@@ -157,24 +187,8 @@ public class LightManager implements Serializable {
 			colors[3 * i + 2] = col.b;
 
 			attenuations[i] = light.attenuation;
+			powers[i] = light.power;
 		}
-	}
-
-	public long getDynamicLightsHash()
-	{
-		final int maxSize = dynamicPointLights.size();
-		final int size = maxLightsPerModel > maxSize ? maxSize : maxLightsPerModel;
-		long hash = 1;
-		for (int i = 0; i < size; i++) {
-			final PointLight light = dynamicPointLights.get(i);
-			long temp = 1;
-			for (int ii = 0; ii < light.UID.length(); ii++)
-			{
-				temp += (int)light.UID.charAt(ii);
-			}
-			hash *= temp;
-		}
-		return hash;
 	}
 	
 	/** Apply lights GLES2.0, call calculateLights before applying */
@@ -183,40 +197,48 @@ public class LightManager implements Serializable {
 		shader.setUniform3fv("u_light_positions", positions, 0, maxLightsPerModel * 3);
 		shader.setUniform3fv("u_light_colours", colors, 0, maxLightsPerModel * 3);
 		shader.setUniform1fv("u_light_attenuations", attenuations, 0, maxLightsPerModel);
+		shader.setUniform1fv("u_light_powers", powers, 0, maxLightsPerModel);
 	}
-
-	public void applyGlobalLights (ShaderProgram shader) {
-		shader.setUniformf("u_ambient_light", ambientLight.r, ambientLight.g, ambientLight.b);
+	
+	public void applyAmbient(ShaderProgram shader)
+	{
+		shader.setUniformf("u_colour", ambientLight.r, ambientLight.g, ambientLight.b);
 	}
 	
 	public Vector3 calculateLightAtPoint(Vector3 position, Vector3 normal, boolean bakeStatics)
 	{
-		Vector3 light_agg_col = calculateLight(ambientDir, ambientLight.getColour(), 0, normal);
+		Vector3 h_ambient = ambientLight.getColour().mul(0.5f);
+		Vector3 light_agg_col = h_ambient.add(calculateLight(ambientDir, h_ambient.tmp(), 0, 1, normal));
 		
 		if (!bakeStatics) return light_agg_col;
 		
 		for (PointLight pl : staticPointLights)
 		{
-			Vector3 l_vector = pl.position.tmp();
-			l_vector.sub(position);
+			Vector3 l_vector = pl.position.tmp().sub(position);
 			
-			light_agg_col.add(calculateLight(l_vector, pl.getColourRGB(), pl.attenuation, normal));
+			light_agg_col.add(calculateLight(l_vector, pl.getColourRGB(), pl.attenuation, pl.power, normal));
 		}
-		
 		return light_agg_col;
 	}
 	
-	private Vector3 calculateLight(Vector3 l_vector, Vector3 l_colour, float l_attenuation, Vector3 n_dir)
+	private Vector3 calculateLight(Vector3 l_vector, Vector3 l_colour, float l_attenuation, float l_power, Vector3 n_dir)
 	{
-		if (l_colour.len2() == 0) return new Vector3(0, 0, 0);
-
+		if (l_colour.len2() == 0) return l_colour;
+		
 		float distance = l_vector.len();
-		Vector3 l_dir = l_vector.nor();
-		
-		float attenuation = 1.0f;
-		if (l_attenuation != 0) attenuation = 1.0f / (l_attenuation * distance * distance);
-		float intensity = attenuation * Math.max(0.0f, l_dir.dot(n_dir));
-		
-		return l_colour.mul(intensity);
+	    Vector3 l_dir = l_vector.tmp2().div(distance);
+	    //distance = distance * distance;
+	 
+	    //Intensity of the diffuse light. Saturate to keep within the 0-1 range.
+	    float NdotL = n_dir.dot(l_dir);
+	    float intensity = MathUtils.clamp( NdotL, 0.0f, 1.0f ); // Math.max(0.0f, n_dir.dot(l_dir)
+	    
+	    float attenuation = 1.0f;
+	    if (l_attenuation != 0) attenuation /= (l_attenuation*distance + l_attenuation/10*distance*distance);
+	    
+	    //System.out.println(intensity + "    " + attenuation);
+	 
+	    // Calculate the diffuse light factoring in light color, power and the attenuation
+	   	return l_colour.mul(intensity).mul(l_power).mul(attenuation);
 	}
 }

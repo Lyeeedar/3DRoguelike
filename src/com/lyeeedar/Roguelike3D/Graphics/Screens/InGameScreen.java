@@ -30,6 +30,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.DeferredRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 
 public class InGameScreen extends AbstractScreen {
@@ -55,9 +56,10 @@ public class InGameScreen extends AbstractScreen {
 	@Override
 	public void drawModels(float delta) {
 
-		
 		if (GameData.skyBox != null) GameData.skyBox.render(cam);
 		
+		renderer.begin();
+
 		for (VisibleObject vo : GameData.levelGraphics.graphics)
 		{
 			vo.render(renderer);
@@ -75,6 +77,7 @@ public class InGameScreen extends AbstractScreen {
 			if (!ga.visible) continue;
 			ga.vo.render(renderer);
 		}
+		renderer.end(GameData.lightManager);
 	}
 	
 	float time = 0;
@@ -111,6 +114,7 @@ public class InGameScreen extends AbstractScreen {
 			System.out.println("Java Heap Size: "+Gdx.app.getJavaHeap()/1000000+"mb");
 			System.out.println("Native Heap Size: "+Gdx.app.getNativeHeap()/1000000+"mb");
 			System.out.println("Visible Particles: "+particleNum);
+			System.out.println("Frame Time: "+Gdx.graphics.getRawDeltaTime());
 			time = 1;
 		}
 		
@@ -220,6 +224,18 @@ public class InGameScreen extends AbstractScreen {
 		else if (!Gdx.input.isKeyPressed(Keys.TAB))
 		{
 			tabCD = false;
+		}
+		
+		if (Gdx.input.isKeyPressed(Keys.NUM_1) && !cd1) 
+		{
+			DeferredRenderer.BUFFER++;
+			if (DeferredRenderer.BUFFER == 3) DeferredRenderer.BUFFER = 0;
+			cd1 = true;
+			
+		}
+		else if (!Gdx.input.isKeyPressed(Keys.NUM_1))
+		{
+			cd1 = false;
 		}
 		
 		if (paused)
@@ -361,6 +377,7 @@ public class InGameScreen extends AbstractScreen {
 	public void show()
 	{
 		Gdx.input.setCursorCatched(true);
+		renderer.createShader(GameData.lightManager);
 	}
 
 	@Override

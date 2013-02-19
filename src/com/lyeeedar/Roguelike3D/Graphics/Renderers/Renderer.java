@@ -31,12 +31,15 @@ public abstract class Renderer {
 	public Camera cam;
 	public boolean drawing;
 	protected DrawableManager drawableManager = new DrawableManager();
-
 	
+	public Renderer()
+	{
+		updateResolution();
+	}
+
 	public void begin () {
 		drawing = true;
 	}
-
 
 	public void draw (StillModel model, StillModelAttributes attributes) {
 		if (cam != null) if (!cam.frustum.sphereInFrustum(attributes.getSortCenter(), attributes.getBoundingSphereRadius()*2)) return;
@@ -51,6 +54,7 @@ public abstract class Renderer {
 	public void end (LightManager lightManager) {
 		flush(lightManager);
 		drawing = false;
+		drawableManager.clear();
 	}
 	
 	protected abstract void flush(LightManager lightManager);
@@ -60,6 +64,8 @@ public abstract class Renderer {
 		disposeSuper();
 	}
 	protected abstract void disposeSuper();
+	public abstract void createShader(LightManager lights);
+	public abstract void updateResolution();
 	
 
 	class DrawableManager {

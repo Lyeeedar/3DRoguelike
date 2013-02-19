@@ -225,7 +225,7 @@ public class GameData {
 		if (loadedTextures.containsKey(textureLocation)) return loadedTextures.get(textureLocation);
 		
 		if (!Gdx.files.internal(textureLocation).exists()) {
-			System.err.println("Texture "+textureName+" does not exist!");
+			//System.err.println("Texture "+textureName+" does not exist!");
 			return null;
 		}
 		
@@ -245,7 +245,7 @@ public class GameData {
 		if (loadedMeshes.containsKey(meshLocation)) return loadedMeshes.get(meshLocation);
 		
 		if (!Gdx.files.internal(meshLocation).exists()) {
-			System.err.println("Mesh "+meshName+" does not exist!");
+			//System.err.println("Mesh "+meshName+" does not exist!");
 			return null;
 		}
 		
@@ -297,7 +297,7 @@ public class GameData {
 		RoomReader rReader = new RoomReader(lc.biome, lc.depth);
 		
 		lightManager = lc.getLightManager();
-		lightManager.setAmbient(biome.getAmbientLight(), new Vector3(0, -1, 0));
+		lightManager.setAmbient(biome.getAmbientLight(), new Vector3(0, 1, 0));
 
 		game.loadLevel(biome, rReader, GameScreen.INGAME);
 	}
@@ -308,43 +308,6 @@ public class GameData {
 		
 		GameData.level = level;
 		levelGraphics = graphics;
-		
-		for (GameActor ga : level.actors)
-		{
-			if (ga instanceof Player) {
-				player = (Player) ga;
-				break;
-			}
-		}
-		
-		if (player == null)
-		{
-			player = new Player(new Colour(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 0.5f, GL20.GL_TRIANGLES, "file", "model@");
-			
-			HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
-			DAM_DEF.put(Damage_Type.PIERCE, 50);
-			DAM_DEF.put(Damage_Type.IMPACT, 50);
-			DAM_DEF.put(Damage_Type.TOUCH, 0);
-
-			HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
-			ELE_DEF.put(Element.FIRE, 0);
-			ELE_DEF.put(Element.AIR, 0);
-			ELE_DEF.put(Element.WATER, 0);
-			ELE_DEF.put(Element.WOOD, 0);
-			ELE_DEF.put(Element.METAL, 0);
-			ELE_DEF.put(Element.AETHER, 100);
-			ELE_DEF.put(Element.VOID, 0);
-			
-			player.R_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "sword", "SWING", 15, ELE_DEF, DAM_DEF, 20, 85, false, 3);
-			player.L_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "torch", "STAB", 15, ELE_DEF, DAM_DEF, 71, 13, false, 3);
-			
-			player.create();
-			player.visible = false;
-			
-			level.addActor(player);	
-		}
-		
-		GameStats.setPlayerStats(player);
 		
 		for (GameActor ga : level.actors) {
 			ga.fixReferences();

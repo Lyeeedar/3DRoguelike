@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
+import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
@@ -30,22 +31,9 @@ public class RiggedModel implements Serializable {
 	public Material[] materials;
 	public RiggedModelNode rootNode;
 	
-	static ShaderProgram shader;
-	
 	public RiggedModel(RiggedModelNode node, Material[] materials) {
 		this.rootNode = node;
 		this.materials = materials;
-		
-		if (shader == null) {
-			final String vertexShader = Gdx.files.internal("data/shaders/model/rigged_model.vertex.glsl").readString();
-			final String fragmentShader = Gdx.files.internal("data/shaders/model/rigged_model.fragment.glsl").readString();
-			
-			shader = new ShaderProgram(vertexShader, fragmentShader);
-			if (!shader.isCompiled())
-			{
-				Gdx.app.error("Problem loading shader:", shader.getLog());
-			}
-		}
 	}
 	
 	boolean held = false;
@@ -125,7 +113,7 @@ public class RiggedModel implements Serializable {
 	 * @param length
 	 * @return
 	 */
-	public static RiggedModel getSword(int length)
+	public static RiggedModel getSword(Level level, int length)
 	{
 		RiggedModelNode rootnode = new RiggedModelNode(new RiggedSubMesh[]{}, new int[]{}, new Matrix4(), new Matrix4(), 0, false);
 		rootnode.setParent(null);
@@ -161,12 +149,13 @@ public class RiggedModel implements Serializable {
 		nodeTip.setChilden();
 		
 		Material material = new Material("basic");
+		material.setColour(new Colour());
 		material.setTexture("blank");
 		
 		return new RiggedModel(rootnode, new Material[]{material});
 	}
 	
-	public static RiggedModel getTorch()
+	public static RiggedModel getTorch(Level level)
 	{
 		RiggedModelNode rootnode = new RiggedModelNode(new RiggedSubMesh[]{}, new int[]{}, new Matrix4(), new Matrix4(), 0, false);
 		rootnode.setParent(null);
@@ -183,7 +172,7 @@ public class RiggedModel implements Serializable {
 		RiggedModelNode node1 = new RiggedModelNode(meshes1, new int[]{0}, new Matrix4().setToTranslation(0, -0.5f, -0.5f), new Matrix4(), 100, true);
 		
 		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.02f, 350);
-		p.setTexture("texf", new Vector3(0.0f, -0.7f, 0.0f), 4.0f, new Colour(0.6f, 0.4f, 1.0f, 1.0f), new Colour(0.0f, 0.0f, 0.6f, 1.0f), true, 0.03f);
+		p.setTexture("texf", new Vector3(0.0f, 1.7f, 0.0f), 2.0f, new Colour(0.8f, 1.0f, 0.3f, 1.0f), new Colour(0.9f, 0.2f, 0.0f, 1.0f), true, 0.01f, 1.0f, true, false);
 		p.create();
 		
 		node.setChilden(node1);
@@ -192,9 +181,10 @@ public class RiggedModel implements Serializable {
 		node1.setParent(node);
 		node1.setChilden();
 		
-		GameData.level.particleEmitters.add(p);
+		level.particleEmitters.add(p);
 		
 		Material material = new Material("basic");
+		material.setColour(new Colour());
 		material.setTexture("wood");
 		
 		return new RiggedModel(rootnode, new Material[]{material});

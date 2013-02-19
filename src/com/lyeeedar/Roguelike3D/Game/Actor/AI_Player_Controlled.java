@@ -72,7 +72,7 @@ public class AI_Player_Controlled extends AI_Package {
 		move = delta * 10f;
 		speed = GameData.calculateSpeed(actor.WEIGHT, actor.STRENGTH);
 		
-		actor.velocity.y -= GameData.gravity*move*actor.WEIGHT;
+		actor.velocity.y -= GameData.gravity*move*(float)actor.WEIGHT;
 
 		if (actor.grounded)
 		{
@@ -142,11 +142,11 @@ public class AI_Player_Controlled extends AI_Package {
 		xR = (float)Gdx.input.getDeltaX()*GameObject.xrotate*move;
 		yR = (float)Gdx.input.getDeltaY()*GameObject.yrotate*move;
 		
-		if (xR < -5.0f) xR = -5.0f;
-		else if (xR > 5.0f) xR = 5.0f;
+		if (xR < -15.0f) xR = -15.0f;
+		else if (xR > 15.0f) xR = 15.0f;
 		
-		if (yR < -3.0f) yR = -3.0f;
-		else if (yR > 3.0f) yR = 3.0f;
+		if (yR < -13.0f) yR = -13.0f;
+		else if (yR > 13.0f) yR = 13.0f;
 		
 		actor.Yrotate(yR);
 

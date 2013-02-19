@@ -31,16 +31,18 @@ public class ForwardRenderer extends Renderer {
 	public ForwardRenderer () {
 		
 	}
+	
+	@Override
+	public void createShader(LightManager lights)
+	{
+		shader = ShaderFactory.createShader("forward_vertex", "LIGHTS_NUM "+lights.maxLightsPerModel, ColorAttribute.colour+"Flag", TextureAttribute.diffuseTexture+"Flag");
+	}
 
 	private TextureAttribute lastTexture;
 
+	final Matrix3 normalMatrix = new Matrix3();
 	@Override
 	protected void flush (LightManager lightManager) {
-		
-		if (shader == null)
-		{
-			shader = ShaderFactory.createShader(lightManager, ColorAttribute.colour, TextureAttribute.diffuseTexture);
-		}
 		
 		if (lightManager == null) {}
 		else if (GameData.player != null)
@@ -50,7 +52,6 @@ public class ForwardRenderer extends Renderer {
 		
 		shader.begin();
 		shader.setUniformMatrix("u_pv", cam.combined);
-		lightManager.applyGlobalLights(shader);
 		lightManager.applyDynamicLights(shader);
 
 		drawableManager.drawables.sort(sorter);
@@ -58,14 +59,14 @@ public class ForwardRenderer extends Renderer {
 
 			final Drawable drawable = drawableManager.drawables.get(i);
 
-			final Matrix3 normalMatrix = new Matrix3().set(drawable.model_matrix);
 			final Matrix4 modelMatrix = drawable.model_matrix;
+			normalMatrix.set(modelMatrix);//.toNormalMatrix();
 
 			final Mesh mesh = drawable.mesh;
 			final Material material = drawable.material;
 
-			shader.setUniformMatrix("u_normal_matrix", normalMatrix);
 			shader.setUniformMatrix("u_model_matrix", modelMatrix);
+			if (lightManager.maxLightsPerModel > 0) shader.setUniformMatrix("u_normal_matrix", normalMatrix);
 
 			lastTexture = material.bind(shader, lightManager, lastTexture);
 
@@ -73,15 +74,17 @@ public class ForwardRenderer extends Renderer {
 		}
 
 		shader.end();
+		lastTexture = null;
 
-		drawing = false;
-
-		drawableManager.clear();
 	}
 
 	@Override
 	protected void disposeSuper () {
 		shader.dispose();
+	}
+
+	@Override
+	public void updateResolution() {
 	}
 
 }

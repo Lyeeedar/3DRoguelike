@@ -92,6 +92,7 @@ public class Door extends LevelObject {
 			this.vo.dispose();
 			VisibleObject vo2 = new VisibleObject(vo.primitive_type, vo.colour, vo.texture, vo.scale, "cube", ""+lx, ""+ly, ""+lz);
 			vo2.create();
+			vo2.bakeLights(GameData.lightManager, true);
 			this.vo = vo2;
 			
 			this.hingex = hingex;

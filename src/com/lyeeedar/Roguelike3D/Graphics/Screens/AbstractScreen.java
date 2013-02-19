@@ -20,6 +20,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
+import com.lyeeedar.Roguelike3D.Graphics.Renderers.DeferredRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
  
@@ -51,7 +53,7 @@ public abstract class AbstractScreen implements Screen{
 
 		stage = new Stage(0, 0, true, spriteBatch);
 		
-		renderer = new ForwardRenderer();
+		renderer = new ForwardRenderer();//new DeferredRenderer();
 	}
 
 	@Override
@@ -69,9 +71,7 @@ public abstract class AbstractScreen implements Screen{
 		Gdx.graphics.getGL20().glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.graphics.getGL20().glDepthMask(true);	
 		
-		renderer.begin();
 		drawModels(delta);
-		renderer.end(GameData.lightManager);
 		
 		Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
 		
@@ -101,12 +101,14 @@ public abstract class AbstractScreen implements Screen{
 		screen_height = height;
 
         cam = new PerspectiveCamera(75, width, height);
-        cam.near = 0.1f;
+        cam.near = 1.5f;
         cam.far = 175;
         
         renderer.cam = cam;
 
 		stage.setViewport( width, height, true);
+		
+		renderer.updateResolution();
 		
 	}
 

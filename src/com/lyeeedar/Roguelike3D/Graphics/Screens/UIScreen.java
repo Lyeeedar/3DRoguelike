@@ -13,6 +13,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 
 public abstract class UIScreen extends AbstractScreen {
 	
@@ -53,5 +54,4 @@ public abstract class UIScreen extends AbstractScreen {
 	}
 	
 	protected abstract void superSuperDispose();
-
 }

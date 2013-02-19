@@ -112,8 +112,7 @@ public class Component extends Item {
 		return type;
 	}
 	
-	@Override
-	public String toString()
+	public String getString()
 	{
 		return "--------------------" + "\n" +
 				"Name: " +name+"\n" +

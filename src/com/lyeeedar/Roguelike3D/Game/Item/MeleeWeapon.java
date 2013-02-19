@@ -55,8 +55,7 @@ public class MeleeWeapon extends Equipment_HAND {
 		return null;
 	}
 	
-	@Override
-	public String toString()
+	public String getString()
 	{
 		String elements = "";
 		for (Element ele : Element.values())
@@ -136,5 +135,15 @@ public class MeleeWeapon extends Equipment_HAND {
 		{
 			model.rootNode.position.setToTranslation(actor.getRadius(), 0, -2);
 		}
+	}
+
+	@Override
+	public Table getDescriptionWidget(Skin skin) {
+		return null;
+	}
+
+	@Override
+	public Table getComparisonWidget(Equippable other, Skin skin) {
+		return null;
 	}
 }

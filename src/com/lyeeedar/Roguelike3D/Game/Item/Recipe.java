@@ -18,6 +18,7 @@ import java.util.Map;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
@@ -370,6 +371,6 @@ class Recipe_Melee_Weapon extends Recipe_Type
 			weight += recipe.getComponentAmount(entry.getKey()) * entry.getValue().weight_per_amount;
 		}
 		
-		return Equipment_HAND.getWeapon(WeaponType.MELEE, visualType, ""+style, strength, elemental, damage, attackSpeed, weight, false, 2);
+		return Equipment_HAND.getWeapon(WeaponType.MELEE, visualType, ""+style, strength, elemental, damage, attackSpeed, weight, false, 2, GameData.level);
 	}
 }

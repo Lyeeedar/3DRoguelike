@@ -173,7 +173,12 @@ public class ParticleEmitter implements Serializable {
 	
 	public void fixReferences()
 	{
-		if (boundLightUID != null) boundLight = GameData.lightManager.getDynamicLight(boundLightUID);
+		if (boundLightUID != null) {
+			if (staticLight)
+				boundLight = GameData.lightManager.getStaticLight(boundLightUID);
+			else
+				boundLight = GameData.lightManager.getDynamicLight(boundLightUID);
+		}
 	}
 	
 	public short[] genIndices(int faces)
@@ -195,10 +200,13 @@ public class ParticleEmitter implements Serializable {
 	
 	Vector3 velocity; float atime; Colour start; Colour end; float width; float height;
 	
-	float attenuation;
+	float attenuation; float power;
 	
-	public void setTexture(String texture, Vector3 velocity, float atime, Colour start, Colour end, boolean light, float attenuation)
+	boolean flicker; boolean staticLight;
+	
+	public void setTexture(String texture, Vector3 velocity, float atime, Colour start, Colour end, boolean light, float attenuation, float power, boolean flicker, boolean staticLight)
 	{
+		this.flicker = flicker;
 		this.textureName = texture;
 		this.texture = GameData.loadTexture(texture);
 		this.velocity = velocity;
@@ -207,6 +215,7 @@ public class ParticleEmitter implements Serializable {
 		this.end = end;
 		this.width = this.texture.getWidth();
 		this.height = 1;//this.texture.getHeight();
+		this.staticLight = staticLight;
 		
 		particle[0].set(0, height, 0);
 		particle[1].set(width, height, 0);
@@ -217,14 +226,17 @@ public class ParticleEmitter implements Serializable {
 		if (light)
 		{
 			this.attenuation = attenuation;
+			this.power = power;
 			
 			Colour lightCol = new Colour((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
 			
 			if (boundLight == null)
 			{
-				boundLight = new PointLight(new Vector3(x+(vx/2f), y+vy, z+(vz/2)), lightCol, attenuation);
+				boundLight = new PointLight(new Vector3(x+(vx/2f), y+vy, z+(vz/2)), lightCol, attenuation, power);
 				boundLightUID = boundLight.UID;
-				GameData.lightManager.addDynamicLight(boundLight);
+				
+				if (staticLight) GameData.lightManager.addStaticLight(boundLight);
+				else GameData.lightManager.addDynamicLight(boundLight);
 			}
 			else
 			{
@@ -236,7 +248,8 @@ public class ParticleEmitter implements Serializable {
 		{
 			if (boundLight != null)
 			{
-				GameData.lightManager.removeDynamicLight(boundLight.UID);
+				if (staticLight) GameData.lightManager.removeStaticLight(boundLight.UID);
+				else GameData.lightManager.removeDynamicLight(boundLight.UID);
 				boundLight = null;
 				boundLightUID = null;
 			}
@@ -247,13 +260,16 @@ public class ParticleEmitter implements Serializable {
 	transient float[] verticesQuad;
 	public void render(Camera cam)
 	{
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		Gdx.gl.glDepthMask(false);
+		
 		if (pointMode) {
 			
 			Gdx.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE);
 			Gdx.gl.glEnable(GL11.GL_POINT_SPRITE_OES);
-			Gdx.gl.glEnable(GL20.GL_BLEND); 
-			//Gdx.gl.glBlendFunc(GL20.GL_DST_ALPHA, GL20.GL_SRC_ALPHA);
-			Gdx.gl.glDepthMask(false);
+
 			
 			if (activeShader == 0)
 			{
@@ -275,14 +291,9 @@ public class ParticleEmitter implements Serializable {
 			pointShader.setUniformi("u_texture", 0);
 			meshPoint.setVertices(verticesPoint);
 			meshPoint.render(pointShader, GL20.GL_POINTS);
-
-			Gdx.gl.glDepthMask(true);
 		}
 		else
 		{
-			Gdx.gl.glEnable(GL20.GL_BLEND);
-			Gdx.gl.glDepthMask(false);
-			
 			if (activeShader == 0)
 			{
 				activeShader = 2;
@@ -303,9 +314,9 @@ public class ParticleEmitter implements Serializable {
 			
 			meshQuad.setVertices(verticesQuad);
 			meshQuad.render(quadShader, GL20.GL_TRIANGLES);
-
-			Gdx.gl.glDepthMask(true);
 		}
+		Gdx.gl.glDepthMask(true);
+		Gdx.gl.glDisable(GL20.GL_BLEND);
 	}
 	
 	public static void end()
@@ -328,9 +339,9 @@ public class ParticleEmitter implements Serializable {
 		
 		float size = (width > height) ? width : height;
 		
-		size /= ((0.2f * dist)+(0.01f * dist * dist));
+		size /= ((0.5f * dist)+(0.01f * dist * dist));
 		
-		return (cam.viewportWidth/100)*size;
+		return (GameData.resolution[0]/100)*size;
 	}
 	
 	private transient int signx;
@@ -344,6 +355,8 @@ public class ParticleEmitter implements Serializable {
 		x = position.x+ox;
 		y = position.y+oy;
 		z = position.z+oz;
+		
+		if (boundLight != null) boundLight.position.set(x, y, z);
 	}
 
 	public void update(float delta, Camera cam)
@@ -352,9 +365,9 @@ public class ParticleEmitter implements Serializable {
 		
 		if (boundLight != null)
 		{
-			boundLight.position.set(x, y, z);
-
-			boundLight.attenuation = (float) (attenuation * 
+			//if (flicker) boundLight.power = (float) (power * (active.size()/inactive.size()));
+			
+			if (flicker) boundLight.attenuation = (float) (attenuation *
 					(1-((1-((float)inactive.size() / (float)active.size())))/2));
 		}
 		

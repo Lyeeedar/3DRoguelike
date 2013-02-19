@@ -19,24 +19,18 @@ import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 public class ShaderFactory {
 
 	static final String DEFINE = "#define ";
-	static final String LIGHT_NUM = "LIGHTS_NUM ";
 
-	static public ShaderProgram createShader (LightManager lights, String... flags) {
+	static public ShaderProgram createShader (String fileName, String... flags) {
 
 		final StringBuilder flagList = new StringBuilder(128);
-		flagList.append(DEFINE);
-		flagList.append(LIGHT_NUM);
-		flagList.append(lights.maxLightsPerModel);
 		
-		flagList.append("\n");
-
 		for (int i = 0; i < flags.length; i++) {
 			flagList.append(DEFINE);
 			flagList.append(flags[i]);
 			flagList.append("\n");
 		}
 
-		String fileName = ""+lights.quality;
+		fileName = fileName.toLowerCase();
 		
 		final String vertexShader = flagList + Gdx.files.internal("data/shaders/model/" + fileName + ".vertex.glsl").readString();
 		final String fragmentShader = flagList + Gdx.files.internal("data/shaders/model/" + fileName + ".fragment.glsl").readString();
@@ -46,6 +40,9 @@ public class ShaderFactory {
 		if (!shader.isCompiled())
 		{
 			Gdx.app.error("Problem loading shader:", shader.getLog());
+			
+			System.out.println(vertexShader);
+			System.out.println(fragmentShader);
 		}
 		
 		return shader;

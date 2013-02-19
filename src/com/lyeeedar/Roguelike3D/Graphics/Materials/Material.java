@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 
 public class Material implements Serializable {
 
@@ -38,7 +39,7 @@ public class Material implements Serializable {
 	public void setTexture(String textureName)
 	{
 		textureAttribute = new TextureAttribute(textureName, 0, TextureAttribute.diffuseTexture);
-		normalmapAttribute = new TextureAttribute(textureName+".map", 2, TextureAttribute.normalmapTexture);
+		normalmapAttribute = new TextureAttribute(textureName+".map", 0, TextureAttribute.normalmapTexture);
 	}
 
 	public TextureAttribute bind (ShaderProgram program, LightManager lights, TextureAttribute lastTexture) {
@@ -48,8 +49,8 @@ public class Material implements Serializable {
 		}
 		
 		if (lastTexture != null && textureAttribute != null && lastTexture.textureName.equals(textureAttribute.textureName)) return lastTexture;
-		
-		if (normalmapAttribute != null)
+
+		if (lights.quality != LightQuality.FORWARD_VERTEX && normalmapAttribute != null)
 		{
 			normalmapAttribute.bind(program, lights);
 		}

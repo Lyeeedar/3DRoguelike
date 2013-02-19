@@ -45,6 +45,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND.WeaponType;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
+import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
@@ -450,7 +451,7 @@ public class MonsterEvolver extends XMLReader {
 		return drop;
 	}
 
-	public GameActor getMonster(int difficulty)
+	public GameActor getMonster(int difficulty, Level level)
 	{
 		Creature_Evolver ce = EVOLVED_CREATURES[difficulty];
 		
@@ -479,7 +480,8 @@ public class MonsterEvolver extends XMLReader {
 					ce.attack_right.atk_speed,
 					ce.attack_right.weight,
 					false,
-					2);
+					2,
+					level);
 			for (Component c : ce.creature.attRDrops)
 			{
 				ga.INVENTORY.put(c.drop_chance, c);
@@ -497,7 +499,8 @@ public class MonsterEvolver extends XMLReader {
 					ce.attack_left.atk_speed,
 					ce.attack_left.weight,
 					false,
-					2);
+					2,
+					level);
 			for (Component c : ce.creature.attLDrops)
 			{
 				ga.INVENTORY.put(c.drop_chance, c);

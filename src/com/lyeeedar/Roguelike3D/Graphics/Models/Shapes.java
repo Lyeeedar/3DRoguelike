@@ -10,6 +10,8 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Models;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
@@ -22,6 +24,100 @@ import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 
 public class Shapes {
+	
+	public static float[] genIcosahedronVertices(float X, float Z)
+	{
+		return new float[]{
+				-X, 0f, Z,
+				X, 0f, Z,
+				-X, 0f, -Z,
+				X, 0f, -Z,
+				0f, Z, X,
+				0f, Z, -X,
+				0f, -Z, X,
+				0f, -Z, -X,
+				Z, X, 0f,
+				-Z, X, 0f,
+				Z, -X, 0f,
+				-Z, -X, 0f
+				}; 
+	}
+	
+	public static short[] genIcosahedronIndicies()
+	{
+		return new short[]
+            {
+                0,4,1,
+                0,9,4,
+                9,5,4,
+                4,5,8,
+                4,8,1,
+                8,10,1,
+                8,3,10,
+                5,3,8,
+                5,2,3,
+                2,7,3,
+                7,10,3,
+                7,6,10,
+                7,11,6,
+                11,0,6,
+                0,1,6,
+                6,1,10,
+                9,0,11,
+                9,11,2,
+                9,2,5,
+                7,2,11 
+            };
+	}
+	
+	public static Mesh genIcosahedronMesh(float x, float z)
+	{
+		Mesh mesh = new Mesh(true, 12, 60, new VertexAttribute(Usage.Position, 3, "a_position"));
+		mesh.setVertices(genIcosahedronVertices(x, z));
+		mesh.setIndices(genIcosahedronIndicies());
+		
+		return mesh;
+	}
+	
+	public static float[] genSphereVertices(float sphereRadius, float heightStep, float degreeStep) {
+		ArrayList<Vector3> points = new ArrayList<Vector3>();
+		for (float y = sphereRadius; y <= sphereRadius; y+=heightStep) {
+			float radius = SphereRadiusAtHeight(sphereRadius, y); //get the radius of the sphere at this height
+			if (radius == 0) {//for the top and bottom points of the sphere add a single point
+				points.add(new Vector3(((float) Math.sin(0) * radius), y, ((float) Math.cos(0) * radius)));
+			} else { //otherwise step around the circle and add points at the specified degrees
+				for (float d = 0; d <= 360; d += degreeStep) {
+					points.add(new Vector3(((float) Math.sin(d) * radius), y, ((float) Math.cos(d) * radius)));
+				}
+			}
+		}
+		
+		float[] vertices = new float[points.size()*3];
+		
+		for (int i = 0; i < points.size(); i++)
+		{
+			vertices[(i*3)+0] = points.get(i).x;
+			vertices[(i*3)+1] = points.get(i).y;
+			vertices[(i*3)+2] = points.get(i).z;
+		}
+		
+		return vertices;
+	}
+	
+	public static Mesh genSphereMesh(float radius, float hstep, float dstep)
+	{
+		float[] vertices = genSphereVertices(radius, hstep, dstep);
+		
+		Mesh mesh = new Mesh(true, vertices.length/3, 0, new VertexAttribute(Usage.Position, 3, "a_position"));
+		
+		mesh.setVertices(vertices);
+		
+		return mesh;
+	}
+
+	public static float SphereRadiusAtHeight(float SphereRadius, float Height) {
+		return (float) Math.sqrt((SphereRadius * SphereRadius) - (Height * Height));
+	}
 
 	public static Mesh genCuboid(Vector3 dimensions)
 	{
@@ -435,7 +531,7 @@ public class Shapes {
 		int normalOffset = attributes.getOffset(Usage.Normal);
 		
 		Matrix4 normal_matrix = new Matrix4();
-		normal_matrix.set(model_matrix);
+		normal_matrix.set(model_matrix);//.toNormalMatrix();
 		
 		Vector3 position = new Vector3();
 		
@@ -450,9 +546,9 @@ public class Shapes {
 			position.set(verts[(i*vertexSize)+positionOffset], verts[(i*vertexSize)+positionOffset+1], verts[(i*vertexSize)+positionOffset+2]).mul(model_matrix);
 
 			Vector3 normal = new Vector3(verts[(i*vertexSize)+normalOffset], verts[(i*vertexSize)+normalOffset+1], verts[(i*vertexSize)+normalOffset+2]);
-			normal.mul(normal_matrix).nor();
+			normal.rot(normal_matrix).nor();
 
-			Vector3 light_colour = lights.calculateLightAtPoint(position, normal.nor(), bakeStatics);
+			Vector3 light_colour = lights.calculateLightAtPoint(position, normal, bakeStatics);
 			
 			newVerts[ (i*newVertexSize) + j ] = light_colour.x;
 			newVerts[ (i*newVertexSize) + j + 1 ] = light_colour.y;

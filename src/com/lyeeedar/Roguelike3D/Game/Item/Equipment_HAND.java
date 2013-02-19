@@ -59,16 +59,16 @@ public abstract class Equipment_HAND extends Equippable{
 
 	public static Equipment_HAND getWeapon(String typeString, String visualType, String styleString, 
 			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
-			float attack_speed, float weight, boolean two_handed, int range) {
+			float attack_speed, float weight, boolean two_handed, int range, Level level) {
 		
 		WeaponType type = convertStringtoWepType(typeString);
 		
-		return getWeapon(type, visualType, styleString, strength, ele_dam, dam_dam, attack_speed, weight, two_handed, range);
+		return getWeapon(type, visualType, styleString, strength, ele_dam, dam_dam, attack_speed, weight, two_handed, range, level);
 	}
 	
 	public static Equipment_HAND getWeapon(WeaponType type, String visualType, String styleString, 
 			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
-			float attack_speed, float weight, boolean two_handed, int range) {
+			float attack_speed, float weight, boolean two_handed, int range, Level level) {
 		
 		Equipment_HAND weapon = null;
 		RiggedModel model = null;
@@ -77,11 +77,11 @@ public abstract class Equipment_HAND extends Equippable{
 		{
 			if (visualType.equalsIgnoreCase("sword"))
 			{
-				model = RiggedModel.getSword(range);
+				model = RiggedModel.getSword(level, range);
 			}
 			else if (visualType.equalsIgnoreCase("torch"))
 			{
-				model = RiggedModel.getTorch();
+				model = RiggedModel.getTorch(level);
 			}
 			weapon = new MeleeWeapon(MeleeWeapon.convertWeaponStyle(styleString),  
 					strength, ele_dam, dam_dam,

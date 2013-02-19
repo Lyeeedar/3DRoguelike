@@ -14,8 +14,11 @@ import java.io.Serializable;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
+import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 
 public class PointLight implements Comparable, Serializable {
 	
@@ -28,8 +31,8 @@ public class PointLight implements Comparable, Serializable {
 
 	final public Vector3 position;
 	public Colour colour;
-
 	public float attenuation;
+	public float power;
 
 	protected int priority;
 
@@ -38,13 +41,33 @@ public class PointLight implements Comparable, Serializable {
 	private final Vector3 tmpVec = new Vector3();
 	
 	public transient Mesh area;
+	public transient float radius;
 
-	public PointLight(Vector3 position, Colour colour, float attentuation)
+	public PointLight(Vector3 position, Colour colour, float attentuation, float power)
 	{
 		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.position = position;
 		this.colour = colour;
 		this.attenuation = attentuation;
+		this.power = power;
+		
+		computeMesh();
+	}
+	
+	public void computeMesh()
+	{
+		Vector3 intensity = colour.getColour().mul(power);
+		float dist = 1;
+		while (intensity.len2() > 0.5f)
+		{
+			intensity = colour.getColour().mul(power).div((attenuation + (attenuation/10)*dist)*dist);
+			dist++;
+		}
+		
+		if (area == null) area = Shapes.genIcosahedronMesh(dist, dist);
+		area.setVertices(Shapes.genIcosahedronVertices(dist, dist));
+		
+		radius = dist;
 	}
 	
 	public void positionAbsolutely(float x, float y, float z)
@@ -56,16 +79,6 @@ public class PointLight implements Comparable, Serializable {
 	{
 		position.set(pos);
 	}
-	
-	public void transform(float x, float y, float z)
-	{
-		transform(tmpVec.set(x, y, z));
-	}
-	
-	public void transform(Vector3 amount)
-	{
-		position.add(amount);
-	}
 
 	@Override
 	public int compareTo (Object other) {
@@ -74,12 +87,20 @@ public class PointLight implements Comparable, Serializable {
 	
 	public Vector3 getColourRGB()
 	{
-		return new Vector3(colour.r, colour.g, colour.b);
+		return colour.getColour();
 	}
 	
 	public void fixReferences()
 	{
-		
+		computeMesh();
+	}
+	
+	public void bind(ShaderProgram shader)
+	{
+		shader.setUniformf("u_model", position);
+		shader.setUniformf("u_colour", colour.r, colour.g, colour.b);
+		shader.setUniformf("u_attenuation", attenuation);
+		shader.setUniformf("u_power", power);
 	}
 
 }

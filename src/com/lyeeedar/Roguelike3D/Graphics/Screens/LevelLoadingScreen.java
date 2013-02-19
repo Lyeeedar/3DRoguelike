@@ -11,6 +11,7 @@
 package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -19,8 +20,14 @@ import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
+import com.lyeeedar.Roguelike3D.Game.GameStats;
 import com.lyeeedar.Roguelike3D.Game.Actor.Enemy;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
+import com.lyeeedar.Roguelike3D.Game.Actor.Player;
+import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
+import com.lyeeedar.Roguelike3D.Game.GameData.Element;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND.WeaponType;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
@@ -122,6 +129,47 @@ public class LevelLoadingScreen extends AbstractScreen{
 			level.createActors();
 			level.createParticleEmitters();
 			
+			Player player = null;
+			
+			for (GameActor ga : level.actors)
+			{
+				if (ga instanceof Player) {
+					player = (Player) ga;
+					break;
+				}
+			}
+			
+			if (player == null)
+			{
+				player = new Player(new Colour(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 0.5f, GL20.GL_TRIANGLES, "file", "model@");
+				
+				HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
+				DAM_DEF.put(Damage_Type.PIERCE, 50);
+				DAM_DEF.put(Damage_Type.IMPACT, 50);
+				DAM_DEF.put(Damage_Type.TOUCH, 0);
+
+				HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
+				ELE_DEF.put(Element.FIRE, 0);
+				ELE_DEF.put(Element.AIR, 0);
+				ELE_DEF.put(Element.WATER, 0);
+				ELE_DEF.put(Element.WOOD, 0);
+				ELE_DEF.put(Element.METAL, 0);
+				ELE_DEF.put(Element.AETHER, 100);
+				ELE_DEF.put(Element.VOID, 0);
+				
+				player.R_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "sword", "SWING", 15, ELE_DEF, DAM_DEF, 20, 85, false, 3, level);
+				player.L_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "torch", "STAB", 15, ELE_DEF, DAM_DEF, 71, 13, false, 3, level);
+				
+				player.create();
+				player.visible = false;
+				
+				level.addActor(player);	
+			}
+			
+			GameStats.setPlayerStats(player);
+			
+			GameData.player = player;
+			
 			percent += taskSteps;
 			loadingStage++;
 		}
@@ -150,7 +198,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		else if (loadingStage == 5)
 		{
 			message = "Coalescing Matter";
-			boolean done = graphics.createChunkRow(GameData.lightManager, true);
+			boolean done = graphics.createChunkRow();
 			percent += taskSteps;
 			
 			if (done) loadingStage++;
@@ -158,9 +206,11 @@ public class LevelLoadingScreen extends AbstractScreen{
 		else if (loadingStage == 6)
 		{
 			message = "Baking Lights";
+
+			graphics.bakeLights(GameData.lightManager, true);
 			for (LevelObject lo : level.levelObjects)
 			{
-				lo.vo.bakeLights(GameData.lightManager, false);
+				lo.vo.bakeLights(GameData.lightManager, true);
 			}
 			for (GameActor ga : level.actors)
 			{
@@ -190,11 +240,12 @@ public class LevelLoadingScreen extends AbstractScreen{
 
 	@Override
 	public void drawModels(float delta) {
-		
+		renderer.begin();
 		for (GameObject go : objects)
 		{
 			go.vo.render(renderer);
 		}
+		renderer.end(lightManager);
 	}
 	
 	@Override
@@ -227,16 +278,20 @@ public class LevelLoadingScreen extends AbstractScreen{
 
 		cam.update();
 	}
+	
+	LightManager lightManager;
 
 	@Override
 	public void create() {
 		
-		LightManager lightManager = new LightManager(0, LightQuality.FORWARD_VERTEX);
+		lightManager = new LightManager(0, LightQuality.FORWARD_VERTEX);
 		
 		renderer = new ForwardRenderer();
+		renderer.createShader(lightManager);
 
 		GameObject go = new Enemy(new Colour(), "icon", 0, 0, -4, 0.5f, GL20.GL_TRIANGLES, "cube", "2", "2", "2");
 		go.create();
+		go.vo.bakeLights(lightManager, true);
 
 		objects.add(go);
 		
@@ -274,5 +329,4 @@ public class LevelLoadingScreen extends AbstractScreen{
 	@Override
 	public void superDispose() {
 	}
-
 }

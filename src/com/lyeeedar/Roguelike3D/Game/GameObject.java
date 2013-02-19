@@ -55,8 +55,8 @@ public abstract class GameObject implements Serializable {
 
 	public static final float PHYSICS_DAMAGE_THRESHHOLD = 2.0f;
 	
-	public final static float xrotate = -800f/720f;
-	public final static float yrotate = -600f/720f;
+	public final static float xrotate = -360f/400f;
+	public final static float yrotate = -360f/400f;
 	
 	public final String UID;
 	
@@ -139,7 +139,9 @@ public abstract class GameObject implements Serializable {
 	
 	public abstract void created();
 
-	public void applyMovement()
+	private final Vector3 tmpVelocity = new Vector3();
+	
+	public void applyMovement(float delta, float vertical_acceleration)
 	{
 		if (velocity.len2() == 0) return;
 		
@@ -157,23 +159,28 @@ public abstract class GameObject implements Serializable {
 		
 		Level lvl = GameData.level;
 		
-		Tile below = lvl.getTile(position.x/10, position.z/10) ;
+		tmpVelocity.set(velocity.x, (velocity.y - 0.5f*vertical_acceleration*delta), velocity.z);
+		tmpVelocity.mul(delta*100);
+		
+		Tile below = lvl.getTile(position.x/10, position.z/10);
+		
+		//float vertical_movement = (velocity.y - 0.5f*vertical_acceleration*delta)*delta*100;
 		
 		// Check for collision
-		if (lvl.checkCollision(position.tmp().add(velocity), vo.attributes.radius, UID))
+		if (lvl.checkCollision(position.tmp().add(tmpVelocity), vo.attributes.radius, UID))
 		{
 			// Collision! Now time to find which axis the collision was on. (Vertical or Horizontal)
 			
 			// ----- Check Vertical START ----- //
 			
-			if ((lvl.checkEntities(position.tmp().add(0, velocity.y, 0), vo.attributes.radius, UID) != null) || 
-					(lvl.checkLevelObjects(position.tmp().add(0, velocity.y, 0), vo.attributes.radius) != null))
+			if ((lvl.checkEntities(position.tmp().add(0, tmpVelocity.y, 0), vo.attributes.radius, UID) != null) || 
+					(lvl.checkLevelObjects(position.tmp().add(0, tmpVelocity.y, 0), vo.attributes.radius) != null))
 			{
 				velocity.y = 0;
 				grounded = true;
 			}
 			// below
-			else if (position.y+velocity.y-getRadius() < below.floor) {
+			else if (position.y+tmpVelocity.y-getRadius() < below.floor) {
 				velocity.y = 0;
 				tmpVec.set(position);
 				this.positionYAbsolutely(below.floor+getRadius());
@@ -185,7 +192,7 @@ public abstract class GameObject implements Serializable {
 				grounded = true;
 			}
 			// above
-			else if (lvl.hasRoof && position.y+velocity.y+getRadius() > below.roof) {
+			else if (lvl.hasRoof && position.y+tmpVelocity.y+getRadius() > below.roof) {
 				velocity.y = 0;
 				tmpVec.set(position);
 				this.positionYAbsolutely(below.roof-vo.attributes.radius);
@@ -199,7 +206,7 @@ public abstract class GameObject implements Serializable {
 			// No y collision
 			else
 			{
-				this.translate(0, velocity.y, 0);
+				this.translate(0, tmpVelocity.y, 0);
 				grounded = false;
 			}
 			
@@ -208,39 +215,34 @@ public abstract class GameObject implements Serializable {
 			
 			// ----- Check Horizontal START ----- //
 			
-			if (lvl.checkCollision(position.tmp().add(velocity.x, 0, velocity.z), vo.attributes.radius, UID)) {
+			if (lvl.checkCollision(position.tmp().add(tmpVelocity.x, 0, tmpVelocity.z), vo.attributes.radius, UID)) {
 
-				if (lvl.checkCollision(position.tmp().add(velocity.x, 0, 0), vo.attributes.radius, UID)) {
-					getVelocity().x = 0;
+				if (lvl.checkCollision(position.tmp().add(tmpVelocity.x, 0, 0), vo.attributes.radius, UID)) {
+					velocity.x = 0;
+					tmpVelocity.x = 0;
 				}
 
-				if (lvl.checkCollision(position.tmp().add(velocity.x, 0, velocity.z), vo.attributes.radius, UID)) {
-					getVelocity().z = 0;
+				if (lvl.checkCollision(position.tmp().add(tmpVelocity.x, 0, tmpVelocity.z), vo.attributes.radius, UID)) {
+					velocity.z = 0;
+					tmpVelocity.z = 0;
 				}
 			}
 			
-			this.translate(getVelocity().x, 0, getVelocity().z);
+			this.translate(tmpVelocity.x, 0, tmpVelocity.z);
 			
 			// ----- Check Horizontal END ----- //
 		}
 		// No collision! So move normally
 		else
 		{
-			this.translate(velocity);
+			this.translate(tmpVelocity);
 			grounded = false;
 		}
 		
 		if (grounded)
 		{
-			if (getVelocity().x != 0)
-			{
-				getVelocity().x = 0;
-			}
-			
-			if (getVelocity().z != 0)
-			{
-				getVelocity().z = 0;
-			}
+			velocity.x = 0;
+			velocity.z = 0;
 		}
 		
 //		// Work our negated velocity from collision

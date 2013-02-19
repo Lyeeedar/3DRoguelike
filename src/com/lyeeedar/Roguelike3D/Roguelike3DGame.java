@@ -62,6 +62,7 @@ public class Roguelike3DGame extends Game {
 		screens.put(GameScreen.MAINMENU, new MainMenuScreen(this));
 		screens.put(GameScreen.RECIPES, new RecipeScreen(this));
 		screens.put(GameScreen.OPTIONS, new OptionsScreen(this));
+		screens.put(GameScreen.INVENTORY, new InventoryScreen(this));
 		
 		for (Map.Entry<GameScreen, AbstractScreen> entry : screens.entrySet())
 		{

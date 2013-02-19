@@ -157,8 +157,8 @@ public class LevelLoadingScreen extends AbstractScreen{
 				ELE_DEF.put(Element.AETHER, 100);
 				ELE_DEF.put(Element.VOID, 0);
 				
-				player.R_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "sword", "SWING", 15, ELE_DEF, DAM_DEF, 20, 85, false, 3, level);
-				player.L_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "torch", "STAB", 15, ELE_DEF, DAM_DEF, 71, 13, false, 3, level);
+				player.R_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "sword", "SWING", 15, ELE_DEF, DAM_DEF, 20, 85, false, 3, 2, level);
+				player.L_HAND = Equipment_HAND.getWeapon(WeaponType.MELEE, "torch", "STAB", 15, ELE_DEF, DAM_DEF, 71, 13, false, 3, 1, level);
 				
 				player.create();
 				player.visible = false;

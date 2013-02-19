@@ -481,6 +481,7 @@ public class MonsterEvolver extends XMLReader {
 					ce.attack_right.weight,
 					false,
 					2,
+					1,
 					level);
 			for (Component c : ce.creature.attRDrops)
 			{
@@ -500,6 +501,7 @@ public class MonsterEvolver extends XMLReader {
 					ce.attack_left.weight,
 					false,
 					2,
+					1,
 					level);
 			for (Component c : ce.creature.attLDrops)
 			{
@@ -1967,8 +1969,8 @@ class Evolver_Combat
 
 	int v;
 	int f;
-	int move;
-	public int evaluateAI(Creature_Evolver activeCreature, Creature_Evolver opponentCreature, float positionActive, float positionOpponent)
+	float move;
+	public float evaluateAI(Creature_Evolver activeCreature, Creature_Evolver opponentCreature, float positionActive, float positionOpponent)
 	{
 		if (activeCreature.current_health <= 0 || opponentCreature.current_health <= 0) return 0;
 

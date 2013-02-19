@@ -138,7 +138,7 @@ public class MainMenuScreen extends UIScreen {
 				Component c = new Component(Component_Type.TOOTH, "Tooth thingy", 1, 1, "desc", 1, 50, 10, 10, GameData.getElementMap(), "grasping-claws");
 				GameStats.addComponent(c);
 				
-				game.switchScreen(GameScreen.RECIPES);
+				game.switchScreen(GameScreen.INVENTORY);
 				return false;
 			}
 		});

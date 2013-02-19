@@ -68,7 +68,7 @@ public class AI_Enemy_VFFG extends AI_Package {
 			}
 		}
 		
-		actor.applyMovement();
+		actor.applyMovement(delta, GameData.gravity*10*(float)actor.WEIGHT);
 
 	}
 	

@@ -53,7 +53,7 @@ public abstract class AbstractScreen implements Screen{
 
 		stage = new Stage(0, 0, true, spriteBatch);
 		
-		renderer = new ForwardRenderer();//new DeferredRenderer();
+		renderer = new DeferredRenderer();
 	}
 
 	@Override

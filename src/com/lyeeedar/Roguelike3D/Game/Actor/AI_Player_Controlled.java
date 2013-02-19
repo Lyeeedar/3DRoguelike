@@ -72,16 +72,14 @@ public class AI_Player_Controlled extends AI_Package {
 		move = delta * 10f;
 		speed = GameData.calculateSpeed(actor.WEIGHT, actor.STRENGTH);
 		
-		actor.velocity.y -= GameData.gravity*move*(float)actor.WEIGHT;
-
 		if (actor.grounded)
 		{
-			if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A)) actor.left_right(move*speed);
-			if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D)) actor.left_right(-move*speed);
+			if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A)) actor.left_right(speed);
+			if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D)) actor.left_right(-speed);
 
-			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) actor.forward_backward((move*2)*speed);
+			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) actor.forward_backward(2*speed);
 			else headBob = 0;
-			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) actor.forward_backward(-(move/2)*speed);
+			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) actor.forward_backward(-speed/2);
 
 			if ((actor.grounded) && (Gdx.input.isKeyPressed(Keys.SPACE) && !jumpCD)) 
 			{
@@ -136,11 +134,9 @@ public class AI_Player_Controlled extends AI_Package {
 				actor.R_HAND.released();
 			}
 		}
-		
-		actor.applyMovement();
 
-		xR = (float)Gdx.input.getDeltaX()*GameObject.xrotate*move;
-		yR = (float)Gdx.input.getDeltaY()*GameObject.yrotate*move;
+		xR = (float)Gdx.input.getDeltaX()*GameObject.xrotate;
+		yR = (float)Gdx.input.getDeltaY()*GameObject.yrotate;
 		
 		if (xR < -15.0f) xR = -15.0f;
 		else if (xR > 15.0f) xR = 15.0f;
@@ -149,8 +145,11 @@ public class AI_Player_Controlled extends AI_Package {
 		else if (yR > 13.0f) yR = 13.0f;
 		
 		actor.Yrotate(yR);
-
 		actor.Xrotate(xR);
+		
+		actor.applyMovement(delta, GameData.gravity*10f*(float)actor.WEIGHT);
+		actor.velocity.y -= GameData.gravity*move*(float)actor.WEIGHT;
+
 
 	}
 

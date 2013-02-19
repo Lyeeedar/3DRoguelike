@@ -113,44 +113,44 @@ public class RiggedModel implements Serializable {
 	 * @param length
 	 * @return
 	 */
-	public static RiggedModel getSword(Level level, int length)
+	public static RiggedModel getSword(Level level, int length, float scale)
 	{
 		RiggedModelNode rootnode = new RiggedModelNode(new RiggedSubMesh[]{}, new int[]{}, new Matrix4(), new Matrix4(), 0, false);
 		rootnode.setParent(null);
 		
-		RiggedSubMesh[] meshes = {new RiggedSubMesh("Hilt", GL20.GL_TRIANGLES, 1.0f, "file", "model!"), new RiggedSubMesh("Guard", GL20.GL_TRIANGLES, 1.0f, "file", "model(", "0", "0", "0.4")};	
+		RiggedSubMesh[] meshes = {new RiggedSubMesh("Hilt", GL20.GL_TRIANGLES, scale*0.7f, "file", "model!"), new RiggedSubMesh("Guard", GL20.GL_TRIANGLES, scale, "file", "model(", "0", "0", ""+ scale*0.1f)};	
 		
-		RiggedModelNode hilt = new RiggedModelNode(meshes, new int[]{0, 0}, new Matrix4().setToTranslation(0, 0, 0.7f), new Matrix4(), 0, false);
+		RiggedModelNode hilt = new RiggedModelNode(meshes, new int[]{0, 0}, new Matrix4().setToTranslation(0, 0, scale*0.7f), new Matrix4(), 0, false);
 		
 		hilt.setParent(rootnode);
 		rootnode.setChilden(hilt);
 		
-		RiggedSubMesh[] meshesblade = {new RiggedSubMesh("Blade", GL20.GL_TRIANGLES, 0.5f, "file", "modelHBlade")};
+		RiggedSubMesh[] meshesblade = {new RiggedSubMesh("Blade", GL20.GL_TRIANGLES, scale, "file", "modelHBlade")};
 		
 		RiggedModelNode prevNode = hilt;
 		for (int i = 0; i < length-1; i++)
 		{
-			RiggedModelNode node = new RiggedModelNode(meshesblade, new int[]{0}, new Matrix4().setToTranslation(0, 0, 0.5f), new Matrix4(), 100, true);
+			RiggedModelNode node = new RiggedModelNode(meshesblade, new int[]{0}, new Matrix4().setToTranslation(0, 0, scale), new Matrix4(), 100, true);
 			node.setParent(prevNode);
 			prevNode.setChilden(node);
 			
 			prevNode = node;
 		}
 		
-		RiggedModelNode nodeblade = new RiggedModelNode(meshesblade, new int[]{0}, new Matrix4().setToTranslation(0, 0, 0.34f), new Matrix4(), 100, true);
+		RiggedModelNode nodeblade = new RiggedModelNode(meshesblade, new int[]{0}, new Matrix4().setToTranslation(0, 0, scale), new Matrix4(), 100, true);
 		nodeblade.setParent(prevNode);
 		prevNode.setChilden(nodeblade);
 
-		RiggedSubMesh[] meshestip = {new RiggedSubMesh("Tip", GL20.GL_TRIANGLES, -0.5f, "file", "modelABlade")};
+		RiggedSubMesh[] meshestip = {new RiggedSubMesh("Tip", GL20.GL_TRIANGLES, -scale, "file", "modelABlade")};
 		
-		RiggedModelNode nodeTip = new RiggedModelNode(meshestip, new int[]{0}, new Matrix4().setToTranslation(0, 0, 0.2f), new Matrix4(), 100, true);
+		RiggedModelNode nodeTip = new RiggedModelNode(meshestip, new int[]{0}, new Matrix4().setToTranslation(0, 0, scale*0.2f), new Matrix4(), 100, true);
 		nodeTip.setParent(nodeblade);
 		nodeblade.setChilden(nodeTip);
 		nodeTip.setChilden();
 		
 		Material material = new Material("basic");
 		material.setColour(new Colour());
-		material.setTexture("blank");
+		material.setTexture("rockmag");
 		
 		return new RiggedModel(rootnode, new Material[]{material});
 	}

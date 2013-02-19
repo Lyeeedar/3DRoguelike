@@ -126,6 +126,8 @@ public class InventoryScreen extends UIScreen {
 	public void show() {
 		Gdx.input.setInputProcessor(stage);
 		
+		createLeft();
+		
 	}
 
 	@Override

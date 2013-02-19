@@ -423,9 +423,9 @@ public class GameData {
 		return (int)ele_damage;
 	}
 	
-	public static int calculateSpeed(int weight, int strength)
+	public static float calculateSpeed(int weight, int strength)
 	{
-		return strength / weight;
+		return (float) strength / (float) weight / 10f;
 	}
 
 	public static LevelContainer getCurrentLevelContainer()

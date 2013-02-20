@@ -28,6 +28,7 @@ import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.DeferredRenderer;
@@ -159,6 +160,39 @@ public class InGameScreen extends AbstractScreen {
 		
 		font.draw(spriteBatch, desc, 300, 20);
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, screen_height-20);
+		font.draw(spriteBatch, "Render Type: " + getRenderType(), 20, screen_height-40);
+	}
+	
+	public String getRenderType()
+	{
+		if (GameData.lightQuality == LightQuality.FORWARD_VERTEX)
+		{
+			return "Forward";
+		}
+		else if (DeferredRenderer.BUFFER == 0)
+		{
+			return "Deferred - Final";
+		}
+		else if (DeferredRenderer.BUFFER == 1)
+		{
+			return "Deferred - Geometry";
+		}
+		else if (DeferredRenderer.BUFFER == 2)
+		{
+			return "Deferred - Normals";
+		}
+		else if (DeferredRenderer.BUFFER == 3)
+		{
+			return "Deferred - Depth";
+		}
+		else if (DeferredRenderer.BUFFER == 4)
+		{
+			return "Deferred - Lighting";
+		}
+		else
+		{
+			return "";
+		}
 	}
 	
 	int count = 1;
@@ -229,7 +263,7 @@ public class InGameScreen extends AbstractScreen {
 		if (Gdx.input.isKeyPressed(Keys.NUM_1) && !cd1) 
 		{
 			DeferredRenderer.BUFFER++;
-			if (DeferredRenderer.BUFFER == 3) DeferredRenderer.BUFFER = 0;
+			if (DeferredRenderer.BUFFER == 5) DeferredRenderer.BUFFER = 0;
 			cd1 = true;
 			
 		}
@@ -377,7 +411,22 @@ public class InGameScreen extends AbstractScreen {
 	public void show()
 	{
 		Gdx.input.setCursorCatched(true);
+		if (renderer != null) renderer.dispose();
+		if (GameData.lightQuality == LightQuality.FORWARD_VERTEX)
+		{
+			renderer = new ForwardRenderer();
+		}
+		else if (GameData.lightQuality == LightQuality.DEFERRED)
+		{
+			renderer = new DeferredRenderer();
+		}
+		else
+		{
+			System.err.println("ARRRRRRRGGGGGHHHHHHH!");
+		}
 		renderer.createShader(GameData.lightManager);
+		renderer.updateResolution();
+		renderer.cam = cam;
 	}
 
 	@Override

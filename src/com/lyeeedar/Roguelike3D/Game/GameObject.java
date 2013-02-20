@@ -55,8 +55,8 @@ public abstract class GameObject implements Serializable {
 
 	public static final float PHYSICS_DAMAGE_THRESHHOLD = 2.0f;
 	
-	public final static float xrotate = -360f/400f;
-	public final static float yrotate = -360f/400f;
+	public final static float xrotate = -360f/500f;
+	public final static float yrotate = -360f/500f;
 	
 	public final String UID;
 	

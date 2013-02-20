@@ -3,6 +3,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Screens;
 import java.util.NavigableSet;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -16,8 +17,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.GameStats;
 import com.lyeeedar.Roguelike3D.Game.GameStats.Equipment_Slot;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_BODY;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_BOOTS;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HEAD;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_LEGS;
 import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
+import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 
 public class InventoryScreen extends UIScreen {
 
@@ -76,6 +83,17 @@ public class InventoryScreen extends UIScreen {
 			if (equipped.item == null)
 			{
 				label = selected.getDescriptionWidget(skin);
+				button = new TextButton("Equip", skin);
+				button.addListener(new InputListener() {
+					public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+						equipped.equip(selected);
+
+						createMid();
+						createRight(null);
+						
+						return false;
+					}
+				});
 			}
 			else
 			{
@@ -83,11 +101,10 @@ public class InventoryScreen extends UIScreen {
 				button = new TextButton("Equip", skin);
 				button.addListener(new InputListener() {
 					public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-						equipped.item = selected;
-						
-						createLeft();
+						equipped.equip(selected);
+
 						createMid();
-						createRight(equipped.type);
+						createRight(null);
 						
 						return false;
 					}
@@ -107,17 +124,22 @@ public class InventoryScreen extends UIScreen {
 	{
 		right.clear();
 		
+		if (type == null) return;
+		
 		Table itemList = new Table();
-		NavigableSet<Equippable> items = GameStats.equipment.get(type);
+		NavigableSet<Equippable> items = GameStats.carryEquipment.get(type);
 		ButtonGroup bg = new ButtonGroup();
 		
 		for (Equippable e : items)
 		{
 			if (equipped != null && equipped.item != null && e.UID.equals(equipped.item.UID)) continue;
 			itemList.add(new EquippableButton(skin, e, bg));
+			itemList.row();
 		}
 		
 		ScrollPane scroll = new ScrollPane(itemList, skin);
+		scroll.setColor(0, 0, 0, 1.0f);
+		scroll.setScrollingDisabled(true, false);
 		
 		right.add(scroll);
 	}
@@ -171,7 +193,7 @@ public class InventoryScreen extends UIScreen {
 
 	@Override
 	public void update(float delta) {
-		// TODO Auto-generated method stub
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) game.switchScreen(GameScreen.MAINMENU);
 
 	}
 
@@ -199,6 +221,7 @@ public class InventoryScreen extends UIScreen {
 			addListener(new InputListener() {
 				public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 					equipped = parent;
+					selected = null;
 					
 					createMid();
 					createRight(type);
@@ -206,6 +229,20 @@ public class InventoryScreen extends UIScreen {
 					return true;
 				}
 			});
+			
+			this.add(new Label(""+slot, skin));
+		}
+		
+		public void equip(Equippable e)
+		{
+			item = e;
+			
+			if (slot == Equipment_Slot.HEAD) GameStats.head = (Equipment_HEAD) e;
+			else if (slot == Equipment_Slot.BODY) GameStats.body = (Equipment_BODY) e;
+			else if (slot == Equipment_Slot.LEGS) GameStats.legs = (Equipment_LEGS) e;
+			else if (slot == Equipment_Slot.BOOTS) GameStats.boots = (Equipment_BOOTS) e;
+			else if (slot == Equipment_Slot.L_HAND) GameStats.l_hand = (Equipment_HAND) e;
+			else if (slot == Equipment_Slot.R_HAND) GameStats.r_hand = (Equipment_HAND) e;
 		}
 	}
 	
@@ -243,6 +280,8 @@ public class InventoryScreen extends UIScreen {
 					clicked = false;
 				}
 			});
+			
+			this.add(new Label(e.name, skin));
 		}
 		
 	}

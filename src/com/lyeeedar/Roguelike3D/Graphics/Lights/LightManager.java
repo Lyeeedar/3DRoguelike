@@ -34,8 +34,18 @@ public class LightManager implements Serializable {
 	public static final int maxLights = 16;
 
 	public enum LightQuality {
-		FORWARD_VERTEX, DEFFERED
+		FORWARD_VERTEX, DEFERRED
 	};
+	
+	public static LightQuality getLightQuality(String quality)
+	{
+		for (LightQuality lq : LightQuality.values())
+		{
+			if (quality.equalsIgnoreCase(""+lq)) return lq;
+		}
+		
+		return null;
+	}
 
 	public LightQuality quality;
 
@@ -77,6 +87,9 @@ public class LightManager implements Serializable {
 		positions = new float[3 * maxLightsPerModel];
 		attenuations = new float[maxLightsPerModel];
 		powers = new float[maxLightsPerModel];
+		
+		for (PointLight p : staticPointLights) p.fixReferences();
+		for (PointLight p : dynamicPointLights) p.fixReferences();
 	}
 	
 	public PointLight getDynamicLight(String UID)
@@ -240,5 +253,9 @@ public class LightManager implements Serializable {
 	 
 	    // Calculate the diffuse light factoring in light color, power and the attenuation
 	   	return l_colour.mul(intensity).mul(l_power).mul(attenuation);
+	}
+
+	public Colour getAmbient() {
+		return ambientLight;
 	}
 }

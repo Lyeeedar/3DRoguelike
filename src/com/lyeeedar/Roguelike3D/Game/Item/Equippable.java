@@ -36,8 +36,7 @@ public abstract class Equippable extends Item{
 	public abstract Table getDescriptionWidget(Skin skin);
 	public abstract Table getComparisonWidget(Equippable other, Skin skin);
 	
-	
-	public Table getComparison(float a, float b, Skin skin)
+	public Table getComparison(float a, float b, Skin skin, boolean reverse)
 	{
 		Table table = new Table();
 		
@@ -47,16 +46,22 @@ public abstract class Equippable extends Item{
 		
 		LabelStyle ls = l.getStyle();
 		LabelStyle nls = new LabelStyle();
-		nls.fontColor = (a < b) ? new Color(0.3f, 0.8f, 0.3f, 1.0f) : new Color(0.8f, 0.3f, 0.3f, 1.0f);
+		nls.fontColor = 
+				(a == b) ? new Color(1.0f, 1.0f, 1.0f, 1.0f) :
+					(reverse) ? 
+							(a > b) ? new Color(0.3f, 0.8f, 0.3f, 1.0f) : new Color(0.8f, 0.3f, 0.3f, 1.0f) : 
+							(a < b) ? new Color(0.3f, 0.8f, 0.3f, 1.0f) : new Color(0.8f, 0.3f, 0.3f, 1.0f);
 		nls.background = ls.background;
 		nls.font = ls.font;
 		
 		l.setStyle(nls);
+		
+		table.add(l);
 		
 		return table;
 	}
 	
-	public Table getComparison(int a, int b, Skin skin)
+	public Table getComparison(int a, int b, Skin skin, boolean reverse)
 	{
 		Table table = new Table();
 		
@@ -66,11 +71,17 @@ public abstract class Equippable extends Item{
 		
 		LabelStyle ls = l.getStyle();
 		LabelStyle nls = new LabelStyle();
-		nls.fontColor = (a < b) ? new Color(0.3f, 0.8f, 0.3f, 1.0f) : new Color(0.8f, 0.3f, 0.3f, 1.0f);
+		nls.fontColor = 
+				(a == b) ? new Color(1.0f, 1.0f, 1.0f, 1.0f) :
+					(reverse) ? 
+							(a > b) ? new Color(0.3f, 0.8f, 0.3f, 1.0f) : new Color(0.8f, 0.3f, 0.3f, 1.0f) : 
+							(a < b) ? new Color(0.3f, 0.8f, 0.3f, 1.0f) : new Color(0.8f, 0.3f, 0.3f, 1.0f);
 		nls.background = ls.background;
 		nls.font = ls.font;
 		
 		l.setStyle(nls);
+		
+		table.add(l);
 		
 		return table;
 	}

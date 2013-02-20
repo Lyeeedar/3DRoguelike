@@ -504,7 +504,7 @@ public class ParticleEmitter implements Serializable {
 	
 	public void dispose()
 	{
-		GameData.lightManager.removeDynamicLight(boundLight.UID);
+		if (boundLight != null) GameData.lightManager.removeDynamicLight(boundLight.UID);
 	}
 
 }

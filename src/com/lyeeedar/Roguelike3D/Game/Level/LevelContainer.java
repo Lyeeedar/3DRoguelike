@@ -62,7 +62,7 @@ public class LevelContainer implements Serializable {
 	{
 		if (lightManager == null)
 		{
-			lightManager = new LightManager(GameData.LightsPerModel, GameData.lightQuality);
+			lightManager = new LightManager(1, GameData.lightQuality);
 		}
 		
 		return lightManager;

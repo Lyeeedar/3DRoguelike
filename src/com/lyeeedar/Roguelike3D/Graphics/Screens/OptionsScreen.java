@@ -2,6 +2,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
@@ -40,17 +41,13 @@ public class OptionsScreen extends UIScreen {
 		final CheckBox vsync = new CheckBox("Enable vSync", skin);
 		vsync.setChecked(prefs.getBoolean("vSync"));
 		
-		Label lightLabel = new Label("Light Quality", skin);
-		final SelectBox lights = new SelectBox(new String[]{"Low", "High"}, skin);
-		lights.setSelection(prefs.getString("light-quality"));
-		
-		Label lightnumLabel = new Label("Lights Per Model", skin);
-		final SelectBox lightnum = new SelectBox(new Integer[]{0, 2, 4, 8, 16}, skin);
-		lightnum.setSelection(""+prefs.getInteger("lights-per-model"));
-		
 		Label msaaLabel = new Label("MSAA Samples", skin);
 		final SelectBox msaa = new SelectBox(new Integer[]{0, 2, 4, 8, 16, 32}, skin);
 		msaa.setSelection(""+prefs.getInteger("MSAA-samples"));
+		
+		Label render = new Label("Renderer Type", skin);
+		final SelectBox renderers = new SelectBox(new String[]{"Forward_Vertex", "Deferred"}, skin);
+		renderers.setSelection(prefs.getString("Renderer"));
 		
 		TextButton apply = new TextButton("Apply", skin);
 		apply.addListener(new InputListener() {
@@ -67,15 +64,16 @@ public class OptionsScreen extends UIScreen {
 				
 				prefs.putBoolean("fullscreen", fullscreen.isChecked());
 				prefs.putBoolean("vSync", vsync.isChecked());
-				
-				prefs.putString("light-quality", lights.getSelection());
-				prefs.putInteger("lights-per-model", Integer.parseInt(lightnum.getSelection()));
-				
+
 				prefs.putInteger("MSAA-samples", Integer.parseInt(msaa.getSelection()));
+				
+				prefs.putString("Renderer", renderers.getSelection());
 				
 				prefs.flush();
 				
 				GameData.updateApplication();
+				
+				game.switchScreen(GameScreen.MAINMENU);
 				
 				return false;
 			}
@@ -96,8 +94,7 @@ public class OptionsScreen extends UIScreen {
 				prefs.putBoolean("fullscreen", false);
 				prefs.putBoolean("vSync", true);
 				prefs.putInteger("MSAA-samples", 16);
-				prefs.putString("light-quality", "High");
-				prefs.putInteger("lights-per-model", 8);
+				prefs.putString("Renderer", "Deferred");
 				
 				prefs.flush();
 				
@@ -116,14 +113,11 @@ public class OptionsScreen extends UIScreen {
 		options.row();
 		options.add(vsync);
 		options.row();
-		options.add(lightLabel);
-		options.add(lights);
-		options.row();
-		options.add(lightnumLabel);
-		options.add(lightnum);
-		options.row();
 		options.add(msaaLabel);
 		options.add(msaa);
+		options.row();
+		options.add(render);
+		options.add(renderers);
 		options.row();
 		options.add(apply);
 		options.add(restore);
@@ -172,6 +166,7 @@ public class OptionsScreen extends UIScreen {
 
 	@Override
 	public void update(float delta) {
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) game.switchScreen(GameScreen.MAINMENU);
 	}
 
 }

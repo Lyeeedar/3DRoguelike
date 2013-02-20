@@ -69,7 +69,7 @@ public class SkyBox {
 
 		for (int i = 0; i < vertices.length; i++)
 		{
-			//vertices[i] *= 10;
+			vertices[i] *= 10;
 		}
 		
 		short[] indices = {0, 1, 2, 3, 7, 1, 5, 4, 7, 6, 2, 4, 0, 1};

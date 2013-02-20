@@ -26,7 +26,7 @@ public class ForwardRenderer extends Renderer {
 
 	static final int SIZE = 256;
 
-	public ShaderProgram shader;
+	public static ShaderProgram shader;
 
 	public ForwardRenderer () {
 		
@@ -43,6 +43,8 @@ public class ForwardRenderer extends Renderer {
 	final Matrix3 normalMatrix = new Matrix3();
 	@Override
 	protected void flush (LightManager lightManager) {
+		
+		if (shader == null) return;
 		
 		if (lightManager == null) {}
 		else if (GameData.player != null)
@@ -81,6 +83,7 @@ public class ForwardRenderer extends Renderer {
 	@Override
 	protected void disposeSuper () {
 		shader.dispose();
+		shader = null;
 	}
 
 	@Override

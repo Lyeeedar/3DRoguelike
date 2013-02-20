@@ -28,11 +28,14 @@ public abstract class Equipment_ARMOUR extends Equippable {
 	 */
 	private static final long serialVersionUID = -7412331863128890744L;
 	public int STRENGTH;
-	public HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
-	public HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
+	public HashMap<Element, Integer> ELE_DEF;
+	public HashMap<Damage_Type, Integer> DAM_DEF;
 
-	public Equipment_ARMOUR(float WEIGHT, Item_Type type) {
+	public Equipment_ARMOUR(float WEIGHT, Item_Type type, int strength, HashMap<Element, Integer> ELE_DEF, HashMap<Damage_Type, Integer> DAM_DEF) {
 		super(WEIGHT, type);
+		this.ELE_DEF = ELE_DEF;
+		this.DAM_DEF = DAM_DEF;
+		this.STRENGTH = strength;
 	}
 
 	@Override
@@ -87,11 +90,11 @@ public abstract class Equipment_ARMOUR extends Equippable {
 		table.add(GameData.getRarityLabel(other.rarity, skin));
 		table.row();
 		table.add(new Label("Weight: ", skin));
-		table.add(getComparison(WEIGHT, other.WEIGHT, skin));
+		table.add(getComparison(WEIGHT, other.WEIGHT, skin, true));
 		table.row();
 		if (STRENGTH != 0) {
 			table.add(new Label("Strength Bonus: ", skin));
-			table.add(getComparison(STRENGTH, other.STRENGTH, skin));
+			table.add(getComparison(STRENGTH, other.STRENGTH, skin, false));
 			table.row();
 		}
 
@@ -101,7 +104,7 @@ public abstract class Equipment_ARMOUR extends Equippable {
 		for (Damage_Type dt : Damage_Type.values())
 		{
 			dam.add(new Label("   "+dt+": ", skin));
-			dam.add(getComparison(DAM_DEF.get(dt), other.DAM_DEF.get(dt), skin));
+			dam.add(getComparison(DAM_DEF.get(dt), other.DAM_DEF.get(dt), skin, false));
 			dam.row();
 		}
 		table.add(dam);
@@ -113,7 +116,7 @@ public abstract class Equipment_ARMOUR extends Equippable {
 		for (Element ele : Element.values())
 		{
 			element.add(new Label("   "+ele+": ", skin));
-			element.add(getComparison(ELE_DEF.get(ele), other.ELE_DEF.get(ele), skin));
+			element.add(getComparison(ELE_DEF.get(ele), other.ELE_DEF.get(ele), skin, false));
 			element.row();
 		}
 		table.add(element);

@@ -12,7 +12,7 @@ package com.lyeeedar.Roguelike3D.Game.Item;
 
 import java.io.Serializable;
 
-public abstract class Item implements Serializable, Comparable<Component> {
+public abstract class Item implements Serializable, Comparable<Item> {
 
 	/**
 	 * 
@@ -56,13 +56,13 @@ public abstract class Item implements Serializable, Comparable<Component> {
 	
 
 	@Override
-	public int compareTo(Component o) {
+	public int compareTo(Item i) {
 		
-		int rarity = this.rarity - o.rarity;
+		int rarity = this.rarity - i.rarity;
 		if (rarity != 0) return rarity;
-		else if (o.toString().equals(this.toString())) return 0;
-		else if (o.hashCode() < this.hashCode()) return -1;
-		else if (o.hashCode() > this.hashCode()) return 1;
+		else if (i.toString().equals(this.toString())) return 0;
+		else if (i.hashCode() < this.hashCode()) return -1;
+		else if (i.hashCode() > this.hashCode()) return 1;
 		return 0;
 	}
 }

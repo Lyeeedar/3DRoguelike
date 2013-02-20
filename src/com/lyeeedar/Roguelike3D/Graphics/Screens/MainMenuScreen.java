@@ -23,6 +23,8 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameStats;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
+import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HEAD;
+import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Recipe;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RecipeReader;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
@@ -56,7 +58,7 @@ public class MainMenuScreen extends UIScreen {
 	@Override
 	public void createSuper() {
 
-		Label lblTitle = new Label("EtDotR", skin);
+		Label lblTitle = new Label("Enter the Roguelike Dimension", skin);
 		
 		TextButton btnContinue = new TextButton("Continue", skin);
 		btnContinue.addListener(new InputListener() {
@@ -86,7 +88,7 @@ public class MainMenuScreen extends UIScreen {
 		TextButton btnCredits = new TextButton("Credits", skin);
 		btnCredits.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				game.switchScreen(GameScreen.CREDITS);
+				//game.switchScreen(GameScreen.CREDITS);
 				return false;
 			}
 		});
@@ -99,8 +101,8 @@ public class MainMenuScreen extends UIScreen {
 			}
 		});
 		
-		TextButton btnTest = new TextButton("Test", skin);
-		btnTest.addListener(new InputListener() {
+		TextButton btnRecipe = new TextButton("Recipe", skin);
+		btnRecipe.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				RecipeReader reader = new RecipeReader("sword");
 				Recipe recipe;
@@ -138,6 +140,25 @@ public class MainMenuScreen extends UIScreen {
 				Component c = new Component(Component_Type.TOOTH, "Tooth thingy", 1, 1, "desc", 1, 50, 10, 10, GameData.getElementMap(), "grasping-claws");
 				GameStats.addComponent(c);
 				
+				game.switchScreen(GameScreen.RECIPES);
+				return false;
+			}
+		});
+		
+		TextButton btnInv = new TextButton("Inventory", skin);
+		btnInv.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+
+				for (int i = 0; i < 10; i++)
+				{
+					Equipment_HEAD e = new Equipment_HEAD(i, i, GameData.getElementMap(), GameData.getDamageMap());
+					
+					e.name = "Helmet "+i;
+					e.rarity = i;
+					
+					GameStats.addEquipmentBase(e);
+				}
+
 				game.switchScreen(GameScreen.INVENTORY);
 				return false;
 			}
@@ -157,7 +178,9 @@ public class MainMenuScreen extends UIScreen {
 		table.row();
 		table.add(btnExit).width(300).height(50).padBottom(25);
 		table.row();
-		table.add(btnTest).width(300).height(50).padBottom(25);
+		table.add(btnRecipe).width(300).height(50).padBottom(25);
+		table.row();
+		table.add(btnInv).width(300).height(50).padBottom(25);
 
 
 		table.setFillParent(true);

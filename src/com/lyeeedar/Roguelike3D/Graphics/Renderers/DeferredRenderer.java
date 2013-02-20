@@ -21,15 +21,16 @@ public class DeferredRenderer extends Renderer {
 	
 	public static int BUFFER = 0;
 	
-	ShaderProgram normalShader;
-	ShaderProgram normalmapShader;
-	ShaderProgram lightShader;
-	ShaderProgram finalShader;
+	static ShaderProgram normalShader;
+	static ShaderProgram normalmapShader;
+	static ShaderProgram lightShader;
+	static ShaderProgram finalShader;
+	static ShaderProgram depthShader;
 	
 	ShaderProgram currentShader;
 	
-	FrameBuffer normalBuffer;
-	FrameBuffer lightBuffer;
+	static FrameBuffer normalBuffer;
+	static FrameBuffer lightBuffer;
 	
 	int[] resolution;
 	
@@ -67,6 +68,7 @@ public class DeferredRenderer extends Renderer {
 			{
 				changeShader(normalShader);
 			}
+			currentShader.setUniformf("u_cam", cam.position);
 
 			currentShader.setUniformMatrix("u_model_matrix", modelMatrix);
 			currentShader.setUniformMatrix("u_normal_matrix", normalMatrix);
@@ -82,42 +84,48 @@ public class DeferredRenderer extends Renderer {
 		
 		lightBuffer.begin();
 		
-		Gdx.graphics.getGL20().glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
-		Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
-		Gdx.graphics.getGL20().glBlendFunc(GL20.GL_ONE, GL20.GL_ONE);
-		//Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
-		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
-		
-		changeShader(lightShader);
-		normalBuffer.getColorBufferTexture().bind(0);
-		currentShader.setUniformi("u_normals", 0);
-		currentShader.setUniformMatrix("u_inv_pv", cam.invProjectionView);
-		currentShader.setUniformf("u_screen", resolution[0], resolution[1]);
-		
-		for (PointLight p : lightManager.staticPointLights)
+		if (BUFFER == 1)
 		{
-			if (!cam.frustum.sphereInFrustum(p.position, p.radius)) continue;
-			
-			p.bind(currentShader);
-			p.area.render(currentShader, GL20.GL_TRIANGLES);
+			Gdx.graphics.getGL20().glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+			Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
 		}
-		for (PointLight p : lightManager.dynamicPointLights)
+		else
 		{
-			if (!cam.frustum.sphereInFrustum(p.position, p.radius)) continue;
+			Gdx.graphics.getGL20().glClearColor(lightManager.getAmbient().r/5f, lightManager.getAmbient().g/5f, lightManager.getAmbient().b/5f, 0.0f);
+			Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+			Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
+			Gdx.graphics.getGL20().glBlendFunc(GL20.GL_ONE, GL20.GL_ONE);
+			//Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
+			Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
 			
-			p.bind(currentShader);
-			p.area.render(currentShader, GL20.GL_TRIANGLES);
+			changeShader(lightShader);
+			normalBuffer.getColorBufferTexture().bind(0);
+			currentShader.setUniformi("u_normals", 0);
+			currentShader.setUniformMatrix("u_inv_pv", cam.invProjectionView);
+			currentShader.setUniformf("u_screen", resolution[0], resolution[1]);
+			currentShader.setUniformf("u_cam", cam.position);
+			
+			for (PointLight p : lightManager.staticPointLights)
+			{
+				if (!cam.frustum.sphereInFrustum(p.position, p.radius)) continue;
+				
+				p.bind(currentShader);
+				p.area.render(currentShader, GL20.GL_TRIANGLES);
+			}
+			for (PointLight p : lightManager.dynamicPointLights)
+			{
+				if (!cam.frustum.sphereInFrustum(p.position, p.radius)) continue;
+				
+				p.bind(currentShader);
+				p.area.render(currentShader, GL20.GL_TRIANGLES);
+			}
+			
+			currentShader.end();
 		}
-		
-		currentShader.end();
 		lightBuffer.end();
 		currentShader = null;
 		
 		Gdx.graphics.getGL20().glDisable(GL20.GL_BLEND);
-		Gdx.graphics.getGL20().glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		
 		Gdx.graphics.getGL20().glEnable(GL20.GL_CULL_FACE);
 		Gdx.graphics.getGL20().glCullFace(GL20.GL_BACK);
 		
@@ -129,7 +137,6 @@ public class DeferredRenderer extends Renderer {
 		lightBuffer.getColorBufferTexture().bind(1);
 		currentShader.setUniformi("u_light_texture", 1);
 		
-		lightManager.applyAmbient(currentShader);
 		currentShader.setUniformf("u_screen", resolution[0], resolution[1]);
 		
 		for (int i = drawableManager.drawables.size; --i >= 0;) {
@@ -157,13 +164,21 @@ public class DeferredRenderer extends Renderer {
 		
 		//sB.enableBlending();
 		//sB.setBlendFunction(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_COLOR);
-		if (DeferredRenderer.BUFFER == 1) {
+		if (BUFFER == 2) {
 			sB.disableBlending();
 			sB.begin();
 			sB.draw(normalBuffer.getColorBufferTexture(), 0, 0, resolution[0], resolution[1], 0, 0, resolution[0], resolution[1], false, true);
 			sB.end();
 		}
-		else if (DeferredRenderer.BUFFER == 2) {
+		else if (BUFFER == 3) {
+			sB.disableBlending();
+			sB.setShader(depthShader);
+			sB.begin();
+			sB.draw(normalBuffer.getColorBufferTexture(), 0, 0, resolution[0], resolution[1], 0, 0, resolution[0], resolution[1], false, true);
+			sB.end();
+			sB.setShader(null);
+		}
+		else if (BUFFER == 4) {
 			sB.begin();
 			sB.draw(lightBuffer.getColorBufferTexture(), 0, 0, resolution[0], resolution[1], 0, 0, resolution[0], resolution[1], false, true);
 			sB.end();
@@ -183,16 +198,15 @@ public class DeferredRenderer extends Renderer {
 
 	@Override
 	protected void disposeSuper() {
-		normalShader.dispose();
-		normalmapShader.dispose();
 	}
 
 	@Override
 	public void createShader(LightManager lights) {
-		normalShader = ShaderFactory.createShader("deferred_normals");
-		normalmapShader = ShaderFactory.createShader("deferred_normals", TextureAttribute.normalmapTexture+"Flag");
-		lightShader = ShaderFactory.createShader("deferred_lighting");
-		finalShader = ShaderFactory.createShader("deferred_finalise");
+		if (normalShader == null) normalShader = ShaderFactory.createShader("deferred_normals");
+		if (normalmapShader == null) normalmapShader = ShaderFactory.createShader("deferred_normals", TextureAttribute.normalmapTexture+"Flag");
+		if (lightShader == null) lightShader = ShaderFactory.createShader("deferred_lighting");
+		if (finalShader == null) finalShader = ShaderFactory.createShader("deferred_finalise");
+		if (depthShader == null) depthShader = ShaderFactory.createShader("depth_only");
 	}
 
 	@Override

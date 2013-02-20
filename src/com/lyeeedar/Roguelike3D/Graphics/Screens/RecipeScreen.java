@@ -42,6 +42,7 @@ import com.lyeeedar.Roguelike3D.Game.GameStats;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Game.Item.Recipe;
+import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 
 public class RecipeScreen extends UIScreen {
 	
@@ -331,7 +332,7 @@ public class RecipeScreen extends UIScreen {
 
 	@Override
 	public void update(float delta) {
-
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) game.switchScreen(GameScreen.MAINMENU);
 	}
 	
 	class CraftButton extends Button

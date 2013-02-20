@@ -58,7 +58,8 @@ public class GameStats {
 	
 	public static TreeMultimap<Integer, Recipe> recipes = TreeMultimap.create();
 	public static TreeMultimap<Integer, Component> components = TreeMultimap.create();
-	public static TreeMultimap<Item_Type, Equippable> equipment = TreeMultimap.create();
+	public static TreeMultimap<Item_Type, Equippable> carryEquipment = TreeMultimap.create();
+	public static TreeMultimap<Item_Type, Equippable> baseEquipment = TreeMultimap.create();
 	
 	public static void init()
 	{
@@ -101,14 +102,19 @@ public class GameStats {
 		}
 	}
 	
-	public static void addEquipment(Equippable e)
+	public static void addEquipmentCarry(Equippable e)
 	{
-		equipment.put(e.item_type, e);
+		carryEquipment.put(e.item_type, e);
+	}
+	
+	public static void addEquipmentBase(Equippable e)
+	{
+		baseEquipment.put(e.item_type, e);
 	}
 	
 	public static void save(SaveGame save)
 	{
-		save.setStats(MAX_HEALTH, HEALTH, WEIGHT, STRENGTH, ELE_DEF, DAM_DEF, FACTIONS, head, body, legs, boots, l_hand, r_hand, recipes, components, equipment);
+		save.setStats(MAX_HEALTH, HEALTH, WEIGHT, STRENGTH, ELE_DEF, DAM_DEF, FACTIONS, head, body, legs, boots, l_hand, r_hand, recipes, components, carryEquipment, baseEquipment);
 	}
 	
 	public static void load(SaveGame save)
@@ -128,6 +134,7 @@ public class GameStats {
 		r_hand = save.r_hand;
 		recipes = save.recipes;
 		components = save.components;
-		equipment = save.equipment;
+		carryEquipment = save.carryEquipment;
+		baseEquipment = save.baseEquipment;
 	}
 }

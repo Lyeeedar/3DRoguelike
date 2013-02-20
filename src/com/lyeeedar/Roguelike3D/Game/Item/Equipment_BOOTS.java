@@ -10,6 +10,12 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Item;
 
+import java.util.HashMap;
+
+import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
+import com.lyeeedar.Roguelike3D.Game.GameData.Element;
+import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
+
 public class Equipment_BOOTS extends Equipment_ARMOUR {
 
 	/**
@@ -17,8 +23,8 @@ public class Equipment_BOOTS extends Equipment_ARMOUR {
 	 */
 	private static final long serialVersionUID = 9002690235540692533L;
 
-	public Equipment_BOOTS(float WEIGHT) {
-		super(WEIGHT, Item_Type.ARMOUR_BOOTS);
+	public Equipment_BOOTS(float WEIGHT, int strength, HashMap<Element, Integer> ELE_DEF, HashMap<Damage_Type, Integer> DAM_DEF) {
+		super(WEIGHT, Item_Type.ARMOUR_BOOTS, strength, ELE_DEF, DAM_DEF);
 	}
 
 	@Override

@@ -20,9 +20,7 @@ public abstract class ApplicationChanger {
 			prefs.putBoolean("fullscreen", false);
 			prefs.putBoolean("vSync", true);
 			prefs.putInteger("MSAA-samples", 16);
-			prefs.putString("light-quality", "High");
-			prefs.putInteger("lights-per-model", 8);
-			
+			prefs.putString("Renderer", "Deferred");
 			prefs.flush();
 		}
 	}

@@ -60,11 +60,14 @@ public class PointLight implements Comparable, Serializable {
 		float dist = 1;
 		while (intensity.len2() > 0.5f)
 		{
-			intensity = colour.getColour().mul(power).div((attenuation + (attenuation/10)*dist)*dist);
+			intensity = colour.getColour().mul(power).div((attenuation + (attenuation/5)*dist)*dist);
 			dist++;
 		}
 		
-		if (area == null) area = Shapes.genIcosahedronMesh(dist, dist);
+		dist *= 2;
+		
+		if (area != null) area.dispose();
+		area = Shapes.genIcosahedronMesh(dist, dist);
 		area.setVertices(Shapes.genIcosahedronVertices(dist, dist));
 		
 		radius = dist;

@@ -118,9 +118,9 @@ public class RiggedModel implements Serializable {
 		RiggedModelNode rootnode = new RiggedModelNode(new RiggedSubMesh[]{}, new int[]{}, new Matrix4(), new Matrix4(), 0, false);
 		rootnode.setParent(null);
 		
-		RiggedSubMesh[] meshes = {new RiggedSubMesh("Hilt", GL20.GL_TRIANGLES, scale*0.7f, "file", "model!"), new RiggedSubMesh("Guard", GL20.GL_TRIANGLES, scale, "file", "model(", "0", "0", ""+ scale*0.1f)};	
+		RiggedSubMesh[] meshes = {new RiggedSubMesh("Hilt", GL20.GL_TRIANGLES, scale, "file", "model!"), new RiggedSubMesh("Guard", GL20.GL_TRIANGLES, scale, "file", "model(", "0", "0", ""+ scale*0.54f)};	
 		
-		RiggedModelNode hilt = new RiggedModelNode(meshes, new int[]{0, 0}, new Matrix4().setToTranslation(0, 0, scale*0.7f), new Matrix4(), 0, false);
+		RiggedModelNode hilt = new RiggedModelNode(meshes, new int[]{0, 0}, new Matrix4().setToTranslation(0, 0, scale), new Matrix4(), 0, false);
 		
 		hilt.setParent(rootnode);
 		rootnode.setChilden(hilt);
@@ -171,8 +171,8 @@ public class RiggedModel implements Serializable {
 		
 		RiggedModelNode node1 = new RiggedModelNode(meshes1, new int[]{0}, new Matrix4().setToTranslation(0, -0.5f, -0.5f), new Matrix4(), 100, true);
 		
-		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.02f, 350);
-		p.setTexture("texf", new Vector3(0.0f, 1.7f, 0.0f), 2.0f, new Colour(0.8f, 1.0f, 0.3f, 1.0f), new Colour(0.9f, 0.2f, 0.0f, 1.0f), true, 0.01f, 1.0f, true, false);
+		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.04f, 350);
+		p.setTexture("texf", new Vector3(0.0f, 1.7f, 0.0f), 2.0f, new Colour(0.8f, 1.0f, 0.3f, 1.0f), new Colour(0.9f, 0.2f, 0.0f, 1.0f), true, 0.01f, 0.9f, true, false);
 		p.create();
 		
 		node.setChilden(node1);

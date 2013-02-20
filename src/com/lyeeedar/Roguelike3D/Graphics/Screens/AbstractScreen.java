@@ -52,8 +52,6 @@ public abstract class AbstractScreen implements Screen{
 		spriteBatch = new SpriteBatch();
 
 		stage = new Stage(0, 0, true, spriteBatch);
-		
-		renderer = new DeferredRenderer();
 	}
 
 	@Override
@@ -103,13 +101,13 @@ public abstract class AbstractScreen implements Screen{
         cam = new PerspectiveCamera(75, width, height);
         cam.near = 1.5f;
         cam.far = 175;
-        
-        renderer.cam = cam;
 
 		stage.setViewport( width, height, true);
 		
-		renderer.updateResolution();
-		
+		if (renderer != null) {
+	        renderer.cam = cam;
+			renderer.updateResolution();
+		}
 	}
 
 	@Override

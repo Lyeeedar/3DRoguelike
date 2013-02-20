@@ -129,8 +129,8 @@ public class GameData {
 		FABULOUS(3, 255, 138, 0),
 		RARE(4, 250, 250, 0),
 		UNIQUE(5, 88, 221, 23),
-		MYSTICAL(16, 13, 247, 192),
-		LEGENDARY(37, 50, 41, 209),
+		MYSTICAL(6, 13, 247, 192),
+		LEGENDARY(7, 50, 41, 209),
 		GODLIKE(8, 127, 11, 209),
 		DIVINE(9, 250, 0, 250),
 		TRUE(10, 255, 255, 255)
@@ -171,9 +171,6 @@ public class GameData {
 	}
 	
 	public static LightQuality lightQuality = LightQuality.FORWARD_VERTEX;
-	public static int LightsPerModel = 8;
-	
-	public static boolean updateLights = false;
 	
 	public static LightManager lightManager;
 	
@@ -329,6 +326,11 @@ public class GameData {
 		
 		lightManager.fixReferences();
 		level.fixReferences();
+		
+		for (ParticleEmitter pe : level.particleEmitters)
+		{
+			pe.fixReferences();
+		}
 		
 		for (LevelObject lo : level.levelObjects)
 		{

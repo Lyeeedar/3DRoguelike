@@ -62,7 +62,8 @@ public class SaveGame implements Serializable {
 	
 	public TreeMultimap<Integer, Recipe> recipes;
 	public TreeMultimap<Integer, Component> components;
-	public TreeMultimap<Item_Type, Equippable> equipment;
+	public TreeMultimap<Item_Type, Equippable> carryEquipment = TreeMultimap.create();
+	public TreeMultimap<Item_Type, Equippable> baseEquipment = TreeMultimap.create();
 	
 
 	public SaveGame() {
@@ -90,7 +91,8 @@ public class SaveGame implements Serializable {
 			Equipment_HAND r_hand,
 			TreeMultimap<Integer, Recipe> recipes,
 			TreeMultimap<Integer, Component> components,
-			TreeMultimap<Item_Type, Equippable> equipment
+			TreeMultimap<Item_Type, Equippable> carryEquipment,
+			TreeMultimap<Item_Type, Equippable> baseEquipment
 			)
 	{
 		this.MAX_HEALTH = MAX_HEALTH;
@@ -108,7 +110,8 @@ public class SaveGame implements Serializable {
 		this.r_hand = r_hand;
 		this.recipes = recipes;
 		this.components = components;
-		this.equipment = equipment;
+		this.carryEquipment = carryEquipment;
+		this.baseEquipment = baseEquipment;
 	}
 	
 	public static void save(SaveGame save)

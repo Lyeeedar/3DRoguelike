@@ -256,8 +256,7 @@ public class RiggedModelNode implements Serializable
 	
 	public void fixReferences()
 	{
-
-		if (particleEmitterUID != null) GameData.level.getParticleEmitter(particleEmitterUID);
+		if (particleEmitterUID != null) particleEmitter = GameData.level.getParticleEmitter(particleEmitterUID);
 		
 		for (RiggedModelNode rmn : childNodes)
 		{

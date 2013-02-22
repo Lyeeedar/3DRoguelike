@@ -25,7 +25,8 @@ public class DeferredRenderer extends Renderer {
 	static ShaderProgram normalmapShader;
 	static ShaderProgram lightShader;
 	static ShaderProgram finalShader;
-	static ShaderProgram depthShader;
+	static ShaderProgram depthonlyShader;
+	static ShaderProgram normalonlyShader;
 	
 	ShaderProgram currentShader;
 	
@@ -41,6 +42,7 @@ public class DeferredRenderer extends Renderer {
 	}
 
 	final Matrix3 normalMatrix = new Matrix3();
+	final Matrix4 view = new Matrix4();
 	@Override
 	protected void flush(LightManager lightManager) {
 
@@ -68,8 +70,7 @@ public class DeferredRenderer extends Renderer {
 			{
 				changeShader(normalShader);
 			}
-			currentShader.setUniformf("u_cam", cam.position);
-
+			
 			currentShader.setUniformMatrix("u_model_matrix", modelMatrix);
 			currentShader.setUniformMatrix("u_normal_matrix", normalMatrix);
 
@@ -101,9 +102,12 @@ public class DeferredRenderer extends Renderer {
 			changeShader(lightShader);
 			normalBuffer.getColorBufferTexture().bind(0);
 			currentShader.setUniformi("u_normals", 0);
-			currentShader.setUniformMatrix("u_inv_pv", cam.invProjectionView);
+			//currentShader.setUniformMatrix("u_inv_pv", cam.invProjectionView);
 			currentShader.setUniformf("u_screen", resolution[0], resolution[1]);
 			currentShader.setUniformf("u_cam", cam.position);
+			
+			view.set(cam.view).inv();
+			currentShader.setUniformMatrix("u_inv_v", view);
 			
 			for (PointLight p : lightManager.staticPointLights)
 			{
@@ -166,13 +170,15 @@ public class DeferredRenderer extends Renderer {
 		//sB.setBlendFunction(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_COLOR);
 		if (BUFFER == 2) {
 			sB.disableBlending();
+			sB.setShader(normalonlyShader);
 			sB.begin();
+			normalonlyShader.setUniformMatrix("u_inv_v", view);
 			sB.draw(normalBuffer.getColorBufferTexture(), 0, 0, resolution[0], resolution[1], 0, 0, resolution[0], resolution[1], false, true);
 			sB.end();
 		}
 		else if (BUFFER == 3) {
 			sB.disableBlending();
-			sB.setShader(depthShader);
+			sB.setShader(depthonlyShader);
 			sB.begin();
 			sB.draw(normalBuffer.getColorBufferTexture(), 0, 0, resolution[0], resolution[1], 0, 0, resolution[0], resolution[1], false, true);
 			sB.end();
@@ -194,6 +200,9 @@ public class DeferredRenderer extends Renderer {
 		
 		currentShader.begin();
 		currentShader.setUniformMatrix("u_pv", cam.combined);
+		currentShader.setUniformMatrix("u_v", cam.view);
+		currentShader.setUniformf("u_cam", cam.position);
+		currentShader.setUniformf("u_linearDepth", cam.far-cam.near);
 	}
 
 	@Override
@@ -206,7 +215,8 @@ public class DeferredRenderer extends Renderer {
 		if (normalmapShader == null) normalmapShader = ShaderFactory.createShader("deferred_normals", TextureAttribute.normalmapTexture+"Flag");
 		if (lightShader == null) lightShader = ShaderFactory.createShader("deferred_lighting");
 		if (finalShader == null) finalShader = ShaderFactory.createShader("deferred_finalise");
-		if (depthShader == null) depthShader = ShaderFactory.createShader("depth_only");
+		if (depthonlyShader == null) depthonlyShader = ShaderFactory.createShader("depth_only");
+		if (normalonlyShader == null) normalonlyShader = ShaderFactory.createShader("normal_only");
 	}
 
 	@Override

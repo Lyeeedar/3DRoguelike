@@ -100,7 +100,7 @@ public abstract class AbstractScreen implements Screen{
 
         cam = new PerspectiveCamera(75, width, height);
         cam.near = 1.5f;
-        cam.far = 175;
+        cam.far = 200f;
 
 		stage.setViewport( width, height, true);
 		

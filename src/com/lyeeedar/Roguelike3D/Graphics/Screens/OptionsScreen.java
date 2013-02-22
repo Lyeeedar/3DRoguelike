@@ -34,7 +34,7 @@ public class OptionsScreen extends UIScreen {
 		Label resolutionLabel = new Label("Resolution ", skin);
 		final SelectBox resolutions = new SelectBox(GameData.applicationChanger.getSupportedDisplayModes(), skin);
 		resolutions.setSelection(prefs.getString("resolutionX")+"x"+prefs.getString("resolutionY"));
-		
+
 		final CheckBox fullscreen = new CheckBox("Fullscreen", skin);
 		fullscreen.setChecked(prefs.getBoolean("fullscreen"));
 		
@@ -106,8 +106,25 @@ public class OptionsScreen extends UIScreen {
 			}
 		});
 		
+		TextButton nativeRes = new TextButton("Use Native Resolution", skin);
+		nativeRes.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				prefs.putBoolean("fullscreen", fullscreen.isChecked());
+				prefs.putBoolean("vSync", vsync.isChecked());
+
+				prefs.putInteger("MSAA-samples", Integer.parseInt(msaa.getSelection()));
+				
+				prefs.putString("Renderer", renderers.getSelection());
+				GameData.applicationChanger.setToNativeResolution(prefs);
+				createVideo();
+				return false;
+			}
+		});
+		
 		options.add(resolutionLabel);
 		options.add(resolutions);
+		options.row();
+		options.add(nativeRes);
 		options.row();
 		options.add(fullscreen);
 		options.row();

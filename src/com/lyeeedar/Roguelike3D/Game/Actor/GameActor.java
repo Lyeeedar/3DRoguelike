@@ -167,12 +167,13 @@ public abstract class GameActor extends GameObject{
 	@Override
 	public void update(float delta)
 	{
-		if (L_HAND != null) L_HAND.update(delta);
-		if (R_HAND != null) R_HAND.update(delta);
-		
 		if (ai == null) return;
 		if (!alive) return;
 		ai.evaluateAI(delta);
+		
+		if (L_HAND != null) L_HAND.update(delta);
+		if (R_HAND != null) R_HAND.update(delta);
+		
 	}
 	
 

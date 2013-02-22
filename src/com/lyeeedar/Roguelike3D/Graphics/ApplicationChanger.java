@@ -30,4 +30,6 @@ public abstract class ApplicationChanger {
 	public abstract void updateApplication(Preferences pref);
 	
 	public abstract String[] getSupportedDisplayModes();
+	
+	public abstract void setToNativeResolution(Preferences prefs);
 }

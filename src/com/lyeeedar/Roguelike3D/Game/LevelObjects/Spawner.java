@@ -62,7 +62,7 @@ public class Spawner extends LevelObject {
 		GameActor creature = me.getMonster(difficulty, level);
 		creature.create();
 		creature.positionAbsolutely(getPosition().x, getPosition().y+getRadius()+creature.getRadius()+1, getPosition().z);
-		level.actors.add(creature);
+		level.addActor(creature);
 		
 		creature.vo.bakeLights(GameData.lightManager, false);
 		

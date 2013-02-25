@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 
 public class AI_Enemy_VFFG extends AI_Package {
@@ -40,35 +41,35 @@ public class AI_Enemy_VFFG extends AI_Package {
 		move = delta * 10f;
 		
 		actor.velocity.y -= GameData.gravity*move*actor.WEIGHT;
-		
-		ArrayList<GameActor> actors = getVisibleActors();
-		
-		for (GameActor ga : actors)
-		{
-			if (!actor.checkFaction(ga.FACTIONS))
-			{
-				double a = angle(actor.getRotation(), actor.getPosition().tmp().sub(ga.getPosition()).nor());
-
-				if (Math.abs(a) < delta*100)
-				{
-					actor.rotate(0,  1, 0, (float) a);
-				}
-				else if (a > 0)
-				{
-					actor.rotate(0, 1, 0, -delta*100);
-				}
-				else
-				{
-					actor.rotate(0, 1, 0, delta*100);
-				}
-				
-				attack();
-				
-				actor.forward_backward(move);
-			}
-		}
-		
-		actor.applyMovement(delta, GameData.gravity*10*(float)actor.WEIGHT);
+//		
+//		Bag<GameActor> actors = getVisibleActors();
+//		
+//		for (GameActor ga : actors)
+//		{
+//			if (!actor.checkFaction(ga.FACTIONS))
+//			{
+//				double a = angle(actor.getRotation(), actor.getPosition().tmp().sub(ga.getPosition()).nor());
+//
+//				if (Math.abs(a) < delta*100)
+//				{
+//					actor.rotate(0,  1, 0, (float) a);
+//				}
+//				else if (a > 0)
+//				{
+//					actor.rotate(0, 1, 0, -delta*100);
+//				}
+//				else
+//				{
+//					actor.rotate(0, 1, 0, delta*100);
+//				}
+//				
+//				attack();
+//				
+//				actor.forward_backward(move);
+//			}
+//		}
+//		
+//		actor.applyMovement(delta, GameData.gravity*10*(float)actor.WEIGHT);
 
 	}
 	
@@ -98,26 +99,26 @@ public class AI_Enemy_VFFG extends AI_Package {
 		
 	}
 
-	public ArrayList<GameActor> getVisibleActors()
-	{
-		Camera cam = new PerspectiveCamera();
-		cam.position.set(actor.getPosition());
-		cam.direction.set(actor.getRotation());
-		cam.near = VIEW_NEAR;
-		cam.far = VIEW_FAR;
-		cam.update();
-		
-		ArrayList<GameActor> actors = new ArrayList<GameActor>();
-		
-		for (GameActor ga : GameData.level.actors)
-		{
-			if (actor.getPosition().dst2(ga.getPosition()) < VIEW_FAR)
-			{
-				Ray ray = new Ray(actor.getPosition(), ga.getPosition().tmp().sub(actor.getPosition()).nor());
-				if (!GameData.level.checkLevelCollisionRay(ray, ga.getPosition().dst2(actor.getPosition()))) actors.add(ga);
-			}
-		}
-		
-		return actors;
-	}
+//	public Bag<GameActor> getVisibleActors()
+//	{
+//		Camera cam = new PerspectiveCamera();
+//		cam.position.set(actor.getPosition());
+//		cam.direction.set(actor.getRotation());
+//		cam.near = VIEW_NEAR;
+//		cam.far = VIEW_FAR;
+//		cam.update();
+//		
+//		Bag<GameActor> actors = new Bag<GameActor>();
+//		
+//		for (GameActor ga : GameData.level.actors)
+//		{
+//			if (actor.getPosition().dst2(ga.getPosition()) < VIEW_FAR)
+//			{
+//				Ray ray = new Ray(actor.getPosition(), ga.getPosition().tmp().sub(actor.getPosition()).nor());
+//				if (!GameData.level.checkLevelCollisionRay(ray, ga.getPosition().dst2(actor.getPosition()))) actors.add(ga);
+//			}
+//		}
+//		
+//		return actors;
+//	}
 }

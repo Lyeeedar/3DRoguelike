@@ -25,6 +25,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
@@ -41,6 +42,7 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.PlayerPlacer;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Spawner;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Stair;
+import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.ApplicationChanger;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
@@ -174,6 +176,8 @@ public class GameData {
 	
 	public static LightManager lightManager;
 	
+	public static Bag<Spell> spells = new Bag<Spell>();
+	
 	public static Level level;
 	
 	public static LevelGraphics levelGraphics;
@@ -215,15 +219,21 @@ public class GameData {
 		return applicationChanger.prefs;
 	}
 	
-	public static Texture loadTexture(String textureName)
+	/**
+	 * Tries to load the given texture. If set to urgent, will throw a runtime exception if this texture does not exist.
+	 * @param textureName
+	 * @param urgent
+	 * @return
+	 */
+	public static Texture loadTexture(String textureName, boolean urgent)
 	{
 		String textureLocation = "data/textures/"+textureName+".png";
 		
 		if (loadedTextures.containsKey(textureLocation)) return loadedTextures.get(textureLocation);
 		
 		if (!Gdx.files.internal(textureLocation).exists()) {
-			//System.err.println("Texture "+textureName+" does not exist!");
-			return null;
+			if (urgent) throw new RuntimeException("Texture "+textureLocation+" does not exist!");
+			else return null;
 		}
 		
 		Texture texture = new Texture(Gdx.files.internal(textureLocation), true);
@@ -283,6 +293,12 @@ public class GameData {
 	static String prevLevel;
 	public static void changeLevel(String level)
 	{
+		for (Spell s : spells)
+		{
+			s.dispose();
+		}
+		spells.clear();
+		
 		player = null;
 		
 		prevLevel = currentLevel;
@@ -306,7 +322,7 @@ public class GameData {
 		GameData.level = level;
 		levelGraphics = graphics;
 		
-		for (GameActor ga : level.actors) {
+		for (GameActor ga : level.getActors()) {
 			ga.fixReferences();
 			
 			if (ga.L_HAND != null)
@@ -320,19 +336,19 @@ public class GameData {
 			}
 		}
 		
-		for (LevelObject lo : level.levelObjects) {
+		for (LevelObject lo : level.getLevelObjects()) {
 			lo.fixReferences();
 		}
 		
 		lightManager.fixReferences();
 		level.fixReferences();
 		
-		for (ParticleEmitter pe : level.particleEmitters)
+		for (ParticleEmitter pe : level.getParticleEmitters())
 		{
 			pe.fixReferences();
 		}
 		
-		for (LevelObject lo : level.levelObjects)
+		for (LevelObject lo : level.getLevelObjects())
 		{
 			lo.positionYAbsolutely(lo.getRadius());
 			if (lo instanceof Spawner)
@@ -350,7 +366,7 @@ public class GameData {
 			lo.positionYAbsolutely(lo.getRadius());
 		}
 		
-		for (LevelObject lo : level.levelObjects)
+		for (LevelObject lo : level.getLevelObjects())
 		{
 
 			if (lo instanceof PlayerPlacer)

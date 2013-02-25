@@ -163,6 +163,11 @@ public abstract class GameObject implements Serializable {
 		tmpVelocity.mul(delta*100);
 		
 		Tile below = lvl.getTile(position.x/10, position.z/10);
+		if (below == null) {
+			velocity.x = 0;
+			velocity.z = 0;
+			return;
+		}
 		
 		//float vertical_movement = (velocity.y - 0.5f*vertical_acceleration*delta)*delta*100;
 		
@@ -372,7 +377,6 @@ public abstract class GameObject implements Serializable {
 		vo.dispose();
 		if (boundLight != null) GameData.lightManager.removeDynamicLight(boundLightUID);
 		if (particleEmitter != null) {
-			GameData.level.removeParticleEmitter(particleEmitterUID);
 			particleEmitter.dispose();
 		}
 		disposed();

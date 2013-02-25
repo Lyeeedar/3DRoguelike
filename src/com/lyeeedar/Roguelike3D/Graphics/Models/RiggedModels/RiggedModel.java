@@ -13,6 +13,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
+import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
+import com.lyeeedar.Roguelike3D.Game.Spell.SpellBehaviourBolt;
+import com.lyeeedar.Roguelike3D.Game.Spell.SpellBehaviourSingleDamage;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
@@ -34,6 +37,11 @@ public class RiggedModel implements Serializable {
 	public RiggedModel(RiggedModelNode node, Material[] materials) {
 		this.rootNode = node;
 		this.materials = materials;
+	}
+	
+	public void equip(GameActor holder, int side)
+	{
+		rootNode.equip(holder, side);
 	}
 	
 	boolean held = false;
@@ -181,11 +189,22 @@ public class RiggedModel implements Serializable {
 		node1.setParent(node);
 		node1.setChilden();
 		
-		level.particleEmitters.add(p);
+		level.getParticleEmitters().add(p);
 		
 		Material material = new Material("basic");
 		material.setColour(new Colour());
 		material.setTexture("wood");
+		
+		ParticleEmitter pp = new ParticleEmitter(0, 0, 0, 0.5f, 0.5f, 0.5f, 0.001f, 1050);
+		pp.setTexture("texf", new Vector3(0.0f, 1.7f, 0.0f), 2.0f, new Colour(0.8f, 1.0f, 0.3f, 1.0f), new Colour(0.9f, 0.2f, 0.0f, 1.0f), true, 0.03f, 0.5f, true, false);
+		
+		Spell spell = new Spell("");
+		spell.setDamage(GameData.getDamageMap(), GameData.getElementMap(), 1);
+		spell.setBehaviour(new SpellBehaviourBolt(), new SpellBehaviourSingleDamage());
+		spell.initialise(Vector3.tmp, Vector3.tmp2, pp, pp.getRadius());
+		
+		RiggedModelBehaviourCastSpell cast = new RiggedModelBehaviourCastSpell(node1, spell);
+		node1.setBehaviour(cast);
 		
 		return new RiggedModel(rootnode, new Material[]{material});
 		

@@ -66,6 +66,13 @@ public class RiggedModelNode implements Serializable
 		this.collidable = collidable;
 	}
 	
+	public void equip(GameActor holder, int side)
+	{
+		if (behaviour != null) behaviour.equip(holder, side);
+		
+		for (RiggedModelNode rmn : childNodes) rmn.equip(holder, side);
+	}
+	
 	public void setParticleEmitter(ParticleEmitter emitter)
 	{
 		this.particleEmitter = emitter;
@@ -204,6 +211,7 @@ public class RiggedModelNode implements Serializable
 		else
 		{
 			collideMode = mode;
+			if (behaviour != null) behaviour.proccessCollideMode(mode);
 			
 			for (RiggedModelNode rmn : childNodes)
 			{

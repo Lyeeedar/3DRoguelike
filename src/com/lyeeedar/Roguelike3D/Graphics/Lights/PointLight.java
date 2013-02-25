@@ -56,11 +56,11 @@ public class PointLight implements Comparable, Serializable {
 	
 	public void computeMesh()
 	{
-		Vector3 intensity = colour.getColour().mul(power);
+		Vector3 intensity = colour.getColour();
 		float dist = 1;
 		while (intensity.len2() > 0.5f)
 		{
-			intensity = colour.getColour().mul(power).div((attenuation + (attenuation/5)*dist)*dist);
+			intensity = colour.getColour().div((attenuation + (attenuation/5)*dist)*dist);
 			dist++;
 		}
 		

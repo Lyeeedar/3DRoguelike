@@ -102,6 +102,10 @@ public class RiggedOneHandedSwing extends RiggedModelBehaviour {
 		if (side == 1) sign = 1;
 		else if (side == 2) sign = -1;
 	}
+
+	@Override
+	public void proccessCollideMode(boolean mode) {
+	}
 	
 
 }

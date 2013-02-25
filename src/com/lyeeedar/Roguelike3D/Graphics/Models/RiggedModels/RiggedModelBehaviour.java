@@ -19,6 +19,7 @@ public abstract class RiggedModelBehaviour implements Serializable {
 	public void equip(GameActor holder, int side)
 	{
 		this.side = side;
+		equipped(holder, side);
 	}
 	protected abstract void equipped(GameActor holder, int side);
 	
@@ -28,5 +29,7 @@ public abstract class RiggedModelBehaviour implements Serializable {
 	public abstract void cancel();
 	
 	public abstract void update(float delta);
+	
+	public abstract void proccessCollideMode(boolean mode);
 
 }

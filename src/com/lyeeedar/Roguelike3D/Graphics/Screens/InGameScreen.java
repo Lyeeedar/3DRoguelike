@@ -13,6 +13,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Screens;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -28,6 +29,7 @@ import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
+import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
@@ -66,13 +68,13 @@ public class InGameScreen extends AbstractScreen {
 			vo.render(renderer);
 		}
 		
-		for (LevelObject lo : GameData.level.levelObjects)
+		for (LevelObject lo : GameData.level.getLevelObjects())
 		{	
 			if (!lo.visible) continue;
 			lo.vo.render(renderer);
 		}
 		
-		for (GameActor ga : GameData.level.actors)
+		for (GameActor ga : GameData.level.getActors())
 		{
 			ga.draw(renderer);
 			if (!ga.visible) continue;
@@ -88,8 +90,20 @@ public class InGameScreen extends AbstractScreen {
 	public void drawTransparent(float delta) {
 		particleNum = 0;
 		visibleEmitters.clear();
-		for (ParticleEmitter pe : GameData.level.particleEmitters)
+		for (ParticleEmitter pe : GameData.level.getParticleEmitters())
 		{
+			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
+
+			pe.distance = cam.position.dst2(pe.getPos());
+			particleNum += pe.active.size();;
+			
+			visibleEmitters.add(pe);
+		}
+		
+		for (Spell s : GameData.spells)
+		{
+			ParticleEmitter pe = s.particleEmitter;
+			
 			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
 
 			pe.distance = cam.position.dst2(pe.getPos());
@@ -215,20 +229,30 @@ public class InGameScreen extends AbstractScreen {
 		activateCD -= delta;
 		if (!paused)
 		{
-			for (LevelObject lo : GameData.level.levelObjects)
+			for (LevelObject lo : GameData.level.getLevelObjects())
 			{
 				lo.update(delta);
 			}
 			
-			for (GameActor ga : GameData.level.actors)
+			for (GameActor ga : GameData.level.getActors())
 			{
+				//System.out.println(ga);
 				ga.update(delta);
 			}
 			
-			for (ParticleEmitter pe : GameData.level.particleEmitters)
+			for (ParticleEmitter pe : GameData.level.getParticleEmitters())
 			{
 				if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
 				pe.update(delta, cam);
+			}
+			
+			Iterator<Spell> spells = GameData.spells.iterator();
+			while (spells.hasNext())
+			{
+				Spell s = spells.next();
+				boolean dispose = s.update(delta, cam);
+				
+				if (dispose) spells.remove();
 			}
 			
 			if (GameData.player == null) return;

@@ -60,7 +60,7 @@ public class TextureAttribute extends MaterialAttribute {
 
 	private void loadTextures() {
 		
-		texture = GameData.loadTexture(textureName);
+		texture = GameData.loadTexture(textureName, false);
 		
 		if (texture != null) {
 			texture.setWrap( uWrap, vWrap );

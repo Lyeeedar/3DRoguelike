@@ -125,7 +125,7 @@ public class MeleeWeapon extends Equipment_HAND {
 	@Override
 	protected void equipped(GameActor actor, int side) {
 		
-		model.rootNode.behaviour.equip(actor, side);
+		model.equip(actor, side);
 		
 		if (side == 1)
 		{

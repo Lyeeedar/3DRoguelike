@@ -16,6 +16,7 @@ import java.util.Random;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
@@ -29,16 +30,16 @@ public class MapGenerator {
 	}
 
 	private Tile[][] levelArray;
-	ArrayList<Character> solids;
-	ArrayList<Character> opaques;
+	Bag<Character> solids;
+	Bag<Character> opaques;
 	HashMap<Character, Colour> colours;
-	ArrayList<DungeonRoom> rooms;
-	ArrayList<AbstractObject> objects;
+	Bag<DungeonRoom> rooms;
+	Bag<AbstractObject> objects;
 	
 	int ceiling;
 
 	public MapGenerator(int width, int height,
-			ArrayList<Character> solids, ArrayList<Character> opaques, HashMap<Character, Colour> colours,
+			Bag<Character> solids, Bag<Character> opaques, HashMap<Character, Colour> colours,
 			GeneratorType gtype, BiomeReader biome,
 			int up, int down)
 	{
@@ -48,7 +49,7 @@ public class MapGenerator {
 		this.opaques = opaques;
 		this.colours = colours;
 		
-		objects = new ArrayList<AbstractObject>();
+		objects = new Bag<AbstractObject>();
 
 		AbstractTile[][] tiles = new AbstractTile[width][height];
 		levelArray = new Tile[width][height];
@@ -87,7 +88,7 @@ public class MapGenerator {
 		clearWalls();
 	}
 	
-	public ArrayList<AbstractObject> getObjects()
+	public Bag<AbstractObject> getObjects()
 	{
 		return objects;
 	}
@@ -110,7 +111,7 @@ public class MapGenerator {
 		return levelArray;
 	}
 	
-	public ArrayList<DungeonRoom> getRooms()
+	public Bag<DungeonRoom> getRooms()
 	{
 		return rooms;
 	}

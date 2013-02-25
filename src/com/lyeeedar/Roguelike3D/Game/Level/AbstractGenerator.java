@@ -12,6 +12,7 @@ package com.lyeeedar.Roguelike3D.Game.Level;
 
 import java.util.ArrayList;
 
+import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 
 /**
@@ -21,6 +22,6 @@ import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
  */
 public interface AbstractGenerator {
 	
-	public ArrayList<DungeonRoom> generate(BiomeReader biome);
+	public Bag<DungeonRoom> generate(BiomeReader biome);
 
 }

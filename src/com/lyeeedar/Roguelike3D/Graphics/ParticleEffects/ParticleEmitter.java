@@ -59,11 +59,11 @@ public class ParticleEmitter implements Serializable {
 	
 	transient Random ran;
 	
-	transient float time = 0;
+	transient public float time = 0;
 	
-	float x; float y; float z; public float vx; public float vy; public float vz; float speed;
+	float x; float y; float z; public float vx; public float vy; public float vz; public float speed;
 	
-	float radius;
+	public float radius;
 	
 	public int particles;
 	
@@ -87,7 +87,7 @@ public class ParticleEmitter implements Serializable {
 	transient Mesh meshPoint;
 	transient Mesh meshQuad;
 
-	float ox; float oy; float oz;
+	public float ox; public float oy; public float oz;
 	
 	private boolean pointMode = false;
 	
@@ -110,13 +110,11 @@ public class ParticleEmitter implements Serializable {
 		this.speed = speed;
 		
 		radius = vx + vz;
-		
-		create();
 	}
 	
 	public void create() {
 		ran = new Random();
-		this.texture = GameData.loadTexture(textureName);
+		this.texture = GameData.loadTexture(textureName, true);
 		
 		active = new ArrayDeque<Particle>(particles);
 		inactive = new ArrayDeque<Particle>(particles);
@@ -208,7 +206,7 @@ public class ParticleEmitter implements Serializable {
 	{
 		this.flicker = flicker;
 		this.textureName = texture;
-		this.texture = GameData.loadTexture(texture);
+		this.texture = GameData.loadTexture(texture, true);
 		this.velocity = velocity;
 		this.atime = atime;
 		this.start = start;
@@ -341,7 +339,9 @@ public class ParticleEmitter implements Serializable {
 		
 		size /= ((0.5f * dist)+(0.01f * dist * dist));
 		
-		return (GameData.resolution[0]/100)*size;
+		int resolution = (GameData.resolution[0]>GameData.resolution[1])? GameData.resolution[0] : GameData.resolution[1];
+		
+		return (resolution /100)*size;
 	}
 	
 	private transient int signx;
@@ -457,7 +457,7 @@ public class ParticleEmitter implements Serializable {
 		
 		for (i *= ((pointMode) ? 6 : 32); i < ((pointMode) ? verticesPoint.length : verticesQuad.length); i++)
 		{
-			if (pointMode) verticesPoint[i] = 0; else verticesQuad[i] = 0;
+			if (pointMode) verticesPoint[i] = 0; else verticesQuad[i] = -13;
 		}
 		
 		time -= delta;
@@ -507,6 +507,13 @@ public class ParticleEmitter implements Serializable {
 		if (boundLight != null) GameData.lightManager.removeDynamicLight(boundLight.UID);
 	}
 
+	public ParticleEmitter copy()
+	{
+		ParticleEmitter cpy = new ParticleEmitter(x, y, z, vx, vy, vz, speed, particles);
+		cpy.setTexture(textureName, velocity, atime, start, end, (boundLightUID != null), attenuation, power, flicker, staticLight);
+		
+		return cpy;
+	}
 }
 
 class Particle {

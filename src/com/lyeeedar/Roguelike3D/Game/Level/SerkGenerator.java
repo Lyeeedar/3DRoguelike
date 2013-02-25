@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.DelaunayTriangulation.*;
@@ -42,7 +43,7 @@ public class SerkGenerator implements AbstractGenerator{
 	protected final int OTHER_MIN;
 	protected final int OTHER_VAR;
 
-	final ArrayList<DungeonRoom> rooms = new ArrayList<DungeonRoom>();
+	final Bag<DungeonRoom> rooms = new Bag<DungeonRoom>();
 	final AbstractTile[][] tiles;
 	final Random ran = new Random();
 	
@@ -75,7 +76,7 @@ public class SerkGenerator implements AbstractGenerator{
 	}
 	
 	@Override
-	public ArrayList<DungeonRoom> generate(BiomeReader biome) {
+	public Bag<DungeonRoom> generate(BiomeReader biome) {
 		
 		setInfluence();
 		

@@ -43,6 +43,5 @@ public class Player extends GameActor {
 		WEIGHT = 1;
 		
 		ai = new AI_Player_Controlled(this);
-
 	}
 }

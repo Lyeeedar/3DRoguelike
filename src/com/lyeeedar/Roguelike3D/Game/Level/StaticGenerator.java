@@ -13,6 +13,7 @@ package com.lyeeedar.Roguelike3D.Game.Level;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
@@ -32,7 +33,7 @@ public class StaticGenerator implements AbstractGenerator {
 	}
 
 	@Override
-	public ArrayList<DungeonRoom> generate(BiomeReader biome) {
+	public Bag<DungeonRoom> generate(BiomeReader biome) {
 		
 		for (int x = 1; x < width-1;x++)
 		{
@@ -43,7 +44,7 @@ public class StaticGenerator implements AbstractGenerator {
 			}
 		}
 
-		ArrayList<DungeonRoom> rooms = new ArrayList<DungeonRoom>();
+		Bag<DungeonRoom> rooms = new Bag<DungeonRoom>();
 		DungeonRoom room = new DungeonRoom(1, 1, width-2, height-2, RoomType.MAIN);
 		rooms.add(room);
 		

@@ -37,6 +37,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SkyBox;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 
 public class LevelLoadingScreen extends AbstractScreen{
@@ -96,15 +97,20 @@ public class LevelLoadingScreen extends AbstractScreen{
 			
 			
 			if (GameData.level != null) {
-				for (GameActor ga : GameData.level.actors) {
+				for (GameActor ga : GameData.level.getActors()) {
 					ga.dispose();
 					
 					if (ga.L_HAND != null) ga.L_HAND.dispose();
 					if (ga.R_HAND != null) ga.R_HAND.dispose();
 				}
 				
-				for (LevelObject lo : GameData.level.levelObjects) {
+				for (LevelObject lo : GameData.level.getLevelObjects()) {
 					lo.dispose();
+				}
+				
+				for (ParticleEmitter pe : GameData.level.getParticleEmitters())
+				{
+					pe.dispose();
 				}
 			}
 			
@@ -131,7 +137,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 			
 			Player player = null;
 			
-			for (GameActor ga : level.actors)
+			for (GameActor ga : level.getActors())
 			{
 				if (ga instanceof Player) {
 					player = (Player) ga;
@@ -163,7 +169,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 				player.create();
 				player.visible = false;
 				
-				level.addActor(player);	
+				level.addActor(player);			
 			}
 			
 			GameStats.setPlayerStats(player);
@@ -172,6 +178,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 			
 			percent += taskSteps;
 			loadingStage++;
+			
 		}
 		else if (loadingStage == 3)
 		{
@@ -214,11 +221,11 @@ public class LevelLoadingScreen extends AbstractScreen{
 			}
 			
 			graphics.bakeLights(GameData.lightManager, true);
-			for (LevelObject lo : level.levelObjects)
+			for (LevelObject lo : level.getLevelObjects())
 			{
 				lo.vo.bakeLights(GameData.lightManager, true);
 			}
-			for (GameActor ga : level.actors)
+			for (GameActor ga : level.getActors())
 			{
 				ga.vo.bakeLights(GameData.lightManager, false);
 				

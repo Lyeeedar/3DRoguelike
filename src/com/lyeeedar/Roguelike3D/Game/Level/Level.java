@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
+import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
@@ -52,14 +53,14 @@ public class Level implements Serializable {
 	HashMap<Character, String> longDescs = new HashMap<Character, String>();
 	
 	HashMap<Character, Colour> colours = new HashMap<Character, Colour>();
-	ArrayList<Character> opaques = new ArrayList<Character>();
-	ArrayList<Character> solids = new ArrayList<Character>();
+	Bag<Character> opaques = new Bag<Character>();
+	Bag<Character> solids = new Bag<Character>();
 	
-	public ArrayList<GameActor> actors = new ArrayList<GameActor>();
-	public ArrayList<LevelObject> levelObjects = new ArrayList<LevelObject>();
-	public ArrayList<ParticleEmitter> particleEmitters = new ArrayList<ParticleEmitter>();
+	private Bag<GameActor> actors = new Bag<GameActor>();
+	private Bag<LevelObject> levelObjects = new Bag<LevelObject>();
+	private Bag<ParticleEmitter> particleEmitters = new Bag<ParticleEmitter>();
 	
-	private transient ArrayList<DungeonRoom> rooms;
+	private transient Bag<DungeonRoom> rooms;
 
 	public int width;
 	public int height;
@@ -184,19 +185,17 @@ public class Level implements Serializable {
 		}
 	}
 	
-	private transient int fillRoomIndex = 0;
 	public boolean fillRoom(RoomReader rReader, LevelContainer lc)
 	{
-		if (fillRoomIndex == rooms.size())
+		if (rooms.size() == 0)
 		{
 			return true;
 		}
 		
-		DungeonRoom room = rooms.get(fillRoomIndex);
+		DungeonRoom room = rooms.remove(0);
 		AbstractRoom aroom = rReader.getRoom(room.roomtype, room.width, room.height, (gtype != GeneratorType.STATIC));
 		
 		if (aroom == null) {
-			fillRoomIndex++;
 			System.err.println("Failed to place "+room.roomtype);
 			return false;
 		}
@@ -262,7 +261,6 @@ public class Level implements Serializable {
 			}
 		}
 		
-		fillRoomIndex++;
 		return false;
 	}
 	
@@ -504,6 +502,9 @@ public class Level implements Serializable {
 		int ix = (int)(x);
 		int iz = (int)(z);
 		
+		if (ix < 0 || ix >= width ||
+				iz < 0 || iz >= height) return null;
+		
 		return getLevelArray()[ix][iz];
 	}
 	
@@ -535,8 +536,8 @@ public class Level implements Serializable {
 		int x = (int)((fx/10)+0.5f);
 		int z = (int)((fz/10)+0.5f);
 		
-		if (x < 0 || x > width) return true;
-		if (z < 0 || z > height) return true;
+		if (x < 0 || x >= width) return true;
+		if (z < 0 || z >= height) return true;
 		
 		Tile t = getLevelArray()[x][z];
 		
@@ -739,20 +740,62 @@ public class Level implements Serializable {
 		this.colours = colours;
 	}
 
-	public ArrayList<Character> getOpaques() {
+	public Bag<Character> getOpaques() {
 		return opaques;
 	}
 
-	public void setOpaques(ArrayList<Character> opaques) {
+	public void setOpaques(Bag<Character> opaques) {
 		this.opaques = opaques;
 	}
 
-	public ArrayList<Character> getSolids() {
+	public Bag<Character> getSolids() {
 		return solids;
 	}
 
-	public void setSolids(ArrayList<Character> solids) {
+	public void setSolids(Bag<Character> solids) {
 		this.solids = solids;
+	}
+
+	/**
+	 * @return the actors
+	 */
+	public Bag<GameActor> getActors() {
+		return actors;
+	}
+
+	/**
+	 * @param actors the actors to set
+	 */
+	public void setActors(Bag<GameActor> actors) {
+		this.actors = actors;
+	}
+
+	/**
+	 * @return the levelObjects
+	 */
+	public Bag<LevelObject> getLevelObjects() {
+		return levelObjects;
+	}
+
+	/**
+	 * @param levelObjects the levelObjects to set
+	 */
+	public void setLevelObjects(Bag<LevelObject> levelObjects) {
+		this.levelObjects = levelObjects;
+	}
+
+	/**
+	 * @return the particleEmitters
+	 */
+	public Bag<ParticleEmitter> getParticleEmitters() {
+		return particleEmitters;
+	}
+
+	/**
+	 * @param particleEmitters the particleEmitters to set
+	 */
+	public void setParticleEmitters(Bag<ParticleEmitter> particleEmitters) {
+		this.particleEmitters = particleEmitters;
 	}
 }
 

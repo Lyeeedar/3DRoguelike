@@ -20,7 +20,6 @@ public class RiggedSubMesh implements Serializable {
 	private static final long serialVersionUID = -530256766516721412L;
 	public final float scale;
 	public final int primitiveType;
-	public final String name;
 	
 	public final String[] meshValues;
 	
@@ -28,9 +27,7 @@ public class RiggedSubMesh implements Serializable {
 	private transient BoundingBox box;
 	public transient boolean created = false;
 	
-	public RiggedSubMesh(String name, int primitiveType, float scale, String... meshValues) {
-		
-		this.name = name;
+	public RiggedSubMesh(int primitiveType, float scale, String... meshValues) {
 		this.primitiveType = primitiveType;
 		this.scale = scale;
 		this.meshValues = meshValues;
@@ -86,9 +83,10 @@ public class RiggedSubMesh implements Serializable {
 	
 	public void dispose()
 	{
-		if (!meshValues[0].equals("file"))
+		if (!meshValues[0].equals("file") && created)
 		{
 			mesh.dispose();
+			created = false;
 		}
 	}
 	

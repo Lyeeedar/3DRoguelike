@@ -398,7 +398,7 @@ public class Level implements Serializable {
 		return (lo != null);
 	}
 	
-	public GameActor checkCollisionEntity(Vector3 start, Vector3 end, String ignoreUID)
+	public GameActor checkCollisionActor(Vector3 start, Vector3 end, String ignoreUID)
 	{
 		ray.origin.set(start);
 		ray.direction.set(end).sub(start).nor();
@@ -512,7 +512,7 @@ public class Level implements Serializable {
 	{
 		if (checkLevelCollision(position, radius)) return true;
 		if (checkLevelObjects(position, radius) != null) return true;
-		return checkEntities(position, radius, UID) != null;
+		return checkActors(position, radius, UID) != null;
 	}
 	
 	public boolean checkLevelCollision(Vector3 position, float radius)
@@ -547,7 +547,7 @@ public class Level implements Serializable {
 	}
 	
 	private final Vector3 tmpVec = new Vector3();
-	public GameActor checkEntities(Vector3 position, float radius, String UID)
+	public GameActor checkActors(Vector3 position, float radius, String UID)
 	{
 		for (GameActor ga : actors)
 		{

@@ -178,7 +178,7 @@ public abstract class GameObject implements Serializable {
 			
 			// ----- Check Vertical START ----- //
 			
-			if ((lvl.checkEntities(position.tmp().add(0, tmpVelocity.y, 0), vo.attributes.radius, UID) != null) || 
+			if ((lvl.checkActors(position.tmp().add(0, tmpVelocity.y, 0), vo.attributes.radius, UID) != null) || 
 					(lvl.checkLevelObjects(position.tmp().add(0, tmpVelocity.y, 0), vo.attributes.radius) != null))
 			{
 				velocity.y = 0;

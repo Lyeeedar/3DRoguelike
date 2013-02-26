@@ -104,20 +104,6 @@ public class AI_Player_Controlled extends AI_Package {
 		}
 		actor.offsetPos.y = ((float) Math.sin(headBob)/5) + 2;
 		
-		if (Gdx.input.isKeyPressed(Keys.C))
-		{
-			ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.04f, 350);
-			p.setTexture("texf", new Vector3(0.0f, 1.7f, 0.0f), 2.0f, new Colour(0.8f, 1.0f, 0.3f, 1.0f), new Colour(0.9f, 0.2f, 0.0f, 1.0f), true, 0.01f, 0.9f, true, false);
-			p.create();
-			
-			Spell spell = new Spell(actor.UID);
-			spell.setDamage(GameData.getDamageMap(), GameData.getElementMap(), 1);
-			spell.setBehaviour(new SpellBehaviourBolt(), new SpellBehaviourSingleDamage());
-			spell.initialise(actor.getPosition().tmp().add(0, actor.getRadius(), 0), actor.getRotation(), p, 1);
-			
-			GameData.spells.add(spell);
-		}
-		
 		if (Gdx.input.isKeyPressed(Keys.B))
 		{			
 			actor.getVelocity().set(0, 2, 2);

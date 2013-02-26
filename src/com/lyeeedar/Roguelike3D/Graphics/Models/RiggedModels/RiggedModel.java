@@ -90,6 +90,8 @@ public class RiggedModel implements Serializable {
 	
 	public void dispose()
 	{
+		System.out.println("dispose");
+		
 		rootNode.dispose();
 		for (Material m : materials)
 		{
@@ -123,35 +125,35 @@ public class RiggedModel implements Serializable {
 	 */
 	public static RiggedModel getSword(Level level, int length, float scale)
 	{
-		RiggedModelNode rootnode = new RiggedModelNode(new RiggedSubMesh[]{}, new int[]{}, new Matrix4(), new Matrix4(), 0, false);
+		RiggedModelNode rootnode = new RiggedModelNode("Root", new RiggedSubMesh[]{}, new int[]{}, new Matrix4(), new Matrix4(), 0, false);
 		rootnode.setParent(null);
 		
-		RiggedSubMesh[] meshes = {new RiggedSubMesh("Hilt", GL20.GL_TRIANGLES, scale, "file", "model!"), new RiggedSubMesh("Guard", GL20.GL_TRIANGLES, scale, "file", "model(", "0", "0", ""+ scale*0.54f)};	
+		RiggedSubMesh[] meshes = {new RiggedSubMesh(GL20.GL_TRIANGLES, scale, "file", "model!"), new RiggedSubMesh(GL20.GL_TRIANGLES, scale, "file", "model(", "0", "0", ""+ scale*0.54f)};	
 		
-		RiggedModelNode hilt = new RiggedModelNode(meshes, new int[]{0, 0}, new Matrix4().setToTranslation(0, 0, scale), new Matrix4(), 0, false);
+		RiggedModelNode hilt = new RiggedModelNode("Hilt", meshes, new int[]{0, 0}, new Matrix4().setToTranslation(0, 0, scale), new Matrix4(), 0, false);
 		
 		hilt.setParent(rootnode);
 		rootnode.setChilden(hilt);
 		
-		RiggedSubMesh[] meshesblade = {new RiggedSubMesh("Blade", GL20.GL_TRIANGLES, scale, "file", "modelHBlade")};
+		RiggedSubMesh[] meshesblade = {new RiggedSubMesh(GL20.GL_TRIANGLES, scale, "file", "modelHBlade")};
 		
 		RiggedModelNode prevNode = hilt;
 		for (int i = 0; i < length-1; i++)
 		{
-			RiggedModelNode node = new RiggedModelNode(meshesblade, new int[]{0}, new Matrix4().setToTranslation(0, 0, scale), new Matrix4(), 100, true);
+			RiggedModelNode node = new RiggedModelNode("Blade", meshesblade, new int[]{0}, new Matrix4().setToTranslation(0, 0, scale), new Matrix4(), 100, true);
 			node.setParent(prevNode);
 			prevNode.setChilden(node);
 			
 			prevNode = node;
 		}
 		
-		RiggedModelNode nodeblade = new RiggedModelNode(meshesblade, new int[]{0}, new Matrix4().setToTranslation(0, 0, scale), new Matrix4(), 100, true);
+		RiggedModelNode nodeblade = new RiggedModelNode("Blade", meshesblade, new int[]{0}, new Matrix4().setToTranslation(0, 0, scale), new Matrix4(), 100, true);
 		nodeblade.setParent(prevNode);
 		prevNode.setChilden(nodeblade);
 
-		RiggedSubMesh[] meshestip = {new RiggedSubMesh("Tip", GL20.GL_TRIANGLES, -scale, "file", "modelABlade")};
+		RiggedSubMesh[] meshestip = {new RiggedSubMesh(GL20.GL_TRIANGLES, -scale, "file", "modelABlade")};
 		
-		RiggedModelNode nodeTip = new RiggedModelNode(meshestip, new int[]{0}, new Matrix4().setToTranslation(0, 0, scale*0.2f), new Matrix4(), 100, true);
+		RiggedModelNode nodeTip = new RiggedModelNode("Tip", meshestip, new int[]{0}, new Matrix4().setToTranslation(0, 0, scale*0.2f), new Matrix4(), 100, true);
 		nodeTip.setParent(nodeblade);
 		nodeblade.setChilden(nodeTip);
 		nodeTip.setChilden();
@@ -165,22 +167,22 @@ public class RiggedModel implements Serializable {
 	
 	public static RiggedModel getTorch(Level level)
 	{
-		RiggedModelNode rootnode = new RiggedModelNode(new RiggedSubMesh[]{}, new int[]{}, new Matrix4(), new Matrix4(), 0, false);
+		RiggedModelNode rootnode = new RiggedModelNode("Root", new RiggedSubMesh[]{}, new int[]{}, new Matrix4(), new Matrix4(), 0, false);
 		rootnode.setParent(null);
 		
-		RiggedSubMesh[] meshes = {new RiggedSubMesh("Torch", GL20.GL_TRIANGLES, 1, "cube", "0.1", "0.1", "3")};
+		RiggedSubMesh[] meshes = {new RiggedSubMesh(GL20.GL_TRIANGLES, 1, "cube", "0.1", "0.1", "3")};
 		
-		RiggedModelNode node = new RiggedModelNode(meshes, new int[]{0}, new Matrix4().setToTranslation(0, 0, 1.5f), new Matrix4(), 100, true);
+		RiggedModelNode node = new RiggedModelNode("Torch", meshes, new int[]{0}, new Matrix4().setToTranslation(0, 0, 1.5f), new Matrix4(), 100, true);
 		
 		rootnode.setChilden(node);
 		node.setParent(rootnode);
 		
-		RiggedSubMesh[] meshes1 = {new RiggedSubMesh("Flame", GL20.GL_TRIANGLES, 1, "cube", "0.01", "0.01", "0.01")};
+		RiggedSubMesh[] meshes1 = {new RiggedSubMesh(GL20.GL_TRIANGLES, 1, "cube", "0.01", "0.01", "0.01")};
 		
-		RiggedModelNode node1 = new RiggedModelNode(meshes1, new int[]{0}, new Matrix4().setToTranslation(0, -0.5f, -0.5f), new Matrix4(), 100, true);
+		RiggedModelNode node1 = new RiggedModelNode("Tip", meshes1, new int[]{0}, new Matrix4().setToTranslation(0, -0.5f, -0.5f), new Matrix4(), 100, true);
 		
-		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.04f, 350);
-		p.setTexture("texf", new Vector3(0.0f, 1.7f, 0.0f), 2.0f, new Colour(0.8f, 1.0f, 0.3f, 1.0f), new Colour(0.9f, 0.2f, 0.0f, 1.0f), true, 0.01f, 0.9f, true, false);
+		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.04f, 2);
+		p.setTexture("texf", new Vector3(0.0f, 1.7f, 0.0f), new Colour(0.8f, 1.0f, 0.3f, 1.0f), new Colour(0.9f, 0.2f, 0.0f, 1.0f), true, 0.04f, 0.3f, true, false);
 		p.create();
 		
 		node.setChilden(node1);
@@ -195,18 +197,12 @@ public class RiggedModel implements Serializable {
 		material.setColour(new Colour());
 		material.setTexture("wood");
 		
-		ParticleEmitter pp = new ParticleEmitter(0, 0, 0, 0.5f, 0.5f, 0.5f, 0.001f, 1050);
-		pp.setTexture("texf", new Vector3(0.0f, 1.7f, 0.0f), 2.0f, new Colour(0.8f, 1.0f, 0.3f, 1.0f), new Colour(0.9f, 0.2f, 0.0f, 1.0f), true, 0.03f, 0.5f, true, false);
-		
-		Spell spell = new Spell("");
-		spell.setDamage(GameData.getDamageMap(), GameData.getElementMap(), 1);
-		spell.setBehaviour(new SpellBehaviourBolt(), new SpellBehaviourSingleDamage());
-		spell.initialise(Vector3.tmp, Vector3.tmp2, pp, pp.getRadius());
-		
-		RiggedModelBehaviourCastSpell cast = new RiggedModelBehaviourCastSpell(node1, spell);
-		node1.setBehaviour(cast);
-		
 		return new RiggedModel(rootnode, new Material[]{material});
 		
+	}
+	
+	public RiggedModelNode getNode(String ID)
+	{
+		return rootNode.getNode(ID);
 	}
 }

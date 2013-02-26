@@ -63,8 +63,6 @@ public class ParticleEmitter implements Serializable {
 	
 	float x; float y; float z; public float vx; public float vy; public float vz; public float speed;
 	
-	public float radius;
-	
 	public int particles;
 	
 	transient Texture texture;
@@ -97,10 +95,11 @@ public class ParticleEmitter implements Serializable {
 	
 	transient Vector3[] vertices;
 	
-	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, int particles)
+	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, float atime)
 	{	
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
-		this.particles = particles;
+		this.atime = atime;
+		this.particles = (int) (atime / speed);
 		this.ox = x;
 		this.oy = y;
 		this.oz = z;
@@ -108,8 +107,6 @@ public class ParticleEmitter implements Serializable {
 		this.vy = vy;
 		this.vz = vz;
 		this.speed = speed;
-		
-		radius = vx + vz;
 	}
 	
 	public void create() {
@@ -176,6 +173,8 @@ public class ParticleEmitter implements Serializable {
 				boundLight = GameData.lightManager.getStaticLight(boundLightUID);
 			else
 				boundLight = GameData.lightManager.getDynamicLight(boundLightUID);
+			
+			if (boundLight == null) throw new RuntimeException(staticLight + "   " + boundLightUID);
 		}
 	}
 	
@@ -202,13 +201,12 @@ public class ParticleEmitter implements Serializable {
 	
 	boolean flicker; boolean staticLight;
 	
-	public void setTexture(String texture, Vector3 velocity, float atime, Colour start, Colour end, boolean light, float attenuation, float power, boolean flicker, boolean staticLight)
+	public void setTexture(String texture, Vector3 velocity, Colour start, Colour end, boolean light, float attenuation, float power, boolean flicker, boolean staticLight)
 	{
 		this.flicker = flicker;
 		this.textureName = texture;
 		this.texture = GameData.loadTexture(texture, true);
 		this.velocity = velocity;
-		this.atime = atime;
 		this.start = start;
 		this.end = end;
 		this.width = this.texture.getWidth();
@@ -337,11 +335,11 @@ public class ParticleEmitter implements Serializable {
 		
 		float size = (width > height) ? width : height;
 		
-		size /= ((0.5f * dist)+(0.01f * dist * dist));
+		size /= (0.35f * dist + 0.009f * dist * dist);
 		
-		int resolution = (GameData.resolution[0]>GameData.resolution[1])? GameData.resolution[0] : GameData.resolution[1];
-		
-		return (resolution /100)*size;
+		int resolution = ( GameData.resolution[0] > GameData.resolution[1] ) ? GameData.resolution[0] : GameData.resolution[1];
+		float value = resolution * size / 100;
+		return value;
 	}
 	
 	private transient int signx;
@@ -499,7 +497,7 @@ public class ParticleEmitter implements Serializable {
 	
 	public float getRadius()
 	{
-		return radius;
+		return vx + vz + vy;
 	}
 	
 	public void dispose()
@@ -509,8 +507,8 @@ public class ParticleEmitter implements Serializable {
 
 	public ParticleEmitter copy()
 	{
-		ParticleEmitter cpy = new ParticleEmitter(x, y, z, vx, vy, vz, speed, particles);
-		cpy.setTexture(textureName, velocity, atime, start, end, (boundLightUID != null), attenuation, power, flicker, staticLight);
+		ParticleEmitter cpy = new ParticleEmitter(x, y, z, vx, vy, vz, speed, atime);
+		cpy.setTexture(textureName, velocity, start, end, (boundLightUID != null), attenuation, power, flicker, staticLight);
 		
 		return cpy;
 	}

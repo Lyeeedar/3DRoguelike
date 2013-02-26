@@ -46,15 +46,16 @@ public class Spell implements Serializable {
 	
 	public boolean alive = true;
 
-	public Spell(String casterUID) {
+	public Spell(String casterUID, ParticleEmitter particleEmitter, float radius) {
 		this.casterUID = casterUID;
-	}
-	
-	public void initialise(Vector3 position, Vector3 rotation, ParticleEmitter particleEmitter, float radius)
-	{
-		this.rotation.set(rotation);
+		
 		this.particleEmitter = particleEmitter;
 		this.radius = radius;
+	}
+	
+	public void initialise(Vector3 position, Vector3 rotation)
+	{
+		this.rotation.set(rotation);
 		
 		positionAbsolutely(position);
 	}
@@ -195,10 +196,129 @@ public class Spell implements Serializable {
 	
 	public Spell copy()
 	{
-		Spell spell = new Spell(casterUID);
+		Spell spell = new Spell(casterUID, particleEmitter.copy(), radius);
 		spell.setBehaviour(moveBehaviour.copy(), damBehaviour.copy());
 		spell.setDamage(DAM_DAM, ELE_DAM, damage);
 		
 		return spell;
+	}
+
+	/**
+	 * @return the radius
+	 */
+	public float getRadius() {
+		return radius;
+	}
+
+	/**
+	 * @param radius the radius to set
+	 */
+	public void setRadius(float radius) {
+		this.radius = radius;
+	}
+
+	/**
+	 * @return the particleEmitter
+	 */
+	public ParticleEmitter getParticleEmitter() {
+		return particleEmitter;
+	}
+
+	/**
+	 * @param particleEmitter the particleEmitter to set
+	 */
+	public void setParticleEmitter(ParticleEmitter particleEmitter) {
+		this.particleEmitter = particleEmitter;
+	}
+
+	/**
+	 * @return the casterUID
+	 */
+	public String getCasterUID() {
+		return casterUID;
+	}
+
+	/**
+	 * @param casterUID the casterUID to set
+	 */
+	public void setCasterUID(String casterUID) {
+		this.casterUID = casterUID;
+	}
+
+	/**
+	 * @return the dAM_DAM
+	 */
+	public HashMap<Damage_Type, Integer> getDAM_DAM() {
+		return DAM_DAM;
+	}
+
+	/**
+	 * @param dAM_DAM the dAM_DAM to set
+	 */
+	public void setDAM_DAM(HashMap<Damage_Type, Integer> dAM_DAM) {
+		DAM_DAM = dAM_DAM;
+	}
+
+	/**
+	 * @return the eLE_DAM
+	 */
+	public HashMap<Element, Integer> getELE_DAM() {
+		return ELE_DAM;
+	}
+
+	/**
+	 * @param eLE_DAM the eLE_DAM to set
+	 */
+	public void setELE_DAM(HashMap<Element, Integer> eLE_DAM) {
+		ELE_DAM = eLE_DAM;
+	}
+
+	/**
+	 * @return the damage
+	 */
+	public int getDamage() {
+		return damage;
+	}
+
+	/**
+	 * @param damage the damage to set
+	 */
+	public void setDamage(int damage) {
+		this.damage = damage;
+	}
+
+	/**
+	 * @return the alive
+	 */
+	public boolean isAlive() {
+		return alive;
+	}
+
+	/**
+	 * @param alive the alive to set
+	 */
+	public void setAlive(boolean alive) {
+		this.alive = alive;
+	}
+
+	/**
+	 * @return the position
+	 */
+	public Vector3 getPosition() {
+		return position;
+	}
+
+	/**
+	 * @return the rotation
+	 */
+	public Vector3 getRotation() {
+		return rotation;
+	}
+
+	/**
+	 * @return the velocity
+	 */
+	public Vector3 getVelocity() {
+		return velocity;
 	}
 }

@@ -43,8 +43,7 @@ public abstract class Equipment_HAND extends Equippable{
 	private static final long serialVersionUID = -1462740444282967851L;
 	public enum WeaponType {
 		MELEE,
-		RANGED,
-		SPELL
+		RANGED
 	}
 	
 	public static WeaponType convertStringtoWepType(String type)
@@ -73,19 +72,26 @@ public abstract class Equipment_HAND extends Equippable{
 		Equipment_HAND weapon = null;
 		RiggedModel model = null;
 
+		if (visualType.equalsIgnoreCase("sword"))
+		{
+			model = RiggedModel.getSword(level, range, scale);
+		}
+		else if (visualType.equalsIgnoreCase("torch"))
+		{
+			model = RiggedModel.getTorch(level);
+		}
+		
 		if (type == WeaponType.MELEE)
 		{
-			if (visualType.equalsIgnoreCase("sword"))
-			{
-				model = RiggedModel.getSword(level, range, scale);
-			}
-			else if (visualType.equalsIgnoreCase("torch"))
-			{
-				model = RiggedModel.getTorch(level);
-			}
 			weapon = new MeleeWeapon(MeleeWeapon.convertWeaponStyle(styleString),  
-					strength, ele_dam, dam_dam,
-					attack_speed, weight, two_handed, model);
+					weight, strength, ele_dam, dam_dam,
+					attack_speed, two_handed, model);
+		}
+		else if (type == WeaponType.RANGED)
+		{
+			weapon = new RangedWeapon(RangedWeapon.convertWeaponStyle(styleString),  
+					weight, strength, ele_dam, dam_dam,
+					attack_speed, two_handed, model);
 		}
 		
 		return weapon;
@@ -159,6 +165,7 @@ public abstract class Equipment_HAND extends Equippable{
 				actor.R_HAND.unequip();
 				actor.R_HAND = null;
 			}
+			model.rootNode.position.setToTranslation(-actor.getRadius(), 0, -2);
 		}
 		else if (side == 2)
 		{
@@ -167,6 +174,7 @@ public abstract class Equipment_HAND extends Equippable{
 				actor.L_HAND.unequip();
 				actor.L_HAND = null;
 			}
+			model.rootNode.position.setToTranslation(actor.getRadius(), 0, -2);
 		}
 		else
 		{
@@ -176,6 +184,8 @@ public abstract class Equipment_HAND extends Equippable{
 		holder = actor;
 		holderUID = holder.UID;
 		equippedSide = side;
+		
+		model.equip(actor, side);	
 		equipped(actor, side);
 		
 	}

@@ -76,8 +76,8 @@ public class MeleeWeapon extends Equipment_HAND {
 	}
 
 	public MeleeWeapon(Melee_Weapon_Style style,  
-			int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
-			float attack_speed, float weight, boolean two_handed, RiggedModel model) {
+			float weight, int strength, HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
+			float attack_speed, boolean two_handed, RiggedModel model) {
 		super(weight, strength, ele_dam, dam_dam, attack_speed, two_handed, model);
 		
 		if (style == Melee_Weapon_Style.SWING)
@@ -124,17 +124,7 @@ public class MeleeWeapon extends Equipment_HAND {
 
 	@Override
 	protected void equipped(GameActor actor, int side) {
-		
-		model.equip(actor, side);
-		
-		if (side == 1)
-		{
-			model.rootNode.position.setToTranslation(-actor.getRadius(), 0, -2);
-		}
-		else if (side == 2)
-		{
-			model.rootNode.position.setToTranslation(actor.getRadius(), 0, -2);
-		}
+
 	}
 
 	@Override

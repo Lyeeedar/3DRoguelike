@@ -51,11 +51,14 @@ public class RiggedModelNode implements Serializable
 	public transient ParticleEmitter particleEmitter;
 	public String particleEmitterUID;
 	
-	public RiggedModelNode(RiggedSubMesh[] submeshes, int[] submeshMaterials, Matrix4 position, Matrix4 rotation, int rigidity, boolean collidable)
+	public final String ID;
+	
+	public RiggedModelNode(String ID, RiggedSubMesh[] submeshes, int[] submeshMaterials, Matrix4 position, Matrix4 rotation, int rigidity, boolean collidable)
 	{
+		this.ID = ID;
 		if (submeshes.length != submeshMaterials.length)
 		{
-			System.err.println("Invalid number of materials to submeshes in RiggedModel!");
+			throw new RuntimeException("Invalid number of materials to submeshes in RiggedModelNode!");
 		}
 		
 		this.submeshes = submeshes;
@@ -129,7 +132,7 @@ public class RiggedModelNode implements Serializable
 		tmpVec.set(0, 0, 0).mul(composedMatrix);
 		
 		if (collidable && collideMode) {
-			GameActor ga = GameData.level.checkEntities(tmpVec, radius, holder.UID);
+			GameActor ga = GameData.level.checkActors(tmpVec, radius, holder.UID);
 
 			LevelObject lo = GameData.level.checkLevelObjects(tmpVec, radius);
 			
@@ -302,5 +305,21 @@ public class RiggedModelNode implements Serializable
 		{
 			rmn.bakeLight(lights, bakeStatics);
 		}
+	}
+	
+	public RiggedModelNode getNode(String ID)
+	{
+		if (this.ID.equalsIgnoreCase(ID))
+		{
+			return this;
+		}
+		
+		for (RiggedModelNode rmn : childNodes)
+		{
+			RiggedModelNode returned = rmn.getNode(ID);
+			if (returned != null) return returned;
+		}
+		
+		return null;
 	}
 }

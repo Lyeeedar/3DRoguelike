@@ -64,7 +64,7 @@ public class PointLight implements Comparable, Serializable {
 			dist++;
 		}
 		
-		dist *= 2;
+		dist *= 4;
 		
 		if (area != null) area.dispose();
 		area = Shapes.genIcosahedronMesh(dist, dist);

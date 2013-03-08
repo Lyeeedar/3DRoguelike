@@ -13,16 +13,11 @@ package com.lyeeedar.Roguelike3D.Graphics.Lights;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public class LightManager implements Serializable {
 	
@@ -57,7 +52,7 @@ public class LightManager implements Serializable {
 	private transient float[] powers;
 
 	public int maxLightsPerModel;
-	private final Colour ambientLight = new Colour();
+	private final Color ambientLight = new Color();
 	private final Vector3 ambientDir = new Vector3();
 
 	public LightManager (int maxLightsPerModel, LightQuality lightQuality) {
@@ -73,7 +68,7 @@ public class LightManager implements Serializable {
 		ambientDir.set(x, y, z);
 	}
 	
-	public void setAmbient(Colour colour, Vector3 dir)
+	public void setAmbient(Color colour, Vector3 dir)
 	{
 		ambientLight.set(colour);
 		ambientDir.set(dir);
@@ -194,13 +189,13 @@ public class LightManager implements Serializable {
 			positions[3 * i + 1] = pos.y;
 			positions[3 * i + 2] = pos.z;
 
-			final Colour col = light.colour;
-			colors[3 * i + 0] = col.r;
-			colors[3 * i + 1] = col.g;
-			colors[3 * i + 2] = col.b;
+			//final Color col = light.colour;
+			//colors[3 * i + 0] = col.r;
+			//colors[3 * i + 1] = col.g;
+			//colors[3 * i + 2] = col.b;
 
-			attenuations[i] = light.attenuation;
-			powers[i] = light.power;
+			//attenuations[i] = light.attenuation;
+			//powers[i] = light.power;
 		}
 	}
 	
@@ -215,47 +210,45 @@ public class LightManager implements Serializable {
 	
 	public void applyAmbient(ShaderProgram shader)
 	{
-		shader.setUniformf("u_colour", ambientLight.r, ambientLight.g, ambientLight.b);
+		//shader.setUniformf("u_colour", ambientLight.r, ambientLight.g, ambientLight.b);
 	}
 	
-	public Vector3 calculateLightAtPoint(Vector3 position, Vector3 normal, boolean bakeStatics)
-	{
-		Vector3 h_ambient = ambientLight.getColour().mul(0.5f);
-		Vector3 light_agg_col = h_ambient.add(calculateLight(ambientDir, h_ambient.tmp(), 0, 1, normal));
-		
-		if (!bakeStatics) return light_agg_col;
-		
-		for (PointLight pl : staticPointLights)
-		{
-			Vector3 l_vector = pl.position.tmp().sub(position);
-			
-			light_agg_col.add(calculateLight(l_vector, pl.getColourRGB(), pl.attenuation, pl.power, normal));
-		}
-		return light_agg_col;
-	}
-	
-	private Vector3 calculateLight(Vector3 l_vector, Vector3 l_colour, float l_attenuation, float l_power, Vector3 n_dir)
-	{
-		if (l_colour.len2() == 0) return l_colour;
-		
-		float distance = l_vector.len();
-	    Vector3 l_dir = l_vector.tmp2().div(distance);
-	    //distance = distance * distance;
-	 
-	    //Intensity of the diffuse light. Saturate to keep within the 0-1 range.
-	    float NdotL = n_dir.dot(l_dir);
-	    float intensity = MathUtils.clamp( NdotL, 0.0f, 1.0f ); // Math.max(0.0f, n_dir.dot(l_dir)
-	    
-	    float attenuation = 1.0f;
-	    if (l_attenuation != 0) attenuation /= (l_attenuation*distance + l_attenuation/10*distance*distance);
-	    
-	    //System.out.println(intensity + "    " + attenuation);
-	 
-	    // Calculate the diffuse light factoring in light color, power and the attenuation
-	   	return l_colour.mul(intensity).mul(l_power).mul(attenuation);
-	}
+//	public Color calculateLightAtPoint(Vector3 position, Vector3 normal, boolean bakeStatics)
+//	{
+//		//Color h_ambient = ambientLight.mul(0.5f);
+//		//Color light_agg_col = h_ambient.add(calculateLight(ambientDir, h_ambient.tmp(), 0, 1, normal));
+//		
+//		if (!bakeStatics) return light_agg_col;
+//		
+//		for (PointLight pl : staticPointLights)
+//		{
+//			Vector3 l_vector = pl.position.tmp().sub(position);
+//			
+//			//light_agg_col.add(calculateLight(l_vector, pl.colour, pl.attenuation, pl.power, normal));
+//		}
+//		return light_agg_col;
+//	}
+//	
+//	private Color calculateLight(Vector3 l_vector, Color l_colour, float l_attenuation, float l_power, Vector3 n_dir)
+//	{
+//		float distance = l_vector.len();
+//	    Vector3 l_dir = l_vector.tmp2().div(distance);
+//	    //distance = distance * distance;
+//	 
+//	    //Intensity of the diffuse light. Saturate to keep within the 0-1 range.
+//	    float NdotL = n_dir.dot(l_dir);
+//	    float intensity = MathUtils.clamp( NdotL, 0.0f, 1.0f ); // Math.max(0.0f, n_dir.dot(l_dir)
+//	    
+//	    float attenuation = 1.0f;
+//	    if (l_attenuation != 0) attenuation /= (l_attenuation*distance + l_attenuation/10*distance*distance);
+//	    
+//	    //System.out.println(intensity + "    " + attenuation);
+//	 
+//	    // Calculate the diffuse light factoring in light color, power and the attenuation
+//	   	return l_colour.mul(intensity).mul(l_power).mul(attenuation);
+//	}
 
-	public Colour getAmbient() {
+	public Color getAmbient() {
 		return ambientLight;
 	}
 }

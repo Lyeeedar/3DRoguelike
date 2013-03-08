@@ -12,23 +12,13 @@ package com.lyeeedar.Roguelike3D.Graphics.Models;
 
 import java.io.Serializable;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.Texture.TextureWrap;
-import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Game.GameData;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.ColorAttribute;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.MaterialAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class VisibleObject implements Serializable {
@@ -45,11 +35,11 @@ public class VisibleObject implements Serializable {
 	public final String texture;
 	public final float scale;
 	public final int primitive_type;
-	public final Colour colour;
+	public final Color colour;
 	
 	public boolean disposed = true;
 	
-	public VisibleObject(int primitive_type, Colour colour, String textureName, float scale, String... modelData)
+	public VisibleObject(int primitive_type, Color colour, String textureName, float scale, String... modelData)
 	{
 		this.texture = textureName;
 		this.modelData = modelData;
@@ -58,7 +48,7 @@ public class VisibleObject implements Serializable {
 		this.scale = scale;
 	}
 	
-	public VisibleObject(Mesh mesh, Colour colour, String texture, int primitive_type, float scale)
+	public VisibleObject(Mesh mesh, Color colour, String texture, int primitive_type, float scale)
 	{
 		this.texture = texture;
 		this.modelData = new String[]{"mesh"};

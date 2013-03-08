@@ -10,27 +10,17 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Level.XML;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractRoom;
-import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.DungeonRoom.RoomType;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
-import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 public class RoomReader extends XMLReader {
 	
@@ -251,7 +241,7 @@ public class RoomReader extends XMLReader {
 					float red = Float.parseFloat(getNodeValue(RED, colour.getChildNodes()));
 					float green = Float.parseFloat(getNodeValue(GREEN, colour.getChildNodes()));
 					float blue = Float.parseFloat(getNodeValue(BLUE, colour.getChildNodes()));
-					Colour col = new Colour(red, green, blue, 1.0f);
+					Color col = new Color(red, green, blue, 1.0f);
 
 					ao.setModel(modelType, modelName, modelScale, texture, col, dim);
 				}
@@ -312,7 +302,7 @@ public class RoomReader extends XMLReader {
 				float red = Float.parseFloat(getNodeValue(RED, colour.getChildNodes()));
 				float green = Float.parseFloat(getNodeValue(GREEN, colour.getChildNodes()));
 				float blue = Float.parseFloat(getNodeValue(BLUE, colour.getChildNodes()));
-				Colour col = new Colour(red, green, blue, 1.0f);
+				Color col = new Color(red, green, blue, 1.0f);
 				
 				ao.setModel(modelType, modelName, modelScale, texture, col, dim);
 			}

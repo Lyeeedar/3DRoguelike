@@ -13,9 +13,12 @@ package com.lyeeedar.Roguelike3D.Graphics.ParticleEffects;
 import java.io.Serializable;
 import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
@@ -29,6 +32,7 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
@@ -37,14 +41,14 @@ import com.badlogic.gdx.utils.BufferUtils;
 import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 
 public class ParticleEmitter implements Serializable {
 	
-	private transient static final int VERTEX_SIZE = 10;
+	private transient static final int VERTEX_SIZE = 9;
 	
 	private static final long serialVersionUID = 6308492057144008114L;
+	private transient Vector3 pos;
 	private transient int signx;
 	private transient int signy;
 	private transient int signz;
@@ -75,6 +79,7 @@ public class ParticleEmitter implements Serializable {
 	private float emissionTime;
 	private float x, y, z;
 	private float ex, ey, ez;
+	private float radius;
 	private int emissionType;
 	private int blendFuncSRC;
 	private int blendFuncDST;
@@ -82,8 +87,12 @@ public class ParticleEmitter implements Serializable {
 	
 	// ----- Transient Variables ----- //
 	private transient static ShaderProgram shader;
-	private transient static String[] boundSprites;
-	private transient TextureAtlas atlas;
+	private transient static String boundAtlas;
+	private transient Texture atlasTexture;
+	private transient float[][] topLeftTexCoords;
+	private transient float[][] topRightTexCoords;
+	private transient float[][] botLeftTexCoords;
+	private transient float[][] botRightTexCoords;
 	private String atlasName;
 	private transient Bag<Particle> active;
 	private transient Bag<Particle> inactive;
@@ -101,7 +110,7 @@ public class ParticleEmitter implements Serializable {
 	private float lightAttenuation;
 	private float lightPower;
 	private boolean isLightStatic;
-	private Colour lightColour;
+	private Color lightColour;
 	private boolean lightFlicker;
 	// ----- End Light ----- //
 	
@@ -112,19 +121,36 @@ public class ParticleEmitter implements Serializable {
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 	}
 	
+	public int getActiveParticles() {
+		return active.size();
+	}
+	
+	public float getRadius()
+	{
+		return radius;
+	}
+	
+	public Vector3 getPosition()
+	{
+		return pos.set(x, y, z);
+	}
+	
 	public void setPosition(float x, float y, float z)
 	{
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		
+		if (light != null) light.position.set(x, y, z);
 	}
 	
-	public void setEmitterParameters(float particleLifetime, float emissionTime, 
+	public void setEmitterParameters(float particleLifetime, float particleLifetimeVar, float emissionTime, 
 			float ex, float ey, float ez,
 			int emissionType,
 			int blendFuncSRC, int blendFuncDST)
 	{
 		this.particleLifetime = particleLifetime;
+		this.particleLifetimeVar = particleLifetimeVar;
 		this.emissionTime = emissionTime;
 		this.ex = ex;
 		this.ey = ey;
@@ -132,14 +158,14 @@ public class ParticleEmitter implements Serializable {
 		this.emissionType = emissionType;
 		this.blendFuncSRC = blendFuncSRC;
 		this.blendFuncDST = blendFuncDST;
-		this.particles = (int) (particleLifetime / emissionTime);
+		this.particles = (int) (particleLifetime+particleLifetimeVar / emissionTime);
+		this.radius = ex+ey+ez;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void setParticleParameters(String atlasName, float width, float height, Colour start, Colour end, float vx, float vy, float vz)
+	public void setParticleParameters(String atlasName, float width, float height, Color start, Color end, float vx, float vy, float vz)
 	{
 		this.atlasName = atlasName;
-		this.atlas = GameData.loadAtlas(atlasName);
 		
 		this.sprite = new TimelineValue[]{new TimelineValue<Integer>(0, 0)};
 		
@@ -151,7 +177,7 @@ public class ParticleEmitter implements Serializable {
 		this.velocity = new TimelineValue[]{new TimelineValue<Float>(0, vx, vy, vz)};
 	}
 	
-	public void addLight(boolean isStatic, float attenuation, float power, Colour colour, boolean flicker)
+	public void addLight(boolean isStatic, float attenuation, float power, Color colour, boolean flicker)
 	{
 		this.lightAttenuation = attenuation;
 		this.lightPower = power;
@@ -178,17 +204,43 @@ public class ParticleEmitter implements Serializable {
 		
 		if (shader == null)
 		{
-			shader = new ShaderProgram(shader_vertex, shader_fragment);
-		}
-		if (boundSprites == null)
-		{
-			boundSprites = new String[10];
+			shader = new ShaderProgram(SHADER_VERTEX, SHADER_FRAGMENT);
 		}
 		
 		ran = new Random();
-		for (int i = 0; i < spriteNames.length; i++)
+
+		TextureAtlas atlas = GameData.loadAtlas(atlasName);
+		Set<Texture> atlasTextures = atlas.getTextures();
+		Iterator<Texture> itr = atlasTextures.iterator();
+	
+		atlasTexture = itr.next();
+		
+		int maxIndex = 0;
+		for (TimelineValue<Integer> spriteTL : sprite)
 		{
-			sprites[i] = GameData.loadTexture(spriteNames[i], true);
+			Integer index = spriteTL.getValue()[0];
+			
+			if (index > maxIndex) maxIndex = index;
+		}
+		
+		topLeftTexCoords = new float[maxIndex+1][2];
+		topRightTexCoords = new float[maxIndex+1][2];
+		botLeftTexCoords = new float[maxIndex+1][2];
+		botRightTexCoords = new float[maxIndex+1][2];
+		
+		for (int i = 0; i < maxIndex+1; i++)
+		{
+			AtlasRegion region = atlas.findRegion("sprite"+i);
+			
+			float[] tl = {region.getRegionX(), region.getRegionY()};
+			float[] tr = {region.getRegionX()+region.getRegionWidth(), region.getRegionY()};
+			float[] bl = {region.getRegionX(), region.getRegionY()+region.getRegionHeight()};
+			float[] br = {region.getRegionX()+region.getRegionWidth(), region.getRegionY()+region.getRegionHeight()};
+			
+			topLeftTexCoords[i] = tl;
+			topRightTexCoords[i] = tr;
+			botLeftTexCoords[i] = bl;
+			botRightTexCoords[i] = br;
 		}
 		
 		active = new Bag<Particle>(particles);
@@ -200,8 +252,8 @@ public class ParticleEmitter implements Serializable {
 			inactive.add(p);
 		}
 		
-		vertices = new float[particles*VERTEX_SIZE*10];
-		mesh = new Mesh(false, particles*4, particles*6, 
+		vertices = new float[particles*VERTEX_SIZE*4];
+		mesh = new Mesh(false, particles*4, particles*6,
 				new VertexAttribute(Usage.Position, 3, "a_position"),
 				new VertexAttribute(Usage.Generic, 4, "a_colour"),
 				new VertexAttribute(Usage.Generic, 1, "a_sprite"),
@@ -230,6 +282,8 @@ public class ParticleEmitter implements Serializable {
 	public void fixReferences()
 	{
 		create();
+		
+		pos = new Vector3();
 		
 		if (lightUID != null)
 		{
@@ -263,9 +317,18 @@ public class ParticleEmitter implements Serializable {
 
 	public void render()
 	{
-		atlas.getTextures().
-
 		Gdx.gl.glBlendFunc(blendFuncSRC, blendFuncDST);
+		
+		if (boundAtlas != null && atlasName.equals(boundAtlas)) {
+			
+		}
+		else
+		{
+			atlasTexture.bind(0);
+			shader.setUniformi("u_texture", 0);
+			
+			boundAtlas = atlasName;
+		}
 		
 		mesh.render(shader, GL20.GL_TRIANGLES, 0, VERTEX_SIZE * activeParticles);
 	}
@@ -286,6 +349,8 @@ public class ParticleEmitter implements Serializable {
 		
 		Gdx.gl.glDepthMask(true);
 		Gdx.gl.glDisable(GL20.GL_BLEND);
+		
+		boundAtlas = null;
 	}
 
 	public void update(float delta, Camera cam)
@@ -336,8 +401,8 @@ public class ParticleEmitter implements Serializable {
 			
 			vertices[(i*VERTEX_SIZE)+7] = sprite[0];
 			
-			vertices[(i*VERTEX_SIZE)+8] = 0.0f;
-			vertices[(i*VERTEX_SIZE)+9] = 0.0f;
+			vertices[(i*VERTEX_SIZE)+8] = topLeftTexCoords[sprite[0]][0];
+			vertices[(i*VERTEX_SIZE)+9] = topLeftTexCoords[sprite[0]][1];
 			
 			nPos = quad.set(p.x, p.y, p.z).add(size[0]/2, size[1]/2, 0).mul(tmpMat);
 
@@ -352,8 +417,8 @@ public class ParticleEmitter implements Serializable {
 			
 			vertices[(i*VERTEX_SIZE)+17] = sprite[0];
 			
-			vertices[(i*VERTEX_SIZE)+18] = 1.0f;
-			vertices[(i*VERTEX_SIZE)+19] = 0.0f;
+			vertices[(i*VERTEX_SIZE)+18] = topRightTexCoords[sprite[0]][0];
+			vertices[(i*VERTEX_SIZE)+19] = topRightTexCoords[sprite[0]][1];
 			
 			nPos = quad.set(p.x, p.y, p.z).add(-size[0]/2, -size[1]/2, 0).mul(tmpMat);
 
@@ -368,8 +433,8 @@ public class ParticleEmitter implements Serializable {
 			
 			vertices[(i*VERTEX_SIZE)+27] = sprite[0];
 			
-			vertices[(i*VERTEX_SIZE)+28] = 0.0f;
-			vertices[(i*VERTEX_SIZE)+29] = 1.0f;
+			vertices[(i*VERTEX_SIZE)+28] = botLeftTexCoords[sprite[0]][0];
+			vertices[(i*VERTEX_SIZE)+29] = botLeftTexCoords[sprite[0]][1];
 			
 			nPos = quad.set(p.x, p.y, p.z).add(size[0]/2, -size[1]/2, 0).mul(tmpMat);
 
@@ -384,8 +449,8 @@ public class ParticleEmitter implements Serializable {
 			
 			vertices[(i*VERTEX_SIZE)+37] = sprite[0];
 			
-			vertices[(i*VERTEX_SIZE)+38] = 1.0f;
-			vertices[(i*VERTEX_SIZE)+39] = 1.0f;
+			vertices[(i*VERTEX_SIZE)+38] = topRightTexCoords[sprite[0]][0];
+			vertices[(i*VERTEX_SIZE)+39] = topRightTexCoords[sprite[0]][1];
 
 			i++;
 		}
@@ -405,7 +470,7 @@ public class ParticleEmitter implements Serializable {
 				signx = (ran.nextInt(2) == 0) ? 1 : -1;
 				signy = (ran.nextInt(2) == 0) ? 1 : -1;
 				signz = (ran.nextInt(2) == 0) ? 1 : -1;
-				p.set(particleLifetimeVar*ran.nextFloat(),
+				p.set(particleLifetime+particleLifetimeVar*ran.nextFloat(),
 						x+(float)(ex*ran.nextGaussian()*signx), 
 						y+(float)(ey*ran.nextGaussian()*signy),
 						z+(float)(ez*ran.nextGaussian()*signz));
@@ -437,7 +502,7 @@ public class ParticleEmitter implements Serializable {
 			tv = searchTimeline(time, velocity);
 		}
 		
-		return (T[]) tv.getValue(time);
+		return (T[]) tv.getValueInterpolated(time);
 	}
 	
 	private <T extends Number> TimelineValue<T> searchTimeline(float time, TimelineValue<T>[] value)
@@ -452,6 +517,40 @@ public class ParticleEmitter implements Serializable {
 		return value[value.length-1];
 	}
 
+	@SuppressWarnings("unchecked")
+	public ParticleEmitter copy()
+	{
+		ParticleEmitter copy = new ParticleEmitter();
+		copy.setEmitterParameters(particleLifetime, particleLifetimeVar, emissionTime, VERTEX_SIZE, ey, ez, emissionType, blendFuncSRC, blendFuncDST);
+		copy.atlasName = atlasName;
+		
+		TimelineValue<Integer>[] cpySprite = new TimelineValue[sprite.length];
+		for (int i = 0; i < sprite.length; i++) cpySprite[i] = sprite[i].copy();
+		copy.sprite = cpySprite;
+		
+		TimelineValue<Float>[] cpySize = new TimelineValue[size.length];
+		for (int i = 0; i < size.length; i++) cpySize[i] = size[i].copy();
+		copy.size = cpySize;
+
+		TimelineValue<Float>[] cpyColour = new TimelineValue[colour.length];
+		for (int i = 0; i < colour.length; i++) cpyColour[i] = colour[i].copy();
+		copy.colour = cpyColour;
+		
+		TimelineValue<Float>[] cpyVelocity = new TimelineValue[velocity.length];
+		for (int i = 0; i < velocity.length; i++) cpyVelocity[i] = velocity[i].copy();
+		copy.velocity = cpyVelocity;
+
+		if (lightUID != null)
+			copy.addLight(isLightStatic, lightAttenuation, lightPower, lightColour, lightFlicker);
+		
+		return copy;
+	}
+	
+	/**
+	 * A particle, containing its current lifetime and position.
+	 * @author Philip
+	 *
+	 */
 	class Particle {
 		float lifetime;
 		float x, y, z;
@@ -477,6 +576,12 @@ public class ParticleEmitter implements Serializable {
 		}
 	}
 	
+	/**
+	 * A value of a parameter in a timeline. Can be set to interpolate between this value and the next one.
+	 * @author Philip
+	 *
+	 * @param <T>
+	 */
 	class TimelineValue<T extends Number> implements Serializable {
 		
 		private static final long serialVersionUID = 5296859966301178337L;
@@ -497,7 +602,13 @@ public class ParticleEmitter implements Serializable {
 		}
 		
 		@SuppressWarnings("unchecked")
-		public T[] getValue(float currentTime)
+		public T[] getValue()
+		{
+			return (T[]) values;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public T[] getValueInterpolated(float currentTime)
 		{
 			if (!interpolated)
 			{
@@ -528,38 +639,46 @@ public class ParticleEmitter implements Serializable {
 				}
 			}
 		}
+		
+		private void setValues(boolean interpolated, Number[] valueStep, Number[] interpolatedValues)
+		{
+			this.interpolated = interpolated;
+			this.valueStep = valueStep;
+			this.interpolatedValues = interpolatedValues;
+		}
+		
+		public TimelineValue<T> copy()
+		{
+			TimelineValue<T> copy = new TimelineValue<T>(time, (T[]) values);
+			copy.setValues(interpolated, valueStep, interpolatedValues);
+			return copy;
+		}
 	}
 
-	private static final int[] texture_indexes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-	
-	private static final String shader_vertex = 
+	private static final String SHADER_VERTEX = 
 			"attribute vec3 a_position;" + "\n" +
 			"attribute vec4 a_colour;" + "\n" +
-			"attribute float a_sprite" + "\n" +
 			"attribute vec2 a_texCoords;" + "\n" +
 
 			"uniform mat4 u_pv;" + "\n" +
 
 			"varying vec4 v_colour;" + "\n" +
-			"varying int v_sprite;" + "\n" +
 			"varying vec2 v_texCoords;" + "\n" +
 
 			"void main() {" + "\n" +
-				"v_sprite = int(a_sprite);" + "\n" +
 				"v_colour = a_colour;" + "\n" +
 				"v_texCoords = a_texCoords;" + "\n" +
 
 				"gl_Position = u_pv * vec4(a_position, 1.0);" + "\n" +
 			"}";
 
-	private static final String shader_fragment = 
-			"uniform sampler2D u_texture[10];" + "\n" +
+	private static final String SHADER_FRAGMENT = 
+			"uniform sampler2D u_texture;" + "\n" +
 	
 			"varying vec4 v_colour;" + "\n" +
-			"varying int v_sprite;" + "\n" +
 			"varying vec2 v_texCoords;" + "\n" +
 
 			"void main() {" + "\n" +
-				"gl_FragColor = texture2D(u_texture[v_sprite], v_texCoords) * v_colour;" + "\n" +
+				"gl_FragColor = 1.0f;\n//texture2D(u_texture, v_texCoords) * v_colour;" + "\n" +
 	   		"}";
 }

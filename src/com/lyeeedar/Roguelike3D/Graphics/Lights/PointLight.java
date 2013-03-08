@@ -17,7 +17,6 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
 
 public class PointLight implements Comparable, Serializable {
@@ -30,7 +29,7 @@ public class PointLight implements Comparable, Serializable {
 	final public String UID;
 
 	final public Vector3 position;
-	public Colour colour;
+	private Color colour;
 	public float attenuation;
 	public float power;
 
@@ -43,24 +42,28 @@ public class PointLight implements Comparable, Serializable {
 	public transient Mesh area;
 	public transient float radius;
 
-	public PointLight(Vector3 position, Colour colour, float attentuation, float power)
+	public PointLight(Vector3 position, Color colour, float attentuation, float power)
 	{
 		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.position = position;
-		this.colour = colour;
+		this.colour = colour.cpy();
 		this.attenuation = attentuation;
 		this.power = power;
 		
+		System.out.println(colour);
+		
 		computeMesh();
+		
+		System.out.println(colour);
 	}
 	
 	public void computeMesh()
 	{
-		Vector3 intensity = colour.getColour();
+		Vector3 intensity = new Vector3(colour.r, colour.g, colour.b);
 		float dist = 1;
 		while (intensity.len2() > 0.5f)
 		{
-			intensity = colour.getColour().div((attenuation + (attenuation/5)*dist)*dist);
+			intensity.set(colour.r, colour.g, colour.b).div((attenuation + (attenuation/5)*dist)*dist);
 			dist++;
 		}
 		
@@ -86,11 +89,6 @@ public class PointLight implements Comparable, Serializable {
 	@Override
 	public int compareTo (Object other) {
 		return this.priority - ((PointLight)other).priority;
-	}
-	
-	public Vector3 getColourRGB()
-	{
-		return colour.getColour();
 	}
 	
 	public void fixReferences()

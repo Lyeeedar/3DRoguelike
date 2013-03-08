@@ -10,31 +10,17 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Item;
 
-import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Random;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.lyeeedar.Roguelike3D.Game.GameData;
-import com.lyeeedar.Roguelike3D.Game.GameObject;
-import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
-import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
-import com.lyeeedar.Roguelike3D.Game.Level.Level;
-import com.lyeeedar.Roguelike3D.Game.Level.Tile;
-import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModel;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedOneHandedStab;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedOneHandedSwing;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
 
 public class MeleeWeapon extends Equipment_HAND {
 	

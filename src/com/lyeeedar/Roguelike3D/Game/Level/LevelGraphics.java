@@ -22,16 +22,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
-import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillModel;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillModelAttributes;
 import com.lyeeedar.Roguelike3D.Graphics.Models.TempMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.TempVO;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
@@ -44,7 +39,7 @@ public class LevelGraphics {
 	public ArrayList<VisibleObject> graphics = new ArrayList<VisibleObject>();
 	
 	Tile[][] levelArray;
-	HashMap<Character, Colour> colours;
+	HashMap<Character, Color> colours;
 	BiomeReader biome;
 	
 	public int width;
@@ -60,7 +55,7 @@ public class LevelGraphics {
 	
 	public final boolean drawRoofs;
 	
-	public LevelGraphics(Tile[][] levelArray, HashMap<Character, Colour> colours, BiomeReader biome, boolean drawRoofs)
+	public LevelGraphics(Tile[][] levelArray, HashMap<Character, Color> colours, BiomeReader biome, boolean drawRoofs)
 	{
 		this.drawRoofs = drawRoofs;
 		this.levelArray = levelArray;
@@ -94,7 +89,7 @@ public class LevelGraphics {
 			{
 				char c = levelArray[x][y].character;
 				if (c == ' ') continue;
-				font.setColor(colours.get(c).getColor());
+				font.setColor(colours.get(c));
 				font.draw(sB, ""+c, x*STEP, y*STEP);
 
 			}

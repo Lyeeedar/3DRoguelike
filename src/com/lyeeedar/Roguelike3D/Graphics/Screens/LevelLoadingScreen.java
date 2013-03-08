@@ -14,18 +14,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
+import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.GameStats;
 import com.lyeeedar.Roguelike3D.Game.Actor.Enemy;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
-import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
-import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND.WeaponType;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
@@ -33,10 +34,10 @@ import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SkyBox;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 
@@ -108,7 +109,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 					lo.dispose();
 				}
 				
-				for (ParticleEmitter pe : GameData.level.getParticleEmitters())
+				for (ParticleEffect pe : GameData.level.getParticleEffects())
 				{
 					pe.dispose();
 				}
@@ -133,7 +134,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		{
 			level.createLevelObjects();
 			level.createActors();
-			level.createParticleEmitters();
+			level.createParticleEffects();
 			
 			Player player = null;
 			
@@ -147,7 +148,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 			
 			if (player == null)
 			{
-				player = new Player(new Colour(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 0.5f, GL20.GL_TRIANGLES, "file", "model@");
+				player = new Player(new Color(0, 0.6f, 0, 1.0f), "blank", 0, 0, 0, 0.5f, GL20.GL_TRIANGLES, "file", "model@");
 				
 				HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
 				DAM_DEF.put(Damage_Type.PIERCE, 50);
@@ -302,7 +303,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		renderer = new ForwardRenderer();
 		renderer.createShader(lightManager);
 
-		GameObject go = new Enemy(new Colour(), "icon", 0, 0, -4, 0.5f, GL20.GL_TRIANGLES, "cube", "2", "2", "2");
+		GameObject go = new Enemy(new Color(), "icon", 0, 0, -4, 0.5f, GL20.GL_TRIANGLES, "cube", "2", "2", "2");
 		go.create();
 		go.vo.bakeLights(lightManager, true);
 

@@ -3,6 +3,8 @@ package com.lyeeedar.Roguelike3D.Game.Item;
 import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -12,12 +14,11 @@ import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Game.Spell.SpellBehaviourBolt;
 import com.lyeeedar.Roguelike3D.Game.Spell.SpellBehaviourSingleDamage;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModel;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModelBehaviourCastSpell;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModelNode;
-import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedOneHandedStab;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedOneHandedSwing;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public class RangedWeapon extends Equipment_HAND {
@@ -47,10 +48,15 @@ public class RangedWeapon extends Equipment_HAND {
 		
 		if (style == Ranged_Weapon_Style.FIREBALL)
 		{
-			ParticleEmitter pe = new ParticleEmitter(0, 0, 0, 0.3f, 0.3f, 0.3f, 0.005f, 1);
-			pe.setTexture("texf", new Vector3(0.0f, 2.0f, 0.0f), new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 0.5f, 1f, true, false);
+			ParticleEffect effect = new ParticleEffect(5);
+			ParticleEmitter flame = new ParticleEmitter();
+			flame.setEmitterParameters(1, 1, 0.1f, 1, 1, 1, 0, GL20.GL_ONE, GL20.GL_ONE);
+			flame.setParticleParameters("f", 50, 50, Color.YELLOW, Color.RED, 0, 2, 0);
+			flame.addLight(false, 0.5f, 0.5f, Color.ORANGE, true);
+			effect.addEmitter(flame, 
+					0, 0, 0);
 			
-			Spell spell = new Spell("", pe, pe.getRadius());
+			Spell spell = new Spell("",effect, 5);
 			spell.setDamage(dam_dam, ele_dam, strength);
 			spell.setBehaviour(new SpellBehaviourBolt(), new SpellBehaviourSingleDamage());
 			

@@ -17,10 +17,8 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 
 public class Shapes {
@@ -548,11 +546,11 @@ public class Shapes {
 			Vector3 normal = new Vector3(verts[(i*vertexSize)+normalOffset], verts[(i*vertexSize)+normalOffset+1], verts[(i*vertexSize)+normalOffset+2]);
 			normal.rot(normal_matrix).nor();
 
-			Vector3 light_colour = lights.calculateLightAtPoint(position, normal, bakeStatics);
+			//Color light_colour = lights.calculateLightAtPoint(position, normal, bakeStatics);
 			
-			newVerts[ (i*newVertexSize) + j ] = light_colour.x;
-			newVerts[ (i*newVertexSize) + j + 1 ] = light_colour.y;
-			newVerts[ (i*newVertexSize) + j + 2 ] = light_colour.z;
+			//newVerts[ (i*newVertexSize) + j ] = light_colour.r;
+			//newVerts[ (i*newVertexSize) + j + 1 ] = light_colour.g;
+			//newVerts[ (i*newVertexSize) + j + 2 ] = light_colour.b;
 		}
 		
 		Mesh newMesh = new Mesh(true, mesh.getNumVertices(), mesh.getNumIndices(), newAttributes);

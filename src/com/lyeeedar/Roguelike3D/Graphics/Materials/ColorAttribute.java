@@ -10,12 +10,10 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Graphics.Materials;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Pool;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 
 public class ColorAttribute extends MaterialAttribute {
@@ -23,9 +21,10 @@ public class ColorAttribute extends MaterialAttribute {
 	private static final long serialVersionUID = 8802901657668185338L;
 	static final public String colour = "u_colour";
 
-	public final Colour color = new Colour();
+	public final Color color;
 
 	protected ColorAttribute () {
+		color = new Color();
 	}
 
 	/** Creates a {@link MaterialAttribute} that is a pure {@link Color}.
@@ -33,9 +32,9 @@ public class ColorAttribute extends MaterialAttribute {
 	 * @param color The {@link Colour} that you wish the attribute to represent.
 	 * @param name The name of the uniform in the {@link ShaderProgram} that will have its value set to this color. (A 'name' does
 	 *           not matter for a game that uses {@link GL10}). */
-	public ColorAttribute (Colour color, String name) {
+	public ColorAttribute (Color color, String name) {
 		super(name);
-		this.color.set(color);
+		this.color = color.cpy();
 	}
 
 	@Override
@@ -52,7 +51,7 @@ public class ColorAttribute extends MaterialAttribute {
 	public void set (MaterialAttribute attr) {
 		ColorAttribute colAttr = (ColorAttribute)attr;
 		name = colAttr.name;
-		final Colour c = colAttr.color;
+		final Color c = colAttr.color;
 		color.r = c.r;
 		color.g = c.g;
 		color.b = c.b;

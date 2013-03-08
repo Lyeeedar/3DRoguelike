@@ -16,14 +16,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
+import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.CircularArrayRing;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 
 public class MotionTrail {
 	
@@ -34,13 +33,13 @@ public class MotionTrail {
 	
 	final ShaderProgram shader;
 	
-	Colour colour;
+	Color colour;
 	
 	Texture texture;
 	
 	final float[] vertices;
 
-	public MotionTrail(int vertsNum, Colour colour, String texture) 
+	public MotionTrail(int vertsNum, Color colour, String texture) 
 	{		
 		this.colour = colour;
 		this.texture = new Texture(Gdx.files.internal(texture));
@@ -123,7 +122,7 @@ public class MotionTrail {
 		texture.bind();
 		
 		shader.setUniformMatrix("u_mv", cam.combined);
-		shader.setUniformf("u_colour", colour.r, colour.g, colour.b, colour.a);
+		//shader.setUniformf("u_colour", colour.r, colour.g, colour.b, colour.a);
 		
 		mesh.render(shader, GL20.GL_TRIANGLE_STRIP);
 		

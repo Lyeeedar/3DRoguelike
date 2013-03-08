@@ -2,30 +2,16 @@ package com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels;
 
 import java.io.Serializable;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
-import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
-import com.lyeeedar.Roguelike3D.Game.Spell.SpellBehaviourBolt;
-import com.lyeeedar.Roguelike3D.Game.Spell.SpellBehaviourSingleDamage;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.MaterialAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
-import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class RiggedModel implements Serializable {
@@ -159,7 +145,7 @@ public class RiggedModel implements Serializable {
 		nodeTip.setChilden();
 		
 		Material material = new Material("basic");
-		material.setColour(new Colour());
+		material.setColour(new Color(1.0f, 1.0f, 1.0f, 1.0f));
 		material.setTexture("rockmag");
 		
 		return new RiggedModel(rootnode, new Material[]{material});
@@ -181,20 +167,26 @@ public class RiggedModel implements Serializable {
 		
 		RiggedModelNode node1 = new RiggedModelNode("Tip", meshes1, new int[]{0}, new Matrix4().setToTranslation(0, -0.5f, -0.5f), new Matrix4(), 100, true);
 		
-		ParticleEmitter p = new ParticleEmitter(0, 0, 0, 0.1f, 0.1f, 0.1f, 0.04f, 2);
-		p.setTexture("texf", new Vector3(0.0f, 1.7f, 0.0f), new Colour(0.8f, 1.0f, 0.3f, 1.0f), new Colour(0.9f, 0.2f, 0.0f, 1.0f), true, 0.04f, 0.3f, true, false);
-		p.create();
+		
+		ParticleEffect effect = new ParticleEffect(5);
+		ParticleEmitter flame = new ParticleEmitter();
+		flame.setEmitterParameters(1, 1, 0.04f, 0.1f, 0.1f, 0.1f, 0, GL20.GL_ONE, GL20.GL_ONE);
+		flame.setParticleParameters("f", 50, 50, Color.YELLOW, Color.RED, 0, 1.7f, 0);
+		flame.addLight(false, 0.04f, 0.3f, Color.ORANGE, true);
+		effect.addEmitter(flame, 
+				0, 0, 0);
+		effect.create();
 		
 		node.setChilden(node1);
 		
-		node1.setParticleEmitter(p);
+		node1.setParticleEffect(effect);
 		node1.setParent(node);
 		node1.setChilden();
 		
-		level.getParticleEmitters().add(p);
+		level.addParticleEffect(effect);
 		
 		Material material = new Material("basic");
-		material.setColour(new Colour());
+		material.setColour(new Color(1.0f, 1.0f, 1.0f, 1.0f));
 		material.setTexture("wood");
 		
 		return new RiggedModel(rootnode, new Material[]{material});

@@ -14,16 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g3d.decals.Decal;
-import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
@@ -31,12 +22,6 @@ import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
-import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
-import com.lyeeedar.Roguelike3D.Game.Item.Item;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
-import com.lyeeedar.Roguelike3D.Graphics.TextureDrawer;
-import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 
@@ -79,7 +64,7 @@ public abstract class GameActor extends GameObject{
 	boolean alive = true;
 	boolean loot = false;
 
-	public GameActor(Colour colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
+	public GameActor(Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
 	{
 		super(colour, texture, x, y, z, scale, primitive_type, model);
 		

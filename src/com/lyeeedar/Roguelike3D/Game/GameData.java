@@ -9,15 +9,11 @@
  *     Philip Collin - initial API and implementation
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game;
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -28,10 +24,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
+import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
-import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
-import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND.WeaponType;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
@@ -45,13 +40,11 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.Spawner;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Stair;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.ApplicationChanger;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
-import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SkyBox;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 
 public class GameData {
 	
@@ -140,10 +133,10 @@ public class GameData {
 		;
 		
 		private final int val;
-		private final Colour colour;
-		Rarity(int val, int r, int g, int b) { this.val = val; this.colour = new Colour(r/255f, g/255f, b/255f, 1.0f); }
+		private final Color colour;
+		Rarity(int val, int r, int g, int b) { this.val = val; this.colour = new Color(r/255f, g/255f, b/255f, 1.0f); }
 		public int getVal() { return val; }
-		public Colour getColour() { return colour; }
+		public Color getColour() { return colour; }
 	}
 	
 	public static final Vector3 UP = new Vector3(0, 1, 0);
@@ -166,7 +159,7 @@ public class GameData {
 		
 		LabelStyle ls = l.getStyle();
 		LabelStyle nls = new LabelStyle();
-		nls.fontColor = r.getColour().getColor();
+		nls.fontColor = r.getColour();
 		nls.background = ls.background;
 		nls.font = ls.font;
 		
@@ -266,7 +259,7 @@ public class GameData {
 	public static HashMap<String, TextureAtlas> loadedAtlases = new HashMap<String, TextureAtlas>();
 	public static TextureAtlas loadAtlas(String atlasName)
 	{
-		String atlasLocation = "data/textureAtlases/"+atlasName;
+		String atlasLocation = "data/atlases/"+atlasName+".atlas";
 		
 		if (loadedMeshes.containsKey(atlasLocation)) return loadedAtlases.get(atlasLocation);
 		
@@ -361,7 +354,7 @@ public class GameData {
 		lightManager.fixReferences();
 		level.fixReferences();
 		
-		for (ParticleEmitter pe : level.getParticleEmitters())
+		for (ParticleEffect pe : level.getParticleEffects())
 		{
 			pe.fixReferences();
 		}

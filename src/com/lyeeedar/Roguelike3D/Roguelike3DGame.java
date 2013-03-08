@@ -45,12 +45,7 @@ public class Roguelike3DGame extends Game {
 	
 	@Override
 	public void create() {
-		
-		FloatBuffer buffer = BufferUtils.newFloatBuffer(16);
-		Gdx.gl20.glGetFloatv(GL11.GL_POINT_SIZE_MAX, buffer);
-		ParticleEmitter.POINT_SIZE_MAX = buffer.get(0);
-		System.out.println("Max supported Point size: "+ParticleEmitter.POINT_SIZE_MAX);
-		
+
 		loadScreens();
 		switchScreen(GameScreen.MAINMENU);
 	}

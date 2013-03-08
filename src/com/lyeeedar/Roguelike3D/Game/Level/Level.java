@@ -12,29 +12,20 @@ package com.lyeeedar.Roguelike3D.Game.Level;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.GameData;
-import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
-import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.MapGenerator.GeneratorType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
-import com.lyeeedar.Roguelike3D.Game.LevelObjects.Static;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
-import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
-import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 
@@ -52,13 +43,13 @@ public class Level implements Serializable {
 	HashMap<Character, String> shortDescs = new HashMap<Character, String>();
 	HashMap<Character, String> longDescs = new HashMap<Character, String>();
 	
-	HashMap<Character, Colour> colours = new HashMap<Character, Colour>();
+	HashMap<Character, Color> colours = new HashMap<Character, Color>();
 	Bag<Character> opaques = new Bag<Character>();
 	Bag<Character> solids = new Bag<Character>();
 	
 	private Bag<GameActor> actors = new Bag<GameActor>();
 	private Bag<LevelObject> levelObjects = new Bag<LevelObject>();
-	private Bag<ParticleEmitter> particleEmitters = new Bag<ParticleEmitter>();
+	private Bag<ParticleEffect> particleEffects = new Bag<ParticleEffect>();
 	
 	private transient Bag<DungeonRoom> rooms;
 
@@ -121,9 +112,9 @@ public class Level implements Serializable {
 		}
 	}
 	
-	public ParticleEmitter getParticleEmitter(String UID)
+	public ParticleEffect getParticleEffect(String UID)
 	{
-		for (ParticleEmitter pe : particleEmitters)
+		for (ParticleEffect pe : particleEffects)
 		{
 			if (pe.UID.equals(UID)) return pe;
 		}
@@ -177,9 +168,9 @@ public class Level implements Serializable {
 		}
 	}
 	
-	public void createParticleEmitters()
+	public void createParticleEffects()
 	{
-		for (ParticleEmitter pe : particleEmitters)
+		for (ParticleEffect pe : particleEffects)
 		{
 			pe.create();
 		}
@@ -663,14 +654,15 @@ public class Level implements Serializable {
 		System.err.println("Failed to remove actor!");
 	}
 	
-	public void removeParticleEmitter(String UID)
+	public void removeParticleEffect(String UID)
 	{
 		int i = 0;
-		for (ParticleEmitter pe : particleEmitters)
+		for (ParticleEffect pe : particleEffects)
 		{
 			if (pe.UID.equals(UID)) 
 			{
-				particleEmitters.remove(i);
+				particleEffects.get(i).dispose();
+				particleEffects.remove(i);
 				return;
 			}
 			i++;
@@ -688,9 +680,9 @@ public class Level implements Serializable {
 		levelObjects.add(lo);
 	}
 	
-	public void addParticleEmitter(ParticleEmitter pe)
+	public void addParticleEffect(ParticleEffect pe)
 	{
-		particleEmitters.add(pe);
+		particleEffects.add(pe);
 	}
 	
 	public boolean checkOpaque(int x, int z)
@@ -732,11 +724,11 @@ public class Level implements Serializable {
 		}
 	}
 
-	public HashMap<Character, Colour> getColours() {
+	public HashMap<Character, Color> getColours() {
 		return colours;
 	}
 
-	public void setColours(HashMap<Character, Colour> colours) {
+	public void setColours(HashMap<Character, Color> colours) {
 		this.colours = colours;
 	}
 
@@ -785,17 +777,17 @@ public class Level implements Serializable {
 	}
 
 	/**
-	 * @return the particleEmitters
+	 * @return the particleEffects
 	 */
-	public Bag<ParticleEmitter> getParticleEmitters() {
-		return particleEmitters;
+	public Bag<ParticleEffect> getParticleEffects() {
+		return particleEffects;
 	}
 
 	/**
-	 * @param particleEmitters the particleEmitters to set
+	 * @param particleEmitters the particleEffects to set
 	 */
-	public void setParticleEmitters(Bag<ParticleEmitter> particleEmitters) {
-		this.particleEmitters = particleEmitters;
+	public void setParticleEffects(Bag<ParticleEffect> particleEffects) {
+		this.particleEffects = particleEffects;
 	}
 }
 

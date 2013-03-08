@@ -13,14 +13,8 @@ package com.lyeeedar.Roguelike3D.Game.Actor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
-import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
-import com.lyeeedar.Roguelike3D.Game.Spell.SpellBehaviourBolt;
-import com.lyeeedar.Roguelike3D.Game.Spell.SpellBehaviourSingleDamage;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public class AI_Player_Controlled extends AI_Package {
 

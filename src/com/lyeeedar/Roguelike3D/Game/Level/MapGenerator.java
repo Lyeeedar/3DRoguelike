@@ -10,17 +10,13 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Level;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractTile.TileType;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 
 public class MapGenerator {
 	
@@ -32,14 +28,14 @@ public class MapGenerator {
 	private Tile[][] levelArray;
 	Bag<Character> solids;
 	Bag<Character> opaques;
-	HashMap<Character, Colour> colours;
+	HashMap<Character, Color> colours;
 	Bag<DungeonRoom> rooms;
 	Bag<AbstractObject> objects;
 	
 	int ceiling;
 
 	public MapGenerator(int width, int height,
-			Bag<Character> solids, Bag<Character> opaques, HashMap<Character, Colour> colours,
+			Bag<Character> solids, Bag<Character> opaques, HashMap<Character, Color> colours,
 			GeneratorType gtype, BiomeReader biome,
 			int up, int down)
 	{

@@ -11,6 +11,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public class Spell implements Serializable {
@@ -30,7 +31,7 @@ public class Spell implements Serializable {
 	private final Vector3 rotation = new Vector3();
 	private final Vector3 velocity = new Vector3();
 	
-	public ParticleEmitter particleEmitter;
+	public ParticleEffect particleEffect;
 	
 	private final Vector3 tmpVec = new Vector3();
 	private final Vector3 up = new Vector3(0, 1, 0);
@@ -46,10 +47,10 @@ public class Spell implements Serializable {
 	
 	public boolean alive = true;
 
-	public Spell(String casterUID, ParticleEmitter particleEmitter, float radius) {
+	public Spell(String casterUID, ParticleEffect particleEffect, float radius) {
 		this.casterUID = casterUID;
 		
-		this.particleEmitter = particleEmitter;
+		this.particleEffect = particleEffect;
 		this.radius = radius;
 	}
 	
@@ -84,23 +85,23 @@ public class Spell implements Serializable {
 		if (move) moveBehaviour.update(delta, this);
 		else damBehaviour.update(delta, this);
 		
-		particleEmitter.update(delta, cam);
+		particleEffect.update(delta, cam);
 
 		return false;
 	}
 	
-	public void render(Camera cam)
+	public void render()
 	{
-		particleEmitter.render(cam);
+		particleEffect.render();
 	}
 	
 	public void dispose(){
-		particleEmitter.dispose();
+		particleEffect.dispose();
 	}
 	
 	public void create()
 	{
-		particleEmitter.create();
+		particleEffect.create();
 	}
 	
 	public void applyMovement(float delta)
@@ -168,7 +169,7 @@ public class Spell implements Serializable {
 	public void positionAbsolutely(Vector3 position)
 	{
 		this.position.set(position);
-		if (particleEmitter != null) particleEmitter.setPosition(position);
+		if (particleEffect != null) particleEffect.setPosition(position);
 	}
 
 	public void positionYAbsolutely(float y)
@@ -196,7 +197,7 @@ public class Spell implements Serializable {
 	
 	public Spell copy()
 	{
-		Spell spell = new Spell(casterUID, particleEmitter.copy(), radius);
+		Spell spell = new Spell(casterUID, particleEffect.copy(), radius);
 		spell.setBehaviour(moveBehaviour.copy(), damBehaviour.copy());
 		spell.setDamage(DAM_DAM, ELE_DAM, damage);
 		
@@ -218,17 +219,17 @@ public class Spell implements Serializable {
 	}
 
 	/**
-	 * @return the particleEmitter
+	 * @return the particleEffect
 	 */
-	public ParticleEmitter getParticleEmitter() {
-		return particleEmitter;
+	public ParticleEffect getParticleEffect() {
+		return particleEffect;
 	}
 
 	/**
-	 * @param particleEmitter the particleEmitter to set
+	 * @param particleEmitter the particleEffect to set
 	 */
-	public void setParticleEmitter(ParticleEmitter particleEmitter) {
-		this.particleEmitter = particleEmitter;
+	public void setParticleEffect(ParticleEffect particleEffect) {
+		this.particleEffect = particleEffect;
 	}
 
 	/**

@@ -10,45 +10,29 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Level.XML;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Random;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Actor.AI_Enemy_VFFG;
-import com.lyeeedar.Roguelike3D.Game.Actor.AI_Player_Controlled;
 import com.lyeeedar.Roguelike3D.Game.Actor.Enemy;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Component.Component_Type;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND.WeaponType;
-import com.lyeeedar.Roguelike3D.Game.Item.Equippable;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
-import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
-import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 /**
  * Class Used to evolve monsters to attempt to provide variety.
@@ -456,7 +440,7 @@ public class MonsterEvolver extends XMLReader {
 		Creature_Evolver ce = EVOLVED_CREATURES[difficulty];
 		
 		float scale = ce.creature.model_scale;
-		Colour colour = ce.creature.colour;
+		Color colour = ce.creature.colour;
 		String texture = ce.creature.texture;
 		
 		GameActor ga = new Enemy(colour, texture, 0, 0, 0, scale, GL20.GL_TRIANGLES, "file", ce.creature.model_name);
@@ -1290,7 +1274,7 @@ class AbstractCreature_Evolver implements Serializable
 		this.name = name;
 	}
 
-	transient NodeList description; String model_type; String model_name; float model_scale; String texture; Colour colour;
+	transient NodeList description; String model_type; String model_name; float model_scale; String texture; Color colour;
 	public void addVisual(NodeList description, String model_type, String model_name, String model_scale, String texture, String r, String g, String b)
 	{
 		this.description = description;
@@ -1298,7 +1282,7 @@ class AbstractCreature_Evolver implements Serializable
 		this.model_name = model_name;
 		this.model_scale = Float.parseFloat(model_scale);
 		this.texture = texture;
-		this.colour = new Colour(Float.parseFloat(r), Float.parseFloat(g), Float.parseFloat(b), 1.0f);
+		this.colour = new Color(Float.parseFloat(r), Float.parseFloat(g), Float.parseFloat(b), 1.0f);
 	}
 
 	int base_calories; int weight; int health; int strength;

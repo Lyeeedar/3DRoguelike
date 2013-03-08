@@ -10,24 +10,16 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
-import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
-import com.lyeeedar.Roguelike3D.Game.Level.AbstractRoom;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
-import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
-import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
-import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
-import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public abstract class LevelObject extends GameObject{
@@ -43,11 +35,11 @@ public abstract class LevelObject extends GameObject{
 	
 	public LevelObject(boolean visible, float x, float y, float z, AbstractObject ao)
 	{
-		this(ao, new Colour(1.0f, 1.0f, 1.0f, 1.0f), "blank", x, y, z, ao.modelScale, GL20.GL_TRIANGLES, "cube", "1", "1", "1");
+		this(ao, new Color(1.0f, 1.0f, 1.0f, 1.0f), "blank", x, y, z, ao.modelScale, GL20.GL_TRIANGLES, "cube", "1", "1", "1");
 		this.visible = visible;
 	}
 
-	public LevelObject(AbstractObject ao, Colour colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model) {
+	public LevelObject(AbstractObject ao, Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model) {
 		super(colour, texture, x, y, z, scale, primitive_type, model);
 		this.ao = ao;
 	}
@@ -61,7 +53,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Static(ao, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -80,7 +72,7 @@ public abstract class LevelObject extends GameObject{
 		}
 		else if (ao.type == ObjectType.DOOR_UNLOCKED)
 		{
-			lo = new Door(ao, new Colour(), "tex+", (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, 1.0f, GL20.GL_TRIANGLES, "cube", "1", "1", "1");
+			lo = new Door(ao, new Color(), "tex+", (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, 1.0f, GL20.GL_TRIANGLES, "cube", "1", "1", "1");
 		}
 		else if (ao.type == ObjectType.FIRE_CAMP)
 		{
@@ -89,29 +81,35 @@ public abstract class LevelObject extends GameObject{
 			lo.shortDesc = ao.shortDesc;
 			lo.longDesc = ao.longDesc;
 			
-			ParticleEmitter p = new ParticleEmitter(2.5f, 2, 2.5f, 1.f, 1.5f, 1.f, 0.01f, 2);
-			p.setTexture("texf", new Vector3(0.0f, 3.5f, 0.0f), new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 0.05f, 0.6f, true, true);
+			ParticleEffect effect = new ParticleEffect(5);
+			ParticleEmitter flame = new ParticleEmitter();
+			flame.setEmitterParameters(2, 1, 0.01f, 2.5f, 2, 2.5f, 0, GL20.GL_ONE, GL20.GL_ONE);
+			flame.setParticleParameters("f", 50, 50, new Color(0.7f, 0.9f, 0.3f, 1.0f), new Color(1.0f, 0.0f, 0.0f, 1.0f), 0, 3.5f, 0);
+			flame.addLight(true, 0.05f, 0.6f, Color.ORANGE, true);
+			effect.addEmitter(flame, 
+					1, 1.5f, 1);
+			effect.create();
 			
-			level.getParticleEmitters().add(p);
-			lo.addParticleEmitter(p);
+			level.addParticleEffect(effect);
+			lo.addParticleEffect(effect);
 		}
 		else if (ao.type == ObjectType.FIRE_TORCH)
 		{
-
-			lo = new Static(false, x, y, z, ao);
-			lo.shortDesc = ao.shortDesc;
-			lo.longDesc = ao.longDesc;
-			
-			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.05f, 1);
-			p.setTexture("texf", new Vector3(0.0f, 2.0f, 0.0f), new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 0.5f, 1.5f, false, true);
-			
-			level.getParticleEmitters().add(p);
-			lo.addParticleEmitter(p);
+//
+//			lo = new Static(false, x, y, z, ao);
+//			lo.shortDesc = ao.shortDesc;
+//			lo.longDesc = ao.longDesc;
+//			
+//			ParticleEmitter p = new ParticleEmitter(x-0.3f, y+1.5f, z-0.3f, 1, 1, 1, 0.05f, 1);
+//			p.setTexture("texf", new Vector3(0.0f, 2.0f, 0.0f), new Colour(0.7f, 0.9f, 0.3f, 1.0f), new Colour(1.0f, 0.0f, 0.0f, 1.0f), true, 0.5f, 1.5f, false, true);
+//			
+//			level.getParticleEmitters().add(p);
+//			lo.addParticleEmitter(p);
 		}
 		else if (ao.type == ObjectType.STAIR_UP)
 		{
 			String texture = ao.texture;
-			Colour colour = ao.colour;
+			Color colour = ao.colour;
 			if (ao.modelType.equalsIgnoreCase("model"))
 			{
 				lo = new Stair(ao, GameData.getCurrentLevelContainer().getUpLevel(), colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -125,7 +123,7 @@ public abstract class LevelObject extends GameObject{
 		else if (ao.type == ObjectType.STAIR_DOWN)
 		{
 			String texture = ao.texture;
-			Colour colour = ao.colour;
+			Color colour = ao.colour;
 			if (ao.modelType.equalsIgnoreCase("model"))
 			{
 				lo = new Stair(ao, GameData.getCurrentLevelContainer().getDownLevel(), colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -145,7 +143,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Spawner(ao, 0, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -166,7 +164,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Spawner(ao, 1, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -187,7 +185,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Spawner(ao, 2, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -208,7 +206,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Spawner(ao, 3, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -229,7 +227,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Spawner(ao, 4, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -250,7 +248,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Spawner(ao, 5, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -271,7 +269,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Spawner(ao, 6, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -292,7 +290,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Spawner(ao, 7, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -313,7 +311,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Spawner(ao, 8, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);
@@ -334,7 +332,7 @@ public abstract class LevelObject extends GameObject{
 			if (ao.visible)
 			{
 				String texture = ao.texture;
-				Colour colour = ao.colour;
+				Color colour = ao.colour;
 				if (ao.modelType.equalsIgnoreCase("file"))
 				{
 					lo = new Spawner(ao, 9, evolver, colour, texture, (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, ao.modelScale, GL20.GL_TRIANGLES, "file", ao.modelName);

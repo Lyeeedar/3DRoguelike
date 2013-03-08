@@ -12,6 +12,7 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
@@ -48,8 +49,8 @@ public class RiggedModelNode implements Serializable
 	
 	public boolean collideMode = false;
 	
-	public transient ParticleEmitter particleEmitter;
-	public String particleEmitterUID;
+	public transient ParticleEffect particleEffect;
+	public String particleEffectUID;
 	
 	public final String ID;
 	
@@ -76,10 +77,10 @@ public class RiggedModelNode implements Serializable
 		for (RiggedModelNode rmn : childNodes) rmn.equip(holder, side);
 	}
 	
-	public void setParticleEmitter(ParticleEmitter emitter)
+	public void setParticleEffect(ParticleEffect effect)
 	{
-		this.particleEmitter = emitter;
-		this.particleEmitterUID = emitter.UID;
+		this.particleEffect = effect;
+		this.particleEffectUID = effect.UID;
 	}
 	
 	public void setBehaviour(RiggedModelBehaviour behaviour)
@@ -111,7 +112,7 @@ public class RiggedModelNode implements Serializable
 			rgn.composeMatrixes(composedMatrix);
 		}
 		
-		if (particleEmitter != null) particleEmitter.setPosition(Vector3.tmp3.set(0, 0, 0).mul(composedMatrix));
+		if (particleEffect != null) particleEffect.setPosition(Vector3.tmp3.set(0, 0, 0).mul(composedMatrix));
 	}
 	
 	public void render(RiggedModel model, Renderer renderer)
@@ -261,13 +262,13 @@ public class RiggedModelNode implements Serializable
 			rmn.create();
 		}
 		
-		if (particleEmitter != null) particleEmitter.create();
+		if (particleEffect != null) particleEffect.create();
 		
 	}
 	
 	public void fixReferences()
 	{
-		if (particleEmitterUID != null) particleEmitter = GameData.level.getParticleEmitter(particleEmitterUID);
+		if (particleEffectUID != null) particleEffect = GameData.level.getParticleEffect(particleEffectUID);
 		
 		for (RiggedModelNode rmn : childNodes)
 		{
@@ -288,9 +289,8 @@ public class RiggedModelNode implements Serializable
 			rmn.dispose();
 		}
 		
-		if (particleEmitter != null) {
-			particleEmitter.dispose();
-			GameData.level.removeParticleEmitter(particleEmitterUID);
+		if (particleEffect != null) {
+			GameData.level.removeParticleEffect(particleEffectUID);
 		}
 	}
 	

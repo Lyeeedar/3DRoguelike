@@ -10,16 +10,12 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.graphics.Color;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class Spawner extends LevelObject {
@@ -43,7 +39,7 @@ public class Spawner extends LevelObject {
 		this.solid = false;
 	}
 
-	public Spawner(AbstractObject ao, int difficulty, MonsterEvolver me, Colour colour, String texture, float x,
+	public Spawner(AbstractObject ao, int difficulty, MonsterEvolver me, Color colour, String texture, float x,
 			float y, float z, float scale, int primitive_type, String... model) {
 		super(ao, colour, texture, x, y, z, scale, primitive_type, model);
 		this.difficulty = difficulty;

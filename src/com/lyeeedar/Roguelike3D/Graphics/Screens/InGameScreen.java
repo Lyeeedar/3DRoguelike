@@ -32,6 +32,7 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
+import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.DeferredRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
@@ -90,26 +91,16 @@ public class InGameScreen extends AbstractScreen {
 	public void drawTransparent(float delta) {
 		particleNum = 0;
 		visibleEmitters.clear();
-		for (ParticleEmitter pe : GameData.level.getParticleEmitters())
+		for (ParticleEffect pe : GameData.level.getParticleEffects())
 		{
-			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
-
-			pe.distance = cam.position.dst2(pe.getPos());
-			particleNum += pe.active.size();;
-			
-			visibleEmitters.add(pe);
+			pe.getEmitters(visibleEmitters, cam);
 		}
 		
 		for (Spell s : GameData.spells)
 		{
-			ParticleEmitter pe = s.particleEmitter;
+			ParticleEffect pe = s.particleEffect;
 			
-			if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
-
-			pe.distance = cam.position.dst2(pe.getPos());
-			particleNum += pe.active.size();;
-			
-			visibleEmitters.add(pe);
+			pe.getEmitters(visibleEmitters, cam);
 		}
 		
 		Collections.sort(visibleEmitters,new Comparator<ParticleEmitter>() {
@@ -118,10 +109,13 @@ public class InGameScreen extends AbstractScreen {
             }
         });
 		
+		ParticleEmitter.begin(cam);
 		for (ParticleEmitter p : visibleEmitters)
 		{
-			p.render(cam);
+			particleNum += p.getActiveParticles();
+			p.render();
 		}
+		ParticleEmitter.end();
 		
 		time -= delta;
 		if (time < 0)
@@ -132,8 +126,6 @@ public class InGameScreen extends AbstractScreen {
 			System.out.println("Frame Time: "+Gdx.graphics.getRawDeltaTime());
 			time = 1;
 		}
-		
-		ParticleEmitter.end();
 	}
 
 	@Override
@@ -240,7 +232,7 @@ public class InGameScreen extends AbstractScreen {
 				ga.update(delta);
 			}
 			
-			for (ParticleEmitter pe : GameData.level.getParticleEmitters())
+			for (ParticleEffect pe : GameData.level.getParticleEffects())
 			{
 				if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
 				pe.update(delta, cam);

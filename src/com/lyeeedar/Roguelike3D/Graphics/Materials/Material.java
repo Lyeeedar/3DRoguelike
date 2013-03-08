@@ -11,10 +11,9 @@
 package com.lyeeedar.Roguelike3D.Graphics.Materials;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.lyeeedar.Roguelike3D.Graphics.Colour;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 
@@ -31,7 +30,7 @@ public class Material implements Serializable {
 		this.name = name;
 	}
 	
-	public void setColour(Colour colour)
+	public void setColour(Color colour)
 	{
 		colourAttribute = new ColorAttribute(colour, ColorAttribute.colour);
 	}

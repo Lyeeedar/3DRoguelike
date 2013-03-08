@@ -57,6 +57,7 @@ public class ParticleEffect implements Serializable {
 	{
 		for (Emitter e : emitters)
 		{
+			System.out.println(e.emitter.getActiveParticles());
 			e.emitter.update(delta, cam);
 		}
 	}
@@ -65,7 +66,7 @@ public class ParticleEffect implements Serializable {
 	{
 		for (Emitter e : emitters)
 		{
-			if (!cam.frustum.sphereInFrustum(e.emitter.getPosition(), e.emitter.getRadius()*2)) continue;
+			//if (!cam.frustum.sphereInFrustum(e.emitter.getPosition(), e.emitter.getRadius()*2)) continue;
 	
 			e.emitter.distance = cam.position.dst2(e.emitter.getPosition());
 			

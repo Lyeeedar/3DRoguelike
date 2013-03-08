@@ -103,11 +103,6 @@ public class AI_Player_Controlled extends AI_Package {
 			actor.getVelocity().set(0, 2, 2);
 		}
 		
-		if (Gdx.input.isKeyPressed(Keys.F))
-		{			
-			actor.positionYAbsolutely(20);
-		}
-		
 		if (Gdx.input.isKeyPressed(Keys.L))
 		{			
 			GameData.load();
@@ -149,6 +144,13 @@ public class AI_Player_Controlled extends AI_Package {
 		
 		actor.applyMovement(delta, GameData.gravity*10f*(float)actor.WEIGHT);
 		actor.velocity.y -= GameData.gravity*move*(float)actor.WEIGHT;
+		
+		
+		if (Gdx.input.isKeyPressed(Keys.F))
+		{			
+			actor.positionYAbsolutely(20);
+			actor.velocity.y = 0;
+		}
 
 
 	}

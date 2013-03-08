@@ -54,8 +54,6 @@ public class ParticleEmitter implements Serializable {
 	private transient int signz;
 	public transient float distance = 0;
 	
-	private transient int activeParticles = 0;
-	
 	private enum ParticleAttribute {
 		SPRITE,
 		SIZE,
@@ -158,7 +156,8 @@ public class ParticleEmitter implements Serializable {
 		this.emissionType = emissionType;
 		this.blendFuncSRC = blendFuncSRC;
 		this.blendFuncDST = blendFuncDST;
-		this.particles = (int) (particleLifetime+particleLifetimeVar / emissionTime);
+		System.out.println(particleLifetime+"   "+emissionTime+"    "+particleLifetime / emissionTime);
+		this.particles = (int) (particleLifetime / emissionTime);
 		this.radius = ex+ey+ez;
 	}
 	
@@ -330,14 +329,14 @@ public class ParticleEmitter implements Serializable {
 			boundAtlas = atlasName;
 		}
 		
-		mesh.render(shader, GL20.GL_TRIANGLES, 0, VERTEX_SIZE * activeParticles);
+		mesh.render(shader, GL20.GL_TRIANGLES, 0, active.size());
 	}
 	
 	public static void begin(Camera cam)
 	{
-		Gdx.gl.glEnable(GL20.GL_BLEND);
-		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
-		Gdx.gl.glDepthMask(false);
+		//Gdx.gl.glEnable(GL20.GL_BLEND);
+		//Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		//Gdx.gl.glDepthMask(false);
 		
 		shader.begin();
 		shader.setUniformMatrix("u_pv", cam.combined);
@@ -373,10 +372,7 @@ public class ParticleEmitter implements Serializable {
 			velocity[1] *= delta;
 			velocity[2] *= delta;
 			p.update(delta, velocity[0], velocity[1], velocity[2]);
-			
-			tmpRot.setToLookAt(cam.direction, GameData.UP);
-			tmpMat.setToTranslation(p.x, p.y, p.z).mul(tmpRot);
-			
+
 			if (p.lifetime > particleLifetime)
 			{
 				pItr.remove();
@@ -384,11 +380,16 @@ public class ParticleEmitter implements Serializable {
 				continue;
 			}
 			
+			tmpRot.setToLookAt(cam.direction, GameData.UP);
+			tmpMat.setToTranslation(p.x, p.y, p.z).mul(tmpRot);
+			
 			Integer[] sprite = getValue(p.lifetime, ParticleAttribute.SPRITE);
 			Float[] size = getValue(p.lifetime, ParticleAttribute.SIZE);
-			Float[] colour = getValue(p.lifetime, ParticleAttribute.COLOUR);
+			Float[] colour = {1f, 1f, 1f, 1f};//getValue(p.lifetime, ParticleAttribute.COLOUR);
 			
-			Vector3 nPos = quad.set(p.x, p.y, p.z).add(-size[0]/2, size[1]/2, 0).mul(tmpMat);
+			Vector3 nPos = quad
+					.set(0, size[1], 0)//-size[0]/2, size[1]/2, 0)
+					.mul(tmpMat);
 
 			vertices[(i*VERTEX_SIZE)+0] = nPos.x;
 			vertices[(i*VERTEX_SIZE)+1] = nPos.y;
@@ -404,7 +405,9 @@ public class ParticleEmitter implements Serializable {
 			vertices[(i*VERTEX_SIZE)+8] = topLeftTexCoords[sprite[0]][0];
 			vertices[(i*VERTEX_SIZE)+9] = topLeftTexCoords[sprite[0]][1];
 			
-			nPos = quad.set(p.x, p.y, p.z).add(size[0]/2, size[1]/2, 0).mul(tmpMat);
+			nPos = quad
+					.set(size[0], size[1], 0)
+					.mul(tmpMat);
 
 			vertices[(i*VERTEX_SIZE)+10] = nPos.x;
 			vertices[(i*VERTEX_SIZE)+11] = nPos.y;
@@ -420,7 +423,9 @@ public class ParticleEmitter implements Serializable {
 			vertices[(i*VERTEX_SIZE)+18] = topRightTexCoords[sprite[0]][0];
 			vertices[(i*VERTEX_SIZE)+19] = topRightTexCoords[sprite[0]][1];
 			
-			nPos = quad.set(p.x, p.y, p.z).add(-size[0]/2, -size[1]/2, 0).mul(tmpMat);
+			nPos = quad
+					.set(0, 0, 0)
+					.mul(tmpMat);
 
 			vertices[(i*VERTEX_SIZE)+20] = nPos.x;
 			vertices[(i*VERTEX_SIZE)+21] = nPos.y;
@@ -436,7 +441,9 @@ public class ParticleEmitter implements Serializable {
 			vertices[(i*VERTEX_SIZE)+28] = botLeftTexCoords[sprite[0]][0];
 			vertices[(i*VERTEX_SIZE)+29] = botLeftTexCoords[sprite[0]][1];
 			
-			nPos = quad.set(p.x, p.y, p.z).add(size[0]/2, -size[1]/2, 0).mul(tmpMat);
+			nPos = quad
+					.set(size[0], 0, 0)
+					.mul(tmpMat);
 
 			vertices[(i*VERTEX_SIZE)+30] = nPos.x;
 			vertices[(i*VERTEX_SIZE)+31] = nPos.y;
@@ -455,10 +462,9 @@ public class ParticleEmitter implements Serializable {
 			i++;
 		}
 		mesh.setVertices(vertices);
-		activeParticles = active.size();
 		
 		emissionCD -= delta;
-		
+
 		if (inactive.size() == 0) return;
 		
 		while (emissionCD < 0 && inactive.size() > 0)
@@ -470,11 +476,16 @@ public class ParticleEmitter implements Serializable {
 				signx = (ran.nextInt(2) == 0) ? 1 : -1;
 				signy = (ran.nextInt(2) == 0) ? 1 : -1;
 				signz = (ran.nextInt(2) == 0) ? 1 : -1;
-				p.set(particleLifetime+particleLifetimeVar*ran.nextFloat(),
+				p.set(particleLifetimeVar*ran.nextFloat(),
 						x+(float)(ex*ran.nextGaussian()*signx), 
 						y+(float)(ey*ran.nextGaussian()*signy),
-						z+(float)(ez*ran.nextGaussian()*signz));
+						z+(float)(ez*ran.nextGaussian()*signz)
+						);
 
+			}
+			else
+			{
+				System.err.println("Invalid emission type! "+emissionType);
 			}
 			active.add(p);
 			
@@ -562,9 +573,11 @@ public class ParticleEmitter implements Serializable {
 		public void update(float delta, float vx, float vy, float vz)
 		{
 			lifetime += delta;
-			x += vx;
-			y += vy;
-			z += vz;
+			x += delta;// vx;
+			y += delta;//vy;
+			z += delta;//vz;
+			
+			//System.out.println(x+" "+y+" "+z);
 		}
 		
 		public void set(float lifetime, float x, float y, float z)
@@ -679,6 +692,6 @@ public class ParticleEmitter implements Serializable {
 			"varying vec2 v_texCoords;" + "\n" +
 
 			"void main() {" + "\n" +
-				"gl_FragColor = 1.0f;\n//texture2D(u_texture, v_texCoords) * v_colour;" + "\n" +
+				"gl_FragColor = vec4(1.0);\n//texture2D(u_texture, v_texCoords) * v_colour;" + "\n" +
 	   		"}";
 }

@@ -234,7 +234,7 @@ public class InGameScreen extends AbstractScreen {
 			
 			for (ParticleEffect pe : GameData.level.getParticleEffects())
 			{
-				if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
+				//if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
 				pe.update(delta, cam);
 			}
 			

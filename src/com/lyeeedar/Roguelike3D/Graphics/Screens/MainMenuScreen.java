@@ -164,23 +164,29 @@ public class MainMenuScreen extends UIScreen {
 			}
 		});
 
+		int width = 300;
+		int height = 50;
+		int pad = 15;
+		
 		table = new Table();
 		table.debug();
 		table.add(lblTitle).center().padBottom(50);
 		table.row();
-		table.add(btnContinue).width(300).height(50).padBottom(25);
+		table.add(btnContinue).width(width).height(height).padBottom(pad);
 		table.row();
-		table.add(btnNewGame).width(300).height(50).padBottom(25);
+		table.add(btnNewGame).width(width).height(height).padBottom(pad);
 		table.row();
-		table.add(btnOptions).width(300).height(50).padBottom(25);
+		table.add(btnOptions).width(width).height(height).padBottom(pad);
 		table.row();
-		table.add(btnCredits).width(300).height(50).padBottom(25);
+		table.add(btnCredits).width(width).height(height).padBottom(pad);
 		table.row();
-		table.add(btnExit).width(300).height(50).padBottom(25);
+		table.add(btnExit).width(width).height(height).padBottom(pad);
 		table.row();
-		table.add(btnRecipe).width(300).height(50).padBottom(25);
+		table.add(btnRecipe).width(width).height(height).padBottom(pad);
 		table.row();
-		table.add(btnInv).width(300).height(50).padBottom(25);
+		table.add(btnInv).width(width).height(height).padBottom(pad);
+		table.row();
+		table.add(new Label("Version 0.0019", skin)).padTop(25);
 
 
 		table.setFillParent(true);

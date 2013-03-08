@@ -165,27 +165,30 @@ public class Bag<E> implements Serializable, Iterable<E> {
 	@Override
 	public Iterator<E> iterator()
 	{
-		return new Iterator<E>(){
-			int pos = 0;
-			int size = Bag.this.size;
+		return new BagIterator();
+	}
+	
+	class BagIterator implements Iterator<E>
+	{
+		int pos = 0;
+		int size = Bag.this.size;
 
-			@Override
-			public boolean hasNext() {
-				return (pos < size);
-			}
+		@Override
+		public boolean hasNext() {
+			return (pos < size);
+		}
 
-			@SuppressWarnings("unchecked")
-			@Override
-			public E next() {
-				return (E) data[pos++];
-			}
+		@SuppressWarnings("unchecked")
+		@Override
+		public E next() {
+			return (E) data[pos++];
+		}
 
-			@Override
-			public void remove() {
-				Bag.this.remove(--pos);
-				size--;
-			}
-			};
+		@Override
+		public void remove() {
+			Bag.this.remove(--pos);
+			size--;
+		}
 	}
 	
 	  /**

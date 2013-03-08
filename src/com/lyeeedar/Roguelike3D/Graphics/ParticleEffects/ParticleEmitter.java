@@ -28,11 +28,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.BufferUtils;
+import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Graphics.Colour;
@@ -40,141 +42,205 @@ import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 
 public class ParticleEmitter implements Serializable {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6308492057144008114L;
-
-	public static float POINT_SIZE_MAX = 0;
+	private transient static final int VERTEX_SIZE = 10;
 	
+	private static final long serialVersionUID = 6308492057144008114L;
+	private transient int signx;
+	private transient int signy;
+	private transient int signz;
 	public transient float distance = 0;
+	
+	private transient int activeParticles = 0;
+	
+	private enum ParticleAttribute {
+		SPRITE,
+		SIZE,
+		COLOUR,
+		VELOCITY
+	}
 	
 	public final String UID;
 	
-	public transient ArrayDeque<Particle> active;
-	public transient ArrayDeque<Particle> inactive;
+	// ----- Particle Parameters ----- //
+	private TimelineValue<Integer>[] sprite;
+	private TimelineValue<Float>[] size;
+	private TimelineValue<Float>[] colour;
+	private TimelineValue<Float>[] velocity;
+	// ----- End Particle Parameters ----- //
 	
-	transient PointLight boundLight;
-	public String boundLightUID;
+	// ----- Emitter parameters ----- //
+	private int particles;
+	private float particleLifetime;
+	private float particleLifetimeVar;
+	private float emissionTime;
+	private float x, y, z;
+	private float ex, ey, ez;
+	private int emissionType;
+	private int blendFuncSRC;
+	private int blendFuncDST;
+	// ----- End Emitter parameters ----- //
 	
-	transient Random ran;
+	// ----- Transient Variables ----- //
+	private transient static ShaderProgram shader;
+	private transient static String[] boundSprites;
+	private transient TextureAtlas atlas;
+	private String atlasName;
+	private transient Bag<Particle> active;
+	private transient Bag<Particle> inactive;
+	private transient Vector3 quad;
+	private transient float[] vertices;
+	private transient Mesh mesh;
+	private transient Random ran;
+	private transient Matrix4 tmpMat;
+	private transient Matrix4 tmpRot;
+	// ----- End Transient Variables ----- //
 	
-	transient public float time = 0;
+	// ----- Light ----- //
+	private transient PointLight light;
+	private String lightUID;
+	private float lightAttenuation;
+	private float lightPower;
+	private boolean isLightStatic;
+	private Colour lightColour;
+	private boolean lightFlicker;
+	// ----- End Light ----- //
 	
-	float x; float y; float z; public float vx; public float vy; public float vz; public float speed;
+	private transient float emissionCD;
 	
-	public int particles;
-	
-	transient Texture texture;
-	public String textureName;
-	
-	final static transient ShaderProgram pointShader = new ShaderProgram(
-			Gdx.files.internal("data/shaders/model/particlePoint.vertex.glsl").readString(),
-			Gdx.files.internal("data/shaders/model/particlePoint.fragment.glsl").readString());
-	final static transient ShaderProgram quadShader = new ShaderProgram(
-			Gdx.files.internal("data/shaders/model/particleQuad.vertex.glsl").readString(),
-			Gdx.files.internal("data/shaders/model/particleQuad.fragment.glsl").readString());
-	
-	/**
-	 * 0 = none
-	 * 1 = point
-	 * 2 = quad
-	 */
-	private static int activeShader = 0;
-	
-	transient Mesh meshPoint;
-	transient Mesh meshQuad;
-
-	public float ox; public float oy; public float oz;
-	
-	private boolean pointMode = false;
-	
-	Vector3[] particle = {new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()};
-	
-	private boolean vertexEmission;
-	
-	transient Vector3[] vertices;
-	
-	public ParticleEmitter(float x, float y, float z, float vx, float vy, float vz, float speed, float atime)
+	public ParticleEmitter()
 	{	
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
-		this.atime = atime;
-		this.particles = (int) (atime / speed);
-		this.ox = x;
-		this.oy = y;
-		this.oz = z;
-		this.vx = vx;
-		this.vy = vy;
-		this.vz = vz;
-		this.speed = speed;
+	}
+	
+	public void setPosition(float x, float y, float z)
+	{
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+	
+	public void setEmitterParameters(float particleLifetime, float emissionTime, 
+			float ex, float ey, float ez,
+			int emissionType,
+			int blendFuncSRC, int blendFuncDST)
+	{
+		this.particleLifetime = particleLifetime;
+		this.emissionTime = emissionTime;
+		this.ex = ex;
+		this.ey = ey;
+		this.ez = ez;
+		this.emissionType = emissionType;
+		this.blendFuncSRC = blendFuncSRC;
+		this.blendFuncDST = blendFuncDST;
+		this.particles = (int) (particleLifetime / emissionTime);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setParticleParameters(String atlasName, float width, float height, Colour start, Colour end, float vx, float vy, float vz)
+	{
+		this.atlasName = atlasName;
+		this.atlas = GameData.loadAtlas(atlasName);
+		
+		this.sprite = new TimelineValue[]{new TimelineValue<Integer>(0, 0)};
+		
+		this.size = new TimelineValue[]{new TimelineValue<Float>(0, width, height)};
+		
+		this.colour = new TimelineValue[]{new TimelineValue<Float>(0, start.r, start.g, start.b, start.a), new TimelineValue<Float>(particleLifetime, end.r, end.g, end.b, end.a)};
+		this.colour[0].setInterpolated(true, this.colour[1]);
+		
+		this.velocity = new TimelineValue[]{new TimelineValue<Float>(0, vx, vy, vz)};
+	}
+	
+	public void addLight(boolean isStatic, float attenuation, float power, Colour colour, boolean flicker)
+	{
+		this.lightAttenuation = attenuation;
+		this.lightPower = power;
+		this.isLightStatic = isStatic;
+		this.lightColour = colour;
+		this.lightFlicker = flicker;
+		
+		if (light != null)
+		{
+			if (isLightStatic) GameData.lightManager.removeStaticLight(light.UID);
+			else GameData.lightManager.removeDynamicLight(light.UID);
+			
+			light = null;
+		}
+
+		light = new PointLight(new Vector3(x+(ex/2f), y+ey, z+(ez/2)), colour, attenuation, power);
+		lightUID = light.UID;
+		
+		if (isStatic) GameData.lightManager.addStaticLight(light);
+		else GameData.lightManager.addDynamicLight(light);
 	}
 	
 	public void create() {
-		ran = new Random();
-		this.texture = GameData.loadTexture(textureName, true);
 		
-		active = new ArrayDeque<Particle>(particles);
-		inactive = new ArrayDeque<Particle>(particles);
+		if (shader == null)
+		{
+			shader = new ShaderProgram(shader_vertex, shader_fragment);
+		}
+		if (boundSprites == null)
+		{
+			boundSprites = new String[10];
+		}
+		
+		ran = new Random();
+		for (int i = 0; i < spriteNames.length; i++)
+		{
+			sprites[i] = GameData.loadTexture(spriteNames[i], true);
+		}
+		
+		active = new Bag<Particle>(particles);
+		inactive = new Bag<Particle>(particles);
 		
 		for (int i = 0; i < particles; i++)
 		{
-			Particle p = new Particle(false);
+			Particle p = new Particle();
 			inactive.add(p);
 		}
-		meshPoint = new Mesh(false, particles, 0, 
-				new VertexAttribute(Usage.Position, 3, "a_position"),
-				new VertexAttribute(Usage.Generic, 3, "a_colour"));
 		
-		meshQuad = new Mesh(false, particles*4, particles*6, 
+		vertices = new float[particles*VERTEX_SIZE*10];
+		mesh = new Mesh(false, particles*4, particles*6, 
 				new VertexAttribute(Usage.Position, 3, "a_position"),
-				new VertexAttribute(Usage.Generic, 3, "a_colour"),
+				new VertexAttribute(Usage.Generic, 4, "a_colour"),
+				new VertexAttribute(Usage.Generic, 1, "a_sprite"),
 				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoords"));
+		mesh.setVertices(vertices);
+		mesh.setIndices(genIndices(particles));
 		
-		meshQuad.setIndices(genIndices(particles));
-
-		verticesPoint = new float[particles*6];
-		verticesQuad = new float[particles*32];
+		quad = new Vector3();
+		tmpMat = new Matrix4();
+		tmpRot = new Matrix4();
 	}
 	
-	public void turnOffVertexEmission()
+	public void dispose()
 	{
-		vertexEmission = false;
-	}
-	
-	public void setToVertexEmission(Mesh mesh, float scale)
-	{
-		vertexEmission = true;
-	
-		VertexAttributes attributes = mesh.getVertexAttributes();
-		final int vertCount = mesh.getNumVertices();
-		final int vertexSize = attributes.vertexSize / 4;
-
-		float[] verts = new float[vertexSize * vertCount]; 
-		mesh.getVertices(verts);
+		mesh.dispose();
+		mesh = null;
 		
-		int positionOffset = attributes.getOffset(Usage.Position);
-		
-		vertices = new Vector3[vertCount];
-		
-		for (int i = 0; i < vertCount; i++)
-		{
-			vertices[i] = new Vector3(
-					verts[(i * vertexSize) + positionOffset + 0] * scale,
-					verts[(i * vertexSize) + positionOffset + 1] * scale,
-					verts[(i * vertexSize) + positionOffset + 2] * scale
-					);
+		if (light != null) {
+			if (isLightStatic) GameData.lightManager.removeStaticLight(light.UID);
+			else GameData.lightManager.removeDynamicLight(light.UID);
+			
+			light = null;
 		}
 	}
 	
 	public void fixReferences()
 	{
-		if (boundLightUID != null) {
-			if (staticLight)
-				boundLight = GameData.lightManager.getStaticLight(boundLightUID);
+		create();
+		
+		if (lightUID != null)
+		{
+			if (isLightStatic)
+			{
+				light = GameData.lightManager.getStaticLight(lightUID);
+			}
 			else
-				boundLight = GameData.lightManager.getDynamicLight(boundLightUID);
-			
-			if (boundLight == null) throw new RuntimeException(staticLight + "   " + boundLightUID);
+			{
+				light = GameData.lightManager.getDynamicLight(lightUID);
+			}
 		}
 	}
 	
@@ -194,178 +260,39 @@ public class ParticleEmitter implements Serializable {
 		}
 		return indices;
 	}
-	
-	Vector3 velocity; float atime; Colour start; Colour end; float width; float height;
-	
-	float attenuation; float power;
-	
-	boolean flicker; boolean staticLight;
-	
-	public void setTexture(String texture, Vector3 velocity, Colour start, Colour end, boolean light, float attenuation, float power, boolean flicker, boolean staticLight)
+
+	public void render()
 	{
-		this.flicker = flicker;
-		this.textureName = texture;
-		this.texture = GameData.loadTexture(texture, true);
-		this.velocity = velocity;
-		this.start = start;
-		this.end = end;
-		this.width = this.texture.getWidth();
-		this.height = 1;//this.texture.getHeight();
-		this.staticLight = staticLight;
+		atlas.getTextures().
+
+		Gdx.gl.glBlendFunc(blendFuncSRC, blendFuncDST);
 		
-		particle[0].set(0, height, 0);
-		particle[1].set(width, height, 0);
-		particle[2].set(0, 0, 0);
-		particle[3].set(width, 0, 0);
-		particle[4].set(0.5f, height/2, 0);
-		
-		if (light)
-		{
-			this.attenuation = attenuation;
-			this.power = power;
-			
-			Colour lightCol = new Colour((start.r+end.r)/2f, (start.g+end.g)/2f, (start.b+end.b)/2f, 1.0f);
-			
-			if (boundLight == null)
-			{
-				boundLight = new PointLight(new Vector3(x+(vx/2f), y+vy, z+(vz/2)), lightCol, attenuation, power);
-				boundLightUID = boundLight.UID;
-				
-				if (staticLight) GameData.lightManager.addStaticLight(boundLight);
-				else GameData.lightManager.addDynamicLight(boundLight);
-			}
-			else
-			{
-				boundLight.colour = lightCol;
-				boundLight.attenuation = attenuation;
-			}
-		}
-		else
-		{
-			if (boundLight != null)
-			{
-				if (staticLight) GameData.lightManager.removeStaticLight(boundLight.UID);
-				else GameData.lightManager.removeDynamicLight(boundLight.UID);
-				boundLight = null;
-				boundLightUID = null;
-			}
-		}
+		mesh.render(shader, GL20.GL_TRIANGLES, 0, VERTEX_SIZE * activeParticles);
 	}
 	
-	transient float[] verticesPoint;
-	transient float[] verticesQuad;
-	public void render(Camera cam)
+	public static void begin(Camera cam)
 	{
 		Gdx.gl.glEnable(GL20.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.gl.glDepthMask(false);
 		
-		if (pointMode) {
-			
-			Gdx.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE);
-			Gdx.gl.glEnable(GL11.GL_POINT_SPRITE_OES);
-
-			
-			if (activeShader == 0)
-			{
-				activeShader = 1;
-				pointShader.begin();
-				pointShader.setUniformMatrix("u_mv", cam.combined);
-			}
-			else if (activeShader == 2)
-			{
-				quadShader.end();
-				
-				activeShader = 1;
-				pointShader.begin();
-				pointShader.setUniformMatrix("u_mv", cam.combined);
-			}
-
-			pointShader.setUniformf("u_point", getPointSize(cam));
-			texture.bind(0);
-			pointShader.setUniformi("u_texture", 0);
-			meshPoint.setVertices(verticesPoint);
-			meshPoint.render(pointShader, GL20.GL_POINTS);
-		}
-		else
-		{
-			if (activeShader == 0)
-			{
-				activeShader = 2;
-				quadShader.begin();
-				quadShader.setUniformMatrix("u_mv", cam.combined);
-			}
-			else if (activeShader == 1)
-			{
-				pointShader.end();
-				
-				activeShader = 2;
-				quadShader.begin();
-				quadShader.setUniformMatrix("u_mv", cam.combined);
-			}
-
-			texture.bind(0);
-			quadShader.setUniformi("u_texture", 0);
-			
-			meshQuad.setVertices(verticesQuad);
-			meshQuad.render(quadShader, GL20.GL_TRIANGLES);
-		}
-		Gdx.gl.glDepthMask(true);
-		Gdx.gl.glDisable(GL20.GL_BLEND);
+		shader.begin();
+		shader.setUniformMatrix("u_pv", cam.combined);
 	}
 	
 	public static void end()
 	{
-		if (activeShader == 1)
-		{
-			activeShader = 0;
-			pointShader.end();
-		}
-		else if (activeShader == 2)
-		{
-			activeShader = 0;
-			quadShader.end();
-		}
-	}
-	
-	public float getPointSize(Camera cam)
-	{
-		float dist = cam.position.dst(getPos());
+		shader.end();
 		
-		float size = (width > height) ? width : height;
-		
-		size /= (0.35f * dist + 0.009f * dist * dist);
-		
-		int resolution = ( GameData.resolution[0] > GameData.resolution[1] ) ? GameData.resolution[0] : GameData.resolution[1];
-		float value = resolution * size / 100;
-		return value;
-	}
-	
-	private transient int signx;
-	private transient int signy;
-	private transient int signz;
-	
-	private final Matrix4 mat = new Matrix4();
-	
-	public void setPosition(Vector3 position)
-	{
-		x = position.x+ox;
-		y = position.y+oy;
-		z = position.z+oz;
-		
-		if (boundLight != null) boundLight.position.set(x, y, z);
+		Gdx.gl.glDepthMask(true);
+		Gdx.gl.glDisable(GL20.GL_BLEND);
 	}
 
 	public void update(float delta, Camera cam)
 	{
-		pointMode = (getPointSize(cam) > POINT_SIZE_MAX) ? false : true;
-		
-		if (boundLight != null)
+		if (light != null)
 		{
-			//if (flicker) boundLight.power = (float) (power * (active.size()/inactive.size()));
-			
-			if (flicker) boundLight.attenuation = (float) (attenuation *
+			if (lightFlicker) light.attenuation = (float) (lightAttenuation *
 					(1-((1-((float)inactive.size() / (float)active.size())))/2));
 		}
 		
@@ -375,227 +302,264 @@ public class ParticleEmitter implements Serializable {
 		while (pItr.hasNext())
 		{
 			Particle p = pItr.next();
-			p.update(delta);
 			
-			mat.setToTranslation(p.position).mul(GameData.player.vo.attributes.getRotation());
+			Float[] velocity = getValue(p.lifetime, ParticleAttribute.VELOCITY);
+			velocity[0] *= delta;
+			velocity[1] *= delta;
+			velocity[2] *= delta;
+			p.update(delta, velocity[0], velocity[1], velocity[2]);
 			
-			if (!p.alive)
+			tmpRot.setToLookAt(cam.direction, GameData.UP);
+			tmpMat.setToTranslation(p.x, p.y, p.z).mul(tmpRot);
+			
+			if (p.lifetime > particleLifetime)
 			{
 				pItr.remove();
 				inactive.add(p);
+				continue;
 			}
-			else if (pointMode)
-			{
-				Vector3 nPos = particle[4].tmp().mul(mat);
-				
-				verticesPoint[(i*6)+0] = nPos.x;
-				verticesPoint[(i*6)+1] = nPos.y;
-				verticesPoint[(i*6)+2] = nPos.z;
-				
-				verticesPoint[(i*6)+3] = p.colour.r;
-				verticesPoint[(i*6)+4] = p.colour.g;
-				verticesPoint[(i*6)+5] = p.colour.b;
-			}
-			else
-			{
-				Vector3 nPostl = particle[0].tmp().mul(mat);
+			
+			Integer[] sprite = getValue(p.lifetime, ParticleAttribute.SPRITE);
+			Float[] size = getValue(p.lifetime, ParticleAttribute.SIZE);
+			Float[] colour = getValue(p.lifetime, ParticleAttribute.COLOUR);
+			
+			Vector3 nPos = quad.set(p.x, p.y, p.z).add(-size[0]/2, size[1]/2, 0).mul(tmpMat);
 
-				verticesQuad[(i*32)+0] = nPostl.x;
-				verticesQuad[(i*32)+1] = nPostl.y;
-				verticesQuad[(i*32)+2] = nPostl.z;
-				
-				verticesQuad[(i*32)+3] = p.colour.r;
-				verticesQuad[(i*32)+4] = p.colour.g;
-				verticesQuad[(i*32)+5] = p.colour.b;
-				
-				verticesQuad[(i*32)+6] = 0.0f;
-				verticesQuad[(i*32)+7] = 0.0f;
-				
-				Vector3 nPostr = particle[1].tmp().mul(mat);
-				
-				verticesQuad[(i*32)+8] = nPostr.x;
-				verticesQuad[(i*32)+9] = nPostr.y;
-				verticesQuad[(i*32)+10] = nPostr.z;
-				
-				verticesQuad[(i*32)+11] = p.colour.r;
-				verticesQuad[(i*32)+12] = p.colour.g;
-				verticesQuad[(i*32)+13] = p.colour.b;
-				
-				verticesQuad[(i*32)+14] = width;
-				verticesQuad[(i*32)+15] = 0.0f;
-				
-				Vector3 nPosbl = particle[2].tmp().mul(mat);
-				
-				verticesQuad[(i*32)+16] = nPosbl.x;
-				verticesQuad[(i*32)+17] = nPosbl.y;
-				verticesQuad[(i*32)+18] = nPosbl.z;
-				
-				verticesQuad[(i*32)+19] = p.colour.r;
-				verticesQuad[(i*32)+20] = p.colour.g;
-				verticesQuad[(i*32)+21] = p.colour.b;
-				
-				verticesQuad[(i*32)+22] = 0.0f;
-				verticesQuad[(i*32)+23] = height;
-				
-				Vector3 nPosbr = particle[3].tmp().mul(mat);
+			vertices[(i*VERTEX_SIZE)+0] = nPos.x;
+			vertices[(i*VERTEX_SIZE)+1] = nPos.y;
+			vertices[(i*VERTEX_SIZE)+2] = nPos.z;
+			
+			vertices[(i*VERTEX_SIZE)+3] = colour[0];
+			vertices[(i*VERTEX_SIZE)+4] = colour[1];
+			vertices[(i*VERTEX_SIZE)+5] = colour[2];
+			vertices[(i*VERTEX_SIZE)+6] = colour[3];
+			
+			vertices[(i*VERTEX_SIZE)+7] = sprite[0];
+			
+			vertices[(i*VERTEX_SIZE)+8] = 0.0f;
+			vertices[(i*VERTEX_SIZE)+9] = 0.0f;
+			
+			nPos = quad.set(p.x, p.y, p.z).add(size[0]/2, size[1]/2, 0).mul(tmpMat);
 
-				verticesQuad[(i*32)+24] = nPosbr.x;
-				verticesQuad[(i*32)+25] = nPosbr.y;
-				verticesQuad[(i*32)+26] = nPosbr.z;
-				
-				verticesQuad[(i*32)+27] = p.colour.r;
-				verticesQuad[(i*32)+28] = p.colour.g;
-				verticesQuad[(i*32)+29] = p.colour.b;
-				
-				verticesQuad[(i*32)+30] = width;
-				verticesQuad[(i*32)+31] = height;
-			}
+			vertices[(i*VERTEX_SIZE)+10] = nPos.x;
+			vertices[(i*VERTEX_SIZE)+11] = nPos.y;
+			vertices[(i*VERTEX_SIZE)+12] = nPos.z;
+			
+			vertices[(i*VERTEX_SIZE)+13] = colour[0];
+			vertices[(i*VERTEX_SIZE)+14] = colour[1];
+			vertices[(i*VERTEX_SIZE)+15] = colour[2];
+			vertices[(i*VERTEX_SIZE)+16] = colour[3];
+			
+			vertices[(i*VERTEX_SIZE)+17] = sprite[0];
+			
+			vertices[(i*VERTEX_SIZE)+18] = 1.0f;
+			vertices[(i*VERTEX_SIZE)+19] = 0.0f;
+			
+			nPos = quad.set(p.x, p.y, p.z).add(-size[0]/2, -size[1]/2, 0).mul(tmpMat);
+
+			vertices[(i*VERTEX_SIZE)+20] = nPos.x;
+			vertices[(i*VERTEX_SIZE)+21] = nPos.y;
+			vertices[(i*VERTEX_SIZE)+22] = nPos.z;
+			
+			vertices[(i*VERTEX_SIZE)+23] = colour[0];
+			vertices[(i*VERTEX_SIZE)+24] = colour[1];
+			vertices[(i*VERTEX_SIZE)+25] = colour[2];
+			vertices[(i*VERTEX_SIZE)+26] = colour[3];
+			
+			vertices[(i*VERTEX_SIZE)+27] = sprite[0];
+			
+			vertices[(i*VERTEX_SIZE)+28] = 0.0f;
+			vertices[(i*VERTEX_SIZE)+29] = 1.0f;
+			
+			nPos = quad.set(p.x, p.y, p.z).add(size[0]/2, -size[1]/2, 0).mul(tmpMat);
+
+			vertices[(i*VERTEX_SIZE)+30] = nPos.x;
+			vertices[(i*VERTEX_SIZE)+31] = nPos.y;
+			vertices[(i*VERTEX_SIZE)+32] = nPos.z;
+			
+			vertices[(i*VERTEX_SIZE)+33] = colour[0];
+			vertices[(i*VERTEX_SIZE)+34] = colour[1];
+			vertices[(i*VERTEX_SIZE)+35] = colour[2];
+			vertices[(i*VERTEX_SIZE)+36] = colour[3];
+			
+			vertices[(i*VERTEX_SIZE)+37] = sprite[0];
+			
+			vertices[(i*VERTEX_SIZE)+38] = 1.0f;
+			vertices[(i*VERTEX_SIZE)+39] = 1.0f;
+
 			i++;
 		}
+		mesh.setVertices(vertices);
+		activeParticles = active.size();
 		
-		for (i *= ((pointMode) ? 6 : 32); i < ((pointMode) ? verticesPoint.length : verticesQuad.length); i++)
-		{
-			if (pointMode) verticesPoint[i] = 0; else verticesQuad[i] = -13;
-		}
+		emissionCD -= delta;
 		
-		time -= delta;
 		if (inactive.size() == 0) return;
 		
-		while (time < 0 && inactive.size() > 0)
+		while (emissionCD < 0 && inactive.size() > 0)
 		{
-			Particle p = inactive.pop();
+			Particle p = inactive.remove(0);
 			
-			if (vertexEmission)
+			if (emissionType == 0)
 			{
-				Vector3 vertex = vertices[ran.nextInt(vertices.length)];
-				
-				p.set(velocity, atime*ran.nextFloat(), start, end, 
-						x+vertex.x, 
-						y+vertex.y,
-						z+vertex.z);
-			}
-			else {
 				signx = (ran.nextInt(2) == 0) ? 1 : -1;
 				signy = (ran.nextInt(2) == 0) ? 1 : -1;
 				signz = (ran.nextInt(2) == 0) ? 1 : -1;
-				p.set(velocity, atime*ran.nextFloat(), start, end, 
-						x+(float)(vx*ran.nextGaussian()*signx), 
-						y+(float)(vy*ran.nextGaussian()*signy),
-						z+(float)(vz*ran.nextGaussian()*signz));
+				p.set(particleLifetimeVar*ran.nextFloat(),
+						x+(float)(ex*ran.nextGaussian()*signx), 
+						y+(float)(ey*ran.nextGaussian()*signy),
+						z+(float)(ez*ran.nextGaussian()*signz));
+
 			}
 			active.add(p);
 			
-			time += speed;
+			emissionCD += emissionTime;
 		}
 	}
 	
-	final Vector3 tmpVec = new Vector3();
-	public Vector3 getPos()
-	{
-		return tmpVec.set(x, y, z);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private <T extends Number> T[] getValue(float time, ParticleAttribute pa) {
+		TimelineValue tv = null;
+		if (pa == ParticleAttribute.SPRITE)
+		{
+			tv = searchTimeline(time, sprite);
+		}
+		else if (pa == ParticleAttribute.SIZE)
+		{
+			tv = searchTimeline(time, size);
+		}
+		else if (pa == ParticleAttribute.COLOUR)
+		{
+			tv = searchTimeline(time, colour);
+		}
+		else if (pa == ParticleAttribute.VELOCITY)
+		{
+			tv = searchTimeline(time, velocity);
+		}
+		
+		return (T[]) tv.getValue(time);
 	}
 	
-	public float getRadius()
+	private <T extends Number> TimelineValue<T> searchTimeline(float time, TimelineValue<T>[] value)
 	{
-		return vx + vz + vy;
-	}
-	
-	public void dispose()
-	{
-		if (boundLight != null) GameData.lightManager.removeDynamicLight(boundLight.UID);
+		for (int i = 0; i < value.length; i++)
+		{
+			if (value[i].time > time)
+			{
+				return value[i-1];
+			}
+		}
+		return value[value.length-1];
 	}
 
-	public ParticleEmitter copy()
-	{
-		ParticleEmitter cpy = new ParticleEmitter(x, y, z, vx, vy, vz, speed, atime);
-		cpy.setTexture(textureName, velocity, start, end, (boundLightUID != null), attenuation, power, flicker, staticLight);
+	class Particle {
+		float lifetime;
+		float x, y, z;
 		
-		return cpy;
+		public Particle()
+		{
+		}
+		
+		public void update(float delta, float vx, float vy, float vz)
+		{
+			lifetime += delta;
+			x += vx;
+			y += vy;
+			z += vz;
+		}
+		
+		public void set(float lifetime, float x, float y, float z)
+		{
+			this.lifetime = lifetime;
+			this.x = x;
+			this.y = y;
+			this.z = z;
+		}
 	}
-}
+	
+	class TimelineValue<T extends Number> implements Serializable {
+		
+		private static final long serialVersionUID = 5296859966301178337L;
+		
+		final Number[] values;
+		final float time;
+		
+		boolean interpolated = false;
+		Number[] valueStep;
+		Number[] interpolatedValues;
+		
+		transient float timeStep;
+		
+		public TimelineValue(float time, T... values)
+		{
+			this.values = values;
+			this.time = time;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public T[] getValue(float currentTime)
+		{
+			if (!interpolated)
+			{
+				return (T[]) values;
+			}
 
-class Particle {
-	
-	Vector3 velocity;
-	float remainingTime;
+			timeStep = currentTime-time;
+			for (int i = 0; i < values.length; i++)
+			{
+				interpolatedValues[i] = values[i].floatValue()+(valueStep[i].floatValue()*timeStep);
+			}
+			
+			return (T[]) interpolatedValues;
+		}
+		
+		public void setInterpolated(boolean interpolated, TimelineValue<T> nextValue)
+		{
+			this.interpolated = interpolated;
+			
+			if (interpolated)
+			{
+				interpolatedValues = new Number[values.length];
+				valueStep = new Number[values.length];
+				
+				for (int i = 0; i < nextValue.values.length; i++)
+				{
+					valueStep[i] = (nextValue.values[i].floatValue() - values[i].floatValue()) / (nextValue.time - time);
+				}
+			}
+		}
+	}
 
-	Colour colour = new Colour();
+	private static final int[] texture_indexes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 	
-	float rstep;
-	float gstep;
-	float bstep;
+	private static final String shader_vertex = 
+			"attribute vec3 a_position;" + "\n" +
+			"attribute vec4 a_colour;" + "\n" +
+			"attribute float a_sprite" + "\n" +
+			"attribute vec2 a_texCoords;" + "\n" +
+
+			"uniform mat4 u_pv;" + "\n" +
+
+			"varying vec4 v_colour;" + "\n" +
+			"varying int v_sprite;" + "\n" +
+			"varying vec2 v_texCoords;" + "\n" +
+
+			"void main() {" + "\n" +
+				"v_sprite = int(a_sprite);" + "\n" +
+				"v_colour = a_colour;" + "\n" +
+				"v_texCoords = a_texCoords;" + "\n" +
+
+				"gl_Position = u_pv * vec4(a_position, 1.0);" + "\n" +
+			"}";
+
+	private static final String shader_fragment = 
+			"uniform sampler2D u_texture[10];" + "\n" +
 	
-	public boolean alive = true;
-	
-	final String UID;
-	
-	Vector3 position = new Vector3();
-	
-	public Particle(boolean alive)
-	{
-		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
-		alive = false;
-	}
-	
-	public Particle(Vector3 velocity, float time, Colour start, Colour end, float x, float y, float z)
-	{
-		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
-		this.velocity.set(velocity);
-		this.remainingTime = time;
-		this.colour.set(start);
-		this.position.set(x, y, z);
-		
-		float rdiff = end.r-start.r;
-		rstep = rdiff/time;
-		
-		float gdiff = end.g-start.g;
-		gstep = gdiff/time;
-		
-		float bdiff = end.b-start.b;
-		bstep = bdiff/time;
-	}
-	
-	public void set(Vector3 velocity, float time, Colour start, Colour end, float x, float y, float z)
-	{		
-		alive = true;
-		
-		this.velocity = velocity;
-		this.remainingTime = time;
-		this.colour.set(start);
-		this.position.set(x, y, z);
-		
-		float rdiff = end.r-start.r;
-		rstep = rdiff/time;
-		
-		float gdiff = end.g-start.g;
-		gstep = gdiff/time;
-		
-		float bdiff = end.b-start.b;
-		bstep = bdiff/time;
-	}
-	
-	public void update(float delta)
-	{
-		remainingTime -= delta;
-		if (remainingTime < 0) alive = false;
-		if (!alive) return;
-		
-		position.add(velocity.tmp().mul(delta));
-		
-		colour.r += rstep*delta;
-		colour.g += gstep*delta;
-		colour.b += bstep*delta;
-	}
-	
-	@Override
-	public boolean equals(Object o)
-	{
-		if (!(o instanceof Particle)) return false;
-		Particle p = (Particle)o;
-		
-		if (p.alive != alive) return false;
-		
-		if (p.UID.equals(UID)) return true;
-		else return false;
-	}
+			"varying vec4 v_colour;" + "\n" +
+			"varying int v_sprite;" + "\n" +
+			"varying vec2 v_texCoords;" + "\n" +
+
+			"void main() {" + "\n" +
+				"gl_FragColor = texture2D(u_texture[v_sprite], v_texCoords) * v_colour;" + "\n" +
+	   		"}";
 }

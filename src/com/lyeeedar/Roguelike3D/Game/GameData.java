@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -145,6 +146,8 @@ public class GameData {
 		public Colour getColour() { return colour; }
 	}
 	
+	public static final Vector3 UP = new Vector3(0, 1, 0);
+	
 	public static Rarity getRarity(int i)
 	{
 		for (Rarity r : Rarity.values())
@@ -195,8 +198,6 @@ public class GameData {
 	
 	public static int[] resolution = {800, 600};
 	
-	public static HashMap<String, Texture> loadedTextures = new HashMap<String, Texture>();
-	
 	public static ApplicationChanger applicationChanger;
 
 	public static void createApplication() {
@@ -219,6 +220,7 @@ public class GameData {
 		return applicationChanger.prefs;
 	}
 	
+	public static HashMap<String, Texture> loadedTextures = new HashMap<String, Texture>();
 	/**
 	 * Tries to load the given texture. If set to urgent, will throw a runtime exception if this texture does not exist.
 	 * @param textureName
@@ -244,7 +246,6 @@ public class GameData {
 	}
 	
 	public static HashMap<String, Mesh> loadedMeshes = new HashMap<String, Mesh>();
-	
 	public static Mesh loadMesh(String meshName)
 	{
 		String meshLocation = "data/models/"+meshName+".obj";
@@ -252,8 +253,7 @@ public class GameData {
 		if (loadedMeshes.containsKey(meshLocation)) return loadedMeshes.get(meshLocation);
 		
 		if (!Gdx.files.internal(meshLocation).exists()) {
-			//System.err.println("Mesh "+meshName+" does not exist!");
-			return null;
+			throw new RuntimeException("Mesh "+meshName+" does not exist!");
 		}
 		
 		Mesh mesh = ObjLoader.loadObj(Gdx.files.internal(meshLocation).read());
@@ -261,6 +261,24 @@ public class GameData {
 		loadedMeshes.put(meshLocation, mesh);
 		
 		return mesh;
+	}
+	
+	public static HashMap<String, TextureAtlas> loadedAtlases = new HashMap<String, TextureAtlas>();
+	public static TextureAtlas loadAtlas(String atlasName)
+	{
+		String atlasLocation = "data/textureAtlases/"+atlasName;
+		
+		if (loadedMeshes.containsKey(atlasLocation)) return loadedAtlases.get(atlasLocation);
+		
+		if (!Gdx.files.internal(atlasLocation).exists()) {
+			throw new RuntimeException("Atlas "+atlasName+" does not exist!");
+		}
+		
+		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(atlasLocation));
+		
+		loadedAtlases.put(atlasLocation, atlas);
+		
+		return atlas;
 	}
 	
 	public static void load()

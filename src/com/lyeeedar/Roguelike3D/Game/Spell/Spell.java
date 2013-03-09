@@ -23,26 +23,26 @@ public class Spell implements Serializable {
 	private SpellBehaviour moveBehaviour;
 	private SpellBehaviour damBehaviour;
 	
-	public boolean move = true;
+	public transient boolean move = true;
 	
 	public float radius;
 	
-	private final Vector3 position = new Vector3();
-	private final Vector3 rotation = new Vector3();
-	private final Vector3 velocity = new Vector3();
+	private transient final Vector3 position = new Vector3();
+	private transient final Vector3 rotation = new Vector3();
+	private transient final Vector3 velocity = new Vector3();
 	
-	public ParticleEffect particleEffect;
+	public final ParticleEffect particleEffect;
 	
-	private final Vector3 tmpVec = new Vector3();
-	private final Vector3 up = new Vector3(0, 1, 0);
-	private final Matrix4 tmpMat = new Matrix4();
+	private transient final Vector3 tmpVec = new Vector3();
+	private transient final Vector3 up = new Vector3(0, 1, 0);
+	private transient final Matrix4 tmpMat = new Matrix4();
 	
-	private final Vector3 tmpVelocity = new Vector3();
+	private transient final Vector3 tmpVelocity = new Vector3();
 	
 	public String casterUID;
 	
-	HashMap<Damage_Type, Integer> DAM_DAM = new HashMap<Damage_Type, Integer>();
-	HashMap<Element, Integer> ELE_DAM = new HashMap<Element, Integer>();
+	HashMap<Damage_Type, Integer> DAM_DAM;
+	HashMap<Element, Integer> ELE_DAM;
 	int damage;
 	
 	public boolean alive = true;
@@ -79,6 +79,7 @@ public class Spell implements Serializable {
 		if (!alive)
 		{
 			dispose();
+			delete();
 			return true;
 		}
 		
@@ -97,6 +98,11 @@ public class Spell implements Serializable {
 	
 	public void dispose(){
 		particleEffect.dispose();
+	}
+	
+	public void delete()
+	{
+		particleEffect.delete();
 	}
 	
 	public void create()
@@ -219,34 +225,6 @@ public class Spell implements Serializable {
 	}
 
 	/**
-	 * @return the particleEffect
-	 */
-	public ParticleEffect getParticleEffect() {
-		return particleEffect;
-	}
-
-	/**
-	 * @param particleEmitter the particleEffect to set
-	 */
-	public void setParticleEffect(ParticleEffect particleEffect) {
-		this.particleEffect = particleEffect;
-	}
-
-	/**
-	 * @return the casterUID
-	 */
-	public String getCasterUID() {
-		return casterUID;
-	}
-
-	/**
-	 * @param casterUID the casterUID to set
-	 */
-	public void setCasterUID(String casterUID) {
-		this.casterUID = casterUID;
-	}
-
-	/**
 	 * @return the dAM_DAM
 	 */
 	public HashMap<Damage_Type, Integer> getDAM_DAM() {
@@ -321,5 +299,12 @@ public class Spell implements Serializable {
 	 */
 	public Vector3 getVelocity() {
 		return velocity;
+	}
+
+	/**
+	 * @return the casterUID
+	 */
+	public String getCasterUID() {
+		return casterUID;
 	}
 }

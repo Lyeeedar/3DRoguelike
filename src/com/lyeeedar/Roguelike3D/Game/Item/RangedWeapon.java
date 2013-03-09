@@ -49,13 +49,13 @@ public class RangedWeapon extends Equipment_HAND {
 		if (style == Ranged_Weapon_Style.FIREBALL)
 		{
 			ParticleEffect effect = new ParticleEffect(5);
-			ParticleEmitter flame = new ParticleEmitter(1, 0, 0.01f, 0.1f, 0.1f, 0.1f, 0, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, "f");
-			flame.createBasicEmitter(1, 1, Color.YELLOW, Color.RED, 0, 2, 0);
-			flame.addLight(false, 0.5f, 0.5f, Color.ORANGE, true);
+			ParticleEmitter flame = new ParticleEmitter(1.5f, 1, 0.01f, 0.4f, 0.4f, 0.4f, 0, GL20.GL_SRC_ALPHA, GL20.GL_ONE, "f");
+			flame.createBasicEmitter(1, 1, Color.YELLOW, Color.RED, 0, 3, 0);
+			flame.addLight(false, 0.5f, 0.5f, Color.ORANGE, true, 0, 0, 0);
 			effect.addEmitter(flame, 
 					0, 0, 0);
 			
-			Spell spell = new Spell("",effect, 5);
+			Spell spell = new Spell("", effect, 0.5f);
 			spell.setDamage(dam_dam, ele_dam, strength);
 			spell.setBehaviour(new SpellBehaviourBolt(), new SpellBehaviourSingleDamage());
 			

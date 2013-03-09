@@ -101,6 +101,7 @@ public class ParticleEmitter implements Serializable {
 	private boolean isLightStatic;
 	private Color lightColour;
 	private boolean lightFlicker;
+	private float lightx, lighty, lightz;
 	// ----- End Light ----- //
 	
 	public ParticleEmitter(float particleLifetime, float particleLifetimeVar, float emissionTime, 
@@ -145,7 +146,7 @@ public class ParticleEmitter implements Serializable {
 		this.y = y;
 		this.z = z;
 		
-		if (light != null) light.position.set(x, y, z);
+		if (light != null) light.position.set(x+lightx, y+lighty, z+lightz);
 	}
 
 	/**
@@ -260,13 +261,16 @@ public class ParticleEmitter implements Serializable {
 		this.velocity = new TimelineFloat[]{new TimelineFloat(0, vx, vy, vz)};
 	}
 	
-	public void addLight(boolean isStatic, float attenuation, float power, Color colour, boolean flicker)
+	public void addLight(boolean isStatic, float attenuation, float power, Color colour, boolean flicker, float x, float y, float z)
 	{
 		this.lightAttenuation = attenuation;
 		this.lightPower = power;
 		this.isLightStatic = isStatic;
 		this.lightColour = colour;
 		this.lightFlicker = flicker;
+		this.lightx = x;
+		this.lighty = y;
+		this.lightz = z;
 		
 		if (light != null)
 		{
@@ -616,7 +620,7 @@ public class ParticleEmitter implements Serializable {
 
 	public ParticleEmitter copy()
 	{
-		ParticleEmitter copy = new ParticleEmitter(particleLifetime, particleLifetimeVar, emissionTime, VERTEX_SIZE, ey, ez, emissionType, blendFuncSRC, blendFuncDST, atlasName);
+		ParticleEmitter copy = new ParticleEmitter(particleLifetime, particleLifetimeVar, emissionTime, ex, ey, ez, emissionType, blendFuncSRC, blendFuncDST, atlasName);
 		
 		TimelineInteger[] cpySprite = new TimelineInteger[sprite.length];
 		for (int i = 0; i < sprite.length; i++) cpySprite[i] = sprite[i].copy();
@@ -635,7 +639,7 @@ public class ParticleEmitter implements Serializable {
 		copy.velocity = cpyVelocity;
 
 		if (lightUID != null)
-			copy.addLight(isLightStatic, lightAttenuation, lightPower, lightColour, lightFlicker);
+			copy.addLight(isLightStatic, lightAttenuation, lightPower, lightColour, lightFlicker, lightx, lighty, lightz);
 		
 		return copy;
 	}

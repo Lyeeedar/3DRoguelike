@@ -289,9 +289,7 @@ public class RiggedModelNode implements Serializable
 			rmn.dispose();
 		}
 		
-		if (particleEffect != null) {
-			GameData.level.removeParticleEffect(particleEffectUID);
-		}
+		if (particleEffect!= null) particleEffect.dispose();
 	}
 	
 	public void bakeLight(LightManager lights, boolean bakeStatics)

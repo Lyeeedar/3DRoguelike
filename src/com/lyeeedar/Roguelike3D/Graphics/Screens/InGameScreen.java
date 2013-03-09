@@ -98,9 +98,7 @@ public class InGameScreen extends AbstractScreen {
 		
 		for (Spell s : GameData.spells)
 		{
-			ParticleEffect pe = s.particleEffect;
-			
-			pe.getEmitters(visibleEmitters, cam);
+			s.particleEffect.getEmitters(visibleEmitters, cam);
 		}
 		
 		Collections.sort(visibleEmitters,new Comparator<ParticleEmitter>() {
@@ -228,13 +226,12 @@ public class InGameScreen extends AbstractScreen {
 			
 			for (GameActor ga : GameData.level.getActors())
 			{
-				//System.out.println(ga);
 				ga.update(delta);
 			}
 			
 			for (ParticleEffect pe : GameData.level.getParticleEffects())
 			{
-				//if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
+				if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
 				pe.update(delta, cam);
 			}
 			

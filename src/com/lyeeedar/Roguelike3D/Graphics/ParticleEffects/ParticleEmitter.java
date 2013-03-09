@@ -11,36 +11,25 @@
 package com.lyeeedar.Roguelike3D.Graphics.ParticleEffects;
 
 import java.io.Serializable;
-import java.nio.FloatBuffer;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.GL11;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
-import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
-import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.BufferUtils;
 import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.GameData;
-import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 
 public class ParticleEmitter implements Serializable {
@@ -64,23 +53,23 @@ public class ParticleEmitter implements Serializable {
 	public final String UID;
 	
 	// ----- Particle Parameters ----- //
-	private TimelineValue<Integer>[] sprite;
-	private TimelineValue<Float>[] size;
-	private TimelineValue<Float>[] colour;
-	private TimelineValue<Float>[] velocity;
+	private TimelineInteger[] sprite;
+	private TimelineFloat[] size;
+	private TimelineFloat[] colour;
+	private TimelineFloat[] velocity;
 	// ----- End Particle Parameters ----- //
 	
 	// ----- Emitter parameters ----- //
-	private int particles;
-	private float particleLifetime;
-	private float particleLifetimeVar;
-	private float emissionTime;
+	private final int particles;
+	private final float particleLifetime;
+	private final float particleLifetimeVar;
+	private final float emissionTime;
 	private float x, y, z;
-	private float ex, ey, ez;
-	private float radius;
-	private int emissionType;
-	private int blendFuncSRC;
-	private int blendFuncDST;
+	private final float ex, ey, ez;
+	private final float radius;
+	private final int emissionType;
+	private final int blendFuncSRC;
+	private final int blendFuncDST;
 	// ----- End Emitter parameters ----- //
 	
 	// ----- Transient Variables ----- //
@@ -100,6 +89,8 @@ public class ParticleEmitter implements Serializable {
 	private transient Random ran;
 	private transient Matrix4 tmpMat;
 	private transient Matrix4 tmpRot;
+	private transient int v;
+	private transient float emissionCD;
 	// ----- End Transient Variables ----- //
 	
 	// ----- Light ----- //
@@ -112,11 +103,26 @@ public class ParticleEmitter implements Serializable {
 	private boolean lightFlicker;
 	// ----- End Light ----- //
 	
-	private transient float emissionCD;
-	
-	public ParticleEmitter()
-	{	
+	public ParticleEmitter(float particleLifetime, float particleLifetimeVar, float emissionTime, 
+			float ex, float ey, float ez,
+			int emissionType,
+			int blendFuncSRC, int blendFuncDST,
+			String atlasName)
+	{
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
+		
+		this.particleLifetime = particleLifetime;
+		this.particleLifetimeVar = particleLifetimeVar;
+		this.emissionTime = emissionTime;
+		this.ex = ex;
+		this.ey = ey;
+		this.ez = ez;
+		this.emissionType = emissionType;
+		this.blendFuncSRC = blendFuncSRC;
+		this.blendFuncDST = blendFuncDST;
+		this.particles = (int) (particleLifetime / emissionTime);
+		this.radius = ex+ey+ez;
+		this.atlasName = atlasName;
 	}
 	
 	public int getActiveParticles() {
@@ -141,39 +147,117 @@ public class ParticleEmitter implements Serializable {
 		
 		if (light != null) light.position.set(x, y, z);
 	}
-	
-	public void setEmitterParameters(float particleLifetime, float particleLifetimeVar, float emissionTime, 
-			float ex, float ey, float ez,
-			int emissionType,
-			int blendFuncSRC, int blendFuncDST)
+
+	/**
+	 * Set the sprite number timeline. <p>
+	 *  Each point in the timeline is specified by a float array. <br> array[0] is the time in the timeline, array[1] is the sprite number (casted to an int)
+	 *  Optionally setting interpolated to true will linearly interpolate between each value in the timeline
+	 * @param values
+	 */
+	public void setSpriteTimeline(boolean interpolated, float[]... values)
 	{
-		this.particleLifetime = particleLifetime;
-		this.particleLifetimeVar = particleLifetimeVar;
-		this.emissionTime = emissionTime;
-		this.ex = ex;
-		this.ey = ey;
-		this.ez = ez;
-		this.emissionType = emissionType;
-		this.blendFuncSRC = blendFuncSRC;
-		this.blendFuncDST = blendFuncDST;
-		System.out.println(particleLifetime+"   "+emissionTime+"    "+particleLifetime / emissionTime);
-		this.particles = (int) (particleLifetime / emissionTime);
-		this.radius = ex+ey+ez;
+		this.sprite = new TimelineInteger[values.length];
+		
+		for (int i = 0; i < values.length; i++)
+		{
+			this.sprite[i] = new TimelineInteger(values[i][0], (int)values[i][1]);
+		}
+		
+		for (int i = 0; i < values.length-1; i++)
+		{
+			this.sprite[i].setInterpolated(true, this.sprite[i+1]);
+		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void setParticleParameters(String atlasName, float width, float height, Color start, Color end, float vx, float vy, float vz)
+	/**
+	 * Set the size timeline. <p>
+	 *  Each point in the timeline is specified by a float array. <br> array[0] is the time in the timeline, array[1] is the width, array[2] is the height
+	 *  Optionally setting interpolated to true will linearly interpolate between each value in the timeline
+	 * @param interpolated
+	 * @param values
+	 */
+	public void setSizeTimeline(boolean interpolated, float[]... values)
 	{
-		this.atlasName = atlasName;
+		this.size = new TimelineFloat[values.length];
 		
-		this.sprite = new TimelineValue[]{new TimelineValue<Integer>(0, 0)};
+		for (int i = 0; i < values.length; i++)
+		{
+			this.size[i] = new TimelineFloat(values[i][0], values[i][1], values[i][2]);
+		}
 		
-		this.size = new TimelineValue[]{new TimelineValue<Float>(0, width, height)};
+		for (int i = 0; i < values.length-1; i++)
+		{
+			this.size[i].setInterpolated(true, this.size[i+1]);
+		}
+	}
+	
+	/**
+	 * Set the colour timeline. <p>
+	 *  Each point in the timeline is specified by a float array. <br> array[0] is the time in the timeline, array[1] is red, array[2] is green, array[3] is blue and array[4] is alpha
+	 *  Optionally setting interpolated to true will linearly interpolate between each value in the timeline
+	 * @param interpolated
+	 * @param values
+	 */
+	public void setColourTimeline(boolean interpolated, float[]... values)
+	{
+		this.colour = new TimelineFloat[values.length];
 		
-		this.colour = new TimelineValue[]{new TimelineValue<Float>(0, start.r, start.g, start.b, start.a), new TimelineValue<Float>(particleLifetime, end.r, end.g, end.b, end.a)};
+		for (int i = 0; i < values.length; i++)
+		{
+			this.colour[i] = new TimelineFloat(values[i][0], values[i][1], values[i][2], values[i][3], values[i][4]);
+		}
+		
+		for (int i = 0; i < values.length-1; i++)
+		{
+			this.colour[i].setInterpolated(true, this.colour[i+1]);
+		}
+	}
+	
+	/**
+	 * Set the velocity timeline. <p>
+	 *  Each point in the timeline is specified by a float array. <br> array[0] is the time in the timeline, array[1] is the x velocity, array[2] is the y velocity and array[3] is the z velocity
+	 *  Optionally setting interpolated to true will linearly interpolate between each value in the timeline
+	 * @param interpolated
+	 * @param values
+	 */
+	public void setVelocityTimeline(boolean interpolated, float[]... values)
+	{
+		this.velocity = new TimelineFloat[values.length];
+		
+		for (int i = 0; i < values.length; i++)
+		{
+			this.velocity[i] = new TimelineFloat(values[i][0], values[i][1], values[i][2], values[i][3]);
+		}
+		
+		for (int i = 0; i < values.length-1; i++)
+		{
+			this.velocity[i].setInterpolated(true, this.velocity[i+1]);
+		}
+	}
+	
+	/**
+	 * Method to create a basic particle emitter. <p>
+	 * This particles in this emitter will have a constant width and height,
+	 *  a constant velocity (vx, vy, vz)
+	 *   and will interpolate its colour from the start colour to the end over the particles lifetime.
+	 * @param width
+	 * @param height
+	 * @param start
+	 * @param end
+	 * @param vx
+	 * @param vy
+	 * @param vz
+	 */
+	public void createBasicEmitter(float width, float height, Color start, Color end, float vx, float vy, float vz)
+	{
+		this.sprite = new TimelineInteger[]{new TimelineInteger(0, 0)};
+		
+		this.size = new TimelineFloat[]{new TimelineFloat(0, width, height)};
+		
+		this.colour = new TimelineFloat[]{new TimelineFloat(0, start.r, start.g, start.b, start.a), new TimelineFloat(particleLifetime, end.r, end.g, end.b, end.a)};
 		this.colour[0].setInterpolated(true, this.colour[1]);
 		
-		this.velocity = new TimelineValue[]{new TimelineValue<Float>(0, vx, vy, vz)};
+		this.velocity = new TimelineFloat[]{new TimelineFloat(0, vx, vy, vz)};
 	}
 	
 	public void addLight(boolean isStatic, float attenuation, float power, Color colour, boolean flicker)
@@ -215,9 +299,9 @@ public class ParticleEmitter implements Serializable {
 		atlasTexture = itr.next();
 		
 		int maxIndex = 0;
-		for (TimelineValue<Integer> spriteTL : sprite)
+		for (TimelineInteger spriteTL : sprite)
 		{
-			Integer index = spriteTL.getValue()[0];
+			Integer index = spriteTL.getValues()[0];
 			
 			if (index > maxIndex) maxIndex = index;
 		}
@@ -231,10 +315,10 @@ public class ParticleEmitter implements Serializable {
 		{
 			AtlasRegion region = atlas.findRegion("sprite"+i);
 			
-			float[] tl = {region.getRegionX(), region.getRegionY()};
-			float[] tr = {region.getRegionX()+region.getRegionWidth(), region.getRegionY()};
-			float[] bl = {region.getRegionX(), region.getRegionY()+region.getRegionHeight()};
-			float[] br = {region.getRegionX()+region.getRegionWidth(), region.getRegionY()+region.getRegionHeight()};
+			float[] tl = {(float)region.getRegionX()/(float)atlasTexture.getWidth(), (float)region.getRegionY()/(float)atlasTexture.getHeight()};
+			float[] tr = {(float)(region.getRegionX()+region.getRegionWidth())/(float)atlasTexture.getWidth(), (float)region.getRegionY()/(float)atlasTexture.getHeight()};
+			float[] bl = {(float)region.getRegionX()/(float)atlasTexture.getWidth(), (float)(region.getRegionY()+region.getRegionHeight())/(float)atlasTexture.getHeight()};
+			float[] br = {(float)(region.getRegionX()+region.getRegionWidth())/(float)atlasTexture.getWidth(), (float)(region.getRegionY()+region.getRegionHeight())/(float)atlasTexture.getHeight()};
 			
 			topLeftTexCoords[i] = tl;
 			topRightTexCoords[i] = tr;
@@ -255,7 +339,6 @@ public class ParticleEmitter implements Serializable {
 		mesh = new Mesh(false, particles*4, particles*6,
 				new VertexAttribute(Usage.Position, 3, "a_position"),
 				new VertexAttribute(Usage.Generic, 4, "a_colour"),
-				new VertexAttribute(Usage.Generic, 1, "a_sprite"),
 				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoords"));
 		mesh.setVertices(vertices);
 		mesh.setIndices(genIndices(particles));
@@ -263,13 +346,17 @@ public class ParticleEmitter implements Serializable {
 		quad = new Vector3();
 		tmpMat = new Matrix4();
 		tmpRot = new Matrix4();
+		pos = new Vector3();
 	}
 	
 	public void dispose()
 	{
-		mesh.dispose();
+		if (mesh != null) mesh.dispose();
 		mesh = null;
-		
+	}
+	
+	public void delete()
+	{
 		if (light != null) {
 			if (isLightStatic) GameData.lightManager.removeStaticLight(light.UID);
 			else GameData.lightManager.removeDynamicLight(light.UID);
@@ -307,9 +394,9 @@ public class ParticleEmitter implements Serializable {
 			indices[(i*6)+1] = (short) ((i*4)+1);
 			indices[(i*6)+2] = (short) ((i*4)+2);
 			
-			indices[(i*6)+3] = (short) ((i*4)+0);
-			indices[(i*6)+4] = (short) ((i*4)+2);
-			indices[(i*6)+5] = (short) ((i*4)+3);
+			indices[(i*6)+3] = (short) ((i*4)+1);
+			indices[(i*6)+4] = (short) ((i*4)+3);
+			indices[(i*6)+5] = (short) ((i*4)+2);
 		}
 		return indices;
 	}
@@ -329,14 +416,14 @@ public class ParticleEmitter implements Serializable {
 			boundAtlas = atlasName;
 		}
 		
-		mesh.render(shader, GL20.GL_TRIANGLES, 0, active.size());
+		mesh.render(shader, GL20.GL_TRIANGLES, 0, active.size()*4);
 	}
 	
 	public static void begin(Camera cam)
 	{
-		//Gdx.gl.glEnable(GL20.GL_BLEND);
-		//Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
-		//Gdx.gl.glDepthMask(false);
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		Gdx.gl.glDepthMask(false);
 		
 		shader.begin();
 		shader.setUniformMatrix("u_pv", cam.combined);
@@ -367,10 +454,8 @@ public class ParticleEmitter implements Serializable {
 		{
 			Particle p = pItr.next();
 			
-			Float[] velocity = getValue(p.lifetime, ParticleAttribute.VELOCITY);
-			velocity[0] *= delta;
-			velocity[1] *= delta;
-			velocity[2] *= delta;
+			Float[] velocity = getAttributeValue(p.lifetime, ParticleAttribute.VELOCITY);
+
 			p.update(delta, velocity[0], velocity[1], velocity[2]);
 
 			if (p.lifetime > particleLifetime)
@@ -380,84 +465,85 @@ public class ParticleEmitter implements Serializable {
 				continue;
 			}
 			
-			tmpRot.setToLookAt(cam.direction, GameData.UP);
-			tmpMat.setToTranslation(p.x, p.y, p.z).mul(tmpRot);
+			//tmpRot.setToLookAt(cam.direction, cam.up);
+			//tmpMat.setToTranslation(p.x, p.y, p.z);//.mul(tmpRot);
+			tmpMat.setToTranslation(p.x, p.y, p.z).mul(GameData.player.vo.attributes.getRotation());
 			
-			Integer[] sprite = getValue(p.lifetime, ParticleAttribute.SPRITE);
-			Float[] size = getValue(p.lifetime, ParticleAttribute.SIZE);
-			Float[] colour = {1f, 1f, 1f, 1f};//getValue(p.lifetime, ParticleAttribute.COLOUR);
+			Integer[] sprite = getAttributeValue(p.lifetime, ParticleAttribute.SPRITE);
+			Float[] size = getAttributeValue(p.lifetime, ParticleAttribute.SIZE);
+			Float[] colour = getAttributeValue(p.lifetime, ParticleAttribute.COLOUR);
 			
 			Vector3 nPos = quad
-					.set(0, size[1], 0)//-size[0]/2, size[1]/2, 0)
+					.set(-size[0].floatValue()/2, size[1].floatValue()/2, 0)
 					.mul(tmpMat);
 
-			vertices[(i*VERTEX_SIZE)+0] = nPos.x;
-			vertices[(i*VERTEX_SIZE)+1] = nPos.y;
-			vertices[(i*VERTEX_SIZE)+2] = nPos.z;
+			v = 0;
 			
-			vertices[(i*VERTEX_SIZE)+3] = colour[0];
-			vertices[(i*VERTEX_SIZE)+4] = colour[1];
-			vertices[(i*VERTEX_SIZE)+5] = colour[2];
-			vertices[(i*VERTEX_SIZE)+6] = colour[3];
+			vertices[(i*VERTEX_SIZE*4)+v+0] = nPos.x;
+			vertices[(i*VERTEX_SIZE*4)+v+1] = nPos.y;
+			vertices[(i*VERTEX_SIZE*4)+v+2] = nPos.z;
 			
-			vertices[(i*VERTEX_SIZE)+7] = sprite[0];
-			
-			vertices[(i*VERTEX_SIZE)+8] = topLeftTexCoords[sprite[0]][0];
-			vertices[(i*VERTEX_SIZE)+9] = topLeftTexCoords[sprite[0]][1];
+			vertices[(i*VERTEX_SIZE*4)+v+3] = colour[0];
+			vertices[(i*VERTEX_SIZE*4)+v+4] = colour[1];
+			vertices[(i*VERTEX_SIZE*4)+v+5] = colour[2];
+			vertices[(i*VERTEX_SIZE*4)+v+6] = colour[3];
+
+			vertices[(i*VERTEX_SIZE*4)+v+7] = topLeftTexCoords[sprite[0]][0];
+			vertices[(i*VERTEX_SIZE*4)+v+8] = topLeftTexCoords[sprite[0]][1];
 			
 			nPos = quad
-					.set(size[0], size[1], 0)
+					.set(size[0]/2, size[1]/2, 0)
 					.mul(tmpMat);
 
-			vertices[(i*VERTEX_SIZE)+10] = nPos.x;
-			vertices[(i*VERTEX_SIZE)+11] = nPos.y;
-			vertices[(i*VERTEX_SIZE)+12] = nPos.z;
+			v += VERTEX_SIZE;
 			
-			vertices[(i*VERTEX_SIZE)+13] = colour[0];
-			vertices[(i*VERTEX_SIZE)+14] = colour[1];
-			vertices[(i*VERTEX_SIZE)+15] = colour[2];
-			vertices[(i*VERTEX_SIZE)+16] = colour[3];
+			vertices[(i*VERTEX_SIZE*4)+v+0] = nPos.x;
+			vertices[(i*VERTEX_SIZE*4)+v+1] = nPos.y;
+			vertices[(i*VERTEX_SIZE*4)+v+2] = nPos.z;
 			
-			vertices[(i*VERTEX_SIZE)+17] = sprite[0];
+			vertices[(i*VERTEX_SIZE*4)+v+3] = colour[0];
+			vertices[(i*VERTEX_SIZE*4)+v+4] = colour[1];
+			vertices[(i*VERTEX_SIZE*4)+v+5] = colour[2];
+			vertices[(i*VERTEX_SIZE*4)+v+6] = colour[3];
 			
-			vertices[(i*VERTEX_SIZE)+18] = topRightTexCoords[sprite[0]][0];
-			vertices[(i*VERTEX_SIZE)+19] = topRightTexCoords[sprite[0]][1];
+			vertices[(i*VERTEX_SIZE*4)+v+7] = topRightTexCoords[sprite[0]][0];
+			vertices[(i*VERTEX_SIZE*4)+v+8] = topRightTexCoords[sprite[0]][1];
 			
 			nPos = quad
-					.set(0, 0, 0)
+					.set(-size[0]/2, -size[1]/2, 0)
 					.mul(tmpMat);
 
-			vertices[(i*VERTEX_SIZE)+20] = nPos.x;
-			vertices[(i*VERTEX_SIZE)+21] = nPos.y;
-			vertices[(i*VERTEX_SIZE)+22] = nPos.z;
+			v += VERTEX_SIZE;
 			
-			vertices[(i*VERTEX_SIZE)+23] = colour[0];
-			vertices[(i*VERTEX_SIZE)+24] = colour[1];
-			vertices[(i*VERTEX_SIZE)+25] = colour[2];
-			vertices[(i*VERTEX_SIZE)+26] = colour[3];
+			vertices[(i*VERTEX_SIZE*4)+v+0] = nPos.x;
+			vertices[(i*VERTEX_SIZE*4)+v+1] = nPos.y;
+			vertices[(i*VERTEX_SIZE*4)+v+2] = nPos.z;
 			
-			vertices[(i*VERTEX_SIZE)+27] = sprite[0];
+			vertices[(i*VERTEX_SIZE*4)+v+3] = colour[0];
+			vertices[(i*VERTEX_SIZE*4)+v+4] = colour[1];
+			vertices[(i*VERTEX_SIZE*4)+v+5] = colour[2];
+			vertices[(i*VERTEX_SIZE*4)+v+6] = colour[3];
 			
-			vertices[(i*VERTEX_SIZE)+28] = botLeftTexCoords[sprite[0]][0];
-			vertices[(i*VERTEX_SIZE)+29] = botLeftTexCoords[sprite[0]][1];
+			vertices[(i*VERTEX_SIZE*4)+v+7] = botLeftTexCoords[sprite[0]][0];
+			vertices[(i*VERTEX_SIZE*4)+v+8] = botLeftTexCoords[sprite[0]][1];
 			
 			nPos = quad
-					.set(size[0], 0, 0)
+					.set(size[0]/2, -size[1]/2, 0)
 					.mul(tmpMat);
 
-			vertices[(i*VERTEX_SIZE)+30] = nPos.x;
-			vertices[(i*VERTEX_SIZE)+31] = nPos.y;
-			vertices[(i*VERTEX_SIZE)+32] = nPos.z;
+			v += VERTEX_SIZE;
 			
-			vertices[(i*VERTEX_SIZE)+33] = colour[0];
-			vertices[(i*VERTEX_SIZE)+34] = colour[1];
-			vertices[(i*VERTEX_SIZE)+35] = colour[2];
-			vertices[(i*VERTEX_SIZE)+36] = colour[3];
+			vertices[(i*VERTEX_SIZE*4)+v+0] = nPos.x;
+			vertices[(i*VERTEX_SIZE*4)+v+1] = nPos.y;
+			vertices[(i*VERTEX_SIZE*4)+v+2] = nPos.z;
 			
-			vertices[(i*VERTEX_SIZE)+37] = sprite[0];
+			vertices[(i*VERTEX_SIZE*4)+v+3] = colour[0];
+			vertices[(i*VERTEX_SIZE*4)+v+4] = colour[1];
+			vertices[(i*VERTEX_SIZE*4)+v+5] = colour[2];
+			vertices[(i*VERTEX_SIZE*4)+v+6] = colour[3];
 			
-			vertices[(i*VERTEX_SIZE)+38] = topRightTexCoords[sprite[0]][0];
-			vertices[(i*VERTEX_SIZE)+39] = topRightTexCoords[sprite[0]][1];
+			vertices[(i*VERTEX_SIZE*4)+v+7] = botRightTexCoords[sprite[0]][0];
+			vertices[(i*VERTEX_SIZE*4)+v+8] = botRightTexCoords[sprite[0]][1];
 
 			i++;
 		}
@@ -493,30 +579,30 @@ public class ParticleEmitter implements Serializable {
 		}
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private <T extends Number> T[] getValue(float time, ParticleAttribute pa) {
-		TimelineValue tv = null;
+	@SuppressWarnings("unchecked")
+	private <T extends Number, N extends TimelineValue<T, N>> T[] getAttributeValue(float time, ParticleAttribute pa) {
+		TimelineValue<T, N> tv = null;
 		if (pa == ParticleAttribute.SPRITE)
 		{
-			tv = searchTimeline(time, sprite);
+			tv = (TimelineValue<T, N>) searchTimeline(time, sprite);
 		}
 		else if (pa == ParticleAttribute.SIZE)
 		{
-			tv = searchTimeline(time, size);
+			tv = (TimelineValue<T, N>) searchTimeline(time, size);
 		}
 		else if (pa == ParticleAttribute.COLOUR)
 		{
-			tv = searchTimeline(time, colour);
+			tv = (TimelineValue<T, N>) searchTimeline(time, colour);
 		}
 		else if (pa == ParticleAttribute.VELOCITY)
 		{
-			tv = searchTimeline(time, velocity);
+			tv = (TimelineValue<T, N>) searchTimeline(time, velocity);
 		}
 		
-		return (T[]) tv.getValueInterpolated(time);
+		return tv.getValuesInterpolated(time);
 	}
 	
-	private <T extends Number> TimelineValue<T> searchTimeline(float time, TimelineValue<T>[] value)
+	private <T extends Number, N extends TimelineValue<T, N>> TimelineValue<T, N> searchTimeline(float time, TimelineValue<T, N>[] value)
 	{
 		for (int i = 0; i < value.length; i++)
 		{
@@ -528,26 +614,23 @@ public class ParticleEmitter implements Serializable {
 		return value[value.length-1];
 	}
 
-	@SuppressWarnings("unchecked")
 	public ParticleEmitter copy()
 	{
-		ParticleEmitter copy = new ParticleEmitter();
-		copy.setEmitterParameters(particleLifetime, particleLifetimeVar, emissionTime, VERTEX_SIZE, ey, ez, emissionType, blendFuncSRC, blendFuncDST);
-		copy.atlasName = atlasName;
+		ParticleEmitter copy = new ParticleEmitter(particleLifetime, particleLifetimeVar, emissionTime, VERTEX_SIZE, ey, ez, emissionType, blendFuncSRC, blendFuncDST, atlasName);
 		
-		TimelineValue<Integer>[] cpySprite = new TimelineValue[sprite.length];
+		TimelineInteger[] cpySprite = new TimelineInteger[sprite.length];
 		for (int i = 0; i < sprite.length; i++) cpySprite[i] = sprite[i].copy();
 		copy.sprite = cpySprite;
 		
-		TimelineValue<Float>[] cpySize = new TimelineValue[size.length];
+		TimelineFloat[] cpySize = new TimelineFloat[size.length];
 		for (int i = 0; i < size.length; i++) cpySize[i] = size[i].copy();
 		copy.size = cpySize;
 
-		TimelineValue<Float>[] cpyColour = new TimelineValue[colour.length];
+		TimelineFloat[] cpyColour = new TimelineFloat[colour.length];
 		for (int i = 0; i < colour.length; i++) cpyColour[i] = colour[i].copy();
 		copy.colour = cpyColour;
 		
-		TimelineValue<Float>[] cpyVelocity = new TimelineValue[velocity.length];
+		TimelineFloat[] cpyVelocity = new TimelineFloat[velocity.length];
 		for (int i = 0; i < velocity.length; i++) cpyVelocity[i] = velocity[i].copy();
 		copy.velocity = cpyVelocity;
 
@@ -573,11 +656,9 @@ public class ParticleEmitter implements Serializable {
 		public void update(float delta, float vx, float vy, float vz)
 		{
 			lifetime += delta;
-			x += delta;// vx;
-			y += delta;//vy;
-			z += delta;//vz;
-			
-			//System.out.println(x+" "+y+" "+z);
+			x += vx*delta;
+			y += vy*delta;
+			z += vz*delta;
 		}
 		
 		public void set(float lifetime, float x, float y, float z)
@@ -589,85 +670,147 @@ public class ParticleEmitter implements Serializable {
 		}
 	}
 	
-	/**
-	 * A value of a parameter in a timeline. Can be set to interpolate between this value and the next one.
-	 * @author Philip
-	 *
-	 * @param <T>
-	 */
-	class TimelineValue<T extends Number> implements Serializable {
+	abstract class TimelineValue<T extends Number, N extends TimelineValue<T, N>> implements Serializable
+	{
+		private static final long serialVersionUID = -4434625075360858305L;
 		
-		private static final long serialVersionUID = 5296859966301178337L;
-		
-		final Number[] values;
+		final T[] values;
 		final float time;
 		
 		boolean interpolated = false;
-		Number[] valueStep;
-		Number[] interpolatedValues;
+		Float[] valueStep;
+		T[] interpolatedValues;
 		
 		transient float timeStep;
 		
-		public TimelineValue(float time, T... values)
+		public TimelineValue(float time, T[] values)
 		{
-			this.values = values;
 			this.time = time;
+			this.values = values;
 		}
 		
-		@SuppressWarnings("unchecked")
-		public T[] getValue()
+		public T[] getValues()
 		{
-			return (T[]) values;
+			return values;
 		}
 		
-		@SuppressWarnings("unchecked")
-		public T[] getValueInterpolated(float currentTime)
-		{
-			if (!interpolated)
-			{
-				return (T[]) values;
-			}
-
-			timeStep = currentTime-time;
-			for (int i = 0; i < values.length; i++)
-			{
-				interpolatedValues[i] = values[i].floatValue()+(valueStep[i].floatValue()*timeStep);
-			}
-			
-			return (T[]) interpolatedValues;
-		}
-		
-		public void setInterpolated(boolean interpolated, TimelineValue<T> nextValue)
-		{
-			this.interpolated = interpolated;
-			
-			if (interpolated)
-			{
-				interpolatedValues = new Number[values.length];
-				valueStep = new Number[values.length];
-				
-				for (int i = 0; i < nextValue.values.length; i++)
-				{
-					valueStep[i] = (nextValue.values[i].floatValue() - values[i].floatValue()) / (nextValue.time - time);
-				}
-			}
-		}
-		
-		private void setValues(boolean interpolated, Number[] valueStep, Number[] interpolatedValues)
+		protected void setValues(boolean interpolated, Float[] valueStep, T[] interpolatedValues)
 		{
 			this.interpolated = interpolated;
 			this.valueStep = valueStep;
 			this.interpolatedValues = interpolatedValues;
 		}
 		
-		public TimelineValue<T> copy()
+		public abstract T[] getValuesInterpolated(float currentTime);
+		public abstract void setInterpolated(boolean interpolated, N nextValue);
+		public abstract N copy();
+		
+	}
+
+	class TimelineInteger extends TimelineValue<Integer, TimelineInteger> 
+	{
+
+		private static final long serialVersionUID = -6679143723684340688L;
+
+		public TimelineInteger(float time, Integer... values)
 		{
-			TimelineValue<T> copy = new TimelineValue<T>(time, (T[]) values);
+			super(time, values);
+		}
+		
+		public Integer[] getValuesInterpolated(float currentTime)
+		{
+			if (!interpolated)
+			{
+				return values;
+			}
+
+			timeStep = currentTime-time;
+			for (int i = 0; i < values.length; i++)
+			{
+				Float value = values[i].floatValue()+(valueStep[i].floatValue()*timeStep);
+				interpolatedValues[i] = value.intValue();
+			}
+
+			return interpolatedValues;
+		}
+		
+		public void setInterpolated(boolean interpolated, TimelineInteger nextValue)
+		{
+			this.interpolated = interpolated;
+			
+			if (interpolated)
+			{
+				interpolatedValues = new Integer[values.length];
+				valueStep = new Float[values.length];
+				
+				for (int i = 0; i < nextValue.values.length; i++)
+				{
+					Float value = (nextValue.values[i].floatValue() - values[i].floatValue()) / (nextValue.time - time);
+					valueStep[i] = value;
+				}
+			}
+		}
+		
+		public TimelineInteger copy()
+		{
+			TimelineInteger copy = new TimelineInteger(time, values);
 			copy.setValues(interpolated, valueStep, interpolatedValues);
 			return copy;
 		}
 	}
 
+	class TimelineFloat extends TimelineValue<Float, TimelineFloat>
+	{
+
+		private static final long serialVersionUID = -5219903547907274562L;
+
+		public TimelineFloat(float time, Float... values)
+		{
+			super(time, values);
+		}
+		
+		public Float[] getValuesInterpolated(float currentTime)
+		{
+			if (!interpolated)
+			{
+				return values;
+			}
+
+			timeStep = currentTime-time;
+			for (int i = 0; i < values.length; i++)
+			{
+				Float value = values[i].floatValue()+(valueStep[i].floatValue()*timeStep);
+				interpolatedValues[i] = value.floatValue();
+			}
+
+			return interpolatedValues;
+		}
+		
+		public void setInterpolated(boolean interpolated, TimelineFloat nextValue)
+		{
+			this.interpolated = interpolated;
+			
+			if (interpolated)
+			{
+				interpolatedValues = new Float[values.length];
+				valueStep = new Float[values.length];
+				
+				for (int i = 0; i < nextValue.values.length; i++)
+				{
+					Float value = (nextValue.values[i].floatValue() - values[i].floatValue()) / (nextValue.time - time);
+					valueStep[i] = value;
+				}
+			}
+		}
+		
+		public TimelineFloat copy()
+		{
+			TimelineFloat copy = new TimelineFloat(time, values);
+			copy.setValues(interpolated, valueStep, interpolatedValues);
+			return copy;
+		}
+	}
+	
 	private static final String SHADER_VERTEX = 
 			"attribute vec3 a_position;" + "\n" +
 			"attribute vec4 a_colour;" + "\n" +
@@ -692,6 +835,6 @@ public class ParticleEmitter implements Serializable {
 			"varying vec2 v_texCoords;" + "\n" +
 
 			"void main() {" + "\n" +
-				"gl_FragColor = vec4(1.0);\n//texture2D(u_texture, v_texCoords) * v_colour;" + "\n" +
+				"gl_FragColor = texture2D(u_texture, v_texCoords) * v_colour;" + "\n" +
 	   		"}";
 }

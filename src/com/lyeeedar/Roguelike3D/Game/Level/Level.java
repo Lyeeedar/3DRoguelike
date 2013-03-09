@@ -661,7 +661,7 @@ public class Level implements Serializable {
 		{
 			if (pe.UID.equals(UID)) 
 			{
-				particleEffects.get(i).dispose();
+				particleEffects.get(i).delete();
 				particleEffects.remove(i);
 				return;
 			}

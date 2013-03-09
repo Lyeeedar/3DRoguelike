@@ -2,6 +2,7 @@ package com.lyeeedar.Roguelike3D.Graphics.ParticleEffects;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.badlogic.gdx.graphics.Camera;
@@ -49,6 +50,7 @@ public class ParticleEffect implements Serializable {
 	public void addEmitter(ParticleEmitter emitter,
 			float x, float y, float z)
 	{
+		System.out.println("Adding emitter");
 		Emitter e = new Emitter(emitter, x, y, z);
 		emitters.add(e);
 	}
@@ -57,7 +59,6 @@ public class ParticleEffect implements Serializable {
 	{
 		for (Emitter e : emitters)
 		{
-			System.out.println(e.emitter.getActiveParticles());
 			e.emitter.update(delta, cam);
 		}
 	}
@@ -66,7 +67,7 @@ public class ParticleEffect implements Serializable {
 	{
 		for (Emitter e : emitters)
 		{
-			//if (!cam.frustum.sphereInFrustum(e.emitter.getPosition(), e.emitter.getRadius()*2)) continue;
+			if (!cam.frustum.sphereInFrustum(e.emitter.getPosition(), e.emitter.getRadius()*2)) continue;
 	
 			e.emitter.distance = cam.position.dst2(e.emitter.getPosition());
 			
@@ -106,6 +107,19 @@ public class ParticleEffect implements Serializable {
 		}
 	}
 	
+	public void delete()
+	{
+		Iterator<Emitter> itr = emitters.iterator();
+		
+		while(itr.hasNext())
+		{
+			Emitter e = itr.next();
+			e.emitter.dispose();
+			e.emitter.delete();
+			itr.remove();
+		}
+	}
+	
 	public ParticleEffect copy()
 	{
 		ParticleEffect effect = new ParticleEffect(radius);
@@ -135,9 +149,4 @@ public class ParticleEffect implements Serializable {
 			this.z = z;
 		}
 	}
-
-
-
-
-
 }

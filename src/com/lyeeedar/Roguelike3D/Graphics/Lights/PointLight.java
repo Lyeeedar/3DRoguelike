@@ -50,11 +50,7 @@ public class PointLight implements Comparable, Serializable {
 		this.attenuation = attentuation;
 		this.power = power;
 		
-		System.out.println(colour);
-		
 		computeMesh();
-		
-		System.out.println(colour);
 	}
 	
 	public void computeMesh()

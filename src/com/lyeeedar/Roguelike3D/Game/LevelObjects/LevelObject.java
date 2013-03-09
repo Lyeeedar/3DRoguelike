@@ -82,12 +82,11 @@ public abstract class LevelObject extends GameObject{
 			lo.longDesc = ao.longDesc;
 			
 			ParticleEffect effect = new ParticleEffect(15);
-			ParticleEmitter flame = new ParticleEmitter();
-			flame.setEmitterParameters(2, 1, 0.01f, 2.5f, 2, 2.5f, 0, GL20.GL_ONE, GL20.GL_ONE);
-			flame.setParticleParameters("f", 50, 50, new Color(0.7f, 0.9f, 0.3f, 1.0f), new Color(1.0f, 0.0f, 0.0f, 1.0f), 0, 3.5f, 0);
+			ParticleEmitter flame = new ParticleEmitter(2, 1, 0.01f, 1.0f, 0.5f, 1.0f, 0, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, "f");
+			flame.createBasicEmitter(2, 1, new Color(0.8f, 0.9f, 0.1f, 1.0f), new Color(1.0f, 0.0f, 0.0f, 1.0f), 0, 3.5f, 0);
 			flame.addLight(true, 0.05f, 0.6f, Color.ORANGE, false);
 			effect.addEmitter(flame, 
-					1, 1.5f, 1);
+					2, 2.5f, 2);
 			effect.create();
 			
 			level.addParticleEffect(effect);

@@ -50,7 +50,6 @@ public class Color implements Serializable {
 
 	/** Constructs a new Color with all components set to 0. */
 	public Color () {
-		r = g = b = a = 1;
 	}
 
 	/** Constructor, sets the components of the color

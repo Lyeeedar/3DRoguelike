@@ -66,7 +66,7 @@ public class RiggedOneHandedSwing extends RiggedModelBehaviour {
 				stage = 0;
 		}
 		
-		node.offsetRotation.idt().rotate(0, 1, 0, 180).rotate(1, 0, sign, -45).rotate(0, 0, 1, 90).rotate(0, 1, 0, angle);
+		node.offsetRotation.idt().rotate(0, 1, 0, 180).rotate(1, 0, sign, -25).rotate(0, 0, 1, 90).rotate(0, 1, 0, angle);
 		node.offsetPosition.idt().translate(0, angle/45, 0);
 	}
 

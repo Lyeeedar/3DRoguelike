@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Json;
 import com.lyeeedar.Roguelike3D.Bag;
 
 public class ParticleEffect implements Serializable {
@@ -50,7 +51,6 @@ public class ParticleEffect implements Serializable {
 	public void addEmitter(ParticleEmitter emitter,
 			float x, float y, float z)
 	{
-		System.out.println("Adding emitter");
 		Emitter e = new Emitter(emitter, x, y, z);
 		emitters.add(e);
 	}

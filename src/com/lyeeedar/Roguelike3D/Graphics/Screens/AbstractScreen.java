@@ -26,7 +26,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
  
 
-public abstract class AbstractScreen implements Screen{
+public abstract class AbstractScreen implements Screen {
 	
 	int screen_width;
 	int screen_height;

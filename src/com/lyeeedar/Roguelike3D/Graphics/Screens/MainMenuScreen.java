@@ -186,7 +186,7 @@ public class MainMenuScreen extends UIScreen {
 		table.row();
 		table.add(btnInv).width(width).height(height).padBottom(pad);
 		table.row();
-		table.add(new Label("Version 0.0019", skin)).padTop(25);
+		table.add(new Label("Version 0.0021", skin)).padTop(25);
 
 
 		table.setFillParent(true);

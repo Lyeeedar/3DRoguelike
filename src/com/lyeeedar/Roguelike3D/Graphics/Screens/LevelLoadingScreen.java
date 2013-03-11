@@ -17,6 +17,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 import com.lyeeedar.Roguelike3D.Game.GameData;
@@ -37,8 +39,6 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SkyBox;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 
 public class LevelLoadingScreen extends AbstractScreen{

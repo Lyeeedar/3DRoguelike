@@ -6,14 +6,14 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
@@ -262,7 +262,7 @@ public class RiggedModelNode implements Serializable
 			rmn.create();
 		}
 		
-		if (particleEffect != null) particleEffect.create();
+		if (particleEffect != null) particleEffect.create(GameData.lightManager);
 		
 	}
 	

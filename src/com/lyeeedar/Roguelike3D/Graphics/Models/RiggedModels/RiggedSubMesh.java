@@ -2,18 +2,13 @@ package com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels;
 
 import java.io.Serializable;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
-import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
+import com.lyeeedar.Utils.FileUtils;
 
 public class RiggedSubMesh implements Serializable {
 
@@ -53,7 +48,7 @@ public class RiggedSubMesh implements Serializable {
 		}
 		else if (meshValues[0].equalsIgnoreCase("file"))
 		{
-			mesh = GameData.loadMesh(meshValues[1]);
+			mesh = FileUtils.loadMesh(meshValues[1]);
 			
 			if (meshValues.length > 2)
 			{

@@ -11,39 +11,16 @@
 package com.lyeeedar.Roguelike3D.Game;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Random;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g3d.loaders.obj.ObjLoader;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.math.collision.Ray;
-import com.lyeeedar.Roguelike3D.Game.Actor.Player;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
-import com.lyeeedar.Roguelike3D.Graphics.*;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.ColorAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.MaterialAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillModel;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillModelAttributes;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
-import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.MotionTrail;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public abstract class GameObject implements Serializable {

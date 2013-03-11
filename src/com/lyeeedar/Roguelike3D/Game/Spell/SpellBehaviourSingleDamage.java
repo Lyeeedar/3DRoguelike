@@ -21,19 +21,19 @@ public class SpellBehaviourSingleDamage implements SpellBehaviour, Serializable 
 	public void update(float delta, Spell spell) {
 		
 		if (time == 0) {
-			//spell.particleEmitter.speed /= 4;
-			//spell.particleEmitter.time = 0;
+			spell.particleEffect.getFirstEmitter().emissionTime /= 4;
 		}
 		else if (time < 0.5f)
 		{
-			//spell.particleEmitter.vx += delta*5;
-			//spell.particleEmitter.vy += delta*5;
-			//spell.particleEmitter.vz += delta*5;
+			spell.particleEffect.getFirstEmitter().ex += delta*5;
+			spell.particleEffect.getFirstEmitter().ey += delta*5;
+			spell.particleEffect.getFirstEmitter().ez += delta*5;
+			spell.particleEffect.getFirstEmitter().calculateRadius();
 			spell.radius += delta*5;
 		}
 		else if (time < 2)
 		{
-			//spell.particleEmitter.speed += delta;
+			spell.particleEffect.getFirstEmitter().emissionTime += delta;
 		}
 		else spell.alive = false;
 		

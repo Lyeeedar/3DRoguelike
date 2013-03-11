@@ -26,8 +26,7 @@ import com.badlogic.gdx.utils.NumberUtils;
  * @author mzechner */
 public class Color implements Serializable {
 
-	private static final long serialVersionUID = -5342548343760894905L;
-	
+	private static final long serialVersionUID = 1498073639843251717L;
 	public static final Color CLEAR = new Color(0, 0, 0, 0);
 	public static final Color WHITE = new Color(1, 1, 1, 1);
 	public static final Color BLACK = new Color(0, 0, 0, 1);
@@ -43,10 +42,11 @@ public class Color implements Serializable {
 	public static final Color MAGENTA = new Color(1, 0, 1, 1);
 	public static final Color CYAN = new Color(0, 1, 1, 1);
 
+	@Deprecated
+	public static Color tmp = new Color();
+
 	/** the red, green, blue and alpha components **/
 	public float r, g, b, a;
-
-	public static Color tmp = new Color();
 
 	/** Constructs a new Color with all components set to 0. */
 	public Color () {
@@ -81,7 +81,6 @@ public class Color implements Serializable {
 		this.g = color.g;
 		this.b = color.b;
 		this.a = color.a;
-		clamp();
 		return this;
 	}
 
@@ -94,8 +93,7 @@ public class Color implements Serializable {
 		this.g *= color.g;
 		this.b *= color.b;
 		this.a *= color.a;
-		clamp();
-		return this;
+		return clamp();
 	}
 
 	/** Multiplies all components of this Color with the given value.
@@ -107,8 +105,7 @@ public class Color implements Serializable {
 		this.g *= value;
 		this.b *= value;
 		this.a *= value;
-		clamp();
-		return this;
+		return clamp();
 	}
 
 	/** Adds the given color to this color.
@@ -120,8 +117,7 @@ public class Color implements Serializable {
 		this.g += color.g;
 		this.b += color.b;
 		this.a += color.a;
-		clamp();
-		return this;
+		return clamp();
 	}
 
 	/** Subtracts the given color from this color
@@ -133,11 +129,11 @@ public class Color implements Serializable {
 		this.g -= color.g;
 		this.b -= color.b;
 		this.a -= color.a;
-		clamp();
-		return this;
+		return clamp();
 	}
 
-	public void clamp () {
+	/** @return this Color for chaining */
+	public Color clamp () {
 		if (r < 0)
 			r = 0;
 		else if (r > 1) r = 1;
@@ -153,13 +149,72 @@ public class Color implements Serializable {
 		if (a < 0)
 			a = 0;
 		else if (a > 1) a = 1;
+		return this;
 	}
 
-	public void set (float r, float g, float b, float a) {
+	/** @return this Color for chaining */
+	public Color set (float r, float g, float b, float a) {
 		this.r = r;
 		this.g = g;
 		this.b = b;
 		this.a = a;
+		return clamp();
+	}
+
+	/** @return this Color for chaining */
+	public Color add (float r, float g, float b, float a) {
+		this.r += r;
+		this.g += g;
+		this.b += b;
+		this.a += a;
+		return clamp();
+	}
+
+	/** @return this Color for chaining */
+	public Color sub (float r, float g, float b, float a) {
+		this.r -= r;
+		this.g -= g;
+		this.b -= b;
+		this.a -= a;
+		return clamp();
+	}
+
+	/** @return this Color for chaining */
+	public Color mul (float r, float g, float b, float a) {
+		this.r *= r;
+		this.g *= g;
+		this.b *= b;
+		this.a *= a;
+		return clamp();
+	}
+	
+	/** Linearly interpolates between this color and the target color by t which is in the range [0,1]. 
+	 * The result is stored in this color.
+	 * @param target The target color
+	 * @param t The interpolation coefficient
+	 * @return This color for chaining. */
+	public Color lerp(final Color target, final float t) {
+		this.r += t * (target.r - this.r);
+		this.g += t * (target.g - this.g);
+		this.b += t * (target.b - this.b);
+		this.a += t * (target.a - this.a);
+		return clamp();
+	}
+	
+	/** Linearly interpolates between this color and the target color by t which is in the range [0,1]. 
+	 * The result is stored in this color.
+	 * @param r The red component of the target color
+	 * @param g The green component of the target color
+	 * @param b The blue component of the target color
+	 * @param a The alpha component of the target color
+	 * @param t The interpolation coefficient
+	 * @return This color for chaining. */
+	public Color lerp(final float r, final float g, final float b, final float a, final float t) {
+		this.r += t * (r - this.r);
+		this.g += t * (g - this.g);
+		this.b += t * (b - this.b);
+		this.a += t * (a - this.a);
+		return clamp();
 	}
 
 	@Override
@@ -179,30 +234,64 @@ public class Color implements Serializable {
 		return result;
 	}
 
+	/** Packs the color components into a 32-bit integer with the format ABGR and then converts it to a float.
+	 * @return the packed color as a 32-bit float
+	 * @see NumberUtils#intToFloatColor(int) */
+	public float toFloatBits () {
+		int color = ((int)(255 * a) << 24) | ((int)(255 * b) << 16) | ((int)(255 * g) << 8) | ((int)(255 * r));
+		return NumberUtils.intToFloatColor(color);
+	}
+
+	/** Packs the color components into a 32-bit integer with the format ABGR.
+	 * @return the packed color as a 32-bit int. */
+	public int toIntBits () {
+		int color = ((int)(255 * a) << 24) | ((int)(255 * b) << 16) | ((int)(255 * g) << 8) | ((int)(255 * r));
+		return color;
+	}
+
+	/** Returns the color encoded as hex string with the format RRGGBBAA. */
 	public String toString () {
-		String value = Integer.toHexString(toIntBits());
+		String value = Integer.toHexString(((int)(255 * r) << 24) | ((int)(255 * g) << 16) | ((int)(255 * b) << 8)
+			| ((int)(255 * a)));
 		while (value.length() < 8)
 			value = "0" + value;
 		return value;
 	}
 
-	/** Packs the four color components which should be in the range 0-255 into a 32-bit integer and then converts it to a float.
-	 * Note that no range checking is performed for higher performance.
-	 * 
+	/** Returns a new color from a hex string with the format RRGGBBAA.
+	 * @see #toString() */
+	public static Color valueOf (String hex) {
+		int r = Integer.valueOf(hex.substring(0, 2), 16);
+		int g = Integer.valueOf(hex.substring(2, 4), 16);
+		int b = Integer.valueOf(hex.substring(4, 6), 16);
+		int a = hex.length() != 8 ? 255 : Integer.valueOf(hex.substring(6, 8), 16);
+		return new Color(r / 255f, g / 255f, b / 255f, a / 255f);
+	}
+
+	/** Packs the color components into a 32-bit integer with the format ABGR and then converts it to a float. Note that no range
+	 * checking is performed for higher performance.
 	 * @param r the red component, 0 - 255
 	 * @param g the green component, 0 - 255
 	 * @param b the blue component, 0 - 255
 	 * @param a the alpha component, 0 - 255
-	 * @return the packed color as a float */
+	 * @return the packed color as a float
+	 * @see NumberUtils#intToFloatColor(int) */
 	public static float toFloatBits (int r, int g, int b, int a) {
 		int color = (a << 24) | (b << 16) | (g << 8) | r;
 		float floatColor = NumberUtils.intToFloatColor(color);
 		return floatColor;
 	}
 
-	/** Packs the four color components which should be in the range 0-255 into a 32-bit. Note that no range checking is performed
-	 * for higher performance.
-	 * 
+	/** Packs the color components into a 32-bit integer with the format ABGR and then converts it to a float.
+	 * @return the packed color as a 32-bit float
+	 * @see NumberUtils#intToFloatColor(int) */
+	public static float toFloatBits (float r, float g, float b, float a) {
+		int color = ((int)(255 * a) << 24) | ((int)(255 * b) << 16) | ((int)(255 * g) << 8) | ((int)(255 * r));
+		return NumberUtils.intToFloatColor(color);
+	}
+
+	/** Packs the color components into a 32-bit integer with the format ABGR. Note that no range checking is performed for higher
+	 * performance.
 	 * @param r the red component, 0 - 255
 	 * @param g the green component, 0 - 255
 	 * @param b the blue component, 0 - 255
@@ -210,30 +299,6 @@ public class Color implements Serializable {
 	 * @return the packed color as a 32-bit int */
 	public static int toIntBits (int r, int g, int b, int a) {
 		return (a << 24) | (b << 16) | (g << 8) | r;
-	}
-
-	/** Packs the 4 components of this color into a 32-bit int and returns it as a float.
-	 * 
-	 * @return the packed color as a 32-bit float */
-	public float toFloatBits () {
-		int color = ((int)(255 * a) << 24) | ((int)(255 * b) << 16) | ((int)(255 * g) << 8) | ((int)(255 * r));
-		return NumberUtils.intToFloatColor(color);
-	}
-
-	/** Packs the 4 components of this color into a 32-bit int.
-	 * 
-	 * @return the packed color as a 32-bit int. */
-	public int toIntBits () {
-		int color = ((int)(255 * a) << 24) | ((int)(255 * b) << 16) | ((int)(255 * g) << 8) | ((int)(255 * r));
-		return color;
-	}
-
-	/** Packs the 4 components of this color into a 32-bit int and returns it as a float.
-	 * 
-	 * @return the packed color as a 32-bit float */
-	public static float toFloatBits (float r, float g, float b, float a) {
-		int color = ((int)(255 * a) << 24) | ((int)(255 * b) << 16) | ((int)(255 * g) << 8) | ((int)(255 * r));
-		return NumberUtils.intToFloatColor(color);
 	}
 
 	public static int alpha (float alpha) {

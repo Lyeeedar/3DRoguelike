@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Pool;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
+import com.lyeeedar.Utils.FileUtils;
 
 public class TextureAttribute extends MaterialAttribute {
 	
@@ -60,7 +61,7 @@ public class TextureAttribute extends MaterialAttribute {
 
 	private void loadTextures() {
 		
-		texture = GameData.loadTexture(textureName, false);
+		texture = FileUtils.loadTexture(textureName, false);
 		
 		if (texture != null) {
 			texture.setWrap( uWrap, vWrap );

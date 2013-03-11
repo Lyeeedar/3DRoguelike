@@ -20,6 +20,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
+import com.lyeeedar.Utils.FileUtils;
 
 public class VisibleObject implements Serializable {
 	
@@ -93,7 +94,7 @@ public class VisibleObject implements Serializable {
 	{
 		if (modelData[0].equalsIgnoreCase("file"))
 		{
-			return GameData.loadMesh(modelData[1]);
+			return FileUtils.loadMesh(modelData[1]);
 		}
 		else if (modelData[0].equalsIgnoreCase("cube"))
 		{

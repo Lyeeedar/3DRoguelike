@@ -8,7 +8,7 @@
  * Contributors:
  *     Philip Collin - initial API and implementation
  ******************************************************************************/
-package com.lyeeedar.Roguelike3D.Graphics.ParticleEffects;
+package com.lyeeedar.Graphics.ParticleEffects;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -34,8 +34,9 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.lyeeedar.Roguelike3D.Bag;
-import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
+import com.lyeeedar.Utils.FileUtils;
 
 public class ParticleEmitter implements Serializable{
 
@@ -60,16 +61,15 @@ public class ParticleEmitter implements Serializable{
 	// ----- End Particle Parameters ----- //
 
 	// ----- Emitter parameters ----- //
-	private final int maxParticles;
-	private final float particleLifetime;
-	private final float particleLifetimeVar;
-	private final float emissionTime;
-	private final float ex, ey, ez;
-	private final float radius;
-	private final int emissionType;
-	private final int blendFuncSRC;
-	private final int blendFuncDST;
-	private final String atlasName;
+	public int maxParticles;
+	public float particleLifetime;
+	public float particleLifetimeVar;
+	public float emissionTime;
+	public float ex, ey, ez;
+	public int emissionType;
+	public int blendFuncSRC;
+	public int blendFuncDST;
+	public String atlasName;
 	// ----- End Emitter parameters ----- //
 
 	// ----- Light ----- //
@@ -111,6 +111,7 @@ public class ParticleEmitter implements Serializable{
 	// ----- Non-Essential Variables ----- //
 	private String lightUID;
 	private float x, y, z;
+	private float radius;
 	// ----- End Non-Essential Variables ----- //
 
 	public ParticleEmitter(float particleLifetime, float particleLifetimeVar, float emissionTime, 
@@ -130,8 +131,6 @@ public class ParticleEmitter implements Serializable{
 		this.emissionType = emissionType;
 		this.blendFuncSRC = blendFuncSRC;
 		this.blendFuncDST = blendFuncDST;
-		this.maxParticles = (int) (particleLifetime / emissionTime);
-		this.radius = ex+ey+ez;
 		this.atlasName = atlasName;
 	}
 
@@ -288,23 +287,9 @@ public class ParticleEmitter implements Serializable{
 		this.lightx = x;
 		this.lighty = y;
 		this.lightz = z;
-
-		if (light != null)
-		{
-			if (isLightStatic) GameData.lightManager.removeStaticLight(light.UID);
-			else GameData.lightManager.removeDynamicLight(light.UID);
-
-			light = null;
-		}
-
-		light = new PointLight(new Vector3(x+(ex/2f), y+ey, z+(ez/2)), colour, attenuation, power);
-		lightUID = light.UID;
-
-		if (isStatic) GameData.lightManager.addStaticLight(light);
-		else GameData.lightManager.addDynamicLight(light);
 	}
 
-	public void create() {
+	public void create(LightManager lightManager) {
 
 		if (shader == null)
 		{
@@ -313,7 +298,73 @@ public class ParticleEmitter implements Serializable{
 
 		ran = new Random();
 
-		TextureAtlas atlas = GameData.loadAtlas(atlasName);
+		quad = new Vector3();
+		tmpMat = new Matrix4();
+		tmpRot = new Matrix4();
+		pos = new Vector3();
+		
+		calculateRadius();
+		reloadParticles();
+		reloadTextures();
+		reloadLight(lightManager);
+
+	}
+	
+	public void reloadLight(LightManager lightManager)
+	{
+		if (lightColour == null) return;
+		
+		if (light != null)
+		{
+			if (isLightStatic) lightManager.removeStaticLight(light.UID);
+			else lightManager.removeDynamicLight(light.UID);
+
+			light = null;
+		}
+
+		light = new PointLight(new Vector3(lightx+(ex/2f), lighty+ey, lightz+(ez/2)), lightColour, lightAttenuation, lightPower);
+		lightUID = light.UID;
+
+		if (isLightStatic) lightManager.addStaticLight(light);
+		else lightManager.addDynamicLight(light);
+	}
+	
+	public void calculateParticles()
+	{
+		maxParticles = (int) ((float)particleLifetime / (float)emissionTime);
+	}
+	
+	public void calculateRadius()
+	{
+		this.radius = ex+ey+ez;
+	}
+	
+	public void reloadParticles()
+	{
+		active = new Bag<Particle>(maxParticles);
+		inactive = new Bag<Particle>(maxParticles);
+
+		for (int i = 0; i < maxParticles; i++)
+		{
+			Particle p = new Particle();
+			inactive.add(p);
+		}
+
+		vertices = new float[maxParticles*VERTEX_SIZE*4];
+		
+		if (mesh != null) mesh.dispose();
+		mesh = new Mesh(false, maxParticles*4, maxParticles*6,
+				new VertexAttribute(Usage.Position, 3, "a_position"),
+				new VertexAttribute(Usage.Generic, 4, "a_colour"),
+				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoords"));
+		mesh.setVertices(vertices);
+		mesh.setIndices(genIndices(maxParticles));
+
+	}
+	
+	public void reloadTextures()
+	{
+		TextureAtlas atlas = FileUtils.loadAtlas(atlasName);
 		Set<Texture> atlasTextures = atlas.getTextures();
 		Iterator<Texture> itr = atlasTextures.iterator();
 
@@ -346,28 +397,6 @@ public class ParticleEmitter implements Serializable{
 			botLeftTexCoords[i] = bl;
 			botRightTexCoords[i] = br;
 		}
-
-		active = new Bag<Particle>(maxParticles);
-		inactive = new Bag<Particle>(maxParticles);
-
-		for (int i = 0; i < maxParticles; i++)
-		{
-			Particle p = new Particle();
-			inactive.add(p);
-		}
-
-		vertices = new float[maxParticles*VERTEX_SIZE*4];
-		mesh = new Mesh(false, maxParticles*4, maxParticles*6,
-				new VertexAttribute(Usage.Position, 3, "a_position"),
-				new VertexAttribute(Usage.Generic, 4, "a_colour"),
-				new VertexAttribute(Usage.TextureCoordinates, 2, "a_texCoords"));
-		mesh.setVertices(vertices);
-		mesh.setIndices(genIndices(maxParticles));
-
-		quad = new Vector3();
-		tmpMat = new Matrix4();
-		tmpRot = new Matrix4();
-		pos = new Vector3();
 	}
 
 	public void dispose()
@@ -378,31 +407,11 @@ public class ParticleEmitter implements Serializable{
 
 	public void delete()
 	{
-		if (light != null) {
-			if (isLightStatic) GameData.lightManager.removeStaticLight(light.UID);
-			else GameData.lightManager.removeDynamicLight(light.UID);
-
-			light = null;
-		}
 	}
 
-	public void fixReferences()
+	public void fixReferences(LightManager lightManager)
 	{
-		create();
-
-		pos = new Vector3();
-
-		if (lightUID != null)
-		{
-			if (isLightStatic)
-			{
-				light = GameData.lightManager.getStaticLight(lightUID);
-			}
-			else
-			{
-				light = GameData.lightManager.getDynamicLight(lightUID);
-			}
-		}
+		create(lightManager);
 	}
 
 	public short[] genIndices(int faces)
@@ -474,6 +483,11 @@ public class ParticleEmitter implements Serializable{
 			if (lightFlicker) light.attenuation = (float) (lightAttenuation *
 					(1-((1-((float)inactive.size() / (float)active.size())))/2));
 		}
+		
+		tmpRot.set(cam.view).inv();
+		tmpRot.getValues()[Matrix4.M03] = 0;
+		tmpRot.getValues()[Matrix4.M13] = 0;
+		tmpRot.getValues()[Matrix4.M23] = 0;
 
 		Iterator<Particle> pItr = active.iterator();
 
@@ -493,23 +507,21 @@ public class ParticleEmitter implements Serializable{
 				continue;
 			}
 
-			//tmpRot.setToLookAt(cam.direction, cam.up);
-			//tmpMat.setToTranslation(p.x, p.y, p.z);//.mul(tmpRot);
-			tmpMat.setToTranslation(p.x, p.y, p.z).mul(GameData.player.vo.attributes.getRotation());
+			tmpMat.setToTranslation(p.x, p.y, p.z).mul(tmpRot);
 
 			Integer[] sprite = getAttributeValue(p.lifetime, ParticleAttribute.SPRITE);
 			Float[] size = getAttributeValue(p.lifetime, ParticleAttribute.SIZE);
 			Float[] colour = getAttributeValue(p.lifetime, ParticleAttribute.COLOUR);
 
-			Vector3 nPos = quad
-					.set(-size[0].floatValue()/2, size[1].floatValue()/2, 0)
-					.mul(tmpMat);
+			quad
+				.set(-size[0].floatValue()/2, size[1].floatValue()/2, 0)
+				.mul(tmpMat);
 
 			v = 0;
 
-			vertices[(i*VERTEX_SIZE*4)+v+0] = nPos.x;
-			vertices[(i*VERTEX_SIZE*4)+v+1] = nPos.y;
-			vertices[(i*VERTEX_SIZE*4)+v+2] = nPos.z;
+			vertices[(i*VERTEX_SIZE*4)+v+0] = quad.x;
+			vertices[(i*VERTEX_SIZE*4)+v+1] = quad.y;
+			vertices[(i*VERTEX_SIZE*4)+v+2] = quad.z;
 
 			vertices[(i*VERTEX_SIZE*4)+v+3] = colour[0];
 			vertices[(i*VERTEX_SIZE*4)+v+4] = colour[1];
@@ -519,15 +531,15 @@ public class ParticleEmitter implements Serializable{
 			vertices[(i*VERTEX_SIZE*4)+v+7] = topLeftTexCoords[sprite[0]][0];
 			vertices[(i*VERTEX_SIZE*4)+v+8] = topLeftTexCoords[sprite[0]][1];
 
-			nPos = quad
-					.set(size[0]/2, size[1]/2, 0)
-					.mul(tmpMat);
+			quad
+				.set(size[0]/2, size[1]/2, 0)
+				.mul(tmpMat);
 
 			v += VERTEX_SIZE;
 
-			vertices[(i*VERTEX_SIZE*4)+v+0] = nPos.x;
-			vertices[(i*VERTEX_SIZE*4)+v+1] = nPos.y;
-			vertices[(i*VERTEX_SIZE*4)+v+2] = nPos.z;
+			vertices[(i*VERTEX_SIZE*4)+v+0] = quad.x;
+			vertices[(i*VERTEX_SIZE*4)+v+1] = quad.y;
+			vertices[(i*VERTEX_SIZE*4)+v+2] = quad.z;
 
 			vertices[(i*VERTEX_SIZE*4)+v+3] = colour[0];
 			vertices[(i*VERTEX_SIZE*4)+v+4] = colour[1];
@@ -537,15 +549,15 @@ public class ParticleEmitter implements Serializable{
 			vertices[(i*VERTEX_SIZE*4)+v+7] = topRightTexCoords[sprite[0]][0];
 			vertices[(i*VERTEX_SIZE*4)+v+8] = topRightTexCoords[sprite[0]][1];
 
-			nPos = quad
-					.set(-size[0]/2, -size[1]/2, 0)
-					.mul(tmpMat);
+			quad
+				.set(-size[0]/2, -size[1]/2, 0)
+				.mul(tmpMat);
 
 			v += VERTEX_SIZE;
 
-			vertices[(i*VERTEX_SIZE*4)+v+0] = nPos.x;
-			vertices[(i*VERTEX_SIZE*4)+v+1] = nPos.y;
-			vertices[(i*VERTEX_SIZE*4)+v+2] = nPos.z;
+			vertices[(i*VERTEX_SIZE*4)+v+0] = quad.x;
+			vertices[(i*VERTEX_SIZE*4)+v+1] = quad.y;
+			vertices[(i*VERTEX_SIZE*4)+v+2] = quad.z;
 
 			vertices[(i*VERTEX_SIZE*4)+v+3] = colour[0];
 			vertices[(i*VERTEX_SIZE*4)+v+4] = colour[1];
@@ -555,15 +567,15 @@ public class ParticleEmitter implements Serializable{
 			vertices[(i*VERTEX_SIZE*4)+v+7] = botLeftTexCoords[sprite[0]][0];
 			vertices[(i*VERTEX_SIZE*4)+v+8] = botLeftTexCoords[sprite[0]][1];
 
-			nPos = quad
-					.set(size[0]/2, -size[1]/2, 0)
-					.mul(tmpMat);
+			quad
+				.set(size[0]/2, -size[1]/2, 0)
+				.mul(tmpMat);
 
 			v += VERTEX_SIZE;
 
-			vertices[(i*VERTEX_SIZE*4)+v+0] = nPos.x;
-			vertices[(i*VERTEX_SIZE*4)+v+1] = nPos.y;
-			vertices[(i*VERTEX_SIZE*4)+v+2] = nPos.z;
+			vertices[(i*VERTEX_SIZE*4)+v+0] = quad.x;
+			vertices[(i*VERTEX_SIZE*4)+v+1] = quad.y;
+			vertices[(i*VERTEX_SIZE*4)+v+2] = quad.z;
 
 			vertices[(i*VERTEX_SIZE*4)+v+3] = colour[0];
 			vertices[(i*VERTEX_SIZE*4)+v+4] = colour[1];
@@ -645,6 +657,7 @@ public class ParticleEmitter implements Serializable{
 	public ParticleEmitter copy()
 	{
 		ParticleEmitter copy = new ParticleEmitter(particleLifetime, particleLifetimeVar, emissionTime, ex, ey, ez, emissionType, blendFuncSRC, blendFuncDST, atlasName);
+		copy.maxParticles = maxParticles;
 
 		TimelineInteger[] cpySprite = new TimelineInteger[sprite.length];
 		for (int i = 0; i < sprite.length; i++) cpySprite[i] = sprite[i].copy();
@@ -919,6 +932,7 @@ public class ParticleEmitter implements Serializable{
 		json.writeValue("colour", colour);
 		json.writeValue("velocity", velocity);
 
+		json.writeValue("max particles", maxParticles);
 		json.writeValue("particle lifetime", particleLifetime);
 		json.writeValue("particle lifetime variance", particleLifetimeVar);
 		json.writeValue("emission time", emissionTime);
@@ -949,8 +963,7 @@ public class ParticleEmitter implements Serializable{
 	 * Get a json instance set up for reading and writing a particle emitter
 	 * @return
 	 */
-	public static Json getJson () {
-		Json json = new Json();
+	public static Json getJson (Json json) {
 		json.setSerializer(ParticleEmitter.class, new Json.Serializer<ParticleEmitter>() {
 			@SuppressWarnings("rawtypes")
 			public void write (Json json, ParticleEmitter emitter, Class knownType) {
@@ -968,6 +981,7 @@ public class ParticleEmitter implements Serializable{
 				// ----- End Particle Parameters ----- //
 
 				// ----- Emitter parameters ----- //
+				int maxParticles = 0;
 				float particleLifetime = 0;
 				float particleLifetimeVar = 0;
 				float emissionTime = 0;
@@ -1011,6 +1025,10 @@ public class ParticleEmitter implements Serializable{
 						velocity = json.readValue(TimelineFloat[].class, entry.value);
 					}
 
+					else if (entry.key.equals("max particles"))
+					{
+						maxParticles = ((Float) entry.value).intValue();
+					}
 					else if (entry.key.equals("particle lifetime"))
 					{
 						particleLifetime = (Float) entry.value;
@@ -1091,6 +1109,7 @@ public class ParticleEmitter implements Serializable{
 						emissionType,
 						blendFuncSRC, blendFuncDST,
 						atlasName);
+				emitter.maxParticles = maxParticles;
 
 				emitter.setTimeline(sprite, size, colour, velocity);
 				
@@ -1105,14 +1124,14 @@ public class ParticleEmitter implements Serializable{
 
 	public static ParticleEmitter load (String file)
 	{
-		Json json = getJson();
+		Json json = getJson(new Json());
 
 		return json.fromJson(ParticleEmitter.class, file);
 	}
 
 	public static ParticleEmitter load (FileHandle file)
 	{
-		Json json = getJson();
+		Json json = getJson(new Json());
 
 		return json.fromJson(ParticleEmitter.class, file);
 	}

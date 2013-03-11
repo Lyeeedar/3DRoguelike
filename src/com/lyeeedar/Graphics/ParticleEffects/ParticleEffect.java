@@ -1,14 +1,17 @@
-package com.lyeeedar.Roguelike3D.Graphics.ParticleEffects;
+package com.lyeeedar.Graphics.ParticleEffects;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.List;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.OrderedMap;
 import com.lyeeedar.Roguelike3D.Bag;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 
 public class ParticleEffect implements Serializable {
 	private transient Vector3 pos;
@@ -21,6 +24,11 @@ public class ParticleEffect implements Serializable {
 	
 	private float x, y, z;
 	private float radius;
+	
+	public ParticleEffect() {
+		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
+		
+	}
 
 	public ParticleEffect(float radius) {
 		
@@ -46,6 +54,27 @@ public class ParticleEffect implements Serializable {
 		{
 			e.emitter.setPosition(x+e.x, y+e.y, z+e.z);
 		}
+	}
+	
+	public void setPosition(float x, float y, float z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+
+		for (Emitter e : emitters)
+		{
+			e.emitter.setPosition(x+e.x, y+e.y, z+e.z);
+		}
+	}
+	
+	public void getEmitters(List<ParticleEmitter> list)
+	{
+		for (Emitter e : emitters) list.add(e.emitter);
+	}
+	
+	public ParticleEmitter getFirstEmitter()
+	{
+		return emitters.get(0).emitter;
 	}
 	
 	public void addEmitter(ParticleEmitter emitter,
@@ -83,19 +112,19 @@ public class ParticleEffect implements Serializable {
 		}
 	}
 	
-	public void fixReferences() {
+	public void fixReferences(LightManager lightManager) {
 		pos = new Vector3();
 		for (Emitter e : emitters)
 		{
-			e.emitter.fixReferences();
+			e.emitter.fixReferences(lightManager);
 		}
 	}
 	
-	public void create()
+	public void create(LightManager lightManager)
 	{
 		for (Emitter e : emitters)
 		{
-			e.emitter.create();
+			e.emitter.create(lightManager);
 		}
 	}
 	
@@ -132,13 +161,16 @@ public class ParticleEffect implements Serializable {
 		return effect;
 	}
 
-	private class Emitter implements Serializable {
+	private static class Emitter implements Serializable, Json.Serializable {
 
 		private static final long serialVersionUID = 7076203259415104530L;
 		ParticleEmitter emitter;
 		float x;
 		float y;
 		float z;
+		
+		@SuppressWarnings("unused")
+		public Emitter(){}
 		
 		public Emitter(ParticleEmitter emitter,
 				float x, float y, float z)
@@ -148,5 +180,51 @@ public class ParticleEffect implements Serializable {
 			this.y = y;
 			this.z = z;
 		}
+
+		@Override
+		public void write(Json json) {
+			ParticleEmitter.getJson(json);
+			json.writeValue("emitter", emitter);
+			json.writeValue("x", x);
+			json.writeValue("y", y);
+			json.writeValue("z", z);
+		}
+
+		@Override
+		public void read(Json json, OrderedMap<String, Object> jsonData) {
+			ParticleEmitter.getJson(json);
+			
+			Iterator<Entry<String, Object>> itr = jsonData.entries().iterator();
+			
+			while (itr.hasNext())
+			{
+				Entry<String, Object> entry = itr.next();
+				
+				if (entry.key.equals("emitter"))
+				{
+					emitter = json.readValue(ParticleEmitter.class, entry.value);
+				}
+				else if (entry.key.equals("x"))
+				{
+					x = (Float) entry.value;
+				}
+				else if (entry.key.equals("y"))
+				{
+					y = (Float) entry.value;
+				}
+				else if (entry.key.equals("z"))
+				{
+					z = (Float) entry.value;
+				}
+			}
+		}
+	}
+
+	public int getActiveParticles() {
+		int active = 0;
+		
+		for (Emitter e : emitters) active += e.emitter.getActiveParticles();
+		
+		return active;
 	}
 }

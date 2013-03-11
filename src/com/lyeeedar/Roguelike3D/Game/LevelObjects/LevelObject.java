@@ -13,14 +13,14 @@ package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public abstract class LevelObject extends GameObject{
 	
@@ -86,9 +86,10 @@ public abstract class LevelObject extends GameObject{
 			flame.createBasicEmitter(2, 1, new Color(0.8f, 0.9f, 0.1f, 1.0f), new Color(1.0f, 0.0f, 0.0f, 1.0f), 0, 3.5f, 0);
 			flame.setSpriteTimeline(true, new float[]{0, 0}, new float[]{2, 2});
 			flame.addLight(true, 0.07f, 0.5f, Color.ORANGE, true, 0, 2, 0);
+			flame.calculateParticles();
 			effect.addEmitter(flame, 
 					2, 0f, 2);
-			effect.create();
+			effect.create(GameData.lightManager);
 			
 			level.addParticleEffect(effect);
 			lo.addParticleEffect(effect);

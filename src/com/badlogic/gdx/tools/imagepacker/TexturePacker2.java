@@ -121,10 +121,10 @@ public class TexturePacker2 {
 			}
 
 			File outputFile;
-			while (true) {
+			//while (true) {
 				outputFile = new File(outputDir, imageName + (fileIndex++ == 0 ? "" : fileIndex) + "." + settings.outputFormat);
-				if (!outputFile.exists()) break;
-			}
+				//if (!outputFile.exists()) break;
+			//}
 			page.imageName = outputFile.getName();
 
 			BufferedImage canvas = new BufferedImage(width, height, getBufferedImageType(settings.format));
@@ -149,18 +149,18 @@ public class TexturePacker2 {
 					// Copy corner pixels to fill corners of the padding.
 					g.drawImage(image, rectX - amountX, rectY - amountY, rectX, rectY, 0, 0, 1, 1, null);
 					g.drawImage(image, rectX + imageWidth, rectY - amountY, rectX + imageWidth + amountX, rectY, imageWidth - 1, 0,
-						imageWidth, 1, null);
+							imageWidth, 1, null);
 					g.drawImage(image, rectX - amountX, rectY + imageHeight, rectX, rectY + imageHeight + amountY, 0, imageHeight - 1,
-						1, imageHeight, null);
+							1, imageHeight, null);
 					g.drawImage(image, rectX + imageWidth, rectY + imageHeight, rectX + imageWidth + amountX, rectY + imageHeight
-						+ amountY, imageWidth - 1, imageHeight - 1, imageWidth, imageHeight, null);
+							+ amountY, imageWidth - 1, imageHeight - 1, imageWidth, imageHeight, null);
 					// Copy edge pixels into padding.
 					g.drawImage(image, rectX, rectY - amountY, rectX + imageWidth, rectY, 0, 0, imageWidth, 1, null);
 					g.drawImage(image, rectX, rectY + imageHeight, rectX + imageWidth, rectY + imageHeight + amountY, 0,
-						imageHeight - 1, imageWidth, imageHeight, null);
+							imageHeight - 1, imageWidth, imageHeight, null);
 					g.drawImage(image, rectX - amountX, rectY, rectX, rectY + imageHeight, 0, 0, 1, imageHeight, null);
 					g.drawImage(image, rectX + imageWidth, rectY, rectX + imageWidth + amountX, rectY + imageHeight, imageWidth - 1,
-						0, imageWidth, imageHeight, null);
+							0, imageWidth, imageHeight, null);
 				}
 				g.drawImage(image, rectX, rectY, null);
 				if (rect.rotated) {
@@ -209,18 +209,16 @@ public class TexturePacker2 {
 					String rectName = settings.flattenPaths ? new FileHandle(rect.name).name() : rect.name;
 					System.out.println(rectName);
 					for (Region region : textureAtlasData.getRegions()) {
-						if (region.name.equals(rectName)) {
-							throw new GdxRuntimeException("A region with the name \"" + rectName + "\" has already been packed: "
-								+ rect.name);
-						}
+						//if (region.name.equals(rectName)) {
+						//	throw new GdxRuntimeException("A region with the name \"" + rectName + "\" has already been packed: "
+						//		+ rect.name);
+						//}
 					}
 				}
 			}
 		}
 
-		FileWriter writer = new FileWriter(packFile, true);
-// if (settings.jsonOutput) {
-// } else {
+		FileWriter writer = new FileWriter(packFile, false);
 		for (Page page : pages) {
 			writer.write("\n" + page.imageName + "\n");
 			writer.write("format: " + settings.format + "\n");
@@ -235,7 +233,6 @@ public class TexturePacker2 {
 				}
 			}
 		}
-// }
 		writer.close();
 	}
 
@@ -247,7 +244,7 @@ public class TexturePacker2 {
 		writer.write("  size: " + rect.image.getWidth() + ", " + rect.image.getHeight() + "\n");
 		if (rect.splits != null) {
 			writer
-				.write("  split: " + rect.splits[0] + ", " + rect.splits[1] + ", " + rect.splits[2] + ", " + rect.splits[3] + "\n");
+			.write("  split: " + rect.splits[0] + ", " + rect.splits[1] + ", " + rect.splits[2] + ", " + rect.splits[3] + "\n");
 		}
 		if (rect.pads != null) {
 			if (rect.splits == null) writer.write("  split: 0, 0, 0, 0\n");
@@ -305,7 +302,7 @@ public class TexturePacker2 {
 
 		Rect (BufferedImage source, int left, int top, int newWidth, int newHeight) {
 			image = new BufferedImage(source.getColorModel(), source.getRaster().createWritableChild(left, top, newWidth, newHeight,
-				0, 0, null), source.getColorModel().isAlphaPremultiplied(), null);
+					0, 0, null), source.getColorModel().isAlphaPremultiplied(), null);
 			offsetX = left;
 			offsetY = top;
 			originalWidth = source.getWidth();

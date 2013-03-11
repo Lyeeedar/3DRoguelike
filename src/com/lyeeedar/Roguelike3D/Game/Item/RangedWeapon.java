@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
@@ -18,8 +20,6 @@ import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModel;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModelBehaviourCastSpell;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModelNode;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedOneHandedSwing;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public class RangedWeapon extends Equipment_HAND {
 
@@ -52,6 +52,7 @@ public class RangedWeapon extends Equipment_HAND {
 			ParticleEmitter flame = new ParticleEmitter(1.5f, 1, 0.01f, 0.4f, 0.4f, 0.4f, 0, GL20.GL_SRC_ALPHA, GL20.GL_ONE, "f");
 			flame.createBasicEmitter(1, 1, Color.YELLOW, Color.RED, 0, 3, 0);
 			flame.addLight(false, 0.5f, 0.5f, Color.ORANGE, true, 0, 0, 0);
+			flame.calculateParticles();
 			effect.addEmitter(flame, 
 					0, 0, 0);
 			

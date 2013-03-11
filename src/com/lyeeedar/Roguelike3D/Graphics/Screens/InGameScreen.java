@@ -22,6 +22,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
 import com.lyeeedar.Roguelike3D.Game.GameData;
@@ -32,8 +34,6 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.DeferredRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 

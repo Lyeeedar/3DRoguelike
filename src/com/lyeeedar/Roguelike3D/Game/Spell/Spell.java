@@ -6,13 +6,13 @@ import java.util.HashMap;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 public class Spell implements Serializable {
 	
@@ -107,7 +107,7 @@ public class Spell implements Serializable {
 	
 	public void create()
 	{
-		particleEffect.create();
+		particleEffect.create(GameData.lightManager);
 	}
 	
 	public void applyMovement(float delta)

@@ -17,6 +17,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
@@ -25,8 +27,6 @@ import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 
 
 public class Level implements Serializable {
@@ -172,7 +172,7 @@ public class Level implements Serializable {
 	{
 		for (ParticleEffect pe : particleEffects)
 		{
-			pe.create();
+			pe.create(GameData.lightManager);
 		}
 	}
 	

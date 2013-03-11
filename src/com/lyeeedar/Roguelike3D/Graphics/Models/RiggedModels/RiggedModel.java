@@ -6,12 +6,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
+import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEffect;
-import com.lyeeedar.Roguelike3D.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class RiggedModel implements Serializable {
@@ -172,9 +173,10 @@ public class RiggedModel implements Serializable {
 		ParticleEmitter flame = new ParticleEmitter(2, 0.5f, 0.04f, 0.1f, 0.1f, 0.1f, 0, GL20.GL_SRC_ALPHA, GL20.GL_ONE, "f");
 		flame.createBasicEmitter(2, 1, Color.YELLOW, Color.RED, 0, 1.7f, 0);
 		flame.addLight(false, 0.04f, 0.3f, Color.ORANGE, true, 0, 0, 0);
+		flame.calculateParticles();
 		effect.addEmitter(flame, 
 				0, 0, 0);
-		effect.create();
+		effect.create(GameData.lightManager);
 		
 		node.setChilden(node1);
 		

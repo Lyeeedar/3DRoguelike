@@ -52,6 +52,7 @@ public class ParticleEmitter implements Serializable{
 	}
 
 	public final String UID;
+	public String name;
 
 	// ----- Particle Parameters ----- //
 	private TimelineInteger[] sprite;
@@ -118,9 +119,11 @@ public class ParticleEmitter implements Serializable{
 			float ex, float ey, float ez,
 			int emissionType,
 			int blendFuncSRC, int blendFuncDST,
-			String atlasName)
+			String atlasName,
+			String name)
 	{
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
+		this.name = name;
 
 		this.particleLifetime = particleLifetime;
 		this.particleLifetimeVar = particleLifetimeVar;
@@ -254,9 +257,10 @@ public class ParticleEmitter implements Serializable{
 
 	/**
 	 * Method to create a basic particle emitter. <p>
-	 * This particles in this emitter will have a constant width and height,
+	 * The particles in this emitter will have a constant width and height,
 	 *  a constant velocity (vx, vy, vz)
 	 *   and will interpolate its colour from the start colour to the end over the particles lifetime.
+	 *   The image used will be the sprite in the atlas designated as 'sprite0'.
 	 * @param width
 	 * @param height
 	 * @param start
@@ -656,7 +660,7 @@ public class ParticleEmitter implements Serializable{
 
 	public ParticleEmitter copy()
 	{
-		ParticleEmitter copy = new ParticleEmitter(particleLifetime, particleLifetimeVar, emissionTime, ex, ey, ez, emissionType, blendFuncSRC, blendFuncDST, atlasName);
+		ParticleEmitter copy = new ParticleEmitter(particleLifetime, particleLifetimeVar, emissionTime, ex, ey, ez, emissionType, blendFuncSRC, blendFuncDST, atlasName, name);
 		copy.maxParticles = maxParticles;
 
 		TimelineInteger[] cpySprite = new TimelineInteger[sprite.length];
@@ -927,6 +931,7 @@ public class ParticleEmitter implements Serializable{
 	 */
 	private void write (Json json) {
 		json.writeObjectStart();
+		json.writeValue("name", name);
 		json.writeValue("sprite", sprite);
 		json.writeValue("size", size);
 		json.writeValue("colour", colour);
@@ -981,6 +986,7 @@ public class ParticleEmitter implements Serializable{
 				// ----- End Particle Parameters ----- //
 
 				// ----- Emitter parameters ----- //
+				String name = null;
 				int maxParticles = 0;
 				float particleLifetime = 0;
 				float particleLifetimeVar = 0;
@@ -1025,6 +1031,10 @@ public class ParticleEmitter implements Serializable{
 						velocity = json.readValue(TimelineFloat[].class, entry.value);
 					}
 
+					else if (entry.key.equals("name"))
+					{
+						name = (String) entry.value;
+					}
 					else if (entry.key.equals("max particles"))
 					{
 						maxParticles = ((Float) entry.value).intValue();
@@ -1108,7 +1118,7 @@ public class ParticleEmitter implements Serializable{
 						ex, ey, ez,
 						emissionType,
 						blendFuncSRC, blendFuncDST,
-						atlasName);
+						atlasName, name);
 				emitter.maxParticles = maxParticles;
 
 				emitter.setTimeline(sprite, size, colour, velocity);

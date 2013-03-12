@@ -67,6 +67,43 @@ public class ParticleEffect implements Serializable {
 		}
 	}
 	
+	public void deleteEmitter(int index)
+	{
+		Emitter emitter = emitters.remove(index);
+		emitter.emitter.dispose();
+		emitter.emitter.delete();
+	}
+	
+	public void deleteEmitter(String name)
+	{
+		Iterator<Emitter> itr = emitters.iterator();
+		
+		while (itr.hasNext())
+		{
+			Emitter e = itr.next();
+			
+			if (e.emitter.name.equals(name))
+			{
+				itr.remove();
+				
+				e.emitter.dispose();
+				e.emitter.delete();
+			}
+		}
+	}
+	
+	public ParticleEmitter getEmitter(int index)
+	{
+		return emitters.get(index).emitter;
+	}
+	
+	public ParticleEmitter getEmitter(String name)
+	{
+		for (Emitter e : emitters) if (e.emitter.name.equals(name)) return e.emitter;
+		
+		return null;
+	}
+	
 	public void getEmitters(List<ParticleEmitter> list)
 	{
 		for (Emitter e : emitters) list.add(e.emitter);
@@ -90,6 +127,22 @@ public class ParticleEffect implements Serializable {
 		{
 			e.emitter.update(delta, cam);
 		}
+	}
+	
+	public Vector3 getEmitterPosition(int index, Vector3 position)
+	{
+		Emitter e = emitters.get(index);
+		return position.set(e.x, e.y, e.z);
+	}
+	
+	public void setEmitterPosition(int index, Vector3 position)
+	{
+		Emitter e = emitters.get(index);
+		e.x = position.x;
+		e.y = position.y;
+		e.z = position.z;
+		
+		setPosition(x, y, z);
 	}
 	
 	public void getEmitters(ArrayList<ParticleEmitter> visibleEmitters, Camera cam)

@@ -101,11 +101,7 @@ public class InGameScreen extends AbstractScreen {
 			s.particleEffect.getEmitters(visibleEmitters, cam);
 		}
 		
-		Collections.sort(visibleEmitters,new Comparator<ParticleEmitter>() {
-            public int compare(ParticleEmitter p1, ParticleEmitter p2) {
-                return (p1.distance < p2.distance) ? 1 : -1;
-            }
-        });
+		Collections.sort(visibleEmitters, ParticleEmitter.getComparator());
 		
 		ParticleEmitter.begin(cam);
 		for (ParticleEmitter p : visibleEmitters)

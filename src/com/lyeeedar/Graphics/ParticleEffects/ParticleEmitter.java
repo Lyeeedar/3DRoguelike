@@ -11,7 +11,9 @@
 package com.lyeeedar.Graphics.ParticleEffects;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -44,7 +46,7 @@ public class ParticleEmitter implements Serializable{
 
 	private static final long serialVersionUID = 6308492057144008114L;
 
-	private enum ParticleAttribute {
+	public enum ParticleAttribute {
 		SPRITE,
 		SIZE,
 		COLOUR,
@@ -168,6 +170,10 @@ public class ParticleEmitter implements Serializable{
 		this.velocity = velocity;
 	}
 
+	public TimelineInteger[] getSpriteTimeline()
+	{
+		return sprite;
+	}
 	/**
 	 * Set the sprite number timeline. <p>
 	 *  Each point in the timeline is specified by a float array. <br> array[0] is the time in the timeline, array[1] is the sprite number (casted to an int)
@@ -188,7 +194,17 @@ public class ParticleEmitter implements Serializable{
 			this.sprite[i].setInterpolated(true, this.sprite[i+1]);
 		}
 	}
+	
+	public void setSpriteTimeline(List<TimelineInteger> values)
+	{
+		TimelineInteger[] array = new TimelineInteger[values.size()];
+		sprite = values.toArray(array);
+	}
 
+	public TimelineFloat[] getSizeTimeline()
+	{
+		return size;
+	}
 	/**
 	 * Set the size timeline. <p>
 	 *  Each point in the timeline is specified by a float array. <br> array[0] is the time in the timeline, array[1] is the width, array[2] is the height
@@ -210,7 +226,17 @@ public class ParticleEmitter implements Serializable{
 			this.size[i].setInterpolated(true, this.size[i+1]);
 		}
 	}
+	
+	public void setSizeTimeline(List<TimelineFloat> values)
+	{
+		TimelineFloat[] array = new TimelineFloat[values.size()];
+		size = values.toArray(array);
+	}
 
+	public TimelineFloat[] getColourTimeline()
+	{
+		return colour;
+	}
 	/**
 	 * Set the colour timeline. <p>
 	 *  Each point in the timeline is specified by a float array. <br> array[0] is the time in the timeline, array[1] is red, array[2] is green, array[3] is blue and array[4] is alpha
@@ -232,7 +258,17 @@ public class ParticleEmitter implements Serializable{
 			this.colour[i].setInterpolated(true, this.colour[i+1]);
 		}
 	}
+	
+	public void setColourTimeline(List<TimelineFloat> values)
+	{
+		TimelineFloat[] array = new TimelineFloat[values.size()];
+		colour = values.toArray(array);
+	}
 
+	public TimelineFloat[] getVelocityTimeline()
+	{
+		return velocity;
+	}
 	/**
 	 * Set the velocity timeline. <p>
 	 *  Each point in the timeline is specified by a float array. <br> array[0] is the time in the timeline, array[1] is the x velocity, array[2] is the y velocity and array[3] is the z velocity
@@ -253,6 +289,12 @@ public class ParticleEmitter implements Serializable{
 		{
 			this.velocity[i].setInterpolated(true, this.velocity[i+1]);
 		}
+	}
+	
+	public void setVelocityTimeline(List<TimelineFloat> values)
+	{
+		TimelineFloat[] array = new TimelineFloat[values.size()];
+		velocity = values.toArray(array);
 	}
 
 	/**
@@ -715,16 +757,16 @@ public class ParticleEmitter implements Serializable{
 		}
 	}
 
-	abstract static class TimelineValue<T extends Number, N extends TimelineValue<T, N>> implements Serializable, Json.Serializable
+	public abstract static class TimelineValue<T extends Number, N extends TimelineValue<T, N>> implements Serializable, Json.Serializable
 	{
 		private static final long serialVersionUID = -4434625075360858305L;
 
-		T[] values;
-		float time;
+		public T[] values;
+		public float time;
 
-		boolean interpolated = false;
-		Float[] valueStep;
-		T[] interpolatedValues;
+		public boolean interpolated = false;
+		public Float[] valueStep;
+		public T[] interpolatedValues;
 
 		transient float timeStep;
 
@@ -760,7 +802,7 @@ public class ParticleEmitter implements Serializable{
 		}
 	}
 
-	static class TimelineInteger extends TimelineValue<Integer, TimelineInteger> 
+	public static class TimelineInteger extends TimelineValue<Integer, TimelineInteger> 
 	{
 
 		private static final long serialVersionUID = -6679143723684340688L;
@@ -843,7 +885,7 @@ public class ParticleEmitter implements Serializable{
 		}
 	}
 
-	static class TimelineFloat extends TimelineValue<Float, TimelineFloat>
+	public static class TimelineFloat extends TimelineValue<Float, TimelineFloat>
 	{
 
 		private static final long serialVersionUID = -5219903547907274562L;
@@ -1172,4 +1214,17 @@ public class ParticleEmitter implements Serializable{
 			"void main() {" + "\n" +
 			"gl_FragColor = texture2D(u_texture, v_texCoords) * v_colour;" + "\n" +
 			"}";
+	
+	private static final ParticleEmitterComparator comparator = new ParticleEmitterComparator();
+	public static Comparator<ParticleEmitter> getComparator()
+	{
+		return comparator;
+	}
+	
+	static class ParticleEmitterComparator implements Comparator<ParticleEmitter>
+	{
+		public int compare(ParticleEmitter p1, ParticleEmitter p2) {
+			return (p1.distance < p2.distance) ? 1 : -1;
+		}
+	}
 }

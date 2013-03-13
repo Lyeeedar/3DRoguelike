@@ -170,7 +170,7 @@ public class RiggedModel implements Serializable {
 		
 		
 		ParticleEffect effect = new ParticleEffect(5);
-		ParticleEmitter flame = new ParticleEmitter(2, 0.5f, 0.04f, 0.1f, 0.1f, 0.1f, 0, GL20.GL_SRC_ALPHA, GL20.GL_ONE, "f");
+		ParticleEmitter flame = new ParticleEmitter(2, 0.5f, 0.04f, 0.1f, 0.1f, 0.1f, 0, GL20.GL_SRC_ALPHA, GL20.GL_ONE, "f", "name");
 		flame.createBasicEmitter(2, 1, Color.YELLOW, Color.RED, 0, 1.7f, 0);
 		flame.addLight(false, 0.04f, 0.3f, Color.ORANGE, true, 0, 0, 0);
 		flame.calculateParticles();

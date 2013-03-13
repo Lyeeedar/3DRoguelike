@@ -12,10 +12,10 @@ package com.lyeeedar.Roguelike3D.Game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.NavigableSet;
 import java.util.TreeMap;
 
-import com.google.common.collect.Multimap;
-import com.google.common.collect.TreeMultimap;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
@@ -56,11 +56,11 @@ public class GameStats {
 	public static Equipment_HAND l_hand;
 	public static Equipment_HAND r_hand;
 	
-	public static TreeMultimap<Integer, Recipe> recipes = TreeMultimap.create();
-	public static TreeMultimap<Integer, Component> components = TreeMultimap.create();
-	public static TreeMultimap<Item_Type, Equippable> carryEquipment = TreeMultimap.create();
-	public static TreeMultimap<Item_Type, Equippable> baseEquipment = TreeMultimap.create();
-	
+//	public static TreeMultimap<Integer, Recipe> recipes = TreeMultimap.create();
+//	public static TreeMultimap<Integer, Component> components = TreeMultimap.create();
+//	public static TreeMultimap<Item_Type, Equippable> carryEquipment = TreeMultimap.create();
+//	public static TreeMultimap<Item_Type, Equippable> baseEquipment = TreeMultimap.create();
+//	
 	public static void init()
 	{
 		MAX_HEALTH = HEALTH = 100;
@@ -77,44 +77,54 @@ public class GameStats {
 		player.setStats(HEALTH, WEIGHT, STRENGTH, ELE_DEF, DAM_DEF, FACTIONS);
 	}
 	
+	public static List<Recipe> getRecipes(int rarity)
+	{
+		return null;
+	}
+	
+	public static List<Recipe> getAllRecipes()
+	{
+		return null;
+	}
+	
+	public static List<Component> getAllComponents()
+	{
+		return null;
+	}
+	
 	public static void addRecipe(Recipe recipe)
 	{
-		recipes.put(recipe.rarity, recipe);
+		
 	}
 	
 	public static void addComponent(Component c)
 	{
-		if (components.containsEntry(c.rarity, c)) {
-			System.out.println("Component already added!");
-			Component cc = components.get(c.rarity).floor(c);
-			cc.amount += c.amount;
-		}
-		else components.put(c.rarity, c);
+
 	}
 	
 	public static void removeComponent(Component c, int amount)
 	{
-		c.amount -= amount;
-		
-		if (c.amount <= 0)
-		{
-			components.remove(c.rarity, c);
-		}
+
+	}
+	
+	public static List<Equippable> getCarryEquipment (Item_Type type)
+	{
+		return null;
 	}
 	
 	public static void addEquipmentCarry(Equippable e)
 	{
-		carryEquipment.put(e.item_type, e);
+
 	}
 	
 	public static void addEquipmentBase(Equippable e)
 	{
-		baseEquipment.put(e.item_type, e);
+
 	}
 	
 	public static void save(SaveGame save)
 	{
-		save.setStats(MAX_HEALTH, HEALTH, WEIGHT, STRENGTH, ELE_DEF, DAM_DEF, FACTIONS, head, body, legs, boots, l_hand, r_hand, recipes, components, carryEquipment, baseEquipment);
+		//save.setStats(MAX_HEALTH, HEALTH, WEIGHT, STRENGTH, ELE_DEF, DAM_DEF, FACTIONS, head, body, legs, boots, l_hand, r_hand, recipes, components, carryEquipment, baseEquipment);
 	}
 	
 	public static void load(SaveGame save)
@@ -132,9 +142,6 @@ public class GameStats {
 		boots = save.boots;
 		l_hand = save.l_hand;
 		r_hand = save.r_hand;
-		recipes = save.recipes;
-		components = save.components;
-		carryEquipment = save.carryEquipment;
-		baseEquipment = save.baseEquipment;
+
 	}
 }

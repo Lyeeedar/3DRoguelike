@@ -13,6 +13,7 @@ package com.lyeeedar.Roguelike3D.Graphics.Screens;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -61,18 +62,11 @@ public class RecipeScreen extends UIScreen {
 		super(game);
 	}
 
-	ArrayList<Recipe> recipes;
+	List<Recipe> recipes;
 	@Override
 	public void show() {
 		Gdx.input.setInputProcessor(stage);
-		recipes = new ArrayList<Recipe>();
-		for (Entry<Integer, Collection<Recipe>> entry : GameStats.recipes.asMap().entrySet())
-		{
-			for (Recipe r : entry.getValue())
-			{
-				recipes.add(r);
-			}
-		}
+		recipes = GameStats.getAllRecipes();
 		
 		recipeListMode = true;
 		
@@ -264,7 +258,7 @@ public class RecipeScreen extends UIScreen {
 		bg = new ButtonGroup();
 		Table t = new Table();
 
-		for (Component c : GameStats.components.values())
+		for (Component c : GameStats.getAllComponents())
 		{
 			// Check valid type
 			if (!chosenRecipe.checkComponent(c, selected.reference)) continue;

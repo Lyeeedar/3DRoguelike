@@ -1,5 +1,7 @@
 package com.lyeeedar.Roguelike3D.Graphics.Screens;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NavigableSet;
 
 import com.badlogic.gdx.Gdx;
@@ -127,7 +129,7 @@ public class InventoryScreen extends UIScreen {
 		if (type == null) return;
 		
 		Table itemList = new Table();
-		NavigableSet<Equippable> items = GameStats.carryEquipment.get(type);
+		List<Equippable> items = GameStats.getCarryEquipment(type);
 		ButtonGroup bg = new ButtonGroup();
 		
 		for (Equippable e : items)

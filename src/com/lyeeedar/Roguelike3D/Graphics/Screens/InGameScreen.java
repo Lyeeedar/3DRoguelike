@@ -86,6 +86,7 @@ public class InGameScreen extends AbstractScreen {
 	
 	float time = 0;
 	int particleNum = 0;
+	int drawnParticleNum = 0;
 	ArrayList<ParticleEmitter> visibleEmitters = new ArrayList<ParticleEmitter>();
 	@Override
 	public void drawTransparent(float delta) {
@@ -119,6 +120,7 @@ public class InGameScreen extends AbstractScreen {
 			System.out.println("Visible Particles: "+particleNum);
 			System.out.println("Frame Time: "+Gdx.graphics.getRawDeltaTime());
 			time = 1;
+			drawnParticleNum = particleNum;
 		}
 	}
 
@@ -161,6 +163,7 @@ public class InGameScreen extends AbstractScreen {
 		font.draw(spriteBatch, desc, 300, 20);
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, screen_height-20);
 		font.draw(spriteBatch, "Render Type: " + getRenderType(), 20, screen_height-40);
+		font.draw(spriteBatch, "Visible Particles: " + drawnParticleNum, 20, screen_height-60);
 	}
 	
 	public String getRenderType()

@@ -340,11 +340,6 @@ public class GameData {
 				}
 			}
 		}
-
-		SaveGame save = new SaveGame();
-		GameData.save(save);
-		GameStats.save(save);
-		SaveGame.save(save);
 		
 		game.switchScreen(nextScreen);
 		

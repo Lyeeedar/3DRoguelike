@@ -1189,9 +1189,10 @@ public class ParticleEmitter implements Serializable{
 	}
 
 	private static final String SHADER_VERTEX = 
+
 			"attribute vec3 a_position;" + "\n" +
-					"attribute vec4 a_colour;" + "\n" +
-					"attribute vec2 a_texCoords;" + "\n" +
+			"attribute vec4 a_colour;" + "\n" +
+			"attribute vec2 a_texCoords;" + "\n" +
 
 			"uniform mat4 u_pv;" + "\n" +
 
@@ -1206,6 +1207,10 @@ public class ParticleEmitter implements Serializable{
 				"}";
 
 	private static final String SHADER_FRAGMENT = 
+			"#ifdef GL_ES\n" +
+            "precision highp float;\n" + 
+            "#endif\n" + 
+            
 			"uniform sampler2D u_texture;" + "\n" +
 
 			"varying vec4 v_colour;" + "\n" +

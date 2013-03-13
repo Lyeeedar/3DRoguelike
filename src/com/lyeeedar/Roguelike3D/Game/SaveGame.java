@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.google.common.collect.TreeMultimap;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
@@ -60,11 +59,11 @@ public class SaveGame implements Serializable {
 	public Equipment_HAND l_hand;
 	public Equipment_HAND r_hand;
 	
-	public TreeMultimap<Integer, Recipe> recipes;
-	public TreeMultimap<Integer, Component> components;
-	public TreeMultimap<Item_Type, Equippable> carryEquipment = TreeMultimap.create();
-	public TreeMultimap<Item_Type, Equippable> baseEquipment = TreeMultimap.create();
-	
+//	public TreeMultimap<Integer, Recipe> recipes;
+//	public TreeMultimap<Integer, Component> components;
+//	public TreeMultimap<Item_Type, Equippable> carryEquipment = TreeMultimap.create();
+//	public TreeMultimap<Item_Type, Equippable> baseEquipment = TreeMultimap.create();
+//	
 
 	public SaveGame() {
 	}
@@ -88,11 +87,11 @@ public class SaveGame implements Serializable {
 			Equipment_LEGS legs,
 			Equipment_BOOTS boots,
 			Equipment_HAND l_hand,
-			Equipment_HAND r_hand,
-			TreeMultimap<Integer, Recipe> recipes,
-			TreeMultimap<Integer, Component> components,
-			TreeMultimap<Item_Type, Equippable> carryEquipment,
-			TreeMultimap<Item_Type, Equippable> baseEquipment
+			Equipment_HAND r_hand
+//			TreeMultimap<Integer, Recipe> recipes,
+//			TreeMultimap<Integer, Component> components,
+//			TreeMultimap<Item_Type, Equippable> carryEquipment,
+//			TreeMultimap<Item_Type, Equippable> baseEquipment
 			)
 	{
 		this.MAX_HEALTH = MAX_HEALTH;
@@ -108,10 +107,10 @@ public class SaveGame implements Serializable {
 		this.boots = boots;
 		this.l_hand = l_hand;
 		this.r_hand = r_hand;
-		this.recipes = recipes;
-		this.components = components;
-		this.carryEquipment = carryEquipment;
-		this.baseEquipment = baseEquipment;
+//		this.recipes = recipes;
+//		this.components = components;
+//		this.carryEquipment = carryEquipment;
+//		this.baseEquipment = baseEquipment;
 	}
 	
 	public static void save(SaveGame save)

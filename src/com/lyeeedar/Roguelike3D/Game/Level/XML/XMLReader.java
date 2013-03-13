@@ -13,6 +13,10 @@ package com.lyeeedar.Roguelike3D.Game.Level.XML;
 import java.io.IOException;
 import java.io.Serializable;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -21,7 +25,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.badlogic.gdx.Gdx;
-import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 public abstract class XMLReader implements Serializable {
 	
@@ -38,14 +41,18 @@ public abstract class XMLReader implements Serializable {
 	public XMLReader(String file) {
 		
 		Document doc = null;
-		DOMParser parser = new DOMParser();
-		
+
 		try {
-			parser.parse(new InputSource(Gdx.files.internal(file).read()));
-			doc = parser.getDocument();
-		} catch (SAXException e) {
-			e.printStackTrace();
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			doc = dBuilder.parse(Gdx.files.internal(file).read());
+					
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

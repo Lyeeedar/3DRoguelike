@@ -77,12 +77,8 @@ public abstract class AbstractScreen implements Screen {
 		
 		Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
 
-		spriteBatch.begin();
 		drawOrthogonals(delta);
-		spriteBatch.end();
 
-		stage.draw();
-		
         fps.log();
 		
 	}

@@ -74,23 +74,23 @@ public class AI_Player_Controlled extends AI_Package {
 		
 		if (actor.grounded)
 		{
-			if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.A)) actor.left_right(speed);
-			if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.D)) actor.left_right(-speed);
+			if (GameData.controls.left()) actor.left_right(speed);
+			if (GameData.controls.right()) actor.left_right(-speed);
 
-			if (Gdx.input.isKeyPressed(Keys.UP) || Gdx.input.isKeyPressed(Keys.W)) actor.forward_backward(2*speed);
+			if (GameData.controls.up()) actor.forward_backward(2*speed);
 			else headBob = 0;
-			if (Gdx.input.isKeyPressed(Keys.DOWN) || Gdx.input.isKeyPressed(Keys.S)) actor.forward_backward(-speed/2);
+			if (GameData.controls.down()) actor.forward_backward(-speed/2);
 
-			if ((actor.grounded) && (Gdx.input.isKeyPressed(Keys.SPACE) && !jumpCD)) 
-			{
-				jumpCD = true;
-				actor.grounded = false;
-				actor.velocity.y += 0.4;
-			}
-			else if (!Gdx.input.isKeyPressed(Keys.SPACE))
-			{
-				jumpCD = false;
-			}
+//			if ((actor.grounded) && (Gdx.input.isKeyPressed(Keys.SPACE) && !jumpCD)) 
+//			{
+//				jumpCD = true;
+//				actor.grounded = false;
+//				actor.velocity.y += 0.4;
+//			}
+//			else if (!Gdx.input.isKeyPressed(Keys.SPACE))
+//			{
+//				jumpCD = false;
+//			}
 		}
 		else
 		{
@@ -98,18 +98,8 @@ public class AI_Player_Controlled extends AI_Package {
 		}
 		actor.offsetPos.y = ((float) Math.sin(headBob)/5) + 2;
 		
-		if (Gdx.input.isKeyPressed(Keys.B))
-		{			
-			actor.getVelocity().set(0, 2, 2);
-		}
-		
-		if (Gdx.input.isKeyPressed(Keys.L))
-		{			
-			GameData.load();
-		}
-		
 		if (actor.L_HAND != null) {
-			if (Gdx.input.isButtonPressed(Input.Buttons.LEFT))
+			if (GameData.controls.leftClick())
 			{
 				actor.L_HAND.held();
 			}
@@ -120,7 +110,7 @@ public class AI_Player_Controlled extends AI_Package {
 		}
 		
 		if (actor.R_HAND != null) {
-			if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT))
+			if (GameData.controls.rightClick())
 			{
 				actor.R_HAND.held();
 			}
@@ -130,8 +120,8 @@ public class AI_Player_Controlled extends AI_Package {
 			}
 		}
 
-		xR = (float)Gdx.input.getDeltaX()*GameObject.xrotate;
-		yR = (float)Gdx.input.getDeltaY()*GameObject.yrotate;
+		xR = (float)GameData.controls.getDeltaX()*GameObject.xrotate;
+		yR = (float)GameData.controls.getDeltaY()*GameObject.yrotate;
 		
 		if (xR < -15.0f) xR = -15.0f;
 		else if (xR > 15.0f) xR = 15.0f;
@@ -144,14 +134,6 @@ public class AI_Player_Controlled extends AI_Package {
 		
 		actor.applyMovement(delta, GameData.gravity*10f*(float)actor.WEIGHT);
 		actor.velocity.y -= GameData.gravity*move*(float)actor.WEIGHT;
-		
-		
-		if (Gdx.input.isKeyPressed(Keys.F))
-		{			
-			actor.positionYAbsolutely(20);
-			actor.velocity.y = 0;
-		}
-
 
 	}
 

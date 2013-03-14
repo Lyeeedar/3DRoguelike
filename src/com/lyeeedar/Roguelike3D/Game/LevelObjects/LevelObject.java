@@ -72,7 +72,7 @@ public abstract class LevelObject extends GameObject{
 		}
 		else if (ao.type == ObjectType.DOOR_UNLOCKED)
 		{
-			lo = new Door(ao, new Color(), "tex+", (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, 1.0f, GL20.GL_TRIANGLES, "cube", "1", "1", "1");
+			lo = new Door(ao, new Color(1, 1, 1, 1), "tex+", (ao.x)*GameData.BLOCK_SIZE, 0, (ao.z)*GameData.BLOCK_SIZE, 1.0f, GL20.GL_TRIANGLES, "cube", "1", "1", "1");
 		}
 		else if (ao.type == ObjectType.FIRE_CAMP)
 		{

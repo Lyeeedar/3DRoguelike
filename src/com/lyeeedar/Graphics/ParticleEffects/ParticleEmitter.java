@@ -89,7 +89,8 @@ public class ParticleEmitter implements Serializable{
 	private transient static ShaderProgram shader;
 	private transient static String currentAtlas;
 	private transient static int currentBlendSRC, currentBlendDST;
-	private transient Texture atlasTexture;
+	public transient TextureAtlas atlas;
+	public transient Texture atlasTexture;
 	private transient float[][] topLeftTexCoords;
 	private transient float[][] topRightTexCoords;
 	private transient float[][] botLeftTexCoords;
@@ -410,7 +411,7 @@ public class ParticleEmitter implements Serializable{
 	
 	public void reloadTextures()
 	{
-		TextureAtlas atlas = FileUtils.loadAtlas(atlasName);
+		atlas = FileUtils.loadAtlas(atlasName);
 		Set<Texture> atlasTextures = atlas.getTextures();
 		Iterator<Texture> itr = atlasTextures.iterator();
 

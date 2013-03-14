@@ -46,6 +46,7 @@ public abstract class UIScreen extends AbstractScreen {
 
 	@Override
 	public void drawOrthogonals(float delta) {
+		stage.draw();
 	}
 
 	@Override

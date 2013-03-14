@@ -47,12 +47,12 @@ public class MonsterEvolver extends XMLReader {
 	 * 
 	 */
 	private static final long serialVersionUID = 935894653679977084L;
-	public transient static final int EVOLVER_WIDTH = 20;
-	public transient static final int EVOLVER_HEIGHT = 20;
+	public transient static final int EVOLVER_WIDTH = 10;
+	public transient static final int EVOLVER_HEIGHT = 10;
 
-	public transient static final int EVOLVER_CREATURE_NUM = 20;
+	public transient static final int EVOLVER_CREATURE_NUM = 10;
 
-	public transient static final int EVOLVER_CREATURE_TURNS = 100;
+	public transient static final int EVOLVER_CREATURE_TURNS = 10;
 
 	public transient static final String DATA = "DATA";
 
@@ -1899,7 +1899,7 @@ class AI_Evolver_VFFG extends AI_Evolver_Package
 
 class Evolver_Combat
 {
-	public static final int COMBAT_STEPS = 25;
+	public static final int COMBAT_STEPS = 15;
 	final Random ran = new Random();
 	public static final float STAGE_LENGTH = 25;
 	public static final float TIME_STEP = 0.5f;

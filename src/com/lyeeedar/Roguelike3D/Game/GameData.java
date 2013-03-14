@@ -192,6 +192,10 @@ public class GameData {
 	public static int[] resolution = {800, 600};
 	
 	public static ApplicationChanger applicationChanger;
+	
+	public static boolean isAndroid = false;
+	
+	public static final Controls controls = new Controls();
 
 	public static void createApplication() {
 		

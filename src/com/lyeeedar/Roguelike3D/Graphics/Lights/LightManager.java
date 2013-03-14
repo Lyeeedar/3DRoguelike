@@ -189,13 +189,13 @@ public class LightManager implements Serializable {
 			positions[3 * i + 1] = pos.y;
 			positions[3 * i + 2] = pos.z;
 
-			//final Color col = light.colour;
-			//colors[3 * i + 0] = col.r;
-			//colors[3 * i + 1] = col.g;
-			//colors[3 * i + 2] = col.b;
+			final Color col = light.getColour();
+			colors[3 * i + 0] = col.r;
+			colors[3 * i + 1] = col.g;
+			colors[3 * i + 2] = col.b;
 
-			//attenuations[i] = light.attenuation;
-			//powers[i] = light.power;
+			attenuations[i] = light.attenuation;
+			powers[i] = light.power;
 		}
 	}
 	
@@ -210,43 +210,43 @@ public class LightManager implements Serializable {
 	
 	public void applyAmbient(ShaderProgram shader)
 	{
-		//shader.setUniformf("u_colour", ambientLight.r, ambientLight.g, ambientLight.b);
+		shader.setUniformf("u_colour", ambientLight.r, ambientLight.g, ambientLight.b);
 	}
 	
-//	public Color calculateLightAtPoint(Vector3 position, Vector3 normal, boolean bakeStatics)
-//	{
-//		//Color h_ambient = ambientLight.mul(0.5f);
-//		//Color light_agg_col = h_ambient.add(calculateLight(ambientDir, h_ambient.tmp(), 0, 1, normal));
-//		
-//		if (!bakeStatics) return light_agg_col;
-//		
-//		for (PointLight pl : staticPointLights)
-//		{
-//			Vector3 l_vector = pl.position.tmp().sub(position);
-//			
-//			//light_agg_col.add(calculateLight(l_vector, pl.colour, pl.attenuation, pl.power, normal));
-//		}
-//		return light_agg_col;
-//	}
-//	
-//	private Color calculateLight(Vector3 l_vector, Color l_colour, float l_attenuation, float l_power, Vector3 n_dir)
-//	{
-//		float distance = l_vector.len();
-//	    Vector3 l_dir = l_vector.tmp2().div(distance);
-//	    //distance = distance * distance;
-//	 
-//	    //Intensity of the diffuse light. Saturate to keep within the 0-1 range.
-//	    float NdotL = n_dir.dot(l_dir);
-//	    float intensity = MathUtils.clamp( NdotL, 0.0f, 1.0f ); // Math.max(0.0f, n_dir.dot(l_dir)
-//	    
-//	    float attenuation = 1.0f;
-//	    if (l_attenuation != 0) attenuation /= (l_attenuation*distance + l_attenuation/10*distance*distance);
-//	    
-//	    //System.out.println(intensity + "    " + attenuation);
-//	 
-//	    // Calculate the diffuse light factoring in light color, power and the attenuation
-//	   	return l_colour.mul(intensity).mul(l_power).mul(attenuation);
-//	}
+	public Color calculateLightAtPoint(Vector3 position, Vector3 normal, boolean bakeStatics)
+	{
+		Color h_ambient = ambientLight.mul(0.5f);
+		Color light_agg_col = h_ambient.add(calculateLight(ambientDir, h_ambient.tmp(), 0, 1, normal));
+		
+		if (!bakeStatics) return light_agg_col;
+		
+		for (PointLight pl : staticPointLights)
+		{
+			Vector3 l_vector = pl.position.tmp().sub(position);
+			
+			light_agg_col.add(calculateLight(l_vector, pl.getColour(), pl.attenuation, pl.power, normal));
+		}
+		return light_agg_col;
+	}
+	
+	private Color calculateLight(Vector3 l_vector, Color l_colour, float l_attenuation, float l_power, Vector3 n_dir)
+	{
+		float distance = l_vector.len();
+	    Vector3 l_dir = l_vector.tmp2().div(distance);
+	    //distance = distance * distance;
+	 
+	    //Intensity of the diffuse light. Saturate to keep within the 0-1 range.
+	    float NdotL = n_dir.dot(l_dir);
+	    float intensity = MathUtils.clamp( NdotL, 0.0f, 1.0f ); // Math.max(0.0f, n_dir.dot(l_dir)
+	    
+	    float attenuation = 1.0f;
+	    if (l_attenuation != 0) attenuation /= (l_attenuation*distance + l_attenuation/10*distance*distance);
+	    
+	    //System.out.println(intensity + "    " + attenuation);
+	 
+	    // Calculate the diffuse light factoring in light color, power and the attenuation
+	   	return l_colour.mul(intensity).mul(l_power).mul(attenuation);
+	}
 
 	public Color getAmbient() {
 		return ambientLight;

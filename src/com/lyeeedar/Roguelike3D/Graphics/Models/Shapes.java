@@ -546,11 +546,11 @@ public class Shapes {
 			Vector3 normal = new Vector3(verts[(i*vertexSize)+normalOffset], verts[(i*vertexSize)+normalOffset+1], verts[(i*vertexSize)+normalOffset+2]);
 			normal.rot(normal_matrix).nor();
 
-			//Color light_colour = lights.calculateLightAtPoint(position, normal, bakeStatics);
+			Color light_colour = lights.calculateLightAtPoint(position, normal, bakeStatics);
 			
-			//newVerts[ (i*newVertexSize) + j ] = light_colour.r;
-			//newVerts[ (i*newVertexSize) + j + 1 ] = light_colour.g;
-			//newVerts[ (i*newVertexSize) + j + 2 ] = light_colour.b;
+			newVerts[ (i*newVertexSize) + j ] = light_colour.r;
+			newVerts[ (i*newVertexSize) + j + 1 ] = light_colour.g;
+			newVerts[ (i*newVertexSize) + j + 2 ] = light_colour.b;
 		}
 		
 		Mesh newMesh = new Mesh(true, mesh.getNumVertices(), mesh.getNumIndices(), newAttributes);

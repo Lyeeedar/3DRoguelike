@@ -46,7 +46,7 @@ public class PointLight implements Comparable, Serializable {
 	{
 		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.position = position;
-		this.colour = colour.cpy();
+		this.setColour(colour.cpy());
 		this.attenuation = attentuation;
 		this.power = power;
 		
@@ -55,11 +55,11 @@ public class PointLight implements Comparable, Serializable {
 	
 	public void computeMesh()
 	{
-		Vector3 intensity = new Vector3(colour.r, colour.g, colour.b);
+		Vector3 intensity = new Vector3(getColour().r, getColour().g, getColour().b);
 		float dist = 1;
 		while (intensity.len2() > 0.5f)
 		{
-			intensity.set(colour.r, colour.g, colour.b).div((attenuation + (attenuation/5)*dist)*dist);
+			intensity.set(getColour().r, getColour().g, getColour().b).div((attenuation + (attenuation/5)*dist)*dist);
 			dist++;
 		}
 		
@@ -95,9 +95,17 @@ public class PointLight implements Comparable, Serializable {
 	public void bind(ShaderProgram shader)
 	{
 		shader.setUniformf("u_model", position);
-		shader.setUniformf("u_colour", colour.r, colour.g, colour.b);
+		shader.setUniformf("u_colour", getColour().r, getColour().g, getColour().b);
 		shader.setUniformf("u_attenuation", attenuation);
 		shader.setUniformf("u_power", power);
+	}
+
+	public Color getColour() {
+		return colour;
+	}
+
+	public void setColour(Color colour) {
+		this.colour = colour;
 	}
 
 }

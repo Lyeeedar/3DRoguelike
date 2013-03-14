@@ -21,7 +21,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
+import com.esotericsoftware.tablelayout.Cell;
 import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
@@ -126,6 +129,8 @@ public class InGameScreen extends AbstractScreen {
 
 	@Override
 	public void drawOrthogonals(float delta) {
+		
+		spriteBatch.begin();
 		//Table.drawDebug(stage);
 		if (paused)
 		{
@@ -164,6 +169,9 @@ public class InGameScreen extends AbstractScreen {
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, screen_height-20);
 		font.draw(spriteBatch, "Render Type: " + getRenderType(), 20, screen_height-40);
 		font.draw(spriteBatch, "Visible Particles: " + drawnParticleNum, 20, screen_height-60);
+		
+		spriteBatch.end();
+		stage.draw();
 	}
 	
 	public String getRenderType()
@@ -303,7 +311,7 @@ public class InGameScreen extends AbstractScreen {
 		
 		getDescription(dist, ray, paused);
 		
-		if (!paused && Gdx.input.isKeyPressed(Keys.E) && activateCD < 0)
+		if (!paused && GameData.controls.getActivate() && activateCD < 0)
 		{
 			ray.origin.set(GameData.player.getPosition());
 			ray.direction.set(GameData.player.getRotation());
@@ -332,6 +340,7 @@ public class InGameScreen extends AbstractScreen {
 			activateCD = 1;
 		}
 		
+		stage.act(delta);
 	}
 	
 	final Vector3 tmpVec = new Vector3();
@@ -411,12 +420,18 @@ public class InGameScreen extends AbstractScreen {
 		arrow = new Sprite(new Texture(Gdx.files.internal("data/textures/arrow.png")));
 		
 		pausedTint = new Texture(Gdx.files.internal("data/textures/pausedScreenTint.png"));
-		
+
+		if (GameData.isAndroid) {
+			
+			stage.addActor(GameData.controls.getMovePad());
+			stage.addActor(GameData.controls.getLookPad());
+		}
 	}
 
 	@Override
 	public void hide() {
 		Gdx.input.setCursorCatched(false);
+		Gdx.input.setInputProcessor(null);
 	}
 	
 	@Override
@@ -439,6 +454,9 @@ public class InGameScreen extends AbstractScreen {
 		renderer.createShader(GameData.lightManager);
 		renderer.updateResolution();
 		renderer.cam = cam;
+		
+		stage.setViewport(GameData.resolution[0], GameData.resolution[1], false);
+		Gdx.input.setInputProcessor(stage);
 	}
 
 	@Override

@@ -153,7 +153,7 @@ public class TexturePackerFileProcessor extends FileProcessor {
 		System.out.println(inputDir.inputFile.getName());
 		TexturePacker2 packer = new TexturePacker2(root, settings);
 		for (Entry file : files)
-			packer.addImage(file.inputFile);
+			packer.addImage(file.inputFile, file.inputFile.getName());
 		packer.pack(inputDir.outputDir, packFileName);
 	}
 }

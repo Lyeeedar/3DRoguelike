@@ -16,9 +16,6 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 
 public abstract class AI_Package implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -4386924950201938705L;
 	protected transient GameActor actor;
 	public final String actorUID;
@@ -30,8 +27,8 @@ public abstract class AI_Package implements Serializable {
 	
 	public abstract void evaluateAI(float delta);
 
-	public void fixReferences()
+	public void fixReferences(GameActor actor)
 	{
-		actor = GameData.level.getActor(actorUID);
+		this.actor = actor;
 	}
 }

@@ -42,8 +42,8 @@ public class RangedWeapon extends Equipment_HAND {
 
 	public RangedWeapon(Ranged_Weapon_Style style,
 			float weight, int strength,	HashMap<Element, Integer> ele_dam,	HashMap<Damage_Type, Integer> dam_dam, float attack_speed,
-			boolean two_handed, RiggedModel model) {
-		super(weight, strength, ele_dam, dam_dam, attack_speed, two_handed,
+			boolean two_handed, int range, RiggedModel model) {
+		super(weight, strength, ele_dam, dam_dam, attack_speed, two_handed, range,
 				model);
 		
 		if (style == Ranged_Weapon_Style.FIREBALL)

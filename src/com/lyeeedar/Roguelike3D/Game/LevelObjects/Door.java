@@ -46,14 +46,14 @@ public class Door extends LevelObject {
 		float y = getPosition().y;
 		float z = getPosition().z;
 		
-		Tile up = level.getTile((int)(x/10f), (int)(z/10f)+1);
-		Tile down = level.getTile((int)(x/10f), (int)(z/10f)-1);
+		Tile up = level.getTile(x, z+10);
+		Tile down = level.getTile(x, z-10);
 		
-		Tile left = level.getTile((int)(x/10f)-1, (int)(z/10f));
-		Tile right = level.getTile((int)(x/10f)+1, (int)(z/10f));
-
+		Tile left = level.getTile(x-10, z);
+		Tile right = level.getTile(x+10, z);
+		
 		if ((level.checkSolid(up) && level.checkSolid(down)) ||
-				((up.getLo() instanceof Static) && (down.getLo() instanceof Static)))
+				(up.isSolid() && down.isSolid()))
 		{
 			lx = 1;
 			lz = GameData.BLOCK_SIZE;
@@ -62,7 +62,7 @@ public class Door extends LevelObject {
 			hingex = 0.1f;
 		}
 		else if ((level.checkSolid(left) && level.checkSolid(right)) ||
-				((left.getLo() instanceof Static) && (right.getLo() instanceof Static)))
+				(left.isSolid() && right.isSolid()))
 		{
 			lx = GameData.BLOCK_SIZE;
 			lz = 1;
@@ -72,6 +72,7 @@ public class Door extends LevelObject {
 		}
 		else
 		{
+			System.err.println("door fail");
 			solid = false;
 			visible = false;
 			return;
@@ -87,11 +88,14 @@ public class Door extends LevelObject {
 			VisibleObject vo2 = new VisibleObject(vo.primitive_type, vo.colour, vo.texture, vo.scale, "cube", ""+lx, ""+ly, ""+lz);
 			vo2.create();
 			vo2.bakeLights(GameData.lightManager, true);
+			vo2.attributes.radius = ly/2;
 			this.vo = vo2;
 			
 			this.hingex = hingex;
 			this.hingez = hingez;
 		}
+		
+		this.positionAbsolutely(x, ly/2, z);
 	}
 
 	@Override
@@ -106,7 +110,7 @@ public class Door extends LevelObject {
 		}
 		else if (!moving)
 		{
-			if (GameData.level.checkCollisionGameActors(position, vo.attributes.box) != null) return;
+			if (GameData.level.collideBoxActorsAll(position.x, position.y, position.z, vo.attributes.box, null) != null) return;
 			
 			moving = true;
 		}
@@ -181,11 +185,19 @@ public class Door extends LevelObject {
 	}
 
 	@Override
-	public void fixReferencesSuper() {
+	protected void disposed() {
 	}
 
 	@Override
-	protected void disposed() {
+	protected void created() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void fixReferences() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

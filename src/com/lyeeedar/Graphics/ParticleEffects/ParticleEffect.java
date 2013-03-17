@@ -71,7 +71,6 @@ public class ParticleEffect implements Serializable {
 	{
 		Emitter emitter = emitters.remove(index);
 		emitter.emitter.dispose();
-		emitter.emitter.delete();
 	}
 	
 	public void deleteEmitter(String name)
@@ -87,7 +86,6 @@ public class ParticleEffect implements Serializable {
 				itr.remove();
 				
 				e.emitter.dispose();
-				e.emitter.delete();
 			}
 		}
 	}
@@ -145,7 +143,7 @@ public class ParticleEffect implements Serializable {
 		setPosition(x, y, z);
 	}
 	
-	public void getEmitters(ArrayList<ParticleEmitter> visibleEmitters, Camera cam)
+	public void getVisibleEmitters(ArrayList<ParticleEmitter> visibleEmitters, Camera cam)
 	{
 		for (Emitter e : emitters)
 		{
@@ -165,19 +163,23 @@ public class ParticleEffect implements Serializable {
 		}
 	}
 	
-	public void fixReferences(LightManager lightManager) {
-		pos = new Vector3();
-		for (Emitter e : emitters)
-		{
-			e.emitter.fixReferences(lightManager);
-		}
-	}
-	
-	public void create(LightManager lightManager)
+	public void getLight(LightManager lightManager)
 	{
 		for (Emitter e : emitters)
 		{
-			e.emitter.create(lightManager);
+			e.emitter.getLight(lightManager);
+		}
+	}
+	
+	public void fixReferences() {
+		pos = new Vector3();
+	}
+	
+	public void create()
+	{
+		for (Emitter e : emitters)
+		{
+			e.emitter.create();
 		}
 	}
 	
@@ -197,7 +199,6 @@ public class ParticleEffect implements Serializable {
 		{
 			Emitter e = itr.next();
 			e.emitter.dispose();
-			e.emitter.delete();
 			itr.remove();
 		}
 	}

@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 
@@ -32,6 +33,8 @@ public abstract class Equippable extends Item{
 		super(type);
 		this.WEIGHT = WEIGHT;
 	}
+	
+	public abstract void fixReferences(GameActor actor);
 	
 	public abstract Table getDescriptionWidget(Skin skin);
 	public abstract Table getComparisonWidget(Equippable other, Skin skin);

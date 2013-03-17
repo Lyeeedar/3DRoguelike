@@ -43,6 +43,7 @@ public class Static extends LevelObject {
 
 	@Override
 	public void update(float delta) {
+		positionYAbsolutely(getRadius());
 	}
 
 	@Override
@@ -50,11 +51,19 @@ public class Static extends LevelObject {
 	}
 
 	@Override
-	public void fixReferencesSuper() {
+	protected void disposed() {
 	}
 
 	@Override
-	protected void disposed() {
+	public void fixReferences() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void created() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

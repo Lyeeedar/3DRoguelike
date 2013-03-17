@@ -26,6 +26,7 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Actor.AI_Enemy_VFFG;
+import com.lyeeedar.Roguelike3D.Game.Actor.AI_Package;
 import com.lyeeedar.Roguelike3D.Game.Actor.Enemy;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
@@ -495,7 +496,7 @@ public class MonsterEvolver extends XMLReader {
 		
 		ga.setStats(ce.health, ce.weight, ce.strength, ce.ele_defenses, ce.dam_defenses, ce.creature.factions);
 		
-		ga.ai = new AI_Enemy_VFFG(ga);
+		ga.ai = ce.mind.ai.getAI(ga);
 
 		return ga;
 	}
@@ -1595,6 +1596,8 @@ abstract class AI_Evolver_Package implements Serializable
 	public abstract int evaluateCombatAttack();
 	public abstract int evaluateCombatFlee();
 	public abstract String getToString();
+	
+	public abstract AI_Package getAI(GameActor actor);
 
 	@Override
 	public String toString()
@@ -1893,6 +1896,11 @@ class AI_Evolver_VFFG extends AI_Evolver_Package
 	@Override
 	public int evaluateCombatFlee() {
 		return flee;
+	}
+
+	@Override
+	public AI_Package getAI(GameActor actor) {
+		return new AI_Enemy_VFFG(actor, violence, flee, feed, guard);
 	}
 
 }

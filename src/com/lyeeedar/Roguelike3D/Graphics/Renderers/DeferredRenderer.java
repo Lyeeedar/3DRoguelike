@@ -96,13 +96,12 @@ public class DeferredRenderer extends Renderer {
 			Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
 			Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
 			Gdx.graphics.getGL20().glBlendFunc(GL20.GL_ONE, GL20.GL_ONE);
-			//Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
+			Gdx.graphics.getGL20().glDisable(GL20.GL_CULL_FACE);
 			Gdx.graphics.getGL20().glDisable(GL20.GL_DEPTH_TEST);
 			
 			changeShader(lightShader);
 			normalBuffer.getColorBufferTexture().bind(0);
 			currentShader.setUniformi("u_normals", 0);
-			//currentShader.setUniformMatrix("u_inv_pv", cam.invProjectionView);
 			currentShader.setUniformf("u_screen", resolution[0], resolution[1]);
 			currentShader.setUniformf("u_cam", cam.position);
 			

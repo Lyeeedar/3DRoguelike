@@ -29,7 +29,7 @@ public class PointLight implements Comparable, Serializable {
 	final public String UID;
 
 	final public Vector3 position;
-	private Color colour;
+	private final Color colour = new Color();
 	public float attenuation;
 	public float power;
 
@@ -46,7 +46,7 @@ public class PointLight implements Comparable, Serializable {
 	{
 		UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
 		this.position = position;
-		this.setColour(colour.cpy());
+		this.colour.set(colour);
 		this.attenuation = attentuation;
 		this.power = power;
 		
@@ -102,10 +102,6 @@ public class PointLight implements Comparable, Serializable {
 
 	public Color getColour() {
 		return colour;
-	}
-
-	public void setColour(Color colour) {
-		this.colour = colour;
 	}
 
 }

@@ -11,66 +11,53 @@
 package com.lyeeedar.Roguelike3D.Game;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Random;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Pools;
 import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
-import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public abstract class GameObject implements Serializable {
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1356577977889288007L;
 
 	public static final float PHYSICS_DAMAGE_THRESHHOLD = 2.0f;
-	
-	public final static float xrotate = -360f/500f;
-	public final static float yrotate = -360f/500f;
+	public static final float X_ROTATE = -360f/500f;
+	public static final float Y_ROTATE = -360f/500f;
+	public static final int MAX_SPEED = 4;
 	
 	public final String UID;
 	
-	protected Random ran = new Random();
-
-	// x y z
 	protected final Vector3 position = new Vector3();
 	protected final Vector3 rotation = new Vector3(1, 0, 1);
-	public final Vector3 velocity = new Vector3();
-	
-	public final Vector3 up = new Vector3(0, 1, 0);
+	protected final Vector3 velocity = new Vector3();
+	protected final Vector3 up = new Vector3(0, 1, 0);
 
-	protected final Vector3 tmpVec = new Vector3();
-	protected final Matrix4 tmpMat = new Matrix4();
-
-	public VisibleObject vo;
-	protected transient PointLight boundLight;
-	protected transient ParticleEffect particleEffect;
-	public String particleEffectUID;
+	protected VisibleObject vo;
+	protected ParticleEffect particleEffect;
 	
-	public String boundLightUID;
+	protected boolean grounded = true;
+	protected boolean visible = true;
+	protected boolean solid = true;
 	
-	public boolean grounded = true;
-	public boolean visible = true;
-	public boolean solid = true;
+	protected String shortDesc = "";
+	protected String longDesc = "";
 	
-	public String shortDesc = "";
-	public String longDesc = "";
-	
-	public transient boolean collidedVertically = false;
-	public transient boolean collidedHorizontally = false;
-
-	private transient float startVelocityHori = 0;
-	private transient float endVelocityHori = 0;
-	private transient float startVelocityVert = 0;
-	private transient float endVelocityVert = 0;
-	private transient float negatedVelocity = 0;
+	protected transient Random ran;
+	protected transient Matrix4 tmpMat;
+	protected transient Vector3 offsetPos;
+	protected transient Vector3 offsetRot;
 
 	public GameObject(Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
 	{
@@ -82,142 +69,163 @@ public abstract class GameObject implements Serializable {
 		position.set(x, y, z);
 	}
 	
+	public void render(Renderer renderer)
+	{
+		vo.render(renderer);
+	}
+	
+	public void updateParticleEffect(float delta, Camera cam)
+	{
+		if (particleEffect != null)
+		{
+			particleEffect.update(delta, cam);
+		}
+	}
+	
+	public void getVisibleEmitters(ArrayList<ParticleEmitter> emitters, Camera cam)
+	{
+		if (particleEffect != null)
+		{
+			particleEffect.getVisibleEmitters(emitters, cam);
+		}
+		getEmitters(emitters, cam);
+	}
+	
+	protected abstract void getEmitters(ArrayList<ParticleEmitter> emitters, Camera cam);
+	
+	public void getLight(LightManager lightManager)
+	{
+		if (particleEffect == null) return;
+		
+		particleEffect.getLight(lightManager);
+	}
+	
+	public ParticleEffect getParticleEffect()
+	{
+		return particleEffect;
+	}
+	
 	public void addParticleEffect(ParticleEffect effect)
 	{
+		if (particleEffect != null)
+		{
+			particleEffect.dispose();
+			particleEffect.delete();
+		}
 		this.particleEffect = effect;
-		this.particleEffectUID = effect.UID;
 	}
 	
-	public void fixReferences()
-	{
-		if (particleEffectUID != null)
-		{
-			particleEffect = GameData.level.getParticleEffect(particleEffectUID);
-		}
-		
-		if (boundLightUID != null)
-		{
-			boundLight = GameData.lightManager.getDynamicLight(boundLightUID);
-		}
-		
-		fixReferencesSuper();
-	}
-	
-	public abstract void fixReferencesSuper();
+	public abstract void fixReferences();
 	
 	public void create()
 	{
-		vo.create();
-
-		translate(0, 0, 0);
+		ran = new Random();
+		tmpMat = new Matrix4();
+		offsetPos = new Vector3();
+		offsetRot = new Vector3();
 		
+		vo.create();
+		if (particleEffect != null) particleEffect.create();
+
 		created();
 	}
 	
-	public abstract void created();
+	protected abstract void created();
 
-	private final Vector3 tmpVelocity = new Vector3();
-	
 	public void applyMovement(float delta, float vertical_acceleration)
 	{
 		if (velocity.len2() == 0) return;
 		
-		startVelocityHori = Math.abs(velocity.x)+Math.abs(velocity.z);
-		startVelocityVert = Math.abs(velocity.y);
+		if (velocity.x < -MAX_SPEED) velocity.x = -MAX_SPEED;
+		if (velocity.x > MAX_SPEED) velocity.x = MAX_SPEED;
 		
-		if (velocity.x < -2) velocity.x = -4;
-		if (velocity.x > 2) velocity.x = 4;
+		if (velocity.y < -MAX_SPEED) velocity.y = -MAX_SPEED;
+		if (velocity.y > MAX_SPEED) velocity.y = MAX_SPEED;
 		
-		if (velocity.y < -2) velocity.y = -4;
-		if (velocity.y > 2) velocity.y = 4;
-		
-		if (velocity.z < -2) velocity.z = -4;
-		if (velocity.z > 2) velocity.z = 4;
+		if (velocity.z < -MAX_SPEED) velocity.z = -MAX_SPEED;
+		if (velocity.z > MAX_SPEED) velocity.z = MAX_SPEED;
 		
 		Level lvl = GameData.level;
 		
-		tmpVelocity.set(velocity.x, (velocity.y - 0.5f*vertical_acceleration*delta), velocity.z);
-		tmpVelocity.mul(delta*100);
+		Vector3 tmp = Pools.obtain(Vector3.class);
+		Vector3 v = Pools.obtain(Vector3.class).set(velocity.x, (velocity.y - 0.5f*vertical_acceleration*delta), velocity.z);
+		v.mul(delta*100);
 		
-		Tile below = lvl.getTile(position.x/10, position.z/10);
+		Tile below = lvl.getTile(position.x+v.x, position.z+v.z);
 		if (below == null) {
 			velocity.x = 0;
 			velocity.z = 0;
-			return;
 		}
 		
-		//float vertical_movement = (velocity.y - 0.5f*vertical_acceleration*delta)*delta*100;
-		
 		// Check for collision
-		if (lvl.checkCollision(position.tmp().add(tmpVelocity), vo.attributes.radius, UID))
+		if (lvl.collideSphereAll(position.x+v.x, position.y+v.y, position.z+v.z, getRadius(), UID))
 		{
 			// Collision! Now time to find which axis the collision was on. (Vertical or Horizontal)
 			
 			// ----- Check Vertical START ----- //
 			
-			if ((lvl.checkActors(position.tmp().add(0, tmpVelocity.y, 0), vo.attributes.radius, UID) != null) || 
-					(lvl.checkLevelObjects(position.tmp().add(0, tmpVelocity.y, 0), vo.attributes.radius) != null))
+			if (lvl.collideSphereActorsAll(position.x, position.y+v.y, position.z, getRadius(), UID) != null || 
+					lvl.collideSphereLevelObjectsAll(position.x, position.y+v.y, position.z, getRadius()) != null)
 			{
 				velocity.y = 0;
 				grounded = true;
 			}
 			// below
-			else if (position.y+tmpVelocity.y-getRadius() < below.floor) {
-				velocity.y = 0;
-				tmpVec.set(position);
-				this.positionYAbsolutely(below.floor+getRadius());
+			else if (position.y+v.y-getRadius() < below.floor) {
 				
-				if (lvl.checkCollision(position.tmp(), vo.attributes.radius, UID))
-				{
-					this.positionAbsolutely(tmpVec);
-				}
+				velocity.y = 0;
 				grounded = true;
+				
+				tmp.set(position.x, below.floor+getRadius(), position.z);
+				if (!lvl.collideSphereAll(tmp.x, tmp.y, tmp.z, getRadius(), UID))
+				{
+					this.positionAbsolutely(tmp.x, tmp.y, tmp.z);
+				}
 			}
 			// above
-			else if (lvl.hasRoof && position.y+tmpVelocity.y+getRadius() > below.roof) {
+			else if (lvl.hasRoof && position.y+v.y+getRadius() > below.roof) {
 				velocity.y = 0;
-				tmpVec.set(position);
-				this.positionYAbsolutely(below.roof-vo.attributes.radius);
-				
-				if (lvl.checkCollision(position.tmp(), vo.attributes.radius, UID))
-				{
-					this.positionAbsolutely(tmpVec);
-				}
 				grounded = false;
+				
+				tmp.set(position.x, below.roof-getRadius(), position.z);
+				if (!lvl.collideSphereAll(tmp.x, tmp.y, tmp.z, getRadius(), UID))
+				{
+					this.positionAbsolutely(tmp.x, tmp.y, tmp.z);
+				}
 			}
 			// No y collision
 			else
 			{
-				this.translate(0, tmpVelocity.y, 0);
+				this.translate(0, v.y, 0);
 				grounded = false;
 			}
-			
+
 			// ----- Check Vertical END ----- //
 			
 			
 			// ----- Check Horizontal START ----- //
 			
-			if (lvl.checkCollision(position.tmp().add(tmpVelocity.x, 0, tmpVelocity.z), vo.attributes.radius, UID)) {
+			if (lvl.collideSphereAll(position.x+v.x, position.y, position.z+v.z, getRadius(), UID)) {
 
-				if (lvl.checkCollision(position.tmp().add(tmpVelocity.x, 0, 0), vo.attributes.radius, UID)) {
+				if (lvl.collideSphereAll(position.x+v.x, position.y, position.z, getRadius(), UID)) {
 					velocity.x = 0;
-					tmpVelocity.x = 0;
+					v.x = 0;
 				}
 
-				if (lvl.checkCollision(position.tmp().add(tmpVelocity.x, 0, tmpVelocity.z), vo.attributes.radius, UID)) {
+				if (lvl.collideSphereAll(position.x, position.y, position.z+v.z, getRadius(), UID)) {
 					velocity.z = 0;
-					tmpVelocity.z = 0;
+					v.z = 0;
 				}
 			}
 			
-			this.translate(tmpVelocity.x, 0, tmpVelocity.z);
+			this.translate(v.x, 0, v.z);
 			
 			// ----- Check Horizontal END ----- //
 		}
 		// No collision! So move normally
 		else
 		{
-			this.translate(tmpVelocity);
+			this.translate(v.x, v.y, v.z);
 			grounded = false;
 		}
 		
@@ -227,25 +235,30 @@ public abstract class GameObject implements Serializable {
 			velocity.z = 0;
 		}
 		
-//		// Work our negated velocity from collision
-//		endVelocityHori = Math.abs(velocity.x)+Math.abs(velocity.z);
-//		negatedVelocity = startVelocityHori-endVelocityHori;
-//		
-//		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
-//		{
-//			collidedHorizontally = true;
-//			System.out.println("ouch! Hori!"+negatedVelocity);
-//		}
-//		
-//		endVelocityVert = Math.abs(velocity.y);
-//
-//		negatedVelocity = startVelocityVert-endVelocityVert;
-//		
-//		if (negatedVelocity > PHYSICS_DAMAGE_THRESHHOLD)
-//		{
-//			//collidedVertically = true;
-//			System.out.println("ouch! Vert!"+negatedVelocity);
-//		}
+		Pools.free(v);
+		Pools.free(tmp);
+	}
+	
+	public abstract void changeTile(Tile src, Tile dst);
+	
+	public void bakeLights(LightManager lightManager, boolean bakeStatics)
+	{
+		vo.bakeLights(lightManager, bakeStatics);
+	}
+	
+	public void setOffsetPos(float x, float y, float z)
+	{
+		offsetPos.set(x, y, z);
+	}
+	
+	public void setOffsetRot(float x, float y, float z)
+	{
+		offsetRot.set(x, y, z);
+	}
+	
+	public void accelerateY(float val)
+	{
+		velocity.y += val;
 	}
 	
 	public void Yrotate (float angle) {
@@ -262,11 +275,7 @@ public abstract class GameObject implements Serializable {
 	}
 
 	public void Xrotate (float angle) {
-		rotate(tmpVec.set(0, 1, 0), angle);
-	}
-	
-	public void rotate (float x, float y, float z, float angle) {
-		rotate(tmpVec.set(x, y, z), angle);
+		rotate(0, 1, 0, angle);
 	}
 
 	/** Rotates the direction and up vector of this camera by the given angle around the given axis. The direction and up vector
@@ -274,42 +283,43 @@ public abstract class GameObject implements Serializable {
 	 *
 	 * @param axis
 	 * @param angle the angle */
-	public void rotate (Vector3 axis, float angle) {
+	public void rotate (float x, float y, float z, float angle) {
+		Vector3 axis = Pools.obtain(Vector3.class).set(x, y, z);
 		tmpMat.setToRotation(axis, angle);
+		Pools.free(axis);
 		rotation.mul(tmpMat).nor();
 		up.mul(tmpMat).nor();
 		
-		if (vo.attributes != null) vo.attributes.getRotation().setToLookAt(tmpVec.set(0, 0, 0).add(rotation), up).inv();
+		if (vo.attributes != null) {
+			Vector3 lookAt = Pools.obtain(Vector3.class).set(0, 0, 0).add(rotation);
+			vo.attributes.getRotation().setToLookAt(lookAt, up).inv();
+			Pools.free(lookAt);
+		}
 	}
-
+	
 	public void translate(float x, float y, float z)
 	{
-		translate(new Vector3(x, y, z));
+		positionAbsolutely(position.x+x, position.y+y, position.z+z);
 	}
 	
-	public void translate(Vector3 vec)
+	public void positionAbsolutely(float x, float y, float z)
 	{
-		position.add(vec);
+		Tile start = GameData.level.getTile(position.x, position.z);
+		this.position.set(x, y, z);
 
-		positionAbsolutely(position);
-	}
-	
-	public void positionAbsolutely(Vector3 position)
-	{
-		this.position.set(position);
+		Tile end = GameData.level.getTile(position.x, position.z);
+		if (!start.equals(end))
+		{
+			changeTile(start, end);
+		}
+		
 		if (vo.attributes != null) vo.attributes.getTransform().setToTranslation(position);
-		if (boundLight != null) boundLight.position.set(position);
 		if (particleEffect != null) particleEffect.setPosition(vo.attributes.getSortCenter());
 	}
 
 	public void positionYAbsolutely(float y)
 	{
-		positionAbsolutely(tmpVec.set(position.x, y, position.z));
-	}
-	
-	public void positionAbsolutely(float x, float y, float z)
-	{
-		positionAbsolutely(tmpVec.set(x, y, z));
+		positionAbsolutely(position.x, y, position.z);
 	}
 	
 	public void left_right(float mag)
@@ -336,6 +346,21 @@ public abstract class GameObject implements Serializable {
 	public Vector3 getTruePosition() {
 		return vo.attributes.getSortCenter();
 	}
+	
+	public Matrix4 getTransform()
+	{
+		return vo.attributes.getTransform();
+	}
+	
+	public Matrix4 getRotationMatrix()
+	{
+		return vo.attributes.getRotation();
+	}
+	
+	public Vector3 getBoundingBox()
+	{
+		return vo.attributes.box;
+	}
 
 	public Vector3 getVelocity() {
 		return velocity;
@@ -352,7 +377,6 @@ public abstract class GameObject implements Serializable {
 	public void dispose()
 	{
 		vo.dispose();
-		if (boundLight != null) GameData.lightManager.removeDynamicLight(boundLightUID);
 		if (particleEffect != null) {
 			particleEffect.dispose();
 		}
@@ -360,46 +384,10 @@ public abstract class GameObject implements Serializable {
 	}
 	
 	protected abstract void disposed();
-
-	public String getUID() {
-		return UID;
-	}
-	
 	public abstract void update(float delta);
-	
 	public abstract void draw(Renderer renderer);
-	
 	public abstract void activate();
-	
 	public abstract String getActivatePrompt();
-
-	/**
-	 * @return the boundLight
-	 */
-	public PointLight getBoundLight() {
-		return boundLight;
-	}
-
-	/**
-	 * @param boundLight the boundLight to set
-	 */
-	public void setBoundLight(PointLight boundLight) {
-		this.boundLight = boundLight;
-	}
-
-	/**
-	 * @return the boundLightUID
-	 */
-	public String getBoundLightUID() {
-		return boundLightUID;
-	}
-
-	/**
-	 * @param boundLightUID the boundLightUID to set
-	 */
-	public void setBoundLightUID(String boundLightUID) {
-		this.boundLightUID = boundLightUID;
-	}
 
 	/**
 	 * @return the grounded
@@ -469,6 +457,22 @@ public abstract class GameObject implements Serializable {
 	 */
 	public void setLongDesc(String longDesc) {
 		this.longDesc = longDesc;
+	}
+
+	public Vector3 getOffsetPos() {
+		return offsetPos;
+	}
+
+	public void setOffsetPos(Vector3 offsetPos) {
+		this.offsetPos = offsetPos;
+	}
+
+	public Vector3 getOffsetRot() {
+		return offsetRot;
+	}
+
+	public void setOffsetRot(Vector3 offsetRot) {
+		this.offsetRot = offsetRot;
 	}
 
 }

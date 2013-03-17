@@ -14,44 +14,32 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
+import com.lyeeedar.Roguelike3D.Game.Item.Item;
+import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 
 public abstract class GameActor extends GameObject{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -4038143255858827889L;
-	public static final float WHIPLASHCD = 0.1f;
-	public static final float WHIPLASHAMOUNT = 0.1f;
 
-	public final Vector3 offsetPos = new Vector3();
-	public final Vector3 offsetRot = new Vector3();
-
-	private Random ran = new Random();
-
-	// ----- Actor Statistics START ----- //
-	
-	public HashMap<Integer, Component> INVENTORY = new HashMap<Integer, Component>();
-	
+	public HashMap<Integer, Item> INVENTORY = new HashMap<Integer, Item>();
 	public int MAX_HEALTH;
-	
 	public int HEALTH;
 	public int WEIGHT;
 	public int STRENGTH;
-	
 	public HashMap<Element, Integer> ELE_DEF = new HashMap<Element, Integer>();
 	public HashMap<Damage_Type, Integer> DAM_DEF = new HashMap<Damage_Type, Integer>();
-	
 	public ArrayList<String> FACTIONS;
 	public boolean IMMORTAL = false;
 	public AI_Package ai;
@@ -59,16 +47,12 @@ public abstract class GameActor extends GameObject{
 	public Equipment_HAND L_HAND;
 	public Equipment_HAND R_HAND;
 	
-	// ----- Actor Statistics END ----- //
-	
 	boolean alive = true;
-	boolean loot = false;
+	boolean looted = false;
 
 	public GameActor(Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
 	{
 		super(colour, texture, x, y, z, scale, primitive_type, model);
-		
-		setupDefenses();
 	}
 
 	public void setStats(int health, int weight, int strength, HashMap<Element, Integer> ele_def, HashMap<Damage_Type, Integer> dam_def, ArrayList<String> factions)
@@ -80,6 +64,19 @@ public abstract class GameActor extends GameObject{
 		this.ELE_DEF = ele_def;
 		this.DAM_DEF = dam_def;
 		this.FACTIONS = factions;
+	}
+	
+	@Override
+	protected void getEmitters(ArrayList<ParticleEmitter> emitters, Camera cam)
+	{
+		if (L_HAND != null)
+		{
+			L_HAND.model.getVisibleEmitters(emitters, cam);
+		}
+		if (R_HAND != null)
+		{
+			R_HAND.model.getVisibleEmitters(emitters, cam);
+		}
 	}
 	
 	public void equipL_HAND(Equipment_HAND equip)
@@ -108,23 +105,18 @@ public abstract class GameActor extends GameObject{
 		}
 	}
 	
-	public void created()
+	protected void created()
 	{
 		if (L_HAND != null)
 		{
+			L_HAND.create();
 			L_HAND.equip(this, 1);
 		}
 		if (R_HAND != null)
 		{
+			R_HAND.create();
 			R_HAND.equip(this, 2);
 		}
-	}
-	
-	public void setupDefenses()
-	{
-		DAM_DEF = GameData.getDamageMap();
-
-		ELE_DEF = GameData.getElementMap();
 	}
 	
 	public void damage(int strength, 
@@ -161,7 +153,6 @@ public abstract class GameActor extends GameObject{
 		
 	}
 	
-
 	@Override
 	public void draw(Renderer renderer)
 	{
@@ -170,28 +161,28 @@ public abstract class GameActor extends GameObject{
 	}
 	@Override
 	public void activate() {
-		if (!alive && !loot)
+		if (!alive && !looted)
 		{
-			for (Map.Entry<Integer, Component> entry : INVENTORY.entrySet())
+			for (Map.Entry<Integer, Item> entry : INVENTORY.entrySet())
 			{
 				if (ran.nextInt(101) < entry.getKey())
 				{
 					System.out.println(entry.getValue());
 				}
 			}
-			loot = true;
+			looted = true;
 			solid = false;
 			visible = false;
 			
 			dispose();
-			GameData.level.removeActor(UID);
+			GameData.level.removeGameActor(this);
 		}
 	}
 
 	@Override
 	public String getActivatePrompt() {
 		
-		if (!alive && !loot)
+		if (!alive && !looted)
 		{
 			return "[E] Loot";
 		}
@@ -212,21 +203,24 @@ public abstract class GameActor extends GameObject{
 	}
 
 	@Override
-	public void fixReferencesSuper() {
-		ai.fixReferences();
+	public void fixReferences() {
+		ai.fixReferences(this);
 		
-		for (Map.Entry<Integer, Component> entry : INVENTORY.entrySet())
-		{
-			entry.getValue().fixReferences();
-		}
-		
-		if (L_HAND != null) L_HAND.fixReferences();
-		if (R_HAND != null) R_HAND.fixReferences();
+		if (L_HAND != null) L_HAND.fixReferences(this);
+		if (R_HAND != null) R_HAND.fixReferences(this);
 	}
 
+	@Override
 	protected void disposed()
 	{
 		if (L_HAND != null) L_HAND.dispose();
 		if (R_HAND != null) R_HAND.dispose();
-	} 
+	}
+	
+	@Override
+	public void changeTile(Tile src, Tile dst)
+	{
+		src.removeGameActor(UID);
+		dst.actors.add(this);
+	}
 }

@@ -12,6 +12,7 @@ package com.lyeeedar.Roguelike3D.Game.Item;
 
 import java.util.HashMap;
 
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Item.Item.Item_Type;
@@ -28,6 +29,6 @@ public class Equipment_LEGS extends Equipment_ARMOUR {
 	}
 
 	@Override
-	public void fixReferences() {
+	public void fixReferences(GameActor actor) {
 	}
 }

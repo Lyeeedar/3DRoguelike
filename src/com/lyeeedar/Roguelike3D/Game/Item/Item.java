@@ -12,6 +12,8 @@ package com.lyeeedar.Roguelike3D.Game.Item;
 
 import java.io.Serializable;
 
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
+
 public abstract class Item implements Serializable, Comparable<Item> {
 
 	/**
@@ -51,9 +53,6 @@ public abstract class Item implements Serializable, Comparable<Item> {
 
 		return null;
 	}
-	
-	public abstract void fixReferences();
-	
 
 	@Override
 	public int compareTo(Item i) {

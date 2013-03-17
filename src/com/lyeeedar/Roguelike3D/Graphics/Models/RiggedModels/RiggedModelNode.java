@@ -1,6 +1,7 @@
 package com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Matrix4;
@@ -49,8 +50,7 @@ public class RiggedModelNode implements Serializable
 	
 	public boolean collideMode = false;
 	
-	public transient ParticleEffect particleEffect;
-	public String particleEffectUID;
+	public ParticleEffect particleEffect;
 	
 	public final String ID;
 	
@@ -79,8 +79,18 @@ public class RiggedModelNode implements Serializable
 	
 	public void setParticleEffect(ParticleEffect effect)
 	{
+		if (particleEffect != null) {
+			particleEffect.dispose();
+			particleEffect.delete();
+		}
 		this.particleEffect = effect;
-		this.particleEffectUID = effect.UID;
+	}
+	
+	public void getVisibleEmitters(ArrayList<ParticleEmitter> emitters, Camera cam)
+	{
+		if (particleEffect != null) particleEffect.getVisibleEmitters(emitters, cam);
+		
+		for (RiggedModelNode rmn : childNodes) rmn.getVisibleEmitters(emitters, cam);
 	}
 	
 	public void setBehaviour(RiggedModelBehaviour behaviour)
@@ -133,13 +143,13 @@ public class RiggedModelNode implements Serializable
 		tmpVec.set(0, 0, 0).mul(composedMatrix);
 		
 		if (collidable && collideMode) {
-			GameActor ga = GameData.level.checkActors(tmpVec, radius, holder.UID);
+			GameActor ga = GameData.level.collideSphereActorsAll(tmpVec.x, tmpVec.y, tmpVec.z, radius, holder.UID);
 
-			LevelObject lo = GameData.level.checkLevelObjects(tmpVec, radius);
+			LevelObject lo = GameData.level.collideSphereLevelObjectsAll(tmpVec.x, tmpVec.y, tmpVec.z, radius);
 			
 			if (lo != null) ga = holder;
 			
-			if (GameData.level.checkLevelCollision(tmpVec, radius)) ga = holder;
+			if (GameData.level.collideSphereAll(tmpVec.x, tmpVec.y, tmpVec.z, radius, holder.UID)) ga = holder;
 			
 			if (ga != null) {
 				rotation.rotate(0, 1, 0, (100-rigidity)/50);
@@ -256,20 +266,17 @@ public class RiggedModelNode implements Serializable
 		
 		this.renderRadius = (radius > 1) ? radius : 1;
 		
-
 		for (RiggedModelNode rmn : childNodes)
 		{
 			rmn.create();
 		}
 		
-		if (particleEffect != null) particleEffect.create(GameData.lightManager);
+		if (particleEffect != null) particleEffect.create();
 		
 	}
 	
 	public void fixReferences()
 	{
-		if (particleEffectUID != null) particleEffect = GameData.level.getParticleEffect(particleEffectUID);
-		
 		for (RiggedModelNode rmn : childNodes)
 		{
 			rmn.setParent(this);

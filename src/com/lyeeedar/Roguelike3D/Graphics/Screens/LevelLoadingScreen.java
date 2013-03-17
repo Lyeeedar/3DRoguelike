@@ -96,27 +96,9 @@ public class LevelLoadingScreen extends AbstractScreen{
 			time = System.nanoTime();
 			message = "Disposing previous level";
 			
-			
-			if (GameData.level != null) {
-				for (GameActor ga : GameData.level.getActors()) {
-					ga.dispose();
-					
-					if (ga.L_HAND != null) ga.L_HAND.dispose();
-					if (ga.R_HAND != null) ga.R_HAND.dispose();
-				}
-				
-				for (LevelObject lo : GameData.level.getLevelObjects()) {
-					lo.dispose();
-				}
-				
-				for (ParticleEffect pe : GameData.level.getParticleEffects())
-				{
-					pe.dispose();
-				}
-			}
+			if (GameData.level != null) GameData.level.dispose();
 			
 			if (GameData.levelGraphics != null) GameData.levelGraphics.dispose();
-			
 			
 			loadingStage++;
 		}
@@ -125,6 +107,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 			message = "Loading Level";
 			
 			level = GameData.getCurrentLevelContainer().getLevel(biome, rReader);
+			GameData.level = level;
 			
 			percent += taskSteps;
 			
@@ -132,19 +115,11 @@ public class LevelLoadingScreen extends AbstractScreen{
 		}
 		else if (loadingStage == 2)
 		{
-			level.createLevelObjects();
-			level.createActors();
-			level.createParticleEffects();
+			level.create();
 			
-			Player player = null;
+			level.fixReferences();
 			
-			for (GameActor ga : level.getActors())
-			{
-				if (ga instanceof Player) {
-					player = (Player) ga;
-					break;
-				}
-			}
+			Player player = level.getPlayer();
 			
 			if (player == null)
 			{
@@ -168,14 +143,16 @@ public class LevelLoadingScreen extends AbstractScreen{
 				player.L_HAND = Equipment_HAND.getWeapon(WeaponType.RANGED, "torch", "FIREBALL", 15, ELE_DEF, DAM_DEF, 71, 13, false, 3, 1, level);
 				
 				player.create();
-				player.visible = false;
+				player.setVisible(false);
 				
-				level.addActor(player);			
+				level.addGameActor(player);			
 			}
 			
 			GameStats.setPlayerStats(player);
 			
 			GameData.player = player;
+			
+			level.positionPlayer(player, GameData.prevLevel, GameData.currentLevel);
 			
 			percent += taskSteps;
 			loadingStage++;
@@ -214,6 +191,9 @@ public class LevelLoadingScreen extends AbstractScreen{
 		else if (loadingStage == 6)
 		{
 			message = "Baking Lights";
+			
+			level.getLights(GameData.lightManager);
+			level.evaluateUniqueBehaviour(lightManager);
 
 			if (GameData.lightQuality != LightQuality.FORWARD_VERTEX)
 			{
@@ -222,30 +202,14 @@ public class LevelLoadingScreen extends AbstractScreen{
 			}
 			
 			graphics.bakeLights(GameData.lightManager, true);
-			for (LevelObject lo : level.getLevelObjects())
-			{
-				lo.vo.bakeLights(GameData.lightManager, true);
-			}
-			for (GameActor ga : level.getActors())
-			{
-				ga.vo.bakeLights(GameData.lightManager, false);
-				
-				if (ga.L_HAND != null)
-				{
-					ga.L_HAND.model.bakeLight(GameData.lightManager, false);
-				}
-				
-				if (ga.R_HAND != null)
-				{
-					ga.R_HAND.model.bakeLight(GameData.lightManager, false);
-				}
-			}
+			level.bakeLights(GameData.lightManager);
+			
 			loadingStage++;
 		}
 		else if (loadingStage == 7)
 		{
 			System.out.println("Level loading done in "+((float)(System.nanoTime()-time)/1000000000f)+"seconds");
-			GameData.finishLoading(level, graphics, GameScreen.INGAME);
+			GameData.finishLoading(graphics, GameScreen.INGAME);
 			loadingStage++;
 		}
 		
@@ -257,7 +221,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		renderer.begin();
 		for (GameObject go : objects)
 		{
-			go.vo.render(renderer);
+			go.render(renderer);
 		}
 		renderer.end(lightManager);
 	}
@@ -286,10 +250,6 @@ public class LevelLoadingScreen extends AbstractScreen{
 		
 		loadingTask();
 
-		GameObject go = objects.get(0);
-		
-		go.positionAbsolutely(0.0f, 1.3f, -4.0f);
-
 		cam.update();
 	}
 	
@@ -305,7 +265,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 
 		GameObject go = new Enemy(new Color(), "icon", 0, 0, -4, 0.5f, GL20.GL_TRIANGLES, "cube", "2", "2", "2");
 		go.create();
-		go.vo.bakeLights(lightManager, true);
+		go.bakeLights(lightManager, true);
 
 		objects.add(go);
 		

@@ -10,6 +10,9 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
+import java.util.ArrayList;
+
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector3;
@@ -18,6 +21,7 @@ import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
+import com.lyeeedar.Roguelike3D.Game.Level.Tile;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject.ObjectType;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
@@ -42,6 +46,19 @@ public abstract class LevelObject extends GameObject{
 	public LevelObject(AbstractObject ao, Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model) {
 		super(colour, texture, x, y, z, scale, primitive_type, model);
 		this.ao = ao;
+	}
+	
+	@Override
+	protected void getEmitters(ArrayList<ParticleEmitter> emitters, Camera cam)
+	{
+		
+	}
+	
+	@Override
+	public void changeTile(Tile src, Tile dst)
+	{
+		src.removeLevelObject(UID);
+		dst.levelObjects.add(this);
 	}
 
 	public static LevelObject checkObject(AbstractObject ao, float x, float y, float z, Level level, MonsterEvolver evolver)
@@ -89,9 +106,8 @@ public abstract class LevelObject extends GameObject{
 			flame.calculateParticles();
 			effect.addEmitter(flame, 
 					2, 0f, 2);
-			effect.create(GameData.lightManager);
+			effect.create();
 			
-			level.addParticleEffect(effect);
 			lo.addParticleEffect(effect);
 		}
 		else if (ao.type == ObjectType.FIRE_TORCH)
@@ -351,9 +367,5 @@ public abstract class LevelObject extends GameObject{
 		}
 		
 		return lo;
-	}
-	
-	public void created(){
-		
 	}
 }

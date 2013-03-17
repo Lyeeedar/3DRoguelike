@@ -10,9 +10,6 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Actor;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Input.Keys;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 
@@ -33,46 +30,16 @@ public class AI_Player_Controlled extends AI_Package {
 	private transient float yR = 0;
 
 	private transient float headBob = 0;
-	private transient float whiplashCD = 0;
-	private transient float whiplashSTEP = 0;
-	
-	private transient boolean jumpCD = false;
 	
 	@Override
 	public void evaluateAI(float delta) {
 
 		headBob += delta*15;
 		
-		if (whiplashCD > 0)
-		{
-			whiplashCD -= delta;
-			actor.offsetRot.y += whiplashSTEP*delta;
-			
-			if (whiplashCD <= 0)
-			{
-				actor.offsetRot.y = 0;
-				actor.collidedVertically = false;
-				actor.collidedHorizontally = false;
-			}
-		}
-		
-		if (actor.collidedHorizontally && whiplashCD <= 0)
-		{
-			whiplashSTEP = -1;
-			actor.offsetRot.y = GameActor.WHIPLASHAMOUNT;
-			whiplashCD = GameActor.WHIPLASHCD;
-		}
-		else if (actor.collidedVertically && whiplashCD <= 0)
-		{
-			whiplashSTEP = 1;
-			actor.offsetRot.y = -GameActor.WHIPLASHAMOUNT;
-			whiplashCD = GameActor.WHIPLASHCD;
-		}
-		
 		move = delta * 10f;
 		speed = GameData.calculateSpeed(actor.WEIGHT, actor.STRENGTH);
 		
-		if (actor.grounded)
+		if (actor.isGrounded())
 		{
 			if (GameData.controls.left()) actor.left_right(speed);
 			if (GameData.controls.right()) actor.left_right(-speed);
@@ -96,7 +63,7 @@ public class AI_Player_Controlled extends AI_Package {
 		{
 			headBob = 0;
 		}
-		actor.offsetPos.y = ((float) Math.sin(headBob)/5) + 2;
+		actor.setOffsetPos(0, ((float) Math.sin(headBob)/5) + 2, 0);
 		
 		if (actor.L_HAND != null) {
 			if (GameData.controls.leftClick())
@@ -120,8 +87,8 @@ public class AI_Player_Controlled extends AI_Package {
 			}
 		}
 
-		xR = (float)GameData.controls.getDeltaX()*GameObject.xrotate;
-		yR = (float)GameData.controls.getDeltaY()*GameObject.yrotate;
+		xR = (float)GameData.controls.getDeltaX()*GameObject.X_ROTATE;
+		yR = (float)GameData.controls.getDeltaY()*GameObject.Y_ROTATE;
 		
 		if (xR < -15.0f) xR = -15.0f;
 		else if (xR > 15.0f) xR = 15.0f;
@@ -133,7 +100,7 @@ public class AI_Player_Controlled extends AI_Package {
 		actor.Xrotate(xR);
 		
 		actor.applyMovement(delta, GameData.gravity*10f*(float)actor.WEIGHT);
-		actor.velocity.y -= GameData.gravity*move*(float)actor.WEIGHT;
+		actor.accelerateY(-GameData.gravity*move*(float)actor.WEIGHT);
 
 	}
 

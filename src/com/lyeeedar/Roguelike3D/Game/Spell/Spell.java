@@ -107,7 +107,7 @@ public class Spell implements Serializable {
 	
 	public void create()
 	{
-		particleEffect.create(GameData.lightManager);
+		particleEffect.create();
 	}
 	
 	public void applyMovement(float delta)
@@ -117,7 +117,7 @@ public class Spell implements Serializable {
 		tmpVelocity.set(velocity).mul(delta*100);
 		
 		// Check for collision
-		if (lvl.checkCollision(position.tmp().add(tmpVelocity), radius, casterUID))
+		if (lvl.collideSphereAll(position.x+tmpVelocity.x, position.y+tmpVelocity.y, position.z+tmpVelocity.z, radius, casterUID))
 		{
 			move = false;
 		}

@@ -1,7 +1,9 @@
 package com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Matrix4;
@@ -24,6 +26,11 @@ public class RiggedModel implements Serializable {
 	public RiggedModel(RiggedModelNode node, Material[] materials) {
 		this.rootNode = node;
 		this.materials = materials;
+	}
+	
+	public void getVisibleEmitters(ArrayList<ParticleEmitter> emitters, Camera cam)
+	{
+		rootNode.getVisibleEmitters(emitters, cam);
 	}
 	
 	public void equip(GameActor holder, int side)
@@ -176,15 +183,14 @@ public class RiggedModel implements Serializable {
 		flame.calculateParticles();
 		effect.addEmitter(flame, 
 				0, 0, 0);
-		effect.create(GameData.lightManager);
+		effect.create();
 		
 		node.setChilden(node1);
 		
 		node1.setParticleEffect(effect);
 		node1.setParent(node);
-		node1.setChilden();
 		
-		level.addParticleEffect(effect);
+		node1.setChilden();
 		
 		Material material = new Material("basic");
 		material.setColour(new Color(1.0f, 1.0f, 1.0f, 1.0f));

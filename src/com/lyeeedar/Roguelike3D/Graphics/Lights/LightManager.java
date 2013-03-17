@@ -224,7 +224,7 @@ public class LightManager implements Serializable {
 		{
 			Vector3 l_vector = pl.position.tmp().sub(position);
 			
-			light_agg_col.add(calculateLight(l_vector, pl.getColour(), pl.attenuation, pl.power, normal));
+			light_agg_col.add(calculateLight(l_vector, pl.getColour().cpy(), pl.attenuation, pl.power, normal));
 		}
 		return light_agg_col;
 	}

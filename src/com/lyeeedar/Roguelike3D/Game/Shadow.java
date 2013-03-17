@@ -11,33 +11,14 @@
 package com.lyeeedar.Roguelike3D.Game;
 import java.util.ArrayDeque;
 
+import com.lyeeedar.Roguelike3D.Game.Level.Tile;
+
 public class Shadow
 {
-	private int viewRange = 20;
-	private static int tileSize = 15;
-	/**
-	 * @return the tileSize
-	 */
-	public static int getTileSize() {
-		return tileSize;
-	}
+	private static final int viewRange = 20;
 
 	private int startX;
 	private int startY;
-
-	/**
-	 * @return the viewRange
-	 */
-	public int getViewRange() {
-		return viewRange;
-	}
-
-	/**
-	 * @param viewRange the viewRange to set
-	 */
-	public void setViewRange(int viewRange) {
-		this.viewRange = viewRange;
-	}
 
 	public Shadow()
 	{
@@ -49,27 +30,26 @@ public class Shadow
 	// every cell that is both within the radius and visible from the center. 
 
 	public void ComputeFieldOfViewWithShadowCasting(
-			int x, int y, boolean[][] lit, boolean[][] seen)
+			int x, int y, Tile[][] level)
 	{
 		this.startX = x;
 		this.startY = y;
 
-		for (int i = 0; i < lit.length; i ++)
+		for (int i = 0; i < level.length; i ++)
 		{
-			for (int j = 0; j < lit[0].length; j++)
+			for (int j = 0; j < level[0].length; j++)
 			{
-				lit[i][j] = false;
+				level[i][j].visible = false;
 			}
 		}
 		
 		for (int octant = 0; octant < 8; ++octant)
 		{
-			ComputeFieldOfViewInOctantZero(lit, octant, seen);
+			ComputeFieldOfViewInOctantZero(level, octant);
 		}
 	}
 
-
-	private void ComputeFieldOfViewInOctantZero(boolean[][] lit, int octant, boolean[][] seen)
+	private void ComputeFieldOfViewInOctantZero(Tile[][] level, int octant)
 	{
 		ArrayDeque<Column> queue = new ArrayDeque<Column>();
 		queue.addFirst(new Column(0, new int[]{1, 0}, new int[]{1, 1}, octant));
@@ -85,10 +65,9 @@ public class Shadow
 					current.getX(),
 					current.getTopVector(),
 					current.getBottomVector(),
-					lit,
 					queue,
 					current.getOctant(),
-					seen);
+					level);
 		}
 	}
 
@@ -100,10 +79,9 @@ public class Shadow
 			int x,
 			int[] topVector,
 			int[] bottomVector,
-			boolean[][] lit,
 			ArrayDeque<Column> queue,
 			int octant,
-			boolean[][] seen)
+			Tile[][] level)
 	{
 		// Search for transitions from opaque to transparent or
 		// transparent to opaque and use those to determine what
@@ -161,16 +139,16 @@ public class Shadow
 				// The current cell is in the field of view.
 				int[] temp = TranslateOctant(new int[]{x,y}, octant);
 				
-				if ((temp[0] < 0) || (temp[1] < 0) || (temp[0] > lit.length) || temp[1] > lit[0].length)
+				if ((temp[0] < 0) || (temp[1] < 0) || (temp[0] > level.length) || temp[1] > level[0].length)
 				{
 					continue;
 				}
 				
-				lit[temp[0]][temp[1]] = true;
+				level[temp[0]][temp[1]].visible = true;
 	
 				
-				if ((!seen[temp[0]][temp[1]]) && (!(GameData.level.checkOpaque(temp[0], temp[1]))))
-				 seen[temp[0]][temp[1]] = true;
+				if ((!level[temp[0]][temp[1]].seen) && (!(GameData.level.checkOpaque(level[temp[0]][temp[1]]))))
+				 level[temp[0]][temp[1]].seen = true;
 			}
 
 			// A cell that was too far away to be seen is effectively
@@ -285,11 +263,10 @@ public class Shadow
 		return pos;
 	}
 
-	
 	private boolean isOpaque(int x, int y, int octant)
 	{
 		int[] pos = TranslateOctant(new int[]{x,y}, octant);
-		return GameData.level.checkOpaque(pos[0], pos[1]);
+		return GameData.level.checkOpaque(GameData.level.getTile(pos[0], pos[1]));
 	}
 }
 

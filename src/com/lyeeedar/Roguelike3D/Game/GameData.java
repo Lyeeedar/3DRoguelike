@@ -244,7 +244,7 @@ public class GameData {
 		changeLevel("start_town");
 	}
 	
-	static String prevLevel;
+	public static String prevLevel;
 	public static void changeLevel(String level)
 	{
 		for (Spell s : spells)
@@ -269,81 +269,11 @@ public class GameData {
 		game.loadLevel(biome, rReader, GameScreen.INGAME);
 	}
 	
-	public static void finishLoading(Level level, LevelGraphics graphics, GameScreen nextScreen)
+	public static void finishLoading(LevelGraphics graphics, GameScreen nextScreen)
 	{
 		System.out.println("Finishing loading.");
 		
-		GameData.level = level;
 		levelGraphics = graphics;
-		
-		for (GameActor ga : level.getActors()) {
-			ga.fixReferences();
-			
-			if (ga.L_HAND != null)
-			{
-				ga.L_HAND.fixReferences();
-			}
-			
-			if (ga.R_HAND != null)
-			{
-				ga.R_HAND.fixReferences();
-			}
-		}
-		
-		for (LevelObject lo : level.getLevelObjects()) {
-			lo.fixReferences();
-		}
-		
-		lightManager.fixReferences();
-		level.fixReferences();
-		
-		for (ParticleEffect pe : level.getParticleEffects())
-		{
-			pe.fixReferences(lightManager);
-		}
-		
-		for (LevelObject lo : level.getLevelObjects())
-		{
-			lo.positionYAbsolutely(lo.getRadius());
-			if (lo instanceof Spawner)
-			{
-				Spawner s = (Spawner) lo;
-				
-				s.spawn(level);
-			}
-			else if (lo instanceof Door)
-			{
-				Door d = (Door) lo;
-				
-				d.orientate(level);
-			}
-			lo.positionYAbsolutely(lo.getRadius());
-		}
-		
-		for (LevelObject lo : level.getLevelObjects())
-		{
-
-			if (lo instanceof PlayerPlacer)
-			{
-				System.out.println("Player placed at Player Placer");
-				if (prevLevel.equals(currentLevel))
-				{
-					Vector3 pos = lo.position.tmp();
-					player.positionAbsolutely(pos.x, pos.y+player.getRadius()+1, pos.z);
-					break;
-				}
-			}
-			else if (lo instanceof Stair)
-			{
-				System.out.println("Player placed at Stair");
-				Stair s = (Stair) lo;
-				
-				if (s.level_UID.equals(prevLevel))
-				{
-					player.positionAbsolutely(s.position.tmp().add(0, s.getPosition().y+s.getRadius()+player.getRadius()+1, 0));
-				}
-			}
-		}
 		
 		game.switchScreen(nextScreen);
 		

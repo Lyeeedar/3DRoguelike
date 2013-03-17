@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Actor;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
@@ -29,48 +30,99 @@ public class AI_Enemy_VFFG extends AI_Package {
 	private static final long serialVersionUID = -1020570810692893435L;
 	public static final float VIEW_NEAR = 0.1f;
 	public static final float VIEW_FAR = 1000f;
+	
+	private final ArrayDeque<int[]> moves = new ArrayDeque<int[]>();
+	
+	private int[] tile = new int[2];
+	
+	private final int violence; private final int flee; private final int feed; private final int guard;
 
-	public AI_Enemy_VFFG(GameActor actor) {
+	public AI_Enemy_VFFG(GameActor actor, int violence, int flee, int feed, int guard) {
 		super(actor);
+		
+		this.violence = violence;
+		this.flee = flee;
+		this.feed = feed;
+		this.guard = guard;
 	}
 
 	private transient float move = 0;
 	@Override
 	public void evaluateAI(float delta) {
 		
-		move = delta * 10f;
+		int x = (int)((actor.getPosition().x / 10) + 0.5f);
+		int y = (int)((actor.getPosition().y / 10) + 0.5f);
 		
-		actor.velocity.y -= GameData.gravity*move*actor.WEIGHT;
-//		
-//		Bag<GameActor> actors = getVisibleActors();
-//		
-//		for (GameActor ga : actors)
-//		{
-//			if (!actor.checkFaction(ga.FACTIONS))
-//			{
-//				double a = angle(actor.getRotation(), actor.getPosition().tmp().sub(ga.getPosition()).nor());
-//
-//				if (Math.abs(a) < delta*100)
-//				{
-//					actor.rotate(0,  1, 0, (float) a);
-//				}
-//				else if (a > 0)
-//				{
-//					actor.rotate(0, 1, 0, -delta*100);
-//				}
-//				else
-//				{
-//					actor.rotate(0, 1, 0, delta*100);
-//				}
-//				
-//				attack();
-//				
-//				actor.forward_backward(move);
-//			}
-//		}
-//		
-//		actor.applyMovement(delta, GameData.gravity*10*(float)actor.WEIGHT);
+		move = GameData.calculateSpeed(actor.WEIGHT, actor.STRENGTH);
+		actor.accelerateY(-GameData.gravity*move*actor.WEIGHT);
+		
+		
+		if (moves.size() == 0)
+		{
+			
+		}
+		else if (moves.getFirst()[0] == x && moves.getFirst()[1] == y)
+		{
+			moves.removeFirst();
+		}
+		else
+		{
+			int[] temp = moves.getFirst();
+			tile[0] = temp[0] * 10;
+			tile[1] = temp[1] * 10;
+			
+			double a = angle(actor.getRotation(), actor.getPosition().tmp().sub(tile[0], 0, tile[1]).nor());
 
+			if (Math.abs(a) < delta*100)
+			{
+				actor.rotate(0,  1, 0, (float) a);
+				actor.forward_backward(move);
+			}
+			else if (a > 0)
+			{
+				actor.rotate(0, 1, 0, -delta*100);
+			}
+			else
+			{
+				actor.rotate(0, 1, 0, delta*100);
+			}
+		}
+		
+		Bag<GameActor> actors = getVisibleActors();
+		
+		for (GameActor ga : actors)
+		{
+			if (!actor.checkFaction(ga.FACTIONS))
+			{
+				double a = angle(actor.getRotation(), actor.getPosition().tmp().sub(ga.getPosition()).nor());
+				float dist = actor.getPosition().dst(ga.getPosition());
+
+				if (Math.abs(a) < 15)
+				{
+					if (actor.L_HAND != null)
+					{
+						actor.L_HAND.released();
+						if (dist <= actor.L_HAND.range)
+						{
+							actor.L_HAND.held();
+						}
+					}
+					
+					if (actor.R_HAND != null)
+					{
+						actor.R_HAND.released();
+						if (dist <= actor.R_HAND.range)
+						{
+							actor.R_HAND.held();
+						}
+					}
+					
+					break;
+				}
+			}
+		}
+		
+		actor.applyMovement(delta, GameData.gravity*10*(float)actor.WEIGHT);
 	}
 	
 	private static final Vector3 up = new Vector3(0, 1, 0);
@@ -85,32 +137,18 @@ public class AI_Enemy_VFFG extends AI_Package {
 		return finalAngle;
 	}
 
-	public void attack()
+	public Bag<GameActor> getVisibleActors()
 	{
-		if (actor.L_HAND != null)
-		{
-			actor.L_HAND.held();
-		}
+		Camera cam = new PerspectiveCamera();
+		cam.position.set(actor.getPosition());
+		cam.direction.set(actor.getRotation());
+		cam.near = VIEW_NEAR;
+		cam.far = VIEW_FAR;
+		cam.update();
 		
-		if (actor.R_HAND != null)
-		{
-			actor.R_HAND.held();
-		}
+		Bag<GameActor> actors = new Bag<GameActor>();
 		
-	}
-
-//	public Bag<GameActor> getVisibleActors()
-//	{
-//		Camera cam = new PerspectiveCamera();
-//		cam.position.set(actor.getPosition());
-//		cam.direction.set(actor.getRotation());
-//		cam.near = VIEW_NEAR;
-//		cam.far = VIEW_FAR;
-//		cam.update();
-//		
-//		Bag<GameActor> actors = new Bag<GameActor>();
-//		
-//		for (GameActor ga : GameData.level.actors)
+//		for (GameActor ga : GameData.level.getActors())
 //		{
 //			if (actor.getPosition().dst2(ga.getPosition()) < VIEW_FAR)
 //			{
@@ -118,7 +156,7 @@ public class AI_Enemy_VFFG extends AI_Package {
 //				if (!GameData.level.checkLevelCollisionRay(ray, ga.getPosition().dst2(actor.getPosition()))) actors.add(ga);
 //			}
 //		}
-//		
-//		return actors;
-//	}
+		
+		return actors;
+	}
 }

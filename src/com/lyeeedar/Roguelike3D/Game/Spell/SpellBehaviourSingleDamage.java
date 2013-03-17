@@ -41,7 +41,7 @@ public class SpellBehaviourSingleDamage implements SpellBehaviour, Serializable 
 		
 		if (!damaged)
 		{
-			GameActor ga = GameData.level.checkActors(spell.getPosition(), spell.getRadius(), spell.casterUID);
+			GameActor ga = GameData.level.collideSphereActorsAll(spell.getPosition().x, spell.getPosition().y, spell.getPosition().z, spell.getRadius(), spell.casterUID);
 			
 			if (ga != null)
 			{

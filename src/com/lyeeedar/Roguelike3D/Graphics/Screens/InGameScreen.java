@@ -56,6 +56,11 @@ public class InGameScreen extends AbstractScreen {
 	Texture crosshairs;
 	Sprite arrow;
 	
+	float time = 0;
+	int particleNum = 0;
+	int drawnParticleNum = 0;
+	ArrayList<ParticleEmitter> visibleEmitters = new ArrayList<ParticleEmitter>();
+	
 	public InGameScreen(Roguelike3DGame game) {
 		super(game);
 	}
@@ -72,37 +77,18 @@ public class InGameScreen extends AbstractScreen {
 			vo.render(renderer);
 		}
 		
-		for (LevelObject lo : GameData.level.getLevelObjects())
-		{	
-			if (!lo.visible) continue;
-			lo.vo.render(renderer);
-		}
+		GameData.level.render(renderer, cam, visibleEmitters);
 		
-		for (GameActor ga : GameData.level.getActors())
-		{
-			ga.draw(renderer);
-			if (!ga.visible) continue;
-			ga.vo.render(renderer);
-		}
 		renderer.end(GameData.lightManager);
 	}
-	
-	float time = 0;
-	int particleNum = 0;
-	int drawnParticleNum = 0;
-	ArrayList<ParticleEmitter> visibleEmitters = new ArrayList<ParticleEmitter>();
+
 	@Override
 	public void drawTransparent(float delta) {
 		particleNum = 0;
-		visibleEmitters.clear();
-		for (ParticleEffect pe : GameData.level.getParticleEffects())
-		{
-			pe.getEmitters(visibleEmitters, cam);
-		}
 		
 		for (Spell s : GameData.spells)
 		{
-			s.particleEffect.getEmitters(visibleEmitters, cam);
+			s.particleEffect.getVisibleEmitters(visibleEmitters, cam);
 		}
 		
 		Collections.sort(visibleEmitters, ParticleEmitter.getComparator());
@@ -114,12 +100,12 @@ public class InGameScreen extends AbstractScreen {
 			p.render();
 		}
 		ParticleEmitter.end();
+		visibleEmitters.clear();
 		
 		time -= delta;
 		if (time < 0)
 		{
 			System.out.println("Java Heap Size: "+Gdx.app.getJavaHeap()/1000000+"mb");
-			System.out.println("Native Heap Size: "+Gdx.app.getNativeHeap()/1000000+"mb");
 			System.out.println("Visible Particles: "+particleNum);
 			System.out.println("Frame Time: "+Gdx.graphics.getRawDeltaTime());
 			time = 1;
@@ -226,21 +212,7 @@ public class InGameScreen extends AbstractScreen {
 		activateCD -= delta;
 		if (!paused)
 		{
-			for (LevelObject lo : GameData.level.getLevelObjects())
-			{
-				lo.update(delta);
-			}
-			
-			for (GameActor ga : GameData.level.getActors())
-			{
-				ga.update(delta);
-			}
-			
-			for (ParticleEffect pe : GameData.level.getParticleEffects())
-			{
-				if (!cam.frustum.sphereInFrustum(pe.getPos(), pe.getRadius()*2)) continue;
-				pe.update(delta, cam);
-			}
+			GameData.level.update(delta, cam);
 			
 			Iterator<Spell> spells = GameData.spells.iterator();
 			while (spells.hasNext())
@@ -252,8 +224,8 @@ public class InGameScreen extends AbstractScreen {
 			}
 			
 			if (GameData.player == null) return;
-			cam.position.set(GameData.player.getPosition()).add(GameData.player.offsetPos);
-			cam.direction.set(GameData.player.getRotation()).add(GameData.player.offsetRot);
+			cam.position.set(GameData.player.getPosition()).add(GameData.player.getOffsetPos());
+			cam.direction.set(GameData.player.getRotation()).add(GameData.player.getOffsetRot());
 			cam.update();
 		}
 		
@@ -300,115 +272,114 @@ public class InGameScreen extends AbstractScreen {
 			
 			activatePrompt = null;
 		}
-		else
-		{	
-			ray.origin.set(GameData.player.getPosition());
-			ray.direction.set(GameData.player.getRotation());
-			dist = VIEW_DISTANCE;
-			
-			activatePrompt = getActivatePrompt(dist, ray);
-		}
-		
-		getDescription(dist, ray, paused);
-		
-		if (!paused && GameData.controls.getActivate() && activateCD < 0)
-		{
-			ray.origin.set(GameData.player.getPosition());
-			ray.direction.set(GameData.player.getRotation());
-			dist = ACTIVATE_DISTANCE;
-			
-			GameObject go = GameData.level.getClosestActor(ray, dist, GameData.player.UID, tmpVec);
-			
-			if (go != null)
-			{			
-				System.out.println("actor collision");
-				dist = tmpVec.dst2(ray.origin);
-			}
-
-			GameObject go2 = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
-			
-			if (go2 != null) 
-			{
-				if (go != null)	go.activate();
-				else go2.activate();
-			}
-			else
-			{
-				if (go != null)	go.activate();
-			}
-			
-			activateCD = 1;
-		}
+//		else
+//		{	
+//			ray.origin.set(GameData.player.getPosition());
+//			ray.direction.set(GameData.player.getRotation());
+//			dist = VIEW_DISTANCE;
+//			
+//			activatePrompt = getActivatePrompt(dist, ray);
+//		}
+//		
+//		getDescription(dist, ray, paused);
+//		
+//		if (!paused && GameData.controls.getActivate() && activateCD < 0)
+//		{
+//			ray.origin.set(GameData.player.getPosition());
+//			ray.direction.set(GameData.player.getRotation());
+//			dist = ACTIVATE_DISTANCE;
+//			
+//			GameObject go = GameData.level.getClosestActor(ray, dist, GameData.player.UID, tmpVec);
+//			
+//			if (go != null)
+//			{			
+//				System.out.println("actor collision");
+//				dist = tmpVec.dst2(ray.origin);
+//			}
+//
+//			GameObject go2 = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
+//			
+//			if (go2 != null) 
+//			{
+//				if (go != null)	go.activate();
+//				else go2.activate();
+//			}
+//			else
+//			{
+//				if (go != null)	go.activate();
+//			}
+//			
+//			activateCD = 1;
+//		}
 		
 		stage.act(delta);
 	}
 	
-	final Vector3 tmpVec = new Vector3();
-	public void getDescription(float dist, Ray ray, boolean longDesc)
-	{
-		desc.delete(0, desc.length());
-		desc.append("There is nothing there but empty space.");
-		
-		GameObject go = GameData.level.getClosestActor(ray, dist, GameData.player.UID, tmpVec);
-		
-		if (go != null)
-		{
-			desc.delete(0, desc.length());
-			if (longDesc) {
-				desc.append(go.longDesc);
-			}
-			else
-			{
-				desc.append(go.shortDesc);
-			}
-			
-			dist = tmpVec.dst2(ray.origin);
-		}
-
-		go = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
-		
-		if (go != null)
-		{
-			desc.delete(0, desc.length());
-			if (longDesc) {
-				desc.append(go.longDesc);
-			}
-			else
-			{
-				desc.append(go.shortDesc);
-			}
-			
-			dist = tmpVec.dst2(ray.origin);
-		}
-		
-		dist = GameData.level.getDescription(ray, dist, desc, paused);
-	}
-	
-	public String getActivatePrompt(float dist, Ray ray)
-	{
-		String desc = null;
-		
-		GameObject go = GameData.level.getClosestActor(ray, dist, GameData.player.UID, tmpVec);
-		
-		if (go != null)
-		{
-
-			desc = go.getActivatePrompt();
-			
-			dist = tmpVec.dst2(ray.origin);
-		}
-
-		go = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
-		
-		if (go != null)
-		{
-			desc = go.getActivatePrompt();
-			
-			dist = tmpVec.dst2(ray.origin);
-		}
-		
-		return desc;
-	}
+//	public void getDescription(float dist, Ray ray, boolean longDesc)
+//	{
+//		desc.delete(0, desc.length());
+//		desc.append("There is nothing there but empty space.");
+//		
+//		GameObject go = GameData.level.getClosestActor(ray, dist, GameData.player.UID, tmpVec);
+//		
+//		if (go != null)
+//		{
+//			desc.delete(0, desc.length());
+//			if (longDesc) {
+//				desc.append(go.getRadius());
+//			}
+//			else
+//			{
+//				desc.append(go.getShortDesc());
+//			}
+//			
+//			dist = tmpVec.dst2(ray.origin);
+//		}
+//
+//		go = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
+//		
+//		if (go != null)
+//		{
+//			desc.delete(0, desc.length());
+//			if (longDesc) {
+//				desc.append(go.getRadius());
+//			}
+//			else
+//			{
+//				desc.append(go.getShortDesc());
+//			}
+//			
+//			dist = tmpVec.dst2(ray.origin);
+//		}
+//		
+//		dist = GameData.level.getDescription(ray, dist, desc, paused);
+//	}
+//	
+//	public String getActivatePrompt(float dist, Ray ray)
+//	{
+//		String desc = null;
+//		
+//		GameObject go = GameData.level.getClosestActor(ray, dist, GameData.player.UID, tmpVec);
+//		
+//		if (go != null)
+//		{
+//
+//			desc = go.getActivatePrompt();
+//			
+//			dist = tmpVec.dst2(ray.origin);
+//		}
+//
+//		go = GameData.level.getClosestLevelObject(ray, dist, GameData.player.UID, tmpVec);
+//		
+//		if (go != null)
+//		{
+//			desc = go.getActivatePrompt();
+//			
+//			dist = tmpVec.dst2(ray.origin);
+//		}
+//		
+//		return desc;
+//	}
 
 	Table table;
 	@Override

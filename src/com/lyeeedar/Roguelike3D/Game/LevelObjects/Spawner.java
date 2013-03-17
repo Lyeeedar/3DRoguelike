@@ -16,6 +16,7 @@ import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.MonsterEvolver;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class Spawner extends LevelObject {
@@ -48,19 +49,15 @@ public class Spawner extends LevelObject {
 		this.monsterUID = me.UID;
 	}
 
-	@Override
-	public void fixReferencesSuper() {
-		me = GameData.getCurrentLevelContainer().getMonsterEvolver(type, monsterUID);
-	}
-
-	public void spawn(Level level)
+	public void spawn(Level level, LightManager lightManager)
 	{
 		GameActor creature = me.getMonster(difficulty, level);
 		creature.create();
 		creature.positionAbsolutely(getPosition().x, getPosition().y+getRadius()+creature.getRadius()+1, getPosition().z);
-		level.addActor(creature);
+		level.addGameActor(creature);
+		creature.getLight(lightManager);
 		
-		creature.vo.bakeLights(GameData.lightManager, false);
+		creature.bakeLights(lightManager, false);
 		
 		if (creature.L_HAND != null) creature.L_HAND.model.bakeLight(GameData.lightManager, false);
 		if (creature.R_HAND != null) creature.R_HAND.model.bakeLight(GameData.lightManager, false);
@@ -68,6 +65,7 @@ public class Spawner extends LevelObject {
 	
 	@Override
 	public void update(float delta) {
+		positionYAbsolutely(getRadius());
 	}
 
 	@Override
@@ -85,6 +83,17 @@ public class Spawner extends LevelObject {
 
 	@Override
 	protected void disposed() {
+	}
+
+	@Override
+	public void fixReferences() {
+		me = GameData.getCurrentLevelContainer().getMonsterEvolver(type, monsterUID);
+	}
+
+	@Override
+	protected void created() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

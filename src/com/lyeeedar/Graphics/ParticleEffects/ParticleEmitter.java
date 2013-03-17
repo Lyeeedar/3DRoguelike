@@ -40,7 +40,7 @@ import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
 import com.lyeeedar.Utils.FileUtils;
 
-public class ParticleEmitter implements Serializable{
+public class ParticleEmitter implements Serializable {
 
 	private transient static final int VERTEX_SIZE = 9;
 
@@ -336,7 +336,7 @@ public class ParticleEmitter implements Serializable{
 		this.lightz = z;
 	}
 
-	public void create(LightManager lightManager) {
+	public void create() {
 
 		if (shader == null)
 		{
@@ -353,11 +353,9 @@ public class ParticleEmitter implements Serializable{
 		calculateRadius();
 		reloadParticles();
 		reloadTextures();
-		reloadLight(lightManager);
-
 	}
 	
-	public void reloadLight(LightManager lightManager)
+	public void getLight(LightManager lightManager)
 	{
 		if (lightColour == null) return;
 		
@@ -368,8 +366,8 @@ public class ParticleEmitter implements Serializable{
 
 			light = null;
 		}
-
-		light = new PointLight(new Vector3(lightx+(ex/2f), lighty+ey, lightz+(ez/2)), lightColour, lightAttenuation, lightPower);
+		
+		light = new PointLight(new Vector3(lightx+(ex/2f), lighty+ey, lightz+(ez/2)), lightColour.cpy(), lightAttenuation, lightPower);
 		lightUID = light.UID;
 
 		if (isLightStatic) lightManager.addStaticLight(light);
@@ -450,15 +448,6 @@ public class ParticleEmitter implements Serializable{
 	{
 		if (mesh != null) mesh.dispose();
 		mesh = null;
-	}
-
-	public void delete()
-	{
-	}
-
-	public void fixReferences(LightManager lightManager)
-	{
-		create(lightManager);
 	}
 
 	public short[] genIndices(int faces)

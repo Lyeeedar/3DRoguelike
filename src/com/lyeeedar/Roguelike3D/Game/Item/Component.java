@@ -131,10 +131,4 @@ public class Component extends Item {
 				"--------------------"
 				;
 	}
-
-	@Override
-	public void fixReferences() {
-		createIcon();
-	}
-
 }

@@ -85,13 +85,13 @@ public abstract class Equipment_HAND extends Equippable{
 		{
 			weapon = new MeleeWeapon(MeleeWeapon.convertWeaponStyle(styleString),  
 					weight, strength, ele_dam, dam_dam,
-					attack_speed, two_handed, model);
+					attack_speed, two_handed, range, model);
 		}
 		else if (type == WeaponType.RANGED)
 		{
 			weapon = new RangedWeapon(RangedWeapon.convertWeaponStyle(styleString),  
 					weight, strength, ele_dam, dam_dam,
-					attack_speed, two_handed, model);
+					attack_speed, two_handed, range, model);
 		}
 		
 		return weapon;
@@ -102,6 +102,7 @@ public abstract class Equipment_HAND extends Equippable{
 	public final int strength;
 	public final HashMap<Element, Integer> ele_dam;
 	public final HashMap<Damage_Type, Integer> dam_dam;
+	public final int range;
 	
 	private transient GameActor holder;
 	/**
@@ -110,8 +111,6 @@ public abstract class Equipment_HAND extends Equippable{
 	public GameActor getHolder() {
 		return holder;
 	}
-
-	public String holderUID;
 	/**
 	 * 0 = none
 	 * 1 = left
@@ -125,7 +124,7 @@ public abstract class Equipment_HAND extends Equippable{
 	
 	public Equipment_HAND(float WEIGHT, int strength, 
 			HashMap<Element, Integer> ele_dam, HashMap<Damage_Type, Integer> dam_dam,
-			float attack_speed, boolean two_handed, RiggedModel model) {
+			float attack_speed, boolean two_handed, int range, RiggedModel model) {
 		super(WEIGHT, Item_Type.WEAPON);
 		
 		this.model = model;
@@ -134,6 +133,7 @@ public abstract class Equipment_HAND extends Equippable{
 		this.ele_dam = ele_dam;
 		this.dam_dam = dam_dam;
 		this.attack_speed = attack_speed;
+		this.range = range;
 	}
 	
 	public void damage(GameActor ga)
@@ -146,7 +146,6 @@ public abstract class Equipment_HAND extends Equippable{
 	{
 		System.out.println("Unequipping");
 		holder = null;
-		holderUID = null;
 		equippedSide = 0;
 		unequipped();
 	}
@@ -182,7 +181,6 @@ public abstract class Equipment_HAND extends Equippable{
 		}
 		
 		holder = actor;
-		holderUID = holder.UID;
 		equippedSide = side;
 		
 		model.equip(actor, side);	
@@ -218,7 +216,7 @@ public abstract class Equipment_HAND extends Equippable{
 	public void update(float delta)
 	{
 		model.update(delta, holder);
-		model.composeMatrixes(tmp.set(holder.vo.attributes.getTransform()).mul(holder.vo.attributes.getRotation()));
+		model.composeMatrixes(tmp.set(holder.getTransform()).mul(holder.getRotationMatrix()));
 		
 		useCD -= delta;
 		updated(delta);
@@ -230,12 +228,9 @@ public abstract class Equipment_HAND extends Equippable{
 		model.create();
 	}
 	
-	public void fixReferences()
+	public void fixReferences(GameActor actor)
 	{
-		if (holderUID != null)
-		{
-			holder = GameData.level.getActor(holderUID);
-		}
+		holder = actor;
 		
 		model.fixReferences();
 		

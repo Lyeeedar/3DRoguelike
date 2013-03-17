@@ -14,6 +14,7 @@ import java.util.HashMap;
 
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
+import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 
 public class Equipment_BODY extends Equipment_ARMOUR {
 
@@ -27,7 +28,7 @@ public class Equipment_BODY extends Equipment_ARMOUR {
 	}
 
 	@Override
-	public void fixReferences() {
+	public void fixReferences(GameActor actor) {
 	}
 
 }

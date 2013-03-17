@@ -14,5 +14,4 @@ public class Enemy extends GameActor {
 			float scale, int primitive_type, String... model) {
 		super(colour, texture, x, y, z, scale, primitive_type, model);
 	}
-
 }

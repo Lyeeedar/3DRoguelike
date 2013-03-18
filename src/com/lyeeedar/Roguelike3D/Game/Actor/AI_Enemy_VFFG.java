@@ -19,8 +19,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.lyeeedar.Roguelike3D.Bag;
+import com.badlogic.gdx.utils.Pools;
 import com.lyeeedar.Roguelike3D.Game.GameData;
+import com.lyeeedar.Utils.Bag;
 
 public class AI_Enemy_VFFG extends AI_Package {
 	
@@ -49,13 +50,13 @@ public class AI_Enemy_VFFG extends AI_Package {
 	private transient float move = 0;
 	@Override
 	public void evaluateAI(float delta) {
+		Vector3 tmp = Pools.obtain(Vector3.class);
 		
-		int x = (int)((actor.getPosition().x / 10) + 0.5f);
-		int y = (int)((actor.getPosition().y / 10) + 0.5f);
+		int x = (int)((actor.position.x / 10) + 0.5f);
+		int y = (int)((actor.position.y / 10) + 0.5f);
 		
 		move = GameData.calculateSpeed(actor.WEIGHT, actor.STRENGTH);
-		actor.accelerateY(-GameData.gravity*move*actor.WEIGHT);
-		
+		actor.velocity.add(0, -GameData.gravity*move*actor.WEIGHT, 0);
 		
 		if (moves.size() == 0)
 		{
@@ -71,7 +72,7 @@ public class AI_Enemy_VFFG extends AI_Package {
 			tile[0] = temp[0] * 10;
 			tile[1] = temp[1] * 10;
 			
-			double a = angle(actor.getRotation(), actor.getPosition().tmp().sub(tile[0], 0, tile[1]).nor());
+			double a = angle(actor.rotation, tmp.set(actor.position).sub(tile[0], 0, tile[1]).nor());
 
 			if (Math.abs(a) < delta*100)
 			{
@@ -94,8 +95,8 @@ public class AI_Enemy_VFFG extends AI_Package {
 		{
 			if (!actor.checkFaction(ga.FACTIONS))
 			{
-				double a = angle(actor.getRotation(), actor.getPosition().tmp().sub(ga.getPosition()).nor());
-				float dist = actor.getPosition().dst(ga.getPosition());
+				double a = angle(actor.rotation, tmp.set(actor.position).sub(ga.position).nor());
+				float dist = actor.position.dst(ga.position);
 
 				if (Math.abs(a) < 15)
 				{
@@ -122,6 +123,7 @@ public class AI_Enemy_VFFG extends AI_Package {
 			}
 		}
 		
+		Pools.free(tmp);
 		actor.applyMovement(delta, GameData.gravity*10*(float)actor.WEIGHT);
 	}
 	
@@ -140,8 +142,8 @@ public class AI_Enemy_VFFG extends AI_Package {
 	public Bag<GameActor> getVisibleActors()
 	{
 		Camera cam = new PerspectiveCamera();
-		cam.position.set(actor.getPosition());
-		cam.direction.set(actor.getRotation());
+		cam.position.set(actor.position);
+		cam.direction.set(actor.rotation);
 		cam.near = VIEW_NEAR;
 		cam.far = VIEW_FAR;
 		cam.update();

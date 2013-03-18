@@ -14,9 +14,6 @@ import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
-import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public class RiggedModelNode implements Serializable
@@ -28,32 +25,25 @@ public class RiggedModelNode implements Serializable
 	public final RiggedSubMesh[] submeshes;
 	public final int[] submeshMaterials;
 	public transient Matrix4[] meshMatrixes;
-	
-	public final Matrix4 position;
-	public final Matrix4 rotation;
-	
-	public transient Matrix4 offsetPosition = new Matrix4();
-	public transient Matrix4 offsetRotation = new Matrix4();
-	
 	public RiggedModelNode[] childNodes;
 	public transient RiggedModelNode parent;
+	public RiggedModelBehaviour behaviour;
+	public ParticleEffect particleEffect;
+	public final String ID;
 	
 	public float radius;
-	public float renderRadius;
-	
+	public float renderRadius;	
 	public final float rigidity;
-	
-	public transient Matrix4 composedMatrix = new Matrix4();
-	
-	public RiggedModelBehaviour behaviour;
-	
 	public final boolean collidable;
+
+	public final Matrix4 position;
+	public final Matrix4 rotation;
+	public final Matrix4 offsetPosition = new Matrix4();
+	public final Matrix4 offsetRotation = new Matrix4();
 	
+	public transient Matrix4 composedMatrix;
+
 	public boolean collideMode = false;
-	
-	public ParticleEffect particleEffect;
-	
-	public final String ID;
 	
 	public RiggedModelNode(String ID, RiggedSubMesh[] submeshes, int[] submeshMaterials, Matrix4 position, Matrix4 rotation, int rigidity, boolean collidable)
 	{
@@ -242,16 +232,12 @@ public class RiggedModelNode implements Serializable
 	
 	public void create()
 	{
-		offsetPosition = new Matrix4();
-		offsetRotation = new Matrix4();
-		
-		composedMatrix = new Matrix4();
-		
+		composedMatrix = Pools.obtain(Matrix4.class).idt();
 		meshMatrixes = new Matrix4[submeshes.length];
 		
 		for (int i = 0; i < meshMatrixes.length; i++)
 		{
-			meshMatrixes[i] = new Matrix4();
+			meshMatrixes[i] = Pools.obtain(Matrix4.class).idt();
 		}
 		
 		for (RiggedSubMesh rsm : submeshes)
@@ -283,19 +269,6 @@ public class RiggedModelNode implements Serializable
 		
 	}
 	
-	public void getLight(LightManager lightManager)
-	{
-		if (particleEffect != null)
-		{
-			particleEffect.getLight(lightManager);
-		}
-		
-		for (RiggedModelNode rmn : childNodes)
-		{
-			rmn.getLight(lightManager);
-		}
-	}
-	
 	public void fixReferences()
 	{
 		for (RiggedModelNode rmn : childNodes)
@@ -307,6 +280,14 @@ public class RiggedModelNode implements Serializable
 	
 	public void dispose()
 	{
+		Pools.free(composedMatrix);
+		composedMatrix = null;
+		for (int i = 0; i < meshMatrixes.length; i++)
+		{
+			Pools.free(meshMatrixes[i]);
+			meshMatrixes[i] = null;
+		}
+		
 		for (RiggedSubMesh rsm : submeshes)
 		{
 			rsm.dispose();
@@ -318,6 +299,19 @@ public class RiggedModelNode implements Serializable
 		}
 		
 		if (particleEffect!= null) particleEffect.dispose();
+	}
+	
+	public void getLight(LightManager lightManager)
+	{
+		if (particleEffect != null)
+		{
+			particleEffect.getLight(lightManager);
+		}
+		
+		for (RiggedModelNode rmn : childNodes)
+		{
+			rmn.getLight(lightManager);
+		}
 	}
 	
 	public void bakeLight(LightManager lights, boolean bakeStatics)

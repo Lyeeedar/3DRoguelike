@@ -10,39 +10,28 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.OrderedMap;
-import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
+import com.lyeeedar.Utils.Bag;
 
 public class ParticleEffect implements Serializable {
-	private transient Vector3 pos;
 
 	private static final long serialVersionUID = -5746609278217754852L;
 	
 	public final String UID;
 	
-	private Bag<Emitter> emitters = new Bag<Emitter>();
+	public final Bag<Emitter> emitters = new Bag<Emitter>();
 	
-	private float x, y, z;
-	private float radius;
+	public float x, y, z;
+	public float radius;
 	
 	public ParticleEffect() {
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
-		
 	}
 
 	public ParticleEffect(float radius) {
 		
 		this.UID = this.toString()+this.hashCode()+System.currentTimeMillis()+System.nanoTime();
-		
 		this.radius = radius;
-	}
-	
-	public float getRadius() {
-		return radius;
-	}
-	
-	public Vector3 getPos() {
-		return pos.set(x, y, z);
 	}
 	
 	public void setPosition(Vector3 pos) {
@@ -169,10 +158,6 @@ public class ParticleEffect implements Serializable {
 		{
 			e.emitter.getLight(lightManager);
 		}
-	}
-	
-	public void fixReferences() {
-		pos = new Vector3();
 	}
 	
 	public void create()

@@ -11,14 +11,12 @@
 package com.lyeeedar.Roguelike3D.Graphics.Lights;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Pools;
+import com.lyeeedar.Utils.Bag;
 
 public class LightManager implements Serializable {
 	
@@ -45,16 +43,17 @@ public class LightManager implements Serializable {
 
 	public LightQuality quality;
 
-	final public ArrayList<PointLight> dynamicPointLights = new ArrayList<PointLight>(maxLights);
-	final public ArrayList<PointLight> staticPointLights = new ArrayList<PointLight>(maxLights);
+	public final Bag<PointLight> dynamicPointLights = new Bag<PointLight>(maxLights);
+	public final Bag<PointLight> staticPointLights = new Bag<PointLight>(maxLights);
 	private transient float[] positions;
 	private transient float[] colors;
 	private transient float[] attenuations;
 	private transient float[] powers;
+	private transient int i;
 
 	public int maxLightsPerModel;
-	private final Color ambientLight = new Color();
-	private final Vector3 ambientDir = new Vector3();
+	public final Color ambientLight = new Color();
+	public final Vector3 ambientDir = new Vector3();
 
 	public LightManager (int maxLightsPerModel, LightQuality lightQuality) {
 		quality = lightQuality;
@@ -114,17 +113,13 @@ public class LightManager implements Serializable {
 		dynamicPointLights.add(light);
 	}
 	
-	/**
-	 * Add a static light to the scene. WARNING!!! You need to rebake the lights ({@link com.lyeeedar.Roguelike3D.Graphics.Models.VisibleObject#bakeLights(LightManager lights, boolean bakeStatics) VisibleObject.bakeLights}) for this to take any effect
-	 * @param light
-	 */
 	public void addStaticLight (PointLight light) {
 		staticPointLights.add(light);
 	}
 	
 	public void removeDynamicLight(String UID)
 	{
-		for (int i = 0; i < dynamicPointLights.size(); i++)
+		for (int i = 0; i < dynamicPointLights.size; i++)
 		{
 			if (dynamicPointLights.get(i).UID.equals(UID))
 			{
@@ -135,7 +130,7 @@ public class LightManager implements Serializable {
 	}
 	
 	public void removeStaticLight(String UID) {
-		for (int i = 0; i < staticPointLights.size(); i++)
+		for (int i = 0; i < staticPointLights.size; i++)
 		{
 			if (staticPointLights.get(i).UID.equals(UID))
 			{
@@ -152,7 +147,7 @@ public class LightManager implements Serializable {
 	
 	public void updateLightNum(int val)
 	{
-		if (val < 0) val = 0;
+		if (val < 1) val = 1;
 		
 		maxLightsPerModel = val;
 		
@@ -162,26 +157,23 @@ public class LightManager implements Serializable {
 		powers = new float[maxLightsPerModel];
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void calculateDynamicLights (float x, float y, float z) {
 		if (maxLightsPerModel == 0) return;
 		
-		final int maxSize = dynamicPointLights.size();
-		// solve the lights that influence most
+		final int maxSize = dynamicPointLights.size;
+		
 		if (maxSize > maxLightsPerModel) {
 
-			for (int i = 0; i < maxSize; i++) {
+			for (i = 0; i < maxSize; i++) {
 				final PointLight light = dynamicPointLights.get(i);
 				light.priority = (int)(PointLight.PRIORITY_DISCRETE_STEPS * light.position.dst(x, y, z));
-				// if just linear falloff
 			}
-			
-			Collections.sort(dynamicPointLights);
+			dynamicPointLights.sort();
 		}
 
 		// fill the light arrays
 		final int size = maxLightsPerModel > maxSize ? maxSize : maxLightsPerModel;
-		for (int i = 0; i < size; i++) {
+		for (i = 0; i < size; i++) {
 			final PointLight light = dynamicPointLights.get(i);
 			final Vector3 pos = light.position;
 

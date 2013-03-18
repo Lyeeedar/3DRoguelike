@@ -57,7 +57,7 @@ public class Spawner extends LevelObject {
 	{
 		GameActor creature = me.getMonster(difficulty, level);
 		creature.create();
-		creature.positionAbsolutely(getPosition().x, getPosition().y+getRadius()+creature.getRadius()+1, getPosition().z);
+		creature.positionAbsolutely(position.x, position.y+radius+creature.radius+1, position.z);
 		level.addGameActor(creature);
 		creature.getLight(lightManager);
 		
@@ -73,7 +73,7 @@ public class Spawner extends LevelObject {
 		{
 			particleEffect.update(delta, cam);
 		}
-		positionYAbsolutely(getRadius());
+		positionYAbsolutely(radius);
 	}
 
 	@Override

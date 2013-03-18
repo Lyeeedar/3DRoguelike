@@ -15,11 +15,10 @@ import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.utils.Pools;
 import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
@@ -30,6 +29,7 @@ import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
+import com.lyeeedar.Utils.Bag;
 
 
 public class Level implements Serializable {
@@ -40,31 +40,27 @@ public class Level implements Serializable {
 
 	public static final String MONSTER_TYPE = "monster_type";
 	
-	Tile[][] levelArray;
-	int bx; int bz;
+	public final Tile[][] levelArray;
+	private int bx; private int bz;
+	private int tx; private int tz;
+	private float radius2;
 	
-	Tile[][] block = new Tile[3][3];
+	private final Tile[][] block = new Tile[3][3];
 	
-	HashMap<Character, String> shortDescs = new HashMap<Character, String>();
-	HashMap<Character, String> longDescs = new HashMap<Character, String>();
+	public final HashMap<Character, String> shortDescs = new HashMap<Character, String>();
+	public final HashMap<Character, String> longDescs = new HashMap<Character, String>();
 	
-	HashMap<Character, Color> colours = new HashMap<Character, Color>();
-	Bag<Character> opaques = new Bag<Character>();
-	Bag<Character> solids = new Bag<Character>();
+	public final HashMap<Character, Color> colours = new HashMap<Character, Color>();
+	public final Bag<Character> opaques = new Bag<Character>();
+	public final Bag<Character> solids = new Bag<Character>();
 	
-	private transient Bag<DungeonRoom> rooms;
+	private transient final Bag<DungeonRoom> rooms;
 
-	public int width;
-	public int height;
-	
-	public GeneratorType gtype;
-	
-	public boolean hasRoof;
-	public int depth;
-	
-	private transient float tempdist2 = 0;
-	private final Vector3 tmpVec = new Vector3();
-	private final Vector3 tmpVec2 = new Vector3();
+	public final int width;
+	public final int height;
+	public final boolean hasRoof;
+	public final int depth;
+	public final GeneratorType gtype;
 	
 	public Level(int width, int height, GeneratorType gtype, BiomeReader biome, boolean hasRoof, int depth, int up, int down)
 	{
@@ -108,7 +104,7 @@ public class Level implements Serializable {
 	
 	public boolean fillRoom(RoomReader rReader, LevelContainer lc)
 	{
-		if (rooms.size() == 0)
+		if (rooms.size == 0)
 		{
 			return true;
 		}
@@ -170,8 +166,8 @@ public class Level implements Serializable {
 	
 			if (lo != null)
 			{
-				lo.setShortDesc(ao.shortDesc);
-				lo.setLongDesc(ao.longDesc);
+				lo.shortDesc = ao.shortDesc;
+				lo.longDesc = ao.longDesc;
 				addLevelObject(lo);
 			}
 			else
@@ -187,7 +183,7 @@ public class Level implements Serializable {
 	
 	public void addLevelObject(LevelObject lo)
 	{
-		Tile tile = getTile(lo.getPosition().x, lo.getPosition().z);
+		Tile tile = getTile(lo.position.x, lo.position.z);
 		if (tile == null) return;
 		
 		tile.levelObjects.add(lo);
@@ -195,7 +191,7 @@ public class Level implements Serializable {
 	
 	public void addGameActor(GameActor ga)
 	{
-		Tile tile = getTile(ga.getPosition().x, ga.getPosition().z);
+		Tile tile = getTile(ga.position.x, ga.position.z);
 		if (tile == null) return;
 		
 		tile.actors.add(ga);
@@ -203,7 +199,7 @@ public class Level implements Serializable {
 	
 	public void removeLevelObject(LevelObject lo)
 	{
-		Tile tile = getTile(lo.getPosition().x, lo.getPosition().z);
+		Tile tile = getTile(lo.position.x, lo.position.z);
 		if (tile == null) return;
 		
 		tile.removeLevelObject(lo.UID);
@@ -211,7 +207,7 @@ public class Level implements Serializable {
 	
 	public void removeGameActor(GameActor ga)
 	{
-		Tile tile = getTile(ga.getPosition().x, ga.getPosition().z);
+		Tile tile = getTile(ga.position.x, ga.position.z);
 		if (tile == null) return;
 		
 		tile.removeGameActor(ga.UID);
@@ -336,8 +332,8 @@ public class Level implements Serializable {
 	
 	public float getDescription(Ray ray, float view, StringBuilder sB, boolean longDesc)
 	{
-		Vector3 pos = tmpVec.set(ray.origin);
-		Vector3 step = tmpVec2.set(ray.direction).mul(VIEW_STEP);
+		Vector3 pos = Pools.obtain(Vector3.class).set(ray.origin);
+		Vector3 step = Pools.obtain(Vector3.class).set(ray.direction).mul(VIEW_STEP);
 		
 		float dist = 0;
 		
@@ -386,6 +382,9 @@ public class Level implements Serializable {
 			}
 		}
 		
+		Pools.free(pos);
+		Pools.free(step);
+		
 		return dist*dist;
 	}
 	
@@ -398,10 +397,10 @@ public class Level implements Serializable {
 //		{
 //			if (go.UID.equals(ignoreUID)) continue;
 //			
-//			if (p1.dst2(go.getPosition()) < go.getRadius()*go.getRadius()) return go;
-//			if (p2.dst2(go.getPosition()) < go.getRadius()*go.getRadius()) return go;
+//			if (p1.dst2(go.position) < go.radius*go.radius) return go;
+//			if (p2.dst2(go.position) < go.radius*go.radius) return go;
 //
-//			if (Intersector.intersectRaySphere(ray, go.getTruePosition(), go.getRadius(), tmpVec)) 
+//			if (Intersector.intersectRaySphere(ray, go.getTruePosition(), go.radius, tmpVec)) 
 //			{
 //				tempdist2 = tmpVec.dst2(ray.origin);
 //				if (tempdist2 > dist2) continue;
@@ -424,7 +423,7 @@ public class Level implements Serializable {
 //		{
 //			if (go.UID.equals(ignoreUID)) continue;
 //
-//			if (Intersector.intersectRaySphere(ray, go.getTruePosition(), go.getRadius(), tmpVec)) 
+//			if (Intersector.intersectRaySphere(ray, go.getTruePosition(), go.radius, tmpVec)) 
 //			{
 //				tempdist2 = tmpVec.dst2(ray.origin);
 //				if (tempdist2 > dist2) continue;
@@ -442,10 +441,11 @@ public class Level implements Serializable {
 	
 	public boolean collideRayLevel(Ray ray, float view)
 	{
-		Vector3 pos = tmpVec.set(ray.origin);
-		Vector3 step = tmpVec2.set(ray.direction).mul(VIEW_STEP);
+		Vector3 pos = Pools.obtain(Vector3.class).set(ray.origin);
+		Vector3 step = Pools.obtain(Vector3.class).set(ray.direction).mul(VIEW_STEP);
 		
 		float dist = 0;
+		boolean collide = false;
 		
 		for (int i = 0; i < view; i += VIEW_STEP)
 		{
@@ -460,14 +460,19 @@ public class Level implements Serializable {
 			
 			if (pos.y < t.height)
 			{
-				return true;
+				collide = true;
+				break;
 			}
 			else if (hasRoof && pos.y > t.roof)
 			{
-				return true;
+				collide = true;
+				break;
 			}
 		}
-		return false;
+		
+		Pools.free(pos);
+		Pools.free(step);
+		return collide;
 	}
 	
 	public boolean collideSphereAll(float x, float y, float z, float radius, String UID)
@@ -518,10 +523,10 @@ public class Level implements Serializable {
 	
 	public LevelObject collideSphereLevelObjectsAll(float x, float y, float z, float radius)
 	{
-		int tx = (int)((x/10f)+0.5f);
-		int tz = (int)((z/10f)+0.5f);
-		float radius2 = radius * radius;
-		Tile[][] block = getBlock(tx, tz);
+		tx = (int)((x/10f)+0.5f);
+		tz = (int)((z/10f)+0.5f);
+		radius2 = radius * radius;
+		final Tile[][] block = getBlock(tx, tz);
 		
 		LevelObject lo = null;
 		
@@ -559,18 +564,18 @@ public class Level implements Serializable {
 	{
 		for (LevelObject lo : tile.levelObjects)
 		{
-			if (!lo.isSolid()) continue;
-			if (lo.getPosition().dst2(x, y, z) <= radius2+(lo.getRadius()*lo.getRadius())) return lo;
+			if (!lo.solid) continue;
+			if (lo.position.dst2(x, y, z) <= radius2+(lo.radius*lo.radius)) return lo;
 		}	
 		return null;
 	}
 	
 	public GameActor collideSphereActorsAll(float x, float y, float z, float radius, String UID)
 	{
-		int tx = (int)((x/10f)+0.5f);
-		int tz = (int)((z/10f)+0.5f);
-		float radius2 = radius * radius;
-		Tile[][] block = getBlock(tx, tz);
+		tx = (int)((x/10f)+0.5f);
+		tz = (int)((z/10f)+0.5f);
+		radius2 = radius * radius;
+		final Tile[][] block = getBlock(tx, tz);
 		
 		GameActor ga = null;
 		
@@ -606,9 +611,9 @@ public class Level implements Serializable {
 	
 	public GameActor collideBoxActorsAll(float x, float y, float z, Vector3 box, String UID)
 	{
-		int tx = (int)((x/10f)+0.5f);
-		int tz = (int)((z/10f)+0.5f);
-		Tile[][] block = getBlock(tx, tz);
+		tx = (int)((x/10f)+0.5f);
+		tz = (int)((z/10f)+0.5f);
+		final Tile[][] block = getBlock(tx, tz);
 		
 		GameActor ga = null;
 		
@@ -646,13 +651,13 @@ public class Level implements Serializable {
 	{
 		for (GameActor ga : tile.actors)
 		{
-			if (!ga.isSolid()) continue;
+			if (!ga.solid) continue;
 			if (UID != null)
 			{
 				if (ga.UID.equals(UID)) continue;
 			}
 			
-			if (ga.getPosition().dst2(x, y, z) <= radius2+(ga.getRadius()*ga.getRadius())) return ga;
+			if (ga.position.dst2(x, y, z) <= radius2+(ga.radius*ga.radius)) return ga;
 		}
 		
 		return null;
@@ -662,13 +667,13 @@ public class Level implements Serializable {
 	{
 		for (GameActor ga : tile.actors)
 		{
-			if (!ga.isSolid()) continue;
+			if (!ga.solid) continue;
 			if (UID != null)
 			{
 				if (ga.UID.equals(UID)) continue;
 			}
 			
-			if (GameData.SphereBoxIntersection(ga.getPosition().x, ga.getPosition().y, ga.getPosition().z, ga.getRadius(), x, y, z, box.x, box.y, box.z)) return ga;
+			if (GameData.SphereBoxIntersection(ga.position.x, ga.position.y, ga.position.z, ga.radius, x, y, z, box.x, box.y, box.z)) return ga;
 		}
 		
 		return null;
@@ -736,8 +741,8 @@ public class Level implements Serializable {
 	
 	public Tile getTile(float x, float z)
 	{
-		int tx = (int)((x/10f)+0.5f);
-		int tz = (int)((z/10f)+0.5f);
+		tx = (int)((x/10f)+0.5f);
+		tz = (int)((z/10f)+0.5f);
 		
 		if (checkBounds(tx, tz)) return null;
 		
@@ -754,48 +759,6 @@ public class Level implements Serializable {
 	{
 		for (Character c : solids) if (tile.character == c) return true;
 		return false;
-	}
-
-	// ----- Getters ----- //
-	
-	public Tile[][] getLevelArray() {
-		return levelArray;
-	}
-
-	public HashMap<Character, String> getShortDescs() {
-		return shortDescs;
-	}
-
-	public HashMap<Character, String> getLongDescs() {
-		return longDescs;
-	}
-
-	public HashMap<Character, Color> getColours() {
-		return colours;
-	}
-
-	public Bag<Character> getOpaques() {
-		return opaques;
-	}
-
-	public Bag<Character> getSolids() {
-		return solids;
-	}
-
-	public int getWidth() {
-		return width;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
-	public boolean isHasRoof() {
-		return hasRoof;
-	}
-
-	public int getDepth() {
-		return depth;
 	}
 }
 

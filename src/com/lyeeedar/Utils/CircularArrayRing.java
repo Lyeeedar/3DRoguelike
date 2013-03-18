@@ -8,7 +8,7 @@
  * Contributors:
  *     Philip Collin - initial API and implementation
  ******************************************************************************/
-package com.lyeeedar.Roguelike3D;
+package com.lyeeedar.Utils;
 
 import java.util.AbstractCollection;
 import java.util.Collection;

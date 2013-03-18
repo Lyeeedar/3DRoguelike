@@ -52,7 +52,7 @@ public class RiggedModelBehaviourCastSpell extends RiggedModelBehaviour {
 		if (collideMode && !mode)
 		{	
 			Spell spellCpy = spell.copy();
-			spellCpy.initialise(Vector3.tmp.set(0, 0, 0).mul(node.composedMatrix), holder.getRotation());
+			spellCpy.initialise(Vector3.tmp.set(0, 0, 0).mul(node.composedMatrix), holder.rotation);
 			spellCpy.create();
 			GameData.spells.add(spellCpy);
 		}

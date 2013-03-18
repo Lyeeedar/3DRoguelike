@@ -143,7 +143,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 				player.L_HAND = Equipment_HAND.getWeapon(WeaponType.RANGED, "torch", "FIREBALL", 15, ELE_DEF, DAM_DEF, 71, 13, false, 3, 1, level);
 				
 				player.create();
-				player.setVisible(false);
+				player.visible = false;
 				
 				level.addGameActor(player);			
 			}
@@ -161,7 +161,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 		else if (loadingStage == 3)
 		{
 			message = "Creating Fundamental Structure";
-			graphics = new LevelGraphics(level.getLevelArray(), level.getColours(), biome, level.hasRoof);
+			graphics = new LevelGraphics(level.levelArray, level.colours, biome, level.hasRoof);
 			
 			if (GameData.getCurrentLevelContainer().skybox != null)
 			{

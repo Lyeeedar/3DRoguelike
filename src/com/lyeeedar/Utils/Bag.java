@@ -1,7 +1,7 @@
-package com.lyeeedar.Roguelike3D;
+package com.lyeeedar.Utils;
 
 import java.io.Serializable;
-import java.util.ConcurrentModificationException;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -14,7 +14,7 @@ public class Bag<E> implements Serializable, Iterable<E> {
 	private static final long serialVersionUID = 9141471894142964687L;
 	
 	private Object[] data;
-	private int size = 0;
+	public int size = 0;
 
 	/**
 	 * Constructs an empty Bag with an initial capacity of ten.
@@ -80,7 +80,7 @@ public class Bag<E> implements Serializable, Iterable<E> {
 	public boolean removeAll(Bag<E> bag) {
 		boolean modified = false;
 
-		for (int i = 0; i < bag.size(); i++) {
+		for (int i = 0; i < bag.size; i++) {
 			Object o1 = bag.get(i);
 
 			for (int j = 0; j < size; j++) {
@@ -107,15 +107,6 @@ public class Bag<E> implements Serializable, Iterable<E> {
 	@SuppressWarnings("unchecked")
 	public E get(int index) {
 		return (E) data[index];
-	}
-
-	/**
-	 * Returns the number of elements in this bag.
-	 *
-	 * @return the number of elements in this bag
-	 */
-	public int size() {
-		return size;
 	}
 
 	/**
@@ -165,13 +156,20 @@ public class Bag<E> implements Serializable, Iterable<E> {
 	@Override
 	public Iterator<E> iterator()
 	{
-		return new BagIterator();
+		return new BagIterator(0, size);
 	}
 	
 	class BagIterator implements Iterator<E>
 	{
 		int pos = 0;
-		int size = Bag.this.size;
+		int size = 0;
+		
+		public BagIterator(){}
+		public BagIterator(int pos, int size)
+		{
+			this.pos = pos;
+			this.size = size;
+		}
 
 		@Override
 		public boolean hasNext() {
@@ -228,5 +226,10 @@ public class Bag<E> implements Serializable, Iterable<E> {
         // Read in all elements in the proper order.
         for (int i=0; i<size; i++)
             a[i] = s.readObject();
+    }
+    
+    public void sort()
+    {
+    	Arrays.sort(data);
     }
 }

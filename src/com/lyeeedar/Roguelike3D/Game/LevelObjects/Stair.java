@@ -57,7 +57,7 @@ public class Stair extends LevelObject {
 		{
 			particleEffect.update(delta, cam);
 		}
-		positionYAbsolutely(getRadius());
+		positionYAbsolutely(radius);
 	}
 
 	@Override

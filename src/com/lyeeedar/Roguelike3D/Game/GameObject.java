@@ -17,7 +17,6 @@ import java.util.Random;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pools;
 import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
@@ -39,25 +38,25 @@ public abstract class GameObject implements Serializable {
 	
 	public final String UID;
 	
-	protected final Vector3 position = new Vector3();
-	protected final Vector3 rotation = new Vector3(1, 0, 1);
-	protected final Vector3 velocity = new Vector3();
-	protected final Vector3 up = new Vector3(0, 1, 0);
+	public final Vector3 position = new Vector3();
+	public final Vector3 rotation = new Vector3(1, 0, 1);
+	public final Vector3 velocity = new Vector3();
+	public final Vector3 up = new Vector3(0, 1, 0);
+	public float radius;
 
-	protected VisibleObject vo;
-	protected ParticleEffect particleEffect;
+	public VisibleObject vo;
+	public ParticleEffect particleEffect;
 	
-	protected boolean grounded = true;
-	protected boolean visible = true;
-	protected boolean solid = true;
+	public boolean grounded = true;
+	public boolean visible = true;
+	public boolean solid = true;
 	
-	protected String shortDesc = "";
-	protected String longDesc = "";
+	public String shortDesc = "";
+	public String longDesc = "";
 	
-	protected transient Random ran;
-	protected transient Matrix4 tmpMat;
-	protected transient Vector3 offsetPos;
-	protected transient Vector3 offsetRot;
+	public transient Random ran;
+	public transient Vector3 offsetPos;
+	public transient Vector3 offsetRot;
 
 	public GameObject(Color colour, String texture, float x, float y, float z, float scale, int primitive_type, String... model)
 	{
@@ -69,59 +68,8 @@ public abstract class GameObject implements Serializable {
 		position.set(x, y, z);
 	}
 	
-	public void render(Renderer renderer, ArrayList<ParticleEmitter> emitters, Camera cam)
-	{
-		if (particleEffect != null)
-		{
-			particleEffect.getVisibleEmitters(emitters, cam);
-		}
-		if (visible) vo.render(renderer);
-		
-		rendered(renderer, emitters, cam);
-	}
+	// ----- Movement and rotation ----- //
 	
-	protected abstract void rendered(Renderer renderer, ArrayList<ParticleEmitter> emitters, Camera cam);
-
-	public void getLight(LightManager lightManager)
-	{
-		if (particleEffect != null) particleEffect.getLight(lightManager);
-	}
-	
-	public ParticleEffect getParticleEffect()
-	{
-		return particleEffect;
-	}
-	
-	public void addParticleEffect(ParticleEffect effect)
-	{
-		if (particleEffect != null)
-		{
-			particleEffect.dispose();
-			particleEffect.delete();
-		}
-		this.particleEffect = effect;
-	}
-	
-	public abstract void fixReferences();
-	
-	public void create()
-	{
-		ran = new Random();
-		tmpMat = new Matrix4();
-		offsetPos = new Vector3();
-		offsetRot = new Vector3();
-		
-		vo.create();
-		if (particleEffect != null) {
-			particleEffect.setPosition(position);
-			particleEffect.create();
-		}
-
-		created();
-	}
-	
-	protected abstract void created();
-
 	public void applyMovement(float delta, float vertical_acceleration)
 	{
 		if (velocity.len2() == 0) return;
@@ -148,37 +96,37 @@ public abstract class GameObject implements Serializable {
 		}
 		
 		// Check for collision
-		if (lvl.collideSphereAll(position.x+v.x, position.y+v.y, position.z+v.z, getRadius(), UID))
+		if (lvl.collideSphereAll(position.x+v.x, position.y+v.y, position.z+v.z, radius, UID))
 		{
 			// Collision! Now time to find which axis the collision was on. (Vertical or Horizontal)
 			
 			// ----- Check Vertical START ----- //
 			
-			if (lvl.collideSphereActorsAll(position.x, position.y+v.y, position.z, getRadius(), UID) != null || 
-					lvl.collideSphereLevelObjectsAll(position.x, position.y+v.y, position.z, getRadius()) != null)
+			if (lvl.collideSphereActorsAll(position.x, position.y+v.y, position.z, radius, UID) != null || 
+					lvl.collideSphereLevelObjectsAll(position.x, position.y+v.y, position.z, radius) != null)
 			{
 				velocity.y = 0;
 				grounded = true;
 			}
 			// below
-			else if (position.y+v.y-getRadius() < below.floor) {
+			else if (position.y+v.y-radius < below.floor) {
 				
 				velocity.y = 0;
 				grounded = true;
 				
-				tmp.set(position.x, below.floor+getRadius(), position.z);
-				if (!lvl.collideSphereAll(tmp.x, tmp.y, tmp.z, getRadius(), UID))
+				tmp.set(position.x, below.floor+radius, position.z);
+				if (!lvl.collideSphereAll(tmp.x, tmp.y, tmp.z, radius, UID))
 				{
 					this.positionAbsolutely(tmp.x, tmp.y, tmp.z);
 				}
 			}
 			// above
-			else if (lvl.hasRoof && position.y+v.y+getRadius() > below.roof) {
+			else if (lvl.hasRoof && position.y+v.y+radius > below.roof) {
 				velocity.y = 0;
 				grounded = false;
 				
-				tmp.set(position.x, below.roof-getRadius(), position.z);
-				if (!lvl.collideSphereAll(tmp.x, tmp.y, tmp.z, getRadius(), UID))
+				tmp.set(position.x, below.roof-radius, position.z);
+				if (!lvl.collideSphereAll(tmp.x, tmp.y, tmp.z, radius, UID))
 				{
 					this.positionAbsolutely(tmp.x, tmp.y, tmp.z);
 				}
@@ -195,14 +143,14 @@ public abstract class GameObject implements Serializable {
 			
 			// ----- Check Horizontal START ----- //
 			
-			if (lvl.collideSphereAll(position.x+v.x, position.y, position.z+v.z, getRadius(), UID)) {
+			if (lvl.collideSphereAll(position.x+v.x, position.y, position.z+v.z, radius, UID)) {
 
-				if (lvl.collideSphereAll(position.x+v.x, position.y, position.z, getRadius(), UID)) {
+				if (lvl.collideSphereAll(position.x+v.x, position.y, position.z, radius, UID)) {
 					velocity.x = 0;
 					v.x = 0;
 				}
 
-				if (lvl.collideSphereAll(position.x, position.y, position.z+v.z, getRadius(), UID)) {
+				if (lvl.collideSphereAll(position.x, position.y, position.z+v.z, radius, UID)) {
 					velocity.z = 0;
 					v.z = 0;
 				}
@@ -231,54 +179,31 @@ public abstract class GameObject implements Serializable {
 	
 	public abstract void changeTile(Tile src, Tile dst);
 	
-	public void bakeLights(LightManager lightManager, boolean bakeStatics)
-	{
-		vo.bakeLights(lightManager, bakeStatics);
-	}
-	
-	public void setOffsetPos(float x, float y, float z)
-	{
-		offsetPos.set(x, y, z);
-	}
-	
-	public void setOffsetRot(float x, float y, float z)
-	{
-		offsetRot.set(x, y, z);
-	}
-	
-	public void accelerateY(float val)
-	{
-		velocity.y += val;
-	}
-	
-	public void Yrotate (float angle) {
-		
-		Vector3 dir = rotation.cpy().nor();
-
-		if( (dir.y>-0.7) && (angle<0) || (dir.y<+0.7) && (angle>0) )
+	public void Yrotate (float angle) {	
+		Vector3 dir = Pools.obtain(Vector3.class);
+		dir.set(rotation).nor();
+		if(dir.y>-0.7 && angle<0 || dir.y<+0.7 && angle>0)
 		{
-			Vector3 localAxisX = rotation.cpy();
-			localAxisX.crs(up.tmp()).nor();
+			Vector3 localAxisX = Pools.obtain(Vector3.class).set(rotation);
+			localAxisX.crs(up).nor();
 			rotate(localAxisX.x, localAxisX.y, localAxisX.z, angle);
-
+			Pools.free(localAxisX);
 		}
+		Pools.free(dir);
 	}
 
 	public void Xrotate (float angle) {
 		rotate(0, 1, 0, angle);
 	}
 
-	/** Rotates the direction and up vector of this camera by the given angle around the given axis. The direction and up vector
-	 * will not be orthogonalized.
-	 *
-	 * @param axis
-	 * @param angle the angle */
 	public void rotate (float x, float y, float z, float angle) {
 		Vector3 axis = Pools.obtain(Vector3.class).set(x, y, z);
+		Matrix4 tmpMat = Pools.obtain(Matrix4.class).idt();
 		tmpMat.setToRotation(axis, angle);
 		Pools.free(axis);
 		rotation.mul(tmpMat).nor();
 		up.mul(tmpMat).nor();
+		Pools.free(tmpMat);
 		
 		if (vo.attributes != null) {
 			Vector3 lookAt = Pools.obtain(Vector3.class).set(0, 0, 0).add(rotation);
@@ -295,7 +220,7 @@ public abstract class GameObject implements Serializable {
 	public void positionAbsolutely(float x, float y, float z)
 	{
 		Tile start = GameData.level.getTile(position.x, position.z);
-		this.position.set(x, y, z);
+		position.set(x, y, z);
 
 		Tile end = GameData.level.getTile(position.x, position.z);
 		if (!start.equals(end))
@@ -303,7 +228,7 @@ public abstract class GameObject implements Serializable {
 			changeTile(start, end);
 		}
 		
-		if (vo.attributes != null) vo.attributes.getTransform().setToTranslation(position);
+		if (vo.attributes != null) vo.attributes.position.setToTranslation(position);
 		if (particleEffect != null) particleEffect.setPosition(vo.attributes.getSortCenter());
 	}
 
@@ -324,48 +249,66 @@ public abstract class GameObject implements Serializable {
 		velocity.z += (float)Math.sin(rotation.z) * mag;
 	}
 	
-	public float getRadius()
+	// ----- Rendering and Updating ----- //
+	
+	public void render(Renderer renderer, ArrayList<ParticleEmitter> emitters, Camera cam)
 	{
-		return vo.attributes.radius;
+		if (particleEffect != null)
+		{
+			particleEffect.getVisibleEmitters(emitters, cam);
+		}
+		if (visible) vo.render(renderer);
+		
+		rendered(renderer, emitters, cam);
 	}
 	
-	public Vector3 getPosition() {
-		return position;
-	}
+	protected abstract void rendered(Renderer renderer, ArrayList<ParticleEmitter> emitters, Camera cam);
+	public abstract void update(float delta, Camera cam);
+	public abstract void activate();
+	public abstract String getActivatePrompt();
 	
-	public Vector3 getTruePosition() {
-		return vo.attributes.getSortCenter();
-	}
-	
-	public Matrix4 getTransform()
+	// ----- Creation and Destruction ----- //
+
+	public void getLight(LightManager lightManager)
 	{
-		return vo.attributes.getTransform();
+		if (particleEffect != null) particleEffect.getLight(lightManager);
+	}
+		
+	public void addParticleEffect(ParticleEffect effect)
+	{
+		if (particleEffect != null)
+		{
+			particleEffect.dispose();
+			particleEffect.delete();
+		}
+		this.particleEffect = effect;
 	}
 	
-	public Matrix4 getRotationMatrix()
+	public void create()
 	{
-		return vo.attributes.getRotation();
+		ran = new Random();
+		offsetPos = Pools.obtain(Vector3.class).set(0, 0, 0);
+		offsetRot = Pools.obtain(Vector3.class).set(0, 0, 0);
+		
+		vo.create();
+		radius = vo.attributes.radius;
+		if (particleEffect != null) {
+			particleEffect.setPosition(position);
+			particleEffect.create();
+		}
+
+		created();
 	}
 	
-	public Vector3 getBoundingBox()
-	{
-		return vo.attributes.box;
-	}
-
-	public Vector3 getVelocity() {
-		return velocity;
-	}
-
-	public VisibleObject getVo() {
-		return vo;
-	}
-
-	public Vector3 getRotation() {
-		return rotation;
-	}
-
+	protected abstract void created();
+	
 	public void dispose()
 	{
+		Pools.free(offsetPos);
+		offsetPos = null;
+		Pools.free(offsetRot);
+		offsetRot = null;
+		
 		vo.dispose();
 		if (particleEffect != null) {
 			particleEffect.dispose();
@@ -374,94 +317,28 @@ public abstract class GameObject implements Serializable {
 	}
 	
 	protected abstract void disposed();
-	public abstract void update(float delta, Camera cam);
-	public abstract void activate();
-	public abstract String getActivatePrompt();
-
-	/**
-	 * @return the grounded
-	 */
-	public boolean isGrounded() {
-		return grounded;
+	
+	public void bakeLights(LightManager lightManager, boolean bakeStatics)
+	{
+		vo.bakeLights(lightManager, bakeStatics);
 	}
-
-	/**
-	 * @param grounded the grounded to set
-	 */
-	public void setGrounded(boolean grounded) {
-		this.grounded = grounded;
+	
+	public abstract void fixReferences();
+	
+	// ----- Getters ----- //
+	
+	public Matrix4 getTransform()
+	{
+		return vo.attributes.position;
 	}
-
-	/**
-	 * @return the visible
-	 */
-	public boolean isVisible() {
-		return visible;
+	
+	public Matrix4 getRotationMatrix()
+	{
+		return vo.attributes.rotation;
 	}
-
-	/**
-	 * @param visible the visible to set
-	 */
-	public void setVisible(boolean visible) {
-		this.visible = visible;
+	
+	public Vector3 getBoundingBox()
+	{
+		return vo.attributes.box;
 	}
-
-	/**
-	 * @return the solid
-	 */
-	public boolean isSolid() {
-		return solid;
-	}
-
-	/**
-	 * @param solid the solid to set
-	 */
-	public void setSolid(boolean solid) {
-		this.solid = solid;
-	}
-
-	/**
-	 * @return the shortDesc
-	 */
-	public String getShortDesc() {
-		return shortDesc;
-	}
-
-	/**
-	 * @param shortDesc the shortDesc to set
-	 */
-	public void setShortDesc(String shortDesc) {
-		this.shortDesc = shortDesc;
-	}
-
-	/**
-	 * @return the longDesc
-	 */
-	public String getLongDesc() {
-		return longDesc;
-	}
-
-	/**
-	 * @param longDesc the longDesc to set
-	 */
-	public void setLongDesc(String longDesc) {
-		this.longDesc = longDesc;
-	}
-
-	public Vector3 getOffsetPos() {
-		return offsetPos;
-	}
-
-	public void setOffsetPos(Vector3 offsetPos) {
-		this.offsetPos = offsetPos;
-	}
-
-	public Vector3 getOffsetRot() {
-		return offsetRot;
-	}
-
-	public void setOffsetRot(Vector3 offsetRot) {
-		this.offsetRot = offsetRot;
-	}
-
 }

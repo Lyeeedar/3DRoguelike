@@ -122,17 +122,17 @@ public class InGameScreen extends AbstractScreen {
 		{
 			spriteBatch.draw(pausedTint, 0, 0, screen_width, screen_height);	
 			
-			int x = (int)( ( (GameData.player.getPosition().x / 10f) + 0.5f) * LevelGraphics.STEP );
-			int y = (int)( ( (GameData.player.getPosition().z / 10f) + 0.5f) * LevelGraphics.STEP );
+			int x = (int)( ( (GameData.player.position.x / 10f) + 0.5f) * LevelGraphics.STEP );
+			int y = (int)( ( (GameData.player.position.z / 10f) + 0.5f) * LevelGraphics.STEP );
 			
 			spriteBatch.draw(GameData.levelGraphics.map, MAP_X, MAP_Y, MAP_WIDTH*2, MAP_HEIGHT*2,
 					x-MAP_WIDTH, y-MAP_HEIGHT, MAP_WIDTH*2, MAP_HEIGHT*2,
 					false, false);
 			
 			// Work out angle
-			float angle = 90 * GameData.player.getRotation().x;
+			float angle = 90 * GameData.player.rotation.x;
 			
-			if (GameData.player.getRotation().z > 0)
+			if (GameData.player.rotation.z > 0)
 			{
 				angle = 180+angle;
 			}
@@ -224,8 +224,8 @@ public class InGameScreen extends AbstractScreen {
 			}
 			
 			if (GameData.player == null) return;
-			cam.position.set(GameData.player.getPosition()).add(GameData.player.getOffsetPos());
-			cam.direction.set(GameData.player.getRotation()).add(GameData.player.getOffsetRot());
+			cam.position.set(GameData.player.position).add(GameData.player.offsetPos);
+			cam.direction.set(GameData.player.rotation).add(GameData.player.offsetRot);
 			cam.update();
 		}
 		
@@ -274,8 +274,8 @@ public class InGameScreen extends AbstractScreen {
 		}
 //		else
 //		{	
-//			ray.origin.set(GameData.player.getPosition());
-//			ray.direction.set(GameData.player.getRotation());
+//			ray.origin.set(GameData.player.position);
+//			ray.direction.set(GameData.player.rotation);
 //			dist = VIEW_DISTANCE;
 //			
 //			activatePrompt = getActivatePrompt(dist, ray);
@@ -285,8 +285,8 @@ public class InGameScreen extends AbstractScreen {
 //		
 //		if (!paused && GameData.controls.getActivate() && activateCD < 0)
 //		{
-//			ray.origin.set(GameData.player.getPosition());
-//			ray.direction.set(GameData.player.getRotation());
+//			ray.origin.set(GameData.player.position);
+//			ray.direction.set(GameData.player.rotation);
 //			dist = ACTIVATE_DISTANCE;
 //			
 //			GameObject go = GameData.level.getClosestActor(ray, dist, GameData.player.UID, tmpVec);

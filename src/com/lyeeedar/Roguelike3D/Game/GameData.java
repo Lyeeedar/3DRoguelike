@@ -14,20 +14,12 @@ import java.util.HashMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g3d.loaders.wavefront.ObjLoader;
-import com.badlogic.gdx.graphics.g3d.model.still.StillModel;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
-import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame;
 import com.lyeeedar.Roguelike3D.Roguelike3DGame.GameScreen;
-import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
 import com.lyeeedar.Roguelike3D.Game.Level.LevelContainer;
@@ -35,20 +27,18 @@ import com.lyeeedar.Roguelike3D.Game.Level.LevelGraphics;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.BiomeReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.DungeonReader;
 import com.lyeeedar.Roguelike3D.Game.Level.XML.RoomReader;
-import com.lyeeedar.Roguelike3D.Game.LevelObjects.Door;
-import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
-import com.lyeeedar.Roguelike3D.Game.LevelObjects.PlayerPlacer;
-import com.lyeeedar.Roguelike3D.Game.LevelObjects.Spawner;
-import com.lyeeedar.Roguelike3D.Game.LevelObjects.Stair;
 import com.lyeeedar.Roguelike3D.Game.Spell.Spell;
 import com.lyeeedar.Roguelike3D.Graphics.ApplicationChanger;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager.LightQuality;
 import com.lyeeedar.Roguelike3D.Graphics.Models.SkyBox;
+import com.lyeeedar.Utils.Bag;
 
 public class GameData {
 	
 	public static final int BLOCK_SIZE = 10;
+	public static final float gravity = 0.1f;
+
 	
 	/**
 	 * Cycle of elements:
@@ -139,8 +129,6 @@ public class GameData {
 		public Color getColour() { return colour; }
 	}
 	
-	public static final Vector3 UP = new Vector3(0, 1, 0);
-	
 	public static Rarity getRarity(int i)
 	{
 		for (Rarity r : Rarity.values())
@@ -169,32 +157,21 @@ public class GameData {
 	}
 	
 	public static LightQuality lightQuality = LightQuality.FORWARD_VERTEX;
-	
 	public static LightManager lightManager;
 	
 	public static Bag<Spell> spells = new Bag<Spell>();
-	
 	public static Level level;
-	
 	public static LevelGraphics levelGraphics;
-
 	public static SkyBox skyBox;
-	
 	public static Player player;
 	
-	public static float gravity = 0.1f;
-
 	public static HashMap<String, LevelContainer> dungeon;
 	public static String currentLevel;
 	
 	public static Roguelike3DGame game;
-	
 	public static int[] resolution = {800, 600};
-	
 	public static ApplicationChanger applicationChanger;
-	
 	public static boolean isAndroid = false;
-	
 	public static final Controls controls = new Controls();
 
 	public static void createApplication() {

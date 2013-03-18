@@ -46,9 +46,9 @@ public class Door extends LevelObject {
 		float hingex = 0;
 		float hingez = 0;
 		
-		float x = getPosition().x;
-		float y = getPosition().y;
-		float z = getPosition().z;
+		float x = position.x;
+		float y = position.y;
+		float z = position.z;
 		
 		Tile up = level.getTile(x, z+10);
 		Tile down = level.getTile(x, z-10);

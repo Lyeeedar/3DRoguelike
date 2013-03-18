@@ -47,7 +47,7 @@ public class ForwardRenderer extends Renderer {
 		if (shader == null) return;
 		
 		else if (GameData.player != null)
-			lightManager.calculateDynamicLights(GameData.player.getPosition().x, GameData.player.getPosition().y, GameData.player.getPosition().z);
+			lightManager.calculateDynamicLights(GameData.player.position.x, GameData.player.position.y, GameData.player.position.z);
 		else
 			lightManager.calculateDynamicLights(0, 0, 0);
 		

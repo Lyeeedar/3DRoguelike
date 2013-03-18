@@ -31,13 +31,13 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.OrderedMap;
-import com.lyeeedar.Roguelike3D.Bag;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.PointLight;
+import com.lyeeedar.Utils.Bag;
 import com.lyeeedar.Utils.FileUtils;
 
 public class ParticleEmitter implements Serializable {
@@ -57,10 +57,10 @@ public class ParticleEmitter implements Serializable {
 	public String name;
 
 	// ----- Particle Parameters ----- //
-	private TimelineInteger[] sprite;
-	private TimelineFloat[] size;
-	private TimelineFloat[] colour;
-	private TimelineFloat[] velocity;
+	private TimelineValue[] sprite;
+	private TimelineValue[] size;
+	private TimelineValue[] colour;
+	private TimelineValue[] velocity;
 	// ----- End Particle Parameters ----- //
 
 	// ----- Emitter parameters ----- //
@@ -110,6 +110,9 @@ public class ParticleEmitter implements Serializable {
 	private transient int v;
 	private transient float emissionCD;
 	private transient PointLight light;
+	private transient int i;
+	private transient int i2;
+	private transient int arrayLen;
 	// ----- End Transient Variables ----- //
 
 	// ----- Non-Essential Variables ----- //
@@ -141,7 +144,7 @@ public class ParticleEmitter implements Serializable {
 	}
 
 	public int getActiveParticles() {
-		return active.size();
+		return active.size;
 	}
 
 	public float getRadius()
@@ -163,7 +166,7 @@ public class ParticleEmitter implements Serializable {
 		if (light != null) light.position.set(x+lightx, y+lighty, z+lightz);
 	}
 
-	public void setTimeline(TimelineInteger[] sprite, TimelineFloat[] size, TimelineFloat[] colour, TimelineFloat[] velocity)
+	public void setTimeline(TimelineValue[] sprite, TimelineValue[] size, TimelineValue[] colour, TimelineValue[] velocity)
 	{
 		this.sprite = sprite;
 		this.size = size;
@@ -171,7 +174,7 @@ public class ParticleEmitter implements Serializable {
 		this.velocity = velocity;
 	}
 
-	public TimelineInteger[] getSpriteTimeline()
+	public TimelineValue[] getSpriteTimeline()
 	{
 		return sprite;
 	}
@@ -183,11 +186,11 @@ public class ParticleEmitter implements Serializable {
 	 */
 	public void setSpriteTimeline(boolean interpolated, float[]... values)
 	{
-		this.sprite = new TimelineInteger[values.length];
+		this.sprite = new TimelineValue[values.length];
 
 		for (int i = 0; i < values.length; i++)
 		{
-			this.sprite[i] = new TimelineInteger(values[i][0], (int)values[i][1]);
+			this.sprite[i] = new TimelineValue(values[i][0], values[i][1]);
 		}
 
 		for (int i = 0; i < values.length-1; i++)
@@ -196,13 +199,13 @@ public class ParticleEmitter implements Serializable {
 		}
 	}
 	
-	public void setSpriteTimeline(List<TimelineInteger> values)
+	public void setSpriteTimeline(List<TimelineValue> values)
 	{
-		TimelineInteger[] array = new TimelineInteger[values.size()];
+		TimelineValue[] array = new TimelineValue[values.size()];
 		sprite = values.toArray(array);
 	}
 
-	public TimelineFloat[] getSizeTimeline()
+	public TimelineValue[] getSizeTimeline()
 	{
 		return size;
 	}
@@ -215,11 +218,11 @@ public class ParticleEmitter implements Serializable {
 	 */
 	public void setSizeTimeline(boolean interpolated, float[]... values)
 	{
-		this.size = new TimelineFloat[values.length];
+		this.size = new TimelineValue[values.length];
 
 		for (int i = 0; i < values.length; i++)
 		{
-			this.size[i] = new TimelineFloat(values[i][0], values[i][1], values[i][2]);
+			this.size[i] = new TimelineValue(values[i][0], values[i][1], values[i][2]);
 		}
 
 		for (int i = 0; i < values.length-1; i++)
@@ -228,13 +231,13 @@ public class ParticleEmitter implements Serializable {
 		}
 	}
 	
-	public void setSizeTimeline(List<TimelineFloat> values)
+	public void setSizeTimeline(List<TimelineValue> values)
 	{
-		TimelineFloat[] array = new TimelineFloat[values.size()];
+		TimelineValue[] array = new TimelineValue[values.size()];
 		size = values.toArray(array);
 	}
 
-	public TimelineFloat[] getColourTimeline()
+	public TimelineValue[] getColourTimeline()
 	{
 		return colour;
 	}
@@ -247,11 +250,11 @@ public class ParticleEmitter implements Serializable {
 	 */
 	public void setColourTimeline(boolean interpolated, float[]... values)
 	{
-		this.colour = new TimelineFloat[values.length];
+		this.colour = new TimelineValue[values.length];
 
 		for (int i = 0; i < values.length; i++)
 		{
-			this.colour[i] = new TimelineFloat(values[i][0], values[i][1], values[i][2], values[i][3], values[i][4]);
+			this.colour[i] = new TimelineValue(values[i][0], values[i][1], values[i][2], values[i][3], values[i][4]);
 		}
 
 		for (int i = 0; i < values.length-1; i++)
@@ -260,13 +263,13 @@ public class ParticleEmitter implements Serializable {
 		}
 	}
 	
-	public void setColourTimeline(List<TimelineFloat> values)
+	public void setColourTimeline(List<TimelineValue> values)
 	{
-		TimelineFloat[] array = new TimelineFloat[values.size()];
+		TimelineValue[] array = new TimelineValue[values.size()];
 		colour = values.toArray(array);
 	}
 
-	public TimelineFloat[] getVelocityTimeline()
+	public TimelineValue[] getVelocityTimeline()
 	{
 		return velocity;
 	}
@@ -279,11 +282,11 @@ public class ParticleEmitter implements Serializable {
 	 */
 	public void setVelocityTimeline(boolean interpolated, float[]... values)
 	{
-		this.velocity = new TimelineFloat[values.length];
+		this.velocity = new TimelineValue[values.length];
 
 		for (int i = 0; i < values.length; i++)
 		{
-			this.velocity[i] = new TimelineFloat(values[i][0], values[i][1], values[i][2], values[i][3]);
+			this.velocity[i] = new TimelineValue(values[i][0], values[i][1], values[i][2], values[i][3]);
 		}
 
 		for (int i = 0; i < values.length-1; i++)
@@ -292,9 +295,9 @@ public class ParticleEmitter implements Serializable {
 		}
 	}
 	
-	public void setVelocityTimeline(List<TimelineFloat> values)
+	public void setVelocityTimeline(List<TimelineValue> values)
 	{
-		TimelineFloat[] array = new TimelineFloat[values.size()];
+		TimelineValue[] array = new TimelineValue[values.size()];
 		velocity = values.toArray(array);
 	}
 
@@ -314,14 +317,14 @@ public class ParticleEmitter implements Serializable {
 	 */
 	public void createBasicEmitter(float width, float height, Color start, Color end, float vx, float vy, float vz)
 	{
-		this.sprite = new TimelineInteger[]{new TimelineInteger(0, 0)};
+		this.sprite = new TimelineValue[]{new TimelineValue(0, 0)};
 
-		this.size = new TimelineFloat[]{new TimelineFloat(0, width, height)};
+		this.size = new TimelineValue[]{new TimelineValue(0, width, height)};
 
-		this.colour = new TimelineFloat[]{new TimelineFloat(0, start.r, start.g, start.b, start.a), new TimelineFloat(particleLifetime, end.r, end.g, end.b, end.a)};
+		this.colour = new TimelineValue[]{new TimelineValue(0, start.r, start.g, start.b, start.a), new TimelineValue(particleLifetime, end.r, end.g, end.b, end.a)};
 		this.colour[0].setInterpolated(true, this.colour[1]);
 
-		this.velocity = new TimelineFloat[]{new TimelineFloat(0, vx, vy, vz)};
+		this.velocity = new TimelineValue[]{new TimelineValue(0, vx, vy, vz)};
 	}
 
 	public void addLight(boolean isStatic, float attenuation, float power, Color colour, boolean flicker, float x, float y, float z)
@@ -345,14 +348,28 @@ public class ParticleEmitter implements Serializable {
 
 		ran = new Random();
 
-		quad = new Vector3();
-		tmpMat = new Matrix4();
-		tmpRot = new Matrix4();
-		pos = new Vector3();
+		quad = Pools.obtain(Vector3.class).set(0, 0, 0);
+		tmpMat = Pools.obtain(Matrix4.class).idt();
+		tmpRot = Pools.obtain(Matrix4.class).idt();
+		pos = Pools.obtain(Vector3.class).set(0, 0, 0);
 		
 		calculateRadius();
 		reloadParticles();
 		reloadTextures();
+	}
+	
+	public void dispose()
+	{
+		if (quad != null) Pools.free(quad);
+		quad = null;
+		if (tmpMat != null) Pools.free(tmpMat);
+		tmpMat = null;
+		if (tmpRot != null) Pools.free(tmpRot);
+		tmpRot = null;
+		if (pos != null) Pools.free(pos);
+		pos = null;
+		if (mesh != null) mesh.dispose();
+		mesh = null;
 	}
 	
 	public void getLight(LightManager lightManager)
@@ -416,9 +433,9 @@ public class ParticleEmitter implements Serializable {
 		atlasTexture = itr.next();
 
 		int maxIndex = 0;
-		for (TimelineInteger spriteTL : sprite)
+		for (TimelineValue spriteTL : sprite)
 		{
-			Integer index = spriteTL.getValues()[0];
+			int index = (int) spriteTL.getValues()[0];
 
 			if (index > maxIndex) maxIndex = index;
 		}
@@ -442,12 +459,6 @@ public class ParticleEmitter implements Serializable {
 			botLeftTexCoords[i] = bl;
 			botRightTexCoords[i] = br;
 		}
-	}
-
-	public void dispose()
-	{
-		if (mesh != null) mesh.dispose();
-		mesh = null;
 	}
 
 	public short[] genIndices(int faces)
@@ -488,7 +499,7 @@ public class ParticleEmitter implements Serializable {
 			currentAtlas = atlasName;
 		}
 
-		mesh.render(shader, GL20.GL_TRIANGLES, 0, active.size()*4);
+		mesh.render(shader, GL20.GL_TRIANGLES, 0, active.size*4);
 	}
 
 	public static void begin(Camera cam)
@@ -518,7 +529,7 @@ public class ParticleEmitter implements Serializable {
 		{
 			light.positionAbsolutely(x+lightx+(ex/2f), y+lighty+ey, z+lightz+(ez/2));
 			if (lightFlicker) light.attenuation = (float) (lightAttenuation *
-					(1-((1-((float)inactive.size() / (float)active.size())))/2));
+					(1-((1-((float)inactive.size / (float)active.size)))/2));
 		}
 		
 		tmpRot.set(cam.view).inv();
@@ -528,12 +539,12 @@ public class ParticleEmitter implements Serializable {
 
 		Iterator<Particle> pItr = active.iterator();
 
-		int i = 0;
+		i = 0;
 		while (pItr.hasNext())
 		{
 			Particle p = pItr.next();
 
-			Float[] velocity = getAttributeValue(p.lifetime, ParticleAttribute.VELOCITY);
+			float[] velocity = getAttributeValue(p.lifetime, ParticleAttribute.VELOCITY);
 
 			p.update(delta, velocity[0], velocity[1], velocity[2]);
 
@@ -546,12 +557,12 @@ public class ParticleEmitter implements Serializable {
 
 			tmpMat.setToTranslation(p.x, p.y, p.z).mul(tmpRot);
 
-			Integer[] sprite = getAttributeValue(p.lifetime, ParticleAttribute.SPRITE);
-			Float[] size = getAttributeValue(p.lifetime, ParticleAttribute.SIZE);
-			Float[] colour = getAttributeValue(p.lifetime, ParticleAttribute.COLOUR);
+			int sprite = (int) getAttributeValue(p.lifetime, ParticleAttribute.SPRITE)[0];
+			float[] size = getAttributeValue(p.lifetime, ParticleAttribute.SIZE);
+			float[] colour = getAttributeValue(p.lifetime, ParticleAttribute.COLOUR);
 
 			quad
-				.set(-size[0].floatValue()/2, size[1].floatValue()/2, 0)
+				.set(-size[0]/2, size[1]/2, 0)
 				.mul(tmpMat);
 
 			v = 0;
@@ -565,8 +576,8 @@ public class ParticleEmitter implements Serializable {
 			vertices[(i*VERTEX_SIZE*4)+v+5] = colour[2];
 			vertices[(i*VERTEX_SIZE*4)+v+6] = colour[3];
 
-			vertices[(i*VERTEX_SIZE*4)+v+7] = topLeftTexCoords[sprite[0]][0];
-			vertices[(i*VERTEX_SIZE*4)+v+8] = topLeftTexCoords[sprite[0]][1];
+			vertices[(i*VERTEX_SIZE*4)+v+7] = topLeftTexCoords[sprite][0];
+			vertices[(i*VERTEX_SIZE*4)+v+8] = topLeftTexCoords[sprite][1];
 
 			quad
 				.set(size[0]/2, size[1]/2, 0)
@@ -583,8 +594,8 @@ public class ParticleEmitter implements Serializable {
 			vertices[(i*VERTEX_SIZE*4)+v+5] = colour[2];
 			vertices[(i*VERTEX_SIZE*4)+v+6] = colour[3];
 
-			vertices[(i*VERTEX_SIZE*4)+v+7] = topRightTexCoords[sprite[0]][0];
-			vertices[(i*VERTEX_SIZE*4)+v+8] = topRightTexCoords[sprite[0]][1];
+			vertices[(i*VERTEX_SIZE*4)+v+7] = topRightTexCoords[sprite][0];
+			vertices[(i*VERTEX_SIZE*4)+v+8] = topRightTexCoords[sprite][1];
 
 			quad
 				.set(-size[0]/2, -size[1]/2, 0)
@@ -601,8 +612,8 @@ public class ParticleEmitter implements Serializable {
 			vertices[(i*VERTEX_SIZE*4)+v+5] = colour[2];
 			vertices[(i*VERTEX_SIZE*4)+v+6] = colour[3];
 
-			vertices[(i*VERTEX_SIZE*4)+v+7] = botLeftTexCoords[sprite[0]][0];
-			vertices[(i*VERTEX_SIZE*4)+v+8] = botLeftTexCoords[sprite[0]][1];
+			vertices[(i*VERTEX_SIZE*4)+v+7] = botLeftTexCoords[sprite][0];
+			vertices[(i*VERTEX_SIZE*4)+v+8] = botLeftTexCoords[sprite][1];
 
 			quad
 				.set(size[0]/2, -size[1]/2, 0)
@@ -619,8 +630,8 @@ public class ParticleEmitter implements Serializable {
 			vertices[(i*VERTEX_SIZE*4)+v+5] = colour[2];
 			vertices[(i*VERTEX_SIZE*4)+v+6] = colour[3];
 
-			vertices[(i*VERTEX_SIZE*4)+v+7] = botRightTexCoords[sprite[0]][0];
-			vertices[(i*VERTEX_SIZE*4)+v+8] = botRightTexCoords[sprite[0]][1];
+			vertices[(i*VERTEX_SIZE*4)+v+7] = botRightTexCoords[sprite][0];
+			vertices[(i*VERTEX_SIZE*4)+v+8] = botRightTexCoords[sprite][1];
 
 			i++;
 		}
@@ -628,9 +639,11 @@ public class ParticleEmitter implements Serializable {
 
 		emissionCD -= delta;
 
-		if (inactive.size() == 0) return;
+		arrayLen = inactive.size;
+		
+		if (arrayLen == 0) return;
 
-		while (emissionCD < 0 && inactive.size() > 0)
+		while (emissionCD < 0 && arrayLen > 0)
 		{
 			Particle p = inactive.remove(0);
 
@@ -653,42 +666,43 @@ public class ParticleEmitter implements Serializable {
 			active.add(p);
 
 			emissionCD += emissionTime;
+			arrayLen--;
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T extends Number, N extends TimelineValue<T, N>> T[] getAttributeValue(float time, ParticleAttribute pa) {
-		TimelineValue<T, N> tv = null;
+	private float[] getAttributeValue(float time, ParticleAttribute pa) {
+		TimelineValue tv = null;
 		if (pa == ParticleAttribute.SPRITE)
 		{
-			tv = (TimelineValue<T, N>) searchTimeline(time, sprite);
+			tv = searchTimeline(time, sprite);
 		}
 		else if (pa == ParticleAttribute.SIZE)
 		{
-			tv = (TimelineValue<T, N>) searchTimeline(time, size);
+			tv = searchTimeline(time, size);
 		}
 		else if (pa == ParticleAttribute.COLOUR)
 		{
-			tv = (TimelineValue<T, N>) searchTimeline(time, colour);
+			tv = searchTimeline(time, colour);
 		}
 		else if (pa == ParticleAttribute.VELOCITY)
 		{
-			tv = (TimelineValue<T, N>) searchTimeline(time, velocity);
+			tv = searchTimeline(time, velocity);
 		}
 
 		return tv.getValuesInterpolated(time);
 	}
 
-	private <T extends Number, N extends TimelineValue<T, N>> TimelineValue<T, N> searchTimeline(float time, TimelineValue<T, N>[] value)
+	private TimelineValue searchTimeline(float time, TimelineValue[] value)
 	{
-		for (int i = 0; i < value.length; i++)
+		arrayLen = value.length;
+		for (i2 = 0; i2 < arrayLen; i2++)
 		{
-			if (value[i].time > time)
+			if (value[i2].time > time)
 			{
-				return value[i-1];
+				return value[i2-1];
 			}
 		}
-		return value[value.length-1];
+		return value[arrayLen-1];
 	}
 
 	public ParticleEmitter copy()
@@ -696,19 +710,19 @@ public class ParticleEmitter implements Serializable {
 		ParticleEmitter copy = new ParticleEmitter(particleLifetime, particleLifetimeVar, emissionTime, ex, ey, ez, emissionType, blendFuncSRC, blendFuncDST, atlasName, name);
 		copy.maxParticles = maxParticles;
 
-		TimelineInteger[] cpySprite = new TimelineInteger[sprite.length];
+		TimelineValue[] cpySprite = new TimelineValue[sprite.length];
 		for (int i = 0; i < sprite.length; i++) cpySprite[i] = sprite[i].copy();
 		copy.sprite = cpySprite;
 
-		TimelineFloat[] cpySize = new TimelineFloat[size.length];
+		TimelineValue[] cpySize = new TimelineValue[size.length];
 		for (int i = 0; i < size.length; i++) cpySize[i] = size[i].copy();
 		copy.size = cpySize;
 
-		TimelineFloat[] cpyColour = new TimelineFloat[colour.length];
+		TimelineValue[] cpyColour = new TimelineValue[colour.length];
 		for (int i = 0; i < colour.length; i++) cpyColour[i] = colour[i].copy();
 		copy.colour = cpyColour;
 
-		TimelineFloat[] cpyVelocity = new TimelineFloat[velocity.length];
+		TimelineValue[] cpyVelocity = new TimelineValue[velocity.length];
 		for (int i = 0; i < velocity.length; i++) cpyVelocity[i] = velocity[i].copy();
 		copy.velocity = cpyVelocity;
 
@@ -748,42 +762,83 @@ public class ParticleEmitter implements Serializable {
 		}
 	}
 
-	public abstract static class TimelineValue<T extends Number, N extends TimelineValue<T, N>> implements Serializable, Json.Serializable
+	public static class TimelineValue implements Serializable, Json.Serializable
 	{
 		private static final long serialVersionUID = -4434625075360858305L;
 
-		public T[] values;
+		public float[] values;
 		public float time;
 
 		public boolean interpolated = false;
-		public Float[] valueStep;
-		public T[] interpolatedValues;
+		public float[] valueStep;
+		public float[] interpolatedValues;
 
-		transient float timeStep;
+		private transient float timeStep;
+		private transient int arrayLen;
+		private transient int i;
 
 		public TimelineValue(){}
 
-		public TimelineValue(float time, T[] values)
+		public TimelineValue(float time, float... values)
 		{
 			this.time = time;
 			this.values = values;
 		}
 
-		public T[] getValues()
+		public float[] getValues()
 		{
 			return values;
 		}
 
-		protected void setValues(boolean interpolated, Float[] valueStep, T[] interpolatedValues)
+		protected void setValues(boolean interpolated, float[] valueStep, float[] interpolatedValues)
 		{
 			this.interpolated = interpolated;
 			this.valueStep = valueStep;
 			this.interpolatedValues = interpolatedValues;
 		}
 
-		public abstract T[] getValuesInterpolated(float currentTime);
-		public abstract void setInterpolated(boolean interpolated, N nextValue);
-		public abstract N copy();
+		public float[] getValuesInterpolated(float currentTime)
+		{
+			if (!interpolated)
+			{
+				return values;
+			}
+
+			timeStep = currentTime-time;
+			arrayLen = values.length;
+			for (i = 0; i < arrayLen; i++)
+			{
+				float value = values[i]+(valueStep[i]*timeStep);
+				interpolatedValues[i] = value;
+			}
+
+			return interpolatedValues;
+		}
+
+		public void setInterpolated(boolean interpolated, TimelineValue nextValue)
+		{
+			this.interpolated = interpolated;
+
+			if (interpolated)
+			{
+				interpolatedValues = new float[values.length];
+				valueStep = new float[values.length];
+
+				arrayLen = nextValue.values.length;
+				for (i = 0; i < arrayLen; i++)
+				{
+					float value = (nextValue.values[i] - values[i]) / (nextValue.time - time);
+					valueStep[i] = value;
+				}
+			}
+		}
+
+		public TimelineValue copy()
+		{
+			TimelineValue copy = new TimelineValue(time, values);
+			copy.setValues(interpolated, valueStep, interpolatedValues);
+			return copy;
+		}
 
 		public void write (Json json) {
 			json.writeValue("time", time);
@@ -791,144 +846,7 @@ public class ParticleEmitter implements Serializable {
 			json.writeValue("interpolated", interpolated);
 			if (interpolated) json.writeValue("value step", valueStep);
 		}
-	}
-
-	public static class TimelineInteger extends TimelineValue<Integer, TimelineInteger> 
-	{
-
-		private static final long serialVersionUID = -6679143723684340688L;
-
-		public TimelineInteger(){}
-
-		public TimelineInteger(float time, Integer... values)
-		{
-			super(time, values);
-		}
-
-		public Integer[] getValuesInterpolated(float currentTime)
-		{
-			if (!interpolated)
-			{
-				return values;
-			}
-
-			timeStep = currentTime-time;
-			for (int i = 0; i < values.length; i++)
-			{
-				Float value = values[i].floatValue()+(valueStep[i].floatValue()*timeStep);
-				interpolatedValues[i] = value.intValue();
-			}
-
-			return interpolatedValues;
-		}
-
-		public void setInterpolated(boolean interpolated, TimelineInteger nextValue)
-		{
-			this.interpolated = interpolated;
-
-			if (interpolated)
-			{
-				interpolatedValues = new Integer[values.length];
-				valueStep = new Float[values.length];
-
-				for (int i = 0; i < nextValue.values.length; i++)
-				{
-					Float value = (nextValue.values[i].floatValue() - values[i].floatValue()) / (nextValue.time - time);
-					valueStep[i] = value;
-				}
-			}
-		}
-
-		public TimelineInteger copy()
-		{
-			TimelineInteger copy = new TimelineInteger(time, values);
-			copy.setValues(interpolated, valueStep, interpolatedValues);
-			return copy;
-		}
-
-		public void read (Json json, OrderedMap<String, Object> jsonMap) {
-			Iterator<Entry<String, Object>> itr = jsonMap.entries().iterator();
-			while (itr.hasNext())
-			{
-				Entry<String, Object> entry = itr.next();
-
-				if (entry.key.equals("time"))
-				{
-					time = (Float) entry.value;
-				}
-				else if (entry.key.equals("values"))
-				{
-					values = json.readValue(Integer[].class, entry.value);
-				}
-				else if (entry.key.equals("interpolated"))
-				{
-					interpolated = (Boolean) entry.value;
-					if (interpolated)
-					{
-						interpolatedValues = new Integer[values.length];
-					}
-				}
-				else if (entry.key.equals("value step"))
-				{
-					valueStep = json.readValue(Float[].class, entry.value);
-				}
-			}
-		}
-	}
-
-	public static class TimelineFloat extends TimelineValue<Float, TimelineFloat>
-	{
-
-		private static final long serialVersionUID = -5219903547907274562L;
-
-		public TimelineFloat(){}
-
-		public TimelineFloat(float time, Float... values)
-		{
-			super(time, values);
-		}
-
-		public Float[] getValuesInterpolated(float currentTime)
-		{
-			if (!interpolated)
-			{
-				return values;
-			}
-
-			timeStep = currentTime-time;
-			for (int i = 0; i < values.length; i++)
-			{
-				Float value = values[i].floatValue()+(valueStep[i].floatValue()*timeStep);
-				interpolatedValues[i] = value.floatValue();
-			}
-
-			return interpolatedValues;
-		}
-
-		public void setInterpolated(boolean interpolated, TimelineFloat nextValue)
-		{
-			this.interpolated = interpolated;
-
-			if (interpolated)
-			{
-				interpolatedValues = new Float[values.length];
-				valueStep = new Float[values.length];
-
-				for (int i = 0; i < nextValue.values.length; i++)
-				{
-					Float value = (nextValue.values[i].floatValue() - values[i].floatValue()) / (nextValue.time - time);
-					valueStep[i] = value;
-				}
-			}
-		}
-
-		public TimelineFloat copy()
-		{
-			TimelineFloat copy = new TimelineFloat(time, values);
-			copy.setValues(interpolated, valueStep, interpolatedValues);
-			return copy;
-		}
-
+		
 		public void read (Json json, OrderedMap<String, Object> jsonMap) {
 			Iterator<Entry<String, Object>> itr = jsonMap.entries().iterator();
 			while (itr.hasNext())
@@ -940,19 +858,19 @@ public class ParticleEmitter implements Serializable {
 				}
 				else if (entry.key.equals("values"))
 				{
-					values = json.readValue(Float[].class, entry.value);
+					values = (float[]) entry.value;
 				}
 				else if (entry.key.equals("interpolated"))
 				{
 					interpolated = (Boolean) entry.value;
 					if (interpolated)
 					{
-						interpolatedValues = new Float[values.length];
+						interpolatedValues = new float[values.length];
 					}
 				}
 				else if (entry.key.equals("value step"))
 				{
-					valueStep = json.readValue(Float[].class, entry.value);
+					valueStep = (float[]) entry.value;
 				}
 			}
 		}
@@ -1012,10 +930,10 @@ public class ParticleEmitter implements Serializable {
 			public ParticleEmitter read (Json json, Object jsonData, Class type) {
 
 				// ----- Particle Parameters ----- //
-				TimelineInteger[] sprite = null;
-				TimelineFloat[] size = null;
-				TimelineFloat[] colour = null;
-				TimelineFloat[] velocity = null;
+				TimelineValue[] sprite = null;
+				TimelineValue[] size = null;
+				TimelineValue[] colour = null;
+				TimelineValue[] velocity = null;
 				// ----- End Particle Parameters ----- //
 
 				// ----- Emitter parameters ----- //
@@ -1049,19 +967,19 @@ public class ParticleEmitter implements Serializable {
 
 					if (entry.key.equals("sprite"))
 					{
-						sprite = json.readValue(TimelineInteger[].class, entry.value);
+						sprite = json.readValue(TimelineValue[].class, entry.value);
 					}
 					else if (entry.key.equals("size"))
 					{
-						size = json.readValue(TimelineFloat[].class, entry.value);
+						size = json.readValue(TimelineValue[].class, entry.value);
 					}
 					else if (entry.key.equals("colour"))
 					{
-						colour = json.readValue(TimelineFloat[].class, entry.value);
+						colour = json.readValue(TimelineValue[].class, entry.value);
 					}
 					else if (entry.key.equals("velocity"))
 					{
-						velocity = json.readValue(TimelineFloat[].class, entry.value);
+						velocity = json.readValue(TimelineValue[].class, entry.value);
 					}
 
 					else if (entry.key.equals("name"))

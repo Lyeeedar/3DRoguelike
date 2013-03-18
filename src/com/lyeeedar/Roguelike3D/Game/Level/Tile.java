@@ -14,10 +14,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.math.Vector3;
 import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Bag;
-import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameObject;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
 import com.lyeeedar.Roguelike3D.Game.Actor.Player;
@@ -29,6 +26,7 @@ import com.lyeeedar.Roguelike3D.Game.LevelObjects.Stair;
 import com.lyeeedar.Roguelike3D.Game.LevelObjects.Static;
 import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
+import com.lyeeedar.Utils.Bag;
 
 public class Tile implements Serializable {
 	private static final long serialVersionUID = -2774877067050458423L;
@@ -54,6 +52,8 @@ public class Tile implements Serializable {
 	
 	public Bag<GameActor> actors = new Bag<GameActor>();
 	public Bag<LevelObject> levelObjects = new Bag<LevelObject>();
+	
+	private transient int arrayLen;
 	
 	public Tile (char character, float floor, float roof, float height)
 	{
@@ -128,7 +128,7 @@ public class Tile implements Serializable {
 				System.out.println("Player placed at Player Placer");
 				if (prevLevel.equals(currentLevel))
 				{
-					player.positionAbsolutely(lo.getPosition().x, lo.getPosition().y+player.getRadius()+1, lo.getPosition().z);
+					player.positionAbsolutely(lo.position.x, lo.position.y+player.radius+1, lo.position.z);
 					return true;
 				}
 			}
@@ -139,7 +139,7 @@ public class Tile implements Serializable {
 				
 				if (s.level_UID.equals(prevLevel))
 				{
-					player.positionAbsolutely(s.getPosition().x, s.getPosition().y+s.getPosition().y+s.getRadius()+player.getRadius()+1, 0);
+					player.positionAbsolutely(s.position.x, s.position.y+s.position.y+s.radius+player.radius+1, 0);
 					return true;
 				}
 			}
@@ -218,7 +218,8 @@ public class Tile implements Serializable {
 	
 	public void removeLevelObject(String UID)
 	{
-		for (int i = 0; i < levelObjects.size(); i++)
+		arrayLen = levelObjects.size;
+		for (int i = 0; i < arrayLen; i++)
 		{
 			if (UID.equals(levelObjects.get(i).UID)) {
 				levelObjects.remove(i);
@@ -229,7 +230,8 @@ public class Tile implements Serializable {
 	
 	public void removeGameActor(String UID)
 	{
-		for (int i = 0; i < actors.size(); i++)
+		arrayLen = actors.size;
+		for (int i = 0; i < arrayLen; i++)
 		{
 			if (UID.equals(actors.get(i).UID)) {
 				actors.remove(i);

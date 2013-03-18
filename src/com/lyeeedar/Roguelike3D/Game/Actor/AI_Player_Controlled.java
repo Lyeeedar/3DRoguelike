@@ -39,7 +39,7 @@ public class AI_Player_Controlled extends AI_Package {
 		move = delta * 10f;
 		speed = GameData.calculateSpeed(actor.WEIGHT, actor.STRENGTH);
 		
-		if (actor.isGrounded())
+		if (actor.grounded)
 		{
 			if (GameData.controls.left()) actor.left_right(speed);
 			if (GameData.controls.right()) actor.left_right(-speed);
@@ -63,7 +63,7 @@ public class AI_Player_Controlled extends AI_Package {
 		{
 			headBob = 0;
 		}
-		actor.setOffsetPos(0, ((float) Math.sin(headBob)/5) + 2, 0);
+		actor.offsetPos.set(0, ((float) Math.sin(headBob)/5) + 2, 0);
 		
 		if (actor.L_HAND != null) {
 			if (GameData.controls.leftClick())
@@ -100,7 +100,7 @@ public class AI_Player_Controlled extends AI_Package {
 		actor.Xrotate(xR);
 		
 		actor.applyMovement(delta, GameData.gravity*10f*(float)actor.WEIGHT);
-		actor.accelerateY(-GameData.gravity*move*(float)actor.WEIGHT);
+		actor.velocity.add(0, -GameData.gravity*move*(float)actor.WEIGHT, 0);
 
 	}
 

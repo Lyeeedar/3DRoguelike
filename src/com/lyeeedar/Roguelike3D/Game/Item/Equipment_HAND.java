@@ -14,30 +14,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.Ray;
 import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
-import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
 import com.lyeeedar.Roguelike3D.Game.Actor.GameActor;
-import com.lyeeedar.Roguelike3D.Game.Item.MeleeWeapon.Melee_Weapon_Style;
 import com.lyeeedar.Roguelike3D.Game.Level.Level;
-import com.lyeeedar.Roguelike3D.Game.Level.Tile;
-import com.lyeeedar.Roguelike3D.Game.LevelObjects.LevelObject;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.Material;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.MaterialAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Materials.TextureAttribute;
-import com.lyeeedar.Roguelike3D.Graphics.Models.Shapes;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillModel;
-import com.lyeeedar.Roguelike3D.Graphics.Models.StillSubMesh;
-import com.lyeeedar.Roguelike3D.Graphics.Models.SubMesh;
 import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModel;
-import com.lyeeedar.Roguelike3D.Graphics.Models.RiggedModels.RiggedModelNode;
-import com.lyeeedar.Roguelike3D.Graphics.Renderers.ForwardRenderer;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 public abstract class Equipment_HAND extends Equippable{
@@ -166,7 +149,7 @@ public abstract class Equipment_HAND extends Equippable{
 				actor.R_HAND.unequip();
 				actor.R_HAND = null;
 			}
-			model.rootNode.position.setToTranslation(-actor.getRadius(), 0, -2);
+			model.rootNode.position.setToTranslation(-actor.radius, 0, -2);
 		}
 		else if (side == 2)
 		{
@@ -175,7 +158,7 @@ public abstract class Equipment_HAND extends Equippable{
 				actor.L_HAND.unequip();
 				actor.L_HAND = null;
 			}
-			model.rootNode.position.setToTranslation(actor.getRadius(), 0, -2);
+			model.rootNode.position.setToTranslation(actor.radius, 0, -2);
 		}
 		else
 		{

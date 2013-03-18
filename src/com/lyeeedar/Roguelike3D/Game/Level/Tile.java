@@ -67,14 +67,12 @@ public class Tile implements Serializable {
 	{
 		for (LevelObject lo : levelObjects)
 		{
-			lo.updateParticleEffect(delta, cam);
-			lo.update(delta);
+			lo.update(delta, cam);
 		}
 		
 		for (GameActor ga : actors)
 		{
-			ga.updateParticleEffect(delta, cam);
-			ga.update(delta);
+			ga.update(delta, cam);
 		}
 	}
 	
@@ -82,17 +80,12 @@ public class Tile implements Serializable {
 	{
 		for (LevelObject lo : levelObjects)
 		{	
-			lo.getVisibleEmitters(visibleEmitters, cam);
-			if (!lo.isVisible()) continue;
-			lo.render(renderer);
+			lo.render(renderer, visibleEmitters, cam);
 		}
 		
 		for (GameActor ga : actors)
 		{
-			ga.getVisibleEmitters(visibleEmitters, cam);
-			ga.draw(renderer);
-			if (!ga.isVisible()) continue;
-			ga.render(renderer);
+			ga.render(renderer, visibleEmitters, cam);
 		}
 	}
 	

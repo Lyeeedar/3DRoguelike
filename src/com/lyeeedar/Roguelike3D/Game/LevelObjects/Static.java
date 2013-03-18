@@ -10,7 +10,11 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.LevelObjects;
 
+import java.util.ArrayList;
+
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Game.Level.AbstractObject;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
@@ -42,12 +46,12 @@ public class Static extends LevelObject {
 	}
 
 	@Override
-	public void update(float delta) {
+	public void update(float delta, Camera cam) {
+		if (particleEffect != null)
+		{
+			particleEffect.update(delta, cam);
+		}
 		positionYAbsolutely(getRadius());
-	}
-
-	@Override
-	public void draw(Renderer renderer) {
 	}
 
 	@Override
@@ -62,6 +66,13 @@ public class Static extends LevelObject {
 
 	@Override
 	protected void created() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void rendered(Renderer renderer,
+			ArrayList<ParticleEmitter> emitters, Camera cam) {
 		// TODO Auto-generated method stub
 		
 	}

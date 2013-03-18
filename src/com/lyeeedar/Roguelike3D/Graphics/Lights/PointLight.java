@@ -74,12 +74,7 @@ public class PointLight implements Comparable, Serializable {
 	
 	public void positionAbsolutely(float x, float y, float z)
 	{
-		positionAbsolutely(tmpVec.set(x, y, z));
-	}
-	
-	public void positionAbsolutely(Vector3 pos)
-	{
-		position.set(pos);
+		position.set(x, y, z);
 	}
 
 	@Override

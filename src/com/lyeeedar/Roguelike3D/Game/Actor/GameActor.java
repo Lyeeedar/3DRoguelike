@@ -26,6 +26,7 @@ import com.lyeeedar.Roguelike3D.Game.Item.Component;
 import com.lyeeedar.Roguelike3D.Game.Item.Equipment_HAND;
 import com.lyeeedar.Roguelike3D.Game.Item.Item;
 import com.lyeeedar.Roguelike3D.Game.Level.Tile;
+import com.lyeeedar.Roguelike3D.Graphics.Lights.LightManager;
 import com.lyeeedar.Roguelike3D.Graphics.Renderers.Renderer;
 
 
@@ -67,16 +68,11 @@ public abstract class GameActor extends GameObject{
 	}
 	
 	@Override
-	protected void getEmitters(ArrayList<ParticleEmitter> emitters, Camera cam)
+	public void getLight(LightManager lightManager)
 	{
-		if (L_HAND != null)
-		{
-			L_HAND.model.getVisibleEmitters(emitters, cam);
-		}
-		if (R_HAND != null)
-		{
-			R_HAND.model.getVisibleEmitters(emitters, cam);
-		}
+		if (particleEffect != null) particleEffect.getLight(lightManager);
+		if (L_HAND != null) L_HAND.model.getLight(lightManager);
+		if (R_HAND != null) R_HAND.model.getLight(lightManager);
 	}
 	
 	public void equipL_HAND(Equipment_HAND equip)
@@ -142,23 +138,29 @@ public abstract class GameActor extends GameObject{
 	}
 	
 	@Override
-	public void update(float delta)
+	public void update(float delta, Camera cam)
 	{
+		if (particleEffect != null)
+		{
+			particleEffect.update(delta, cam);
+		}
+		
 		if (ai == null) return;
 		if (!alive) return;
 		ai.evaluateAI(delta);
 		
-		if (L_HAND != null) L_HAND.update(delta);
-		if (R_HAND != null) R_HAND.update(delta);
+		if (L_HAND != null) L_HAND.update(delta, cam);
+		if (R_HAND != null) R_HAND.update(delta, cam);
 		
 	}
 	
 	@Override
-	public void draw(Renderer renderer)
+	protected void rendered(Renderer renderer, ArrayList<ParticleEmitter> emitters, Camera cam)
 	{
-		if (L_HAND != null) L_HAND.draw(renderer);
-		if (R_HAND != null) R_HAND.draw(renderer);
+		if (L_HAND != null) L_HAND.render(renderer, emitters, cam);
+		if (R_HAND != null) R_HAND.render(renderer, emitters, cam);
 	}
+	
 	@Override
 	public void activate() {
 		if (!alive && !looted)

@@ -529,7 +529,7 @@ public class Shapes {
 		int normalOffset = attributes.getOffset(Usage.Normal);
 		
 		Matrix4 normal_matrix = new Matrix4();
-		normal_matrix.set(model_matrix);//.toNormalMatrix();
+		normal_matrix.set(model_matrix);
 		
 		Vector3 position = new Vector3();
 		
@@ -548,7 +548,7 @@ public class Shapes {
 
 			Color light_colour = lights.calculateLightAtPoint(position, normal, bakeStatics);
 			
-			newVerts[ (i*newVertexSize) + j ] = light_colour.r;
+			newVerts[ (i*newVertexSize) + j + 0 ] = light_colour.r;
 			newVerts[ (i*newVertexSize) + j + 1 ] = light_colour.g;
 			newVerts[ (i*newVertexSize) + j + 2 ] = light_colour.b;
 		}

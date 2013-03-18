@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.lyeeedar.Roguelike3D.Game.Item;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.Camera;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Game.GameData;
 import com.lyeeedar.Roguelike3D.Game.GameData.Damage_Type;
 import com.lyeeedar.Roguelike3D.Game.GameData.Element;
@@ -207,15 +209,15 @@ public abstract class Equipment_HAND extends Equippable{
 	}
 	
 	Matrix4 tmp = new Matrix4();
-	public void draw(Renderer renderer)
+	public void render(Renderer renderer, ArrayList<ParticleEmitter> emitters, Camera cam)
 	{
-		model.draw(renderer);
+		model.render(renderer, emitters, cam);
 	}
 	protected abstract void drawed(Camera cam);
 	
-	public void update(float delta)
+	public void update(float delta, Camera cam)
 	{
-		model.update(delta, holder);
+		model.update(delta, cam);
 		model.composeMatrixes(tmp.set(holder.getTransform()).mul(holder.getRotationMatrix()));
 		
 		useCD -= delta;

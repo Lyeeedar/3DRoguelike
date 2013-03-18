@@ -216,12 +216,13 @@ public class LevelLoadingScreen extends AbstractScreen{
 		if (percent > 100) percent = 100;
 	}
 
+	ArrayList<ParticleEmitter> emitters = new ArrayList<ParticleEmitter>();
 	@Override
 	public void drawModels(float delta) {
 		renderer.begin();
 		for (GameObject go : objects)
 		{
-			go.render(renderer);
+			go.render(renderer, emitters, cam);
 		}
 		renderer.end(lightManager);
 	}
@@ -258,7 +259,7 @@ public class LevelLoadingScreen extends AbstractScreen{
 	@Override
 	public void create() {
 		
-		lightManager = new LightManager(0, LightQuality.FORWARD_VERTEX);
+		lightManager = new LightManager(4, LightQuality.FORWARD_VERTEX);
 		
 		renderer = new ForwardRenderer();
 		renderer.createShader(lightManager);

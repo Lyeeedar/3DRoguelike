@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.utils.Pools;
 import com.lyeeedar.Graphics.ParticleEffects.ParticleEffect;
 import com.lyeeedar.Graphics.ParticleEffects.ParticleEmitter;
 import com.lyeeedar.Roguelike3D.Game.GameData;
@@ -86,13 +87,6 @@ public class RiggedModelNode implements Serializable
 		this.particleEffect = effect;
 	}
 	
-	public void getVisibleEmitters(ArrayList<ParticleEmitter> emitters, Camera cam)
-	{
-		if (particleEffect != null) particleEffect.getVisibleEmitters(emitters, cam);
-		
-		for (RiggedModelNode rmn : childNodes) rmn.getVisibleEmitters(emitters, cam);
-	}
-	
 	public void setBehaviour(RiggedModelBehaviour behaviour)
 	{
 		this.behaviour = behaviour;
@@ -122,11 +116,19 @@ public class RiggedModelNode implements Serializable
 			rgn.composeMatrixes(composedMatrix);
 		}
 		
-		if (particleEffect != null) particleEffect.setPosition(Vector3.tmp3.set(0, 0, 0).mul(composedMatrix));
+		if (particleEffect != null) {
+			Vector3 tmp = Pools.obtain(Vector3.class);
+			particleEffect.setPosition(tmp.set(0, 0, 0).mul(composedMatrix));
+			Pools.free(tmp);
+		}
 	}
 	
-	public void render(RiggedModel model, Renderer renderer)
+	public void render(RiggedModel model, Renderer renderer, ArrayList<ParticleEmitter> emitters, Camera cam)
 	{
+		if (particleEffect != null) {
+			particleEffect.getVisibleEmitters(emitters, cam);
+		}
+		
 		for (int i = 0; i < submeshes.length; i++)
 		{
 			renderer.draw(submeshes[i], meshMatrixes[i], model.materials[submeshMaterials[i]], renderRadius);
@@ -134,7 +136,7 @@ public class RiggedModelNode implements Serializable
 		
 		for (RiggedModelNode rgn : childNodes)
 		{
-			rgn.render(model, renderer);
+			rgn.render(model, renderer, emitters, cam);
 		}
 	}
 	
@@ -166,13 +168,17 @@ public class RiggedModelNode implements Serializable
 		return null;
 	}
 	
-	public void update(float delta)
+	public void update(float delta, Camera cam)
 	{
+		if (particleEffect != null)
+		{
+			particleEffect.update(delta, cam);
+		}
 		if (behaviour != null) behaviour.update(delta);
 		
 		for (RiggedModelNode rmn : childNodes)
 		{
-			rmn.update(delta);
+			rmn.update(delta, cam);
 		}
 	}
 	
@@ -271,8 +277,23 @@ public class RiggedModelNode implements Serializable
 			rmn.create();
 		}
 		
-		if (particleEffect != null) particleEffect.create();
+		if (particleEffect != null) {
+			particleEffect.create();
+		}
 		
+	}
+	
+	public void getLight(LightManager lightManager)
+	{
+		if (particleEffect != null)
+		{
+			particleEffect.getLight(lightManager);
+		}
+		
+		for (RiggedModelNode rmn : childNodes)
+		{
+			rmn.getLight(lightManager);
+		}
 	}
 	
 	public void fixReferences()

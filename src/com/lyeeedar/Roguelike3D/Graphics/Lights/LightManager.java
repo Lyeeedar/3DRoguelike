@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Pools;
 
 public class LightManager implements Serializable {
 	
@@ -26,7 +27,7 @@ public class LightManager implements Serializable {
 	 */
 	private static final long serialVersionUID = 1441486882161209270L;
 
-	public static final int maxLights = 16;
+	public static final int maxLights = 10;
 
 	public enum LightQuality {
 		FORWARD_VERTEX, DEFERRED
@@ -176,7 +177,6 @@ public class LightManager implements Serializable {
 			}
 			
 			Collections.sort(dynamicPointLights);
-			//dynamicPointLights.sort();
 		}
 
 		// fill the light arrays
@@ -199,7 +199,6 @@ public class LightManager implements Serializable {
 		}
 	}
 	
-	/** Apply lights GLES2.0, call calculateLights before applying */
 	public void applyDynamicLights (ShaderProgram shader) {
 		if (maxLightsPerModel == 0) return;
 		shader.setUniform3fv("u_light_positions", positions, 0, maxLightsPerModel * 3);
@@ -215,16 +214,17 @@ public class LightManager implements Serializable {
 	
 	public Color calculateLightAtPoint(Vector3 position, Vector3 normal, boolean bakeStatics)
 	{
-		Color h_ambient = ambientLight.mul(0.5f);
-		Color light_agg_col = h_ambient.add(calculateLight(ambientDir, h_ambient.tmp(), 0, 1, normal));
+		Color h_ambient = ambientLight.cpy().mul(0.5f);
+		Color light_agg_col = h_ambient.add(calculateLight(ambientDir, h_ambient.cpy(), 0, 1, normal));
 		
 		if (!bakeStatics) return light_agg_col;
 		
 		for (PointLight pl : staticPointLights)
 		{
-			Vector3 l_vector = pl.position.tmp().sub(position);
-			
+			Vector3 l_vector = pl.position.cpy().sub(position);
+
 			light_agg_col.add(calculateLight(l_vector, pl.getColour().cpy(), pl.attenuation, pl.power, normal));
+
 		}
 		return light_agg_col;
 	}
@@ -232,19 +232,14 @@ public class LightManager implements Serializable {
 	private Color calculateLight(Vector3 l_vector, Color l_colour, float l_attenuation, float l_power, Vector3 n_dir)
 	{
 		float distance = l_vector.len();
-	    Vector3 l_dir = l_vector.tmp2().div(distance);
-	    //distance = distance * distance;
-	 
-	    //Intensity of the diffuse light. Saturate to keep within the 0-1 range.
+	    Vector3 l_dir = l_vector.cpy().div(distance);
+
 	    float NdotL = n_dir.dot(l_dir);
-	    float intensity = MathUtils.clamp( NdotL, 0.0f, 1.0f ); // Math.max(0.0f, n_dir.dot(l_dir)
+	    float intensity = MathUtils.clamp( NdotL, 0.0f, 1.0f );
 	    
 	    float attenuation = 1.0f;
 	    if (l_attenuation != 0) attenuation /= (l_attenuation*distance + l_attenuation/10*distance*distance);
 	    
-	    //System.out.println(intensity + "    " + attenuation);
-	 
-	    // Calculate the diffuse light factoring in light color, power and the attenuation
 	   	return l_colour.mul(intensity).mul(l_power).mul(attenuation);
 	}
 

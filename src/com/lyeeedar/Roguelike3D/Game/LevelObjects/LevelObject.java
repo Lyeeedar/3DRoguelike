@@ -49,12 +49,6 @@ public abstract class LevelObject extends GameObject{
 	}
 	
 	@Override
-	protected void getEmitters(ArrayList<ParticleEmitter> emitters, Camera cam)
-	{
-		
-	}
-	
-	@Override
 	public void changeTile(Tile src, Tile dst)
 	{
 		src.removeLevelObject(UID);

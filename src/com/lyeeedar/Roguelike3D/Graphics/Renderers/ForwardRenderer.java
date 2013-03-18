@@ -35,7 +35,7 @@ public class ForwardRenderer extends Renderer {
 	@Override
 	public void createShader(LightManager lights)
 	{
-		shader = ShaderFactory.createShader("forward_vertex", "LIGHTS_NUM "+lights.maxLightsPerModel, ColorAttribute.colour+"Flag", TextureAttribute.diffuseTexture+"Flag");
+		shader = ShaderFactory.createShader("forward_frag", "LIGHTS_NUM "+lights.maxLightsPerModel, ColorAttribute.colour+"Flag", TextureAttribute.diffuseTexture+"Flag");
 	}
 
 	private TextureAttribute lastTexture;
@@ -46,7 +46,6 @@ public class ForwardRenderer extends Renderer {
 		
 		if (shader == null) return;
 		
-		if (lightManager == null) {}
 		else if (GameData.player != null)
 			lightManager.calculateDynamicLights(GameData.player.getPosition().x, GameData.player.getPosition().y, GameData.player.getPosition().z);
 		else
@@ -62,7 +61,7 @@ public class ForwardRenderer extends Renderer {
 			final Drawable drawable = drawableManager.drawables.get(i);
 
 			final Matrix4 modelMatrix = drawable.model_matrix;
-			normalMatrix.set(modelMatrix);//.toNormalMatrix();
+			normalMatrix.set(modelMatrix);
 
 			final Mesh mesh = drawable.mesh;
 			final Material material = drawable.material;

@@ -27,12 +27,7 @@ public class RiggedModel implements Serializable {
 		this.rootNode = node;
 		this.materials = materials;
 	}
-	
-	public void getVisibleEmitters(ArrayList<ParticleEmitter> emitters, Camera cam)
-	{
-		rootNode.getVisibleEmitters(emitters, cam);
-	}
-	
+
 	public void equip(GameActor holder, int side)
 	{
 		rootNode.equip(holder, side);
@@ -52,9 +47,9 @@ public class RiggedModel implements Serializable {
 		held = false;
 	}
 	
-	public void update(float delta, GameActor holder)
+	public void update(float delta, Camera cam)
 	{
-		rootNode.update(delta);
+		rootNode.update(delta, cam);
 	}
 
 	public void composeMatrixes(Matrix4 composed)
@@ -62,9 +57,9 @@ public class RiggedModel implements Serializable {
 		rootNode.composeMatrixes(composed);
 	}
 	
-	public void draw(Renderer renderer)
+	public void render(Renderer renderer, ArrayList<ParticleEmitter> emitters, Camera cam)
 	{
-		rootNode.render(this, renderer);
+		rootNode.render(this, renderer, emitters, cam);
 	}
 	
 	public void create()
@@ -75,6 +70,11 @@ public class RiggedModel implements Serializable {
 		}
 		
 		rootNode.create();
+	}
+	
+	public void getLight(LightManager lightManager)
+	{
+		rootNode.getLight(lightManager);
 	}
 	
 	public void fixReferences()
@@ -175,8 +175,7 @@ public class RiggedModel implements Serializable {
 		
 		RiggedModelNode node1 = new RiggedModelNode("Tip", meshes1, new int[]{0}, new Matrix4().setToTranslation(0, -0.5f, -0.5f), new Matrix4(), 100, true);
 		
-		
-		ParticleEffect effect = new ParticleEffect(5);
+		ParticleEffect effect = new ParticleEffect(10);
 		ParticleEmitter flame = new ParticleEmitter(2, 0.5f, 0.04f, 0.1f, 0.1f, 0.1f, 0, GL20.GL_SRC_ALPHA, GL20.GL_ONE, "f", "name");
 		flame.createBasicEmitter(2, 1, Color.YELLOW, Color.RED, 0, 1.7f, 0);
 		flame.addLight(false, 0.04f, 0.3f, Color.ORANGE, true, 0, 0, 0);

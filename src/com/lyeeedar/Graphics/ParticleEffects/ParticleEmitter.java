@@ -367,7 +367,7 @@ public class ParticleEmitter implements Serializable {
 			light = null;
 		}
 		
-		light = new PointLight(new Vector3(lightx+(ex/2f), lighty+ey, lightz+(ez/2)), lightColour.cpy(), lightAttenuation, lightPower);
+		light = new PointLight(new Vector3(x+lightx+(ex/2f), y+lighty+ey, z+lightz+(ez/2)), lightColour.cpy(), lightAttenuation, lightPower);
 		lightUID = light.UID;
 
 		if (isLightStatic) lightManager.addStaticLight(light);
@@ -516,6 +516,7 @@ public class ParticleEmitter implements Serializable {
 	{
 		if (light != null)
 		{
+			light.positionAbsolutely(x+lightx+(ex/2f), y+lighty+ey, z+lightz+(ez/2));
 			if (lightFlicker) light.attenuation = (float) (lightAttenuation *
 					(1-((1-((float)inactive.size() / (float)active.size())))/2));
 		}

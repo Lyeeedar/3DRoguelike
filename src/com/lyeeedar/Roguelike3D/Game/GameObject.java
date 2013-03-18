@@ -69,35 +69,22 @@ public abstract class GameObject implements Serializable {
 		position.set(x, y, z);
 	}
 	
-	public void render(Renderer renderer)
-	{
-		vo.render(renderer);
-	}
-	
-	public void updateParticleEffect(float delta, Camera cam)
-	{
-		if (particleEffect != null)
-		{
-			particleEffect.update(delta, cam);
-		}
-	}
-	
-	public void getVisibleEmitters(ArrayList<ParticleEmitter> emitters, Camera cam)
+	public void render(Renderer renderer, ArrayList<ParticleEmitter> emitters, Camera cam)
 	{
 		if (particleEffect != null)
 		{
 			particleEffect.getVisibleEmitters(emitters, cam);
 		}
-		getEmitters(emitters, cam);
+		if (visible) vo.render(renderer);
+		
+		rendered(renderer, emitters, cam);
 	}
 	
-	protected abstract void getEmitters(ArrayList<ParticleEmitter> emitters, Camera cam);
-	
+	protected abstract void rendered(Renderer renderer, ArrayList<ParticleEmitter> emitters, Camera cam);
+
 	public void getLight(LightManager lightManager)
 	{
-		if (particleEffect == null) return;
-		
-		particleEffect.getLight(lightManager);
+		if (particleEffect != null) particleEffect.getLight(lightManager);
 	}
 	
 	public ParticleEffect getParticleEffect()
@@ -125,7 +112,10 @@ public abstract class GameObject implements Serializable {
 		offsetRot = new Vector3();
 		
 		vo.create();
-		if (particleEffect != null) particleEffect.create();
+		if (particleEffect != null) {
+			particleEffect.setPosition(position);
+			particleEffect.create();
+		}
 
 		created();
 	}
@@ -384,8 +374,7 @@ public abstract class GameObject implements Serializable {
 	}
 	
 	protected abstract void disposed();
-	public abstract void update(float delta);
-	public abstract void draw(Renderer renderer);
+	public abstract void update(float delta, Camera cam);
 	public abstract void activate();
 	public abstract String getActivatePrompt();
 
